@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>업무 정보 통합 웹페이지 프로젝트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+  <script>if (typeof Chart !== 'undefined') Chart.defaults.animation = false;</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { interpolate-size: allow-keywords; }
+
+    html.theme-dark {
+      --bg: #0A0A0A; --surface: #141414; --surface-hover: #1C1C1C;
+      --border: rgba(255,255,255,0.07);
+      --text: #EDEDED; --text-secondary: #888;
+      --accent: #4f8ef7; --accent-secondary: #8b5cf6;
+      --positive: #10b981; --negative: #f43f5e; --warning: #f59e0b;
+    }
+    html.theme-light {
+      --bg: #F4F7FB; --surface: #FFFFFF; --surface-hover: #F0F4FA;
+      --border: rgba(0,0,0,0.07);
+      --text: #0f172a; --text-secondary: #64748b;
+      --accent: #2563eb; --accent-secondary: #7c3aed;
+      --positive: #059669; --negative: #e11d48; --warning: #d97706;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6; -webkit-font-smoothing: antialiased;
+      transition: background 0.3s, color 0.3s;
+      scrollbar-gutter: stable;
+    }
+    h1,h2,h3,h4 { color: var(--text); letter-spacing: -0.02em; line-height: 1.15; text-wrap: balance; }
+    h1 { font-size: 3rem; font-weight: 800; }
+    h2 { font-size: 2rem; font-weight: 700; }
+    h3 { font-size: 1.5rem; font-weight: 600; }
+    h4 { font-size: 1.1rem; font-weight: 600; }
+    p { color: var(--text); }
+    .text-secondary { color: var(--text-secondary); }
+
+    /* CARD */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      transition: box-shadow 0.2s ease;
+    }
+    .card:hover { box-shadow: 0 0 0 1px var(--border), 0 8px 24px rgba(0,0,0,0.09); }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+    .animate { animation: fadeInUp 0.6s ease-out both; }
+    .animate.delay-1 { animation-delay: 0.08s; }
+    .animate.delay-2 { animation-delay: 0.16s; }
+    .animate.delay-3 { animation-delay: 0.24s; }
+    .animate.delay-4 { animation-delay: 0.32s; }
+    .animate.delay-5 { animation-delay: 0.40s; }
+    .animate.delay-6 { animation-delay: 0.48s; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* PRINT */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .viz-menu, .reveal { display: revert; opacity: 1 !important; transform: none !important; }
+      .card { break-inside: avoid; border: 1px solid #ddd; box-shadow: none; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+    @page { margin: 1in; }
+
+    /* MENU */
+    .viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+    .viz-menu-toggle {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(12px); transition: all 0.2s;
+    }
+    .viz-menu-toggle:hover { background: var(--surface-hover); }
+    .viz-menu-dropdown {
+      position: absolute; top: 52px; right: 0; min-width: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 8px;
+      opacity: 0; visibility: hidden; transform: translateY(-8px);
+      transition: all 0.2s; backdrop-filter: blur(16px);
+    }
+    .viz-menu-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .viz-menu-dropdown button {
+      width: 100%; padding: 10px 14px; border: none; border-radius: 8px;
+      background: transparent; color: var(--text); font-size: 14px;
+      font-family: inherit; cursor: pointer; text-align: left;
+      display: flex; align-items: center; gap: 10px; transition: background 0.15s;
+    }
+    .viz-menu-dropdown button:hover { background: var(--surface-hover); }
+
+    /* SKIP LINK */
+    .skip-to-content {
+      position: absolute; top: -40px; left: 6px; background: var(--accent);
+      color: white; padding: 8px 12px; text-decoration: none;
+      border-radius: 4px; opacity: 0; pointer-events: none;
+      transition: all 0.2s; z-index: 10000;
+    }
+    .skip-to-content:focus { top: 6px; opacity: 1; pointer-events: auto; }
+
+    /* LAYOUT */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+
+    /* HERO SECTION */
+    .hero {
+      padding: 80px 28px 60px;
+      background: linear-gradient(135deg, #e8f0fe 0%, #f0e8ff 50%, #e8f5f0 100%);
+      position: relative; overflow: hidden;
+    }
+    html.theme-dark .hero {
+      background: linear-gradient(135deg, #0f1d3a 0%, #1a0f38 50%, #0f2a1e 100%);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: white;
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 13px; font-weight: 600; margin-bottom: 20px;
+      letter-spacing: 0.02em;
+    }
+    .hero-badge .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: white;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .hero h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); margin-bottom: 16px; color: var(--text); }
+    .hero .subtitle {
+      font-size: 1.15rem; color: var(--text-secondary); max-width: 600px;
+      line-height: 1.7; margin-bottom: 40px;
+    }
+    .hero-stats {
+      display: flex; gap: 32px; flex-wrap: wrap;
+    }
+    .hero-stat {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .hero-stat .value {
+      font-size: 2.2rem; font-weight: 800; color: var(--accent);
+      letter-spacing: -0.03em; line-height: 1;
+    }
+    .hero-stat .label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      transition: box-shadow 0.2s;
+    }
+    .kpi-card:hover { box-shadow: 0 0 0 1px var(--border), 0 8px 24px rgba(0,0,0,0.08); }
+    .kpi-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .kpi-value {
+      font-size: 2rem; font-weight: 800; color: var(--text);
+      letter-spacing: -0.03em; margin-bottom: 4px;
+    }
+    .kpi-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .kpi-delta { font-size: 12px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+    /* SECTIONS */
+    .section { padding: 60px 28px; }
+    .section-header { margin-bottom: 36px; }
+    .section-tag {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 10px; display: block;
+    }
+
+    /* CATEGORY PROGRESS */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .category-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      transition: box-shadow 0.2s;
+    }
+    .category-card:hover { box-shadow: 0 0 0 1px var(--border), 0 8px 24px rgba(0,0,0,0.07); }
+    .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .category-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .category-pct { font-size: 13px; font-weight: 700; color: var(--accent); }
+    .progress-bar-bg {
+      height: 8px; background: var(--border); border-radius: 100px;
+      overflow: hidden; margin-bottom: 14px;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 100px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .category-items { display: flex; flex-direction: column; gap: 6px; }
+    .item-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; color: var(--text-secondary); padding: 4px 0;
+    }
+    .item-status {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 500;
+    }
+    .status-done { color: var(--positive); }
+    .status-wip { color: var(--warning); }
+    .status-todo { color: var(--text-secondary); }
+
+    /* STATUS DOT */
+    .dot-done { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); display: inline-block; }
+    .dot-wip { width: 6px; height: 6px; border-radius: 50%; background: var(--warning); display: inline-block; }
+    .dot-todo { width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); display: inline-block; opacity: 0.5; }
+
+    /* TEAM */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .region-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      transition: box-shadow 0.2s;
+    }
+    .region-card:hover { box-shadow: 0 0 0 1px var(--border), 0 8px 24px rgba(0,0,0,0.07); }
+    .region-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+    }
+    .region-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .region-name { font-size: 16px; font-weight: 700; }
+    .region-role { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .member-list { display: flex; flex-direction: column; gap: 8px; }
+    .member-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px;
+    }
+    .member-name { color: var(--text); font-weight: 500; }
+    .member-badge {
+      font-size: 11px; font-weight: 600; padding: 2px 10px;
+      border-radius: 100px;
+    }
+    .badge-lead { background: rgba(37,99,235,0.12); color: var(--accent); }
+    .badge-editor { background: rgba(16,185,129,0.12); color: var(--positive); }
+    .badge-reviewer { background: rgba(124,58,237,0.12); color: var(--accent-secondary); }
+
+    /* TIMELINE */
+    .timeline { position: relative; }
+    .timeline::before {
+      content: ''; position: absolute; left: 20px; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .timeline-item { display: flex; gap: 24px; margin-bottom: 28px; position: relative; }
+    .timeline-dot {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1; font-size: 15px;
+    }
+    .timeline-dot.done { background: var(--positive); color: white; }
+    .timeline-dot.wip { background: var(--accent); color: white; }
+    .timeline-dot.upcoming { background: var(--surface); border: 2px solid var(--border); color: var(--text-secondary); }
+    .timeline-content {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px;
+      flex: 1;
+    }
+    .timeline-date { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+    .timeline-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .timeline-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* CHART WRAPPER */
+    .chart-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .chart-wrapper {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+    }
+    .chart-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; }
+    .chart-container { height: 240px; position: relative; }
+
+    /* NEXT STEPS */
+    .next-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .next-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .next-number {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--accent); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800;
+    }
+    .next-title { font-size: 15px; font-weight: 600; }
+    .next-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+    /* FILTER BAR */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn {
+      padding: 7px 18px; border-radius: 100px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary);
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); color: white; border-color: var(--accent);
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 40px 28px; text-align: center;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary); font-size: 13px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.6rem; }
+      .hero { padding: 60px 20px 40px; }
+      .hero-stats { gap: 20px; }
+      .chart-section { grid-template-columns: 1fr; }
+      .section { padding: 40px 20px; }
+      .container { padding: 0 20px; }
+    }
+    @media (max-width: 375px) {
+      body { overflow-x: hidden; }
+      h1 { font-size: 1.7rem; }
+      .kpi-value { font-size: 1.6rem; }
+      .hero-stats { gap: 14px; }
+      .hero-stat .value { font-size: 1.6rem; }
+    }
+
+    /* INTERACTIVE DETAILS */
+    details { overflow: hidden; }
+    details summary { cursor: pointer; list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    ::details-content {
+      transition: block-size 0.3s ease, opacity 0.3s ease;
+      block-size: 0; opacity: 0; overflow: hidden;
+    }
+    details[open]::details-content { block-size: auto; opacity: 1; }
+
+    .summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px; font-weight: 500; user-select: none;
+    }
+    .summary-row .arrow {
+      transition: transform 0.25s; color: var(--text-secondary);
+    }
+    details[open] .summary-row .arrow { transform: rotate(180deg); }
+
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">콘텐츠로 이동</a>
+
+<!-- MENU -->
+<div class="viz-menu">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
+    </svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button onclick="cycleTheme()"><span id="themeIcon">☀️</span><span id="themeLabel">Light</span></button>
+    <button onclick="downloadImage()"><span>📥</span><span>PNG 다운로드</span></button>
+    <button onclick="window.print()"><span>🖨️</span><span>인쇄 / PDF</span></button>
+  </div>
+</div>
+
+<main id="main-content" role="main">
+
+  <!-- ===== HERO ===== -->
+  <header role="banner">
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-badge animate">
+          <span class="dot"></span>
+          프로젝트 진행 중
+        </div>
+        <h1 class="animate delay-1">업무 정보 통합<br>웹페이지 구축 프로젝트</h1>
+        <p class="subtitle animate delay-2">각 지역 팀원들이 함께 참여하여 업무 매뉴얼과 정보를 하나의 웹페이지에 카테고리별로 체계적으로 정리하고 업데이트해 나가는 프로젝트입니다.</p>
+        <div class="hero-stats animate delay-3">
+          <div class="hero-stat">
+            <span class="value" data-count="6" data-suffix="개">0개</span>
+            <span class="label">카테고리</span>
+          </div>
+          <div class="hero-stat">
+            <span class="value" data-count="12" data-suffix="명">0명</span>
+            <span class="label">참여 팀원</span>
+          </div>
+          <div class="hero-stat">
+            <span class="value" data-count="4" data-suffix="개 지역">0개</span>
+            <span class="label">참여 지역</span>
+          </div>
+          <div class="hero-stat">
+            <span class="value" data-count="38" data-suffix="%">0%</span>
+            <span class="label">전체 완료율</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== KPI ===== -->
+  <section class="section" style="padding-bottom: 0;" aria-label="핵심 지표">
+    <div class="container">
+      <div class="kpi-grid">
+        <div class="kpi-card animate delay-1">
+          <div class="kpi-icon" style="background:rgba(37,99,235,0.1);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="kpi-value">24</div>
+          <div class="kpi-label">총 콘텐츠 항목</div>
+          <div class="kpi-delta" style="color:var(--positive);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+            9개 완료
+          </div>
+        </div>
+        <div class="kpi-card animate delay-2">
+          <div class="kpi-icon" style="background:rgba(16,185,129,0.1);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="kpi-value">9</div>
+          <div class="kpi-label">작성 완료 항목</div>
+          <div class="kpi-delta" style="color:var(--positive);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+            전체의 37.5%
+          </div>
+        </div>
+        <div class="kpi-card animate delay-3">
+          <div class="kpi-icon" style="background:rgba(245,158,11,0.1);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="kpi-value">8</div>
+          <div class="kpi-label">작성 중 항목</div>
+          <div class="kpi-delta" style="color:var(--warning);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            진행 중
+          </div>
+        </div>
+        <div class="kpi-card animate delay-4">
+          <div class="kpi-icon" style="background:rgba(124,58,237,0.1);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="kpi-value">8주</div>
+          <div class="kpi-label">목표 완료 기간</div>
+          <div class="kpi-delta" style="color:var(--accent-secondary);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            3주 경과
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORY PROGRESS ===== -->
+  <section class="section" aria-label="카테고리별 진행 현황">
+    <div class="container">
+      <div class="section-header" data-reveal>
+        <span class="section-tag">Category Progress</span>
+        <h2>카테고리별 진행 현황</h2>
+        <p class="text-secondary" style="margin-top:8px; font-size:14px;">각 카테고리의 항목 작성 및 검토 현황을 확인하세요.</p>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-bar" data-reveal>
+        <button class="filter-btn active" onclick="filterCategories('all', this)">전체</button>
+        <button class="filter-btn" onclick="filterCategories('done', this)">완료</button>
+        <button class="filter-btn" onclick="filterCategories('wip', this)">진행 중</button>
+        <button class="filter-btn" onclick="filterCategories('todo', this)">예정</button>
+      </div>
+
+      <div class="category-grid" id="categoryGrid" data-reveal>
+
+        <!-- 1 -->
+        <div class="category-card" data-status="wip">
+          <div class="category-header">
+            <span class="category-name">📋 업무 프로세스 매뉴얼</span>
+            <span class="category-pct">60%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:60%; background:var(--accent);"></div></div>
+          <div class="category-items">
+            <div class="item-row"><span>입사 온보딩 가이드</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>업무 요청 프로세스</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>결재 및 승인 절차</span><span class="item-status status-wip"><span class="dot-wip"></span>작성 중</span></div>
+            <div class="item-row"><span>이슈 대응 매뉴얼</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+            <div class="item-row"><span>퇴사 절차 안내</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="category-card" data-status="done">
+          <div class="category-header">
+            <span class="category-name">🛠️ 시스템 사용 안내</span>
+            <span class="category-pct">100%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%; background:var(--positive);"></div></div>
+          <div class="category-items">
+            <div class="item-row"><span>ERP 시스템 가이드</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>그룹웨어 활용법</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>화상회의 사용법</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="category-card" data-status="wip">
+          <div class="category-header">
+            <span class="category-name">📊 규정 및 정책</span>
+            <span class="category-pct">25%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:25%; background:var(--warning);"></div></div>
+          <div class="category-items">
+            <div class="item-row"><span>취업 규칙 요약</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>보안 정책 안내</span><span class="item-status status-wip"><span class="dot-wip"></span>작성 중</span></div>
+            <div class="item-row"><span>비용 처리 기준</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+            <div class="item-row"><span>복리후생 안내</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="category-card" data-status="wip">
+          <div class="category-header">
+            <span class="category-name">🤝 고객 응대 매뉴얼</span>
+            <span class="category-pct">50%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:50%; background:var(--accent);"></div></div>
+          <div class="category-items">
+            <div class="item-row"><span>전화 응대 스크립트</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>클레임 처리 절차</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>고객 데이터 관리</span><span class="item-status status-wip"><span class="dot-wip"></span>작성 중</span></div>
+            <div class="item-row"><span>VIP 고객 대응</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="category-card" data-status="todo">
+          <div class="category-header">
+            <span class="category-name">📦 제품 및 서비스 정보</span>
+            <span class="category-pct">0%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%; background:var(--text-secondary);"></div></div>
+          <div class="category-items">
+            <div class="item-row"><span>제품 카탈로그</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+            <div class="item-row"><span>서비스 정책 안내</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+            <div class="item-row"><span>가격 정책 기준</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="category-card" data-status="wip">
+          <div class="category-header">
+            <span class="category-name">🏢 지역별 특이사항</span>
+            <span class="category-pct">33%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:33%; background:var(--accent-secondary);"></div></div>
+          <div class="category-items">
+            <div class="item-row"><span>서울 지역 안내</span><span class="item-status status-done"><span class="dot-done"></span>완료</span></div>
+            <div class="item-row"><span>부산 지역 안내</span><span class="item-status status-wip"><span class="dot-wip"></span>작성 중</span></div>
+            <div class="item-row"><span>대전 지역 안내</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+            <div class="item-row"><span>광주 지역 안내</span><span class="item-status status-todo"><span class="dot-todo"></span>예정</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CHARTS ===== -->
+  <section class="section" style="padding-top:0;" aria-label="진행 현황 차트">
+    <div class="container">
+      <div class="chart-section" data-reveal>
+        <!-- Chart 1: Category Progress -->
+        <div class="chart-wrapper">
+          <div class="chart-title">카테고리별 완료율</div>
+          <div class="chart-container" role="img" aria-label="카테고리별 완료율 바 차트">
+            <canvas id="progressChart" role="img" aria-label="카테고리별 완료율"></canvas>
+          </div>
+        </div>
+        <!-- Chart 2: Status Breakdown -->
+        <div class="chart-wrapper">
+          <div class="chart-title">항목 상태 분포</div>
+          <div class="chart-container" role="img" aria-label="항목 상태 도넛 차트">
+            <canvas id="statusChart" role="img" aria-label="항목 상태 분포"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEAM ===== -->
+  <section class="section" style="background: var(--surface-hover);" aria-label="참여 팀 구성">
+    <div class="container">
+      <div class="section-header" data-reveal>
+        <span class="section-tag">Team</span>
+        <h2>지역별 참여 팀</h2>
+        <p class="text-secondary" style="margin-top:8px; font-size:14px;">각 지역 대표 팀원들이 담당 카테고리를 분담하여 콘텐츠를 작성합니다.</p>
+      </div>
+      <div class="team-grid">
+        <div class="region-card animate delay-1">
+          <div class="region-header">
+            <div class="region-icon" style="background:rgba(37,99,235,0.1);">🏙️</div>
+            <div>
+              <div class="region-name">서울</div>
+              <div class="region-role">업무 프로세스 · 규정 정책 담당</div>
+            </div>
+          </div>
+          <div class="member-list">
+            <div class="member-row"><span class="member-name">김지수</span><span class="member-badge badge-lead">팀 리드</span></div>
+            <div class="member-row"><span class="member-name">이민준</span><span class="member-badge badge-editor">편집</span></div>
+            <div class="member-row"><span class="member-name">박지영</span><span class="member-badge badge-reviewer">검토</span></div>
+          </div>
+        </div>
+        <div class="region-card animate delay-2">
+          <div class="region-header">
+            <div class="region-icon" style="background:rgba(16,185,129,0.1);">🌊</div>
+            <div>
+              <div class="region-name">부산</div>
+              <div class="region-role">시스템 안내 · 고객 응대 담당</div>
+            </div>
+          </div>
+          <div class="member-list">
+            <div class="member-row"><span class="member-name">최영훈</span><span class="member-badge badge-lead">팀 리드</span></div>
+            <div class="member-row"><span class="member-name">정수현</span><span class="member-badge badge-editor">편집</span></div>
+            <div class="member-row"><span class="member-name">한다은</span><span class="member-badge badge-reviewer">검토</span></div>
+          </div>
+        </div>
+        <div class="region-card animate delay-3">
+          <div class="region-header">
+            <div class="region-icon" style="background:rgba(245,158,11,0.1);">🌳</div>
+            <div>
+              <div class="region-name">대전</div>
+              <div class="region-role">제품 서비스 · 지역 특이사항 담당</div>
+            </div>
+          </div>
+          <div class="member-list">
+            <div class="member-row"><span class="member-name">오세진</span><span class="member-badge badge-lead">팀 리드</span></div>
+            <div class="member-row"><span class="member-name">윤서연</span><span class="member-badge badge-editor">편집</span></div>
+          </div>
+        </div>
+        <div class="region-card animate delay-4">
+          <div class="region-header">
+            <div class="region-icon" style="background:rgba(124,58,237,0.1);">🌿</div>
+            <div>
+              <div class="region-name">광주</div>
+              <div class="region-role">전체 검토 · QA 담당</div>
+            </div>
+          </div>
+          <div class="member-list">
+            <div class="member-row"><span class="member-name">임채원</span><span class="member-badge badge-lead">팀 리드</span></div>
+            <div class="member-row"><span class="member-name">강민서</span><span class="member-badge badge-reviewer">검토</span></div>
+            <div class="member-row"><span class="member-name">신예은</span><span class="member-badge badge-reviewer">검토</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TIMELINE ===== -->
+  <section class="section" aria-label="프로젝트 타임라인">
+    <div class="container">
+      <div class="section-header" data-reveal>
+        <span class="section-tag">Timeline</span>
+        <h2>프로젝트 로드맵</h2>
+      </div>
+      <div class="timeline" data-reveal>
+
+        <div class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-date">1주차 · 완료</div>
+            <div class="timeline-title">프로젝트 킥오프 및 팀 구성</div>
+            <div class="timeline-desc">각 지역별 담당자 확정, 카테고리 구조 설계, 웹페이지 초안 구성 완료</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-date">2주차 · 완료</div>
+            <div class="timeline-title">시스템 사용 안내 섹션 완성</div>
+            <div class="timeline-desc">ERP, 그룹웨어, 화상회의 가이드 작성 및 검토 완료. 첫 번째 카테고리 100% 달성</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot wip">▶</div>
+          <div class="timeline-content">
+            <div class="timeline-date">3주차 · 현재 진행 중</div>
+            <div class="timeline-title">업무 프로세스 · 고객 응대 작성</div>
+            <div class="timeline-desc">결재 절차, 고객 데이터 관리, 지역별 특이사항 작성 중. 각 담당자별 초안 제출 예정</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot upcoming">4</div>
+          <div class="timeline-content">
+            <div class="timeline-date">4~5주차 · 예정</div>
+            <div class="timeline-title">규정/정책 · 제품 서비스 섹션 작성</div>
+            <div class="timeline-desc">보안 정책, 복리후생, 제품 카탈로그, 서비스 정책 초안 작성 및 1차 검토</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot upcoming">5</div>
+          <div class="timeline-content">
+            <div class="timeline-date">6~7주차 · 예정</div>
+            <div class="timeline-title">전체 콘텐츠 검토 및 수정</div>
+            <div class="timeline-desc">광주팀 주도로 전체 QA 진행. 오탈자, 내용 정확성, 형식 통일 검토</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot upcoming">✦</div>
+          <div class="timeline-content">
+            <div class="timeline-date">8주차 · 목표</div>
+            <div class="timeline-title">웹페이지 최종 공개</div>
+            <div class="timeline-desc">전 직원 공유 및 접근 권한 설정 완료. 지속적인 업데이트 체계 수립</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== NEXT STEPS ===== -->
+  <section class="section" style="background: var(--surface-hover);" aria-label="다음 단계">
+    <div class="container">
+      <div class="section-header" data-reveal>
+        <span class="section-tag">Next Steps</span>
+        <h2>이번 주 실행 항목</h2>
+      </div>
+      <div class="next-steps-grid" data-reveal>
+        <div class="next-card">
+          <div class="next-number">1</div>
+          <div class="next-title">결재 절차 초안 제출</div>
+          <div class="next-desc">서울팀 이민준 님이 결재 및 승인 절차 문서를 이번 주 금요일까지 초안 제출</div>
+        </div>
+        <div class="next-card">
+          <div class="next-number">2</div>
+          <div class="next-title">고객 데이터 관리 작성</div>
+          <div class="next-desc">부산팀 정수현 님이 고객 데이터 관리 페이지 초안 작성 완료 목표</div>
+        </div>
+        <div class="next-card">
+          <div class="next-number">3</div>
+          <div class="next-title">보안 정책 검토 완료</div>
+          <div class="next-desc">서울팀 박지영 님이 작성 중인 보안 정책 안내 내용 1차 검토 진행</div>
+        </div>
+        <div class="next-card">
+          <div class="next-number">4</div>
+          <div class="next-title">부산 지역 특이사항 작성</div>
+          <div class="next-desc">부산팀이 지역별 특이사항 섹션의 부산 파트 작성 착수</div>
+        </div>
+        <div class="next-card">
+          <div class="next-number">5</div>
+          <div class="next-title">주간 온라인 미팅</div>
+          <div class="next-desc">매주 수요일 오전 10시 전체 팀 화상미팅 — 진행 현황 공유 및 이슈 논의</div>
+        </div>
+        <div class="next-card">
+          <div class="next-number">6</div>
+          <div class="next-title">대전팀 착수 준비</div>
+          <div class="next-desc">대전팀이 담당하는 제품 서비스 섹션의 목차 구성 및 작성 계획 수립</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <p style="margin-bottom:4px; font-weight:600; color:var(--text);">업무 정보 통합 웹페이지 구축 프로젝트</p>
+    <p>2025년 · 전체 진행률 38% · 매주 업데이트</p>
+  </footer>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+  // === Menu ===
+  function toggleMenu() {
+    var dropdown = document.getElementById('vizMenuDropdown');
+    if (dropdown) dropdown.classList.toggle('open');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.viz-menu')) {
+      var dropdown = document.getElementById('vizMenuDropdown');
+      if (dropdown) dropdown.classList.remove('open');
+    }
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var dropdown = document.getElementById('vizMenuDropdown');
+      if (dropdown) dropdown.classList.remove('open');
+    }
+  });
+
+  // === Theme ===
+  var savedTheme = localStorage.getItem('viz-theme');
+  var currentTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  function applyTheme(t) {
+    document.documentElement.className = 'theme-' + t;
+    document.getElementById('themeIcon').textContent = t === 'dark' ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = t === 'dark' ? 'Dark' : 'Light';
+    localStorage.setItem('viz-theme', t);
+    currentTheme = t;
+    if (typeof onThemeChange === 'function') onThemeChange();
+  }
+  function cycleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+  applyTheme(currentTheme);
+
+  // === Scroll Reveal ===
+  document.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('reveal'); });
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+  // === Number Counters ===
+  function animateCounters() {
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+      if (el.dataset.counted) return;
+      el.dataset.counted = '1';
+      var target = parseFloat(el.dataset.count);
+      var prefix = el.dataset.prefix || '';
+      var suffix = el.dataset.suffix || '';
+      var start = performance.now(), duration = 1200;
+      (function tick(now) {
+        var p = Math.min((now - start) / duration, 1), eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = prefix + Math.round(target * eased).toLocaleString() + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      })(start);
+    });
+  }
+  var counterEl = document.querySelector('[data-count]');
+  if (counterEl) {
+    var cObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { if (e.isIntersecting) { animateCounters(); cObs.disconnect(); } });
+    }, { threshold: 0.3 });
+    cObs.observe(counterEl);
+  }
+
+  // === Download PNG ===
+  async function downloadImage() {
+    var menu = document.querySelector('.viz-menu');
+    menu.style.display = 'none';
+    try {
+      var url = await htmlToImage.toPng(document.body, { quality: 1, pixelRatio: 2 });
+      var a = document.createElement('a'); a.href = url;
+      a.download = 'project-status-dashboard.png'; a.click();
+    } catch(e) { console.error('Download failed:', e); }
+    menu.style.display = '';
+  }
+
+  // === Filter Categories ===
+  function filterCategories(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.category-card').forEach(function(card) {
+      if (status === 'all' || card.dataset.status === status) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // === Charts ===
+  var chartsBuilt = false;
+
+  if (typeof Chart !== 'undefined') { Chart.defaults.animation = false; }
+
+  function getChartColors() {
+    var isDark = document.documentElement.classList.contains('theme-dark');
+    return {
+      text: isDark ? '#EDEDED' : '#0f172a',
+      textSec: isDark ? '#888' : '#64748b',
+      grid: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)',
+      accent: isDark ? '#4f8ef7' : '#2563eb',
+      positive: isDark ? '#10b981' : '#059669',
+      warning: isDark ? '#f59e0b' : '#d97706',
+      secondary: isDark ? '#8b5cf6' : '#7c3aed',
+      surface: isDark ? '#141414' : '#ffffff',
+    };
+  }
+
+  function resetCanvas(id) {
+    var old = document.getElementById(id);
+    if (!old) return null;
+    var parent = old.parentNode;
+    var canvas = document.createElement('canvas');
+    canvas.id = id;
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', old.getAttribute('aria-label') || 'Chart');
+    parent.replaceChild(canvas, old);
+    return canvas;
+  }
+
+  function buildCharts() {
+    if (chartsBuilt || typeof Chart === 'undefined') return;
+    var c = getChartColors();
+
+    // Progress Bar Chart
+    var ctx1 = resetCanvas('progressChart');
+    if (ctx1) {
+      new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['업무 프로세스', '시스템 안내', '규정/정책', '고객 응대', '제품/서비스', '지역 특이사항'],
+          datasets: [{
+            label: '완료율 (%)',
+            data: [60, 100, 25, 50, 0, 33],
+            backgroundColor: [c.accent, c.positive, c.warning, c.accent, c.textSec, c.secondary],
+            borderRadius: 6,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true, padding: 10, cornerRadius: 8,
+              callbacks: { label: function(ctx) { return ' ' + ctx.parsed.x + '%'; } }
+            }
+          },
+          scales: {
+            x: {
+              min: 0, max: 100,
+              ticks: { color: c.textSec, font: { size: 11 }, callback: function(v) { return v + '%'; } },
+              grid: { color: c.grid }
+            },
+            y: {
+              ticks: { color: c.text, font: { size: 11, family: 'Noto Sans KR' } },
+              grid: { display: false }
+            }
+          },
+          layout: { padding: { right: 10 } }
+        }
+      });
+    }
+
+    // Status Donut Chart
+    var ctx2 = resetCanvas('statusChart');
+    if (ctx2) {
+      new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['완료', '진행 중', '예정'],
+          datasets: [{
+            data: [9, 8, 7],
+            backgroundColor: [c.positive, c.warning, c.textSec],
+            borderWidth: 0,
+            spacing: 3,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: c.text, font: { size: 12, family: 'Noto Sans KR' }, padding: 16, usePointStyle: true }
+            },
+            tooltip: {
+              enabled: true, padding: 10, cornerRadius: 8,
+              callbacks: { label: function(ctx) { return ' ' + ctx.label + ': ' + ctx.parsed + '개'; } }
+            }
+          }
+        }
+      });
+    }
+
+    chartsBuilt = true;
+  }
+
+  function onThemeChange() {
+    chartsBuilt = false;
+    setTimeout(buildCharts, 80);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    buildCharts();
+  });
+  if (document.readyState !== 'loading') { buildCharts(); }
+</script>
+</body>
+</html>

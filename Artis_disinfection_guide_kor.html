@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>소독 단계 및 유압 회로 문제 해결 가이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { interpolate-size: allow-keywords; }
+
+    /* ── Vantive 팔레트 ─────────────────────────────────── */
+    :root {
+      --v-plum:       #72256B;
+      --v-plum-d:     #5C1A65;
+      --v-plum-bg:    rgba(114,37,107,0.08);
+      --v-pine:       #105742;
+      --v-pine-bg:    rgba(16,87,66,0.09);
+      --v-amber:      #D4700A;
+      --v-amber-bg:   rgba(212,112,10,0.09);
+      --v-danger:     #C22020;
+      --v-danger-bg:  rgba(194,32,32,0.08);
+      --v-blue:       #1E4EA8;
+      --v-blue-bg:    rgba(30,78,168,0.08);
+      --v-teal:       #0D7B8A;
+      --v-teal-bg:    rgba(13,123,138,0.08);
+    }
+
+    /* ── 테마 (클래스 기반) ─────────────────────────────── */
+    html.theme-light {
+      --bg: #FFFAEB;
+      --surface: #FFFFFF;
+      --surface-hover: #FFF5D6;
+      --surface-2: #FFF0C8;
+      --border: rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.12);
+      --text: #1A1A1A;
+      --text-secondary: #6B6B6B;
+      --text-tertiary: #A8A8A8;
+      --accent: var(--v-plum);
+      --accent-secondary: var(--v-pine);
+      --positive: var(--v-pine);
+      --negative: var(--v-danger);
+      --warning: var(--v-amber);
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+    }
+    html.theme-dark {
+      --bg: #111110;
+      --surface: #1C1B18;
+      --surface-hover: #242320;
+      --surface-2: #2A2925;
+      --border: rgba(255,255,255,0.06);
+      --border-strong: rgba(255,255,255,0.12);
+      --text: #EDEBE3;
+      --text-secondary: #9A9890;
+      --text-tertiary: #5A5850;
+      --accent: #B07AAC;
+      --accent-secondary: #5EA88F;
+      --positive: #5EA88F;
+      --negative: #D07070;
+      --warning: #D4974A;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6; -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.01em; transition: background 0.3s, color 0.3s;
+    }
+    h1,h2,h3,h4 { letter-spacing: -0.02em; text-wrap: balance; color: var(--text); }
+    h1 { font-weight: 800; font-size: 3.5rem; line-height: 1.1; }
+    h2 { font-weight: 700; font-size: 2.2rem; line-height: 1.15; }
+    h3 { font-weight: 600; font-size: 1.5rem; line-height: 1.25; }
+    h4 { font-weight: 600; font-size: 1.05rem; }
+    p { color: var(--text); }
+
+    /* ── 레이아웃 ─────────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── 히어로 (전체 플럼 배경) ──────────────────────────── */
+    .hero {
+      padding: 96px 24px 72px;
+      text-align: center;
+      position: relative; overflow: hidden;
+      background: linear-gradient(145deg,
+        #4A1055 0%,
+        #72256B 35%,
+        #7E2F78 55%,
+        #8B3584 70%,
+        #72256B 85%,
+        #5C1A65 100%);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 20%, rgba(180,100,170,0.25) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 15% 70%, rgba(60,10,70,0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 50% at 50% 110%, rgba(40,5,50,0.4) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+
+    /* ── 히어로 콘텐츠 ─────────────────────────────────────── */
+    .hero-content {
+      padding: 48px 24px 0;
+      position: relative; z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-bottom: 4px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.92); border-radius: 20px;
+      padding: 5px 14px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 28px;
+      backdrop-filter: blur(8px);
+    }
+    .hero h1 {
+      margin-bottom: 20px; max-width: 700px;
+      margin-left: auto; margin-right: auto;
+      color: #FFFFFF;
+    }
+    html.theme-dark .hero h1 { color: #FFFFFF; }
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(255,255,255,0.72); max-width: 560px;
+      margin: 0 auto 48px; line-height: 1.8;
+    }
+    /* 히어로 내 stats — frosted glass */
+    .hero-stats {
+      display: inline-flex; gap: 0;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 16px; overflow: hidden;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .stat-item { padding: 18px 32px; text-align: center; border-right: 1px solid rgba(255,255,255,0.15); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-size: 2rem; font-weight: 800; color: #FFFFFF; line-height: 1;
+      letter-spacing: -0.04em; font-family: 'Inter', sans-serif;
+    }
+    .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+    /* ── 스티키 필터 바 ──────────────────────────────────── */
+    .filter-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,250,235,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border); transition: background 0.3s;
+    }
+    html.theme-dark .filter-bar { background: rgba(17,17,16,0.88); }
+    .filter-inner {
+      max-width: 1100px; margin: 0 auto; padding: 12px 24px;
+      display: flex; gap: 4px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-inner::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      flex-shrink: 0; padding: 7px 16px; border-radius: 20px;
+      font-size: 13px; font-weight: 500; border: 1.5px solid transparent;
+      background: transparent; color: var(--text-secondary);
+      cursor: pointer; font-family: inherit; transition: all 0.18s;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 0; white-space: nowrap; text-align: center;
+    }
+    .filter-btn:hover { background: var(--surface); color: var(--text); }
+    .filter-btn.active {
+      background: var(--surface); color: var(--text);
+      border-color: var(--border-strong); box-shadow: var(--shadow-sm);
+    }
+    .filter-btn-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; width: 100%;
+    }
+    .filter-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .filter-en {
+      display: block; font-size: 0.68em; font-weight: 400;
+      opacity: 0.7; letter-spacing: 0.03em; font-style: italic;
+      line-height: 1; margin-top: 1px; text-align: center; width: 100%;
+    }
+
+    /* ── 섹션 ───────────────────────────────────────────── */
+    .section { padding: 64px 0 24px; }
+    .section-hdr { margin-bottom: 32px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px;
+    }
+    .section-title { font-size: 1.6rem; font-weight: 700; }
+    .cat-bar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+    .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cat-name {
+      font-size: 1.05rem; font-weight: 700;
+      display: flex; flex-direction: column; line-height: 1.3;
+    }
+    .cat-name-en {
+      display: block; font-size: 0.7em; font-weight: 400;
+      letter-spacing: 0.04em; opacity: 0.65;
+      margin-top: 1px; font-style: italic; line-height: 1.2;
+    }
+    .cat-count { font-size: 12px; color: var(--text-tertiary); margin-left: auto; font-weight: 500; }
+
+    /* ── 카드 그리드 ──────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px; margin-bottom: 48px;
+    }
+
+    /* ── 정보 카드 ─────────────────────────────────────────── */
+    .info-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s; cursor: pointer;
+    }
+    .info-card:hover { box-shadow: var(--shadow-md); }
+    .info-card-head {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 18px 18px 14px;
+    }
+    .info-num {
+      flex-shrink: 0; width: 42px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10.5px; font-weight: 800; font-family: 'Inter', sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .info-body { flex: 1; min-width: 0; }
+    .info-name { font-size: 14px; font-weight: 700; line-height: 1.4; margin-bottom: 5px; }
+    .info-name-en {
+      display: block; font-size: 0.72em; font-weight: 400;
+      letter-spacing: 0.03em; opacity: 0.72;
+      margin-top: 2px; font-style: italic;
+    }
+    .info-brief { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+    .info-footer {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      padding: 10px 18px 14px; border-top: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 6px;
+      font-size: 11px; font-weight: 600;
+    }
+    .tag-time { background: var(--surface-2); color: var(--text-secondary); }
+    .tag-water { background: var(--v-blue-bg); color: var(--v-blue); }
+    html.theme-dark .tag-water { color: #8BBCE8; }
+    .tag-chem { background: var(--v-amber-bg); color: var(--v-amber); }
+    html.theme-dark .tag-chem { color: #D4974A; }
+    .tag-heat { background: var(--v-danger-bg); color: var(--v-danger); }
+    html.theme-dark .tag-heat { color: #D07070; }
+    .tag-flow { background: var(--v-teal-bg); color: var(--v-teal); }
+    html.theme-dark .tag-flow { color: #5EC8D8; }
+    .tag-warn { background: var(--v-pine-bg); color: var(--v-pine); }
+    html.theme-dark .tag-warn { color: #5EA88F; }
+
+    /* expand toggle */
+    .info-expand {
+      width: 24px; height: 24px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-tertiary); border-radius: 50%;
+      background: var(--surface-2);
+      transition: transform 0.25s, background 0.15s, color 0.15s;
+      margin-top: 2px;
+    }
+    .info-card.open .info-expand {
+      transform: rotate(180deg);
+      background: var(--v-plum-bg); color: var(--v-plum);
+    }
+    html.theme-dark .info-card.open .info-expand { color: #C095BC; }
+
+    /* 상세 패널 */
+    .info-detail {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .info-card.open .info-detail {
+      max-height: 900px; border-top: 1px solid var(--border);
+    }
+    .info-detail-in {
+      padding: 16px 18px 18px;
+      background: linear-gradient(to bottom, var(--surface-2), var(--surface));
+    }
+    .detail-section { margin-bottom: 14px; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-lbl {
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 6px;
+    }
+    .detail-text { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+    .phase-list { display: flex; flex-direction: column; gap: 5px; }
+    .phase-row {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12.5px; line-height: 1.55; color: var(--text-secondary);
+    }
+    .phase-row::before {
+      content: ''; flex-shrink: 0; width: 5px; height: 5px;
+      border-radius: 50%; background: var(--border-strong); margin-top: 7px;
+    }
+    .note-box {
+      background: var(--v-amber-bg); border-left: 3px solid var(--v-amber);
+      border-radius: 0 8px 8px 0; padding: 10px 14px;
+      margin-top: 10px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;
+    }
+    html.theme-dark .note-box { background: rgba(212,112,10,0.12); }
+
+    /* ── 개요 카드 ────────────────────────────────────────── */
+    .overview-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+      margin-bottom: 64px;
+    }
+    .ov-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm);
+    }
+    .ov-icon {
+      width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ov-card h4 { margin-bottom: 8px; }
+    .ov-card p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; }
+
+    /* ── 플로우차트 (Mermaid) ─────────────────────────────── */
+    .flowchart-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm);
+      margin-bottom: 32px; overflow-x: auto;
+    }
+    .flowchart-title {
+      font-size: 13px; font-weight: 700; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px;
+    }
+    .mermaid { font-family: 'Noto Sans KR', 'Inter', sans-serif; }
+
+    /* ── 애니메이션 ────────────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate { animation: fadeInUp 0.55s ease-out both; }
+    .animate.delay-1 { animation-delay: 0.07s; }
+    .animate.delay-2 { animation-delay: 0.14s; }
+    .animate.delay-3 { animation-delay: 0.21s; }
+    .animate.delay-4 { animation-delay: 0.28s; }
+    .animate.delay-5 { animation-delay: 0.35s; }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* ── 메뉴 (히어로 내 배치) ──────────────────────────────── */
+    .viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+    .viz-menu-toggle {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      box-shadow: var(--shadow-sm); transition: all 0.2s;
+    }
+    .viz-menu-toggle:hover { background: var(--surface-hover); }
+    .viz-menu-dropdown {
+      position: absolute; top: 52px; right: 0; min-width: 186px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 6px;
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: all 0.18s; box-shadow: var(--shadow-md);
+    }
+    .viz-menu-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .viz-menu-dropdown button {
+      width: 100%; padding: 9px 12px; border: none; border-radius: 7px;
+      background: transparent; color: var(--text); font-size: 13px;
+      font-family: inherit; cursor: pointer; text-align: left;
+      display: flex; align-items: center; gap: 8px; transition: background 0.12s;
+    }
+    .viz-menu-dropdown button:hover { background: var(--surface-hover); }
+
+    /* ── 푸터 ─────────────────────────────────────────────── */
+    .footer {
+      text-align: center; padding: 40px 24px 64px;
+      font-size: 12px; color: var(--text-tertiary); border-top: 1px solid var(--border);
+    }
+
+    /* ── 인쇄 ─────────────────────────────────────────────── */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .viz-menu, .filter-bar { display: none !important; }
+      .info-detail { max-height: none !important; }
+      .info-card { break-inside: avoid; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+
+    /* ── 반응형 ────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.4rem; }
+      .overview-grid { grid-template-columns: 1fr; }
+      .hero { padding: 76px 20px 48px; }
+      .card-grid { grid-template-columns: 1fr; }
+      .stat-item { padding: 14px 20px; }
+    }
+    @media (max-width: 480px) {
+      .hero { padding: 68px 16px 40px; }
+      .hero-logo { height: 20px !important; }
+    }
+    @media (max-width: 375px) {
+      body { overflow-x: hidden; }
+      h1 { font-size: 2rem; }
+      .container { padding: 0 16px; }
+    }
+    .cat-section[data-hidden] { display: none; }
+
+    .hero-logo-wrap {
+      position: absolute;
+      top: 22px; left: 28px;
+      z-index: 10;
+    }
+    .hero-logo {
+      height: 32px;
+      width: auto;
+      display: block;
+      opacity: 0.95;
+    }
+    @media (max-width: 600px) {
+      .hero-logo { height: 22px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <a href="#main-content" style="position:absolute;left:-9999px;top:auto;overflow:hidden;z-index:10000;">본문으로 바로가기</a>
+
+  <!-- 메뉴 -->
+  <div class="viz-menu">
+          <button class="viz-menu-toggle hero-menu-btn" onclick="toggleMenu()" aria-label="메뉴">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/>
+            </svg>
+          </button>
+          <div class="viz-menu-dropdown" id="vizMenuDropdown">
+            <button onclick="cycleTheme()"><span id="themeIcon">☀️</span><span id="themeLabel">라이트 모드</span></button>
+            <button onclick="downloadImage()"><span>📥</span><span>PNG 저장</span></button>
+            <button onclick="window.print()"><span>🖨️</span><span>인쇄 / PDF</span></button>
+          </div>
+        </div>
+
+  <main id="main-content" role="main">
+
+    <!-- ── 히어로 (전체 플럼 배경) ──────────────────────── -->
+    <section class="hero">
+
+      <div class="hero-logo-wrap">
+              <img class="hero-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJAAAAEQCAYAAADvWI5WAABztUlEQVR42u3ddXhU17o/8O+KuxEhWPAgCcHd3YMUq3tLe+o9bU/hnhq01KhSp9QgwaNAILgHh6CBBALE3WcyM+v3Bz3319PbhmEyuuf7eZ7z9D69zey93rXX3mu/e4mY3+VJEBERERERERER/R0HhoCIiIiIiIiIiBrCBBIRERERERERETWICSQiIiIiIiIiImoQE0hERERERERERNQgJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJqEBNIRERERERERETUICaQiIiIiIiIiIioQUwgERERERERERFRg5hAIiIiIiIiIiKiBjGBREREREREREREDWICiYiIiIiIiIiIGsQEEhERERERERERNYgJJCIiIiIiIiIiahATSERERERERERE1CAmkIiIiIiIiIiIqEFODAERERERkXI1aeaPbsM7y65DwhHUMgC+QT5wdv3r14D6unqUF1WiMLsY6Xsv4vSu86Ikt4xBJCIiiPldnmQUiIiIiIgUpGmboEm9xnVL6jaiM1p0DAWEgT8kgesXc3F65zkc23pmTH5WYSqjS0Rkn5hAIiIiIiJSiICmfpj89GjZd1J3CAdh1N+WOonDiSeQ9FWqKM0vZ7CJiOwME0hERERERDbOw8cd4x4ZJofNHfC309OMpV6lwa5VB7H1x92iprKWwScishNMIBERERER2bCoEV3kvW/NgIePu1mPW11ei1//vQ5ndl8QrAUiIuXjLmxERERERLZIAOMeHS4f+/husyePAMDT1x1PfHIvxj40VLIyiIiUj7uwERERERHZGGdXZ9z75gzZe0I3i56HcBCIfm4cmrVvKle+vUHUqzSsHCIihbK6BJKXvycGz+wj20S1gk8TbwgjDYiVev9LU9H/YDqtDuVFlbh87CrSkk6IqrIaXql21yl0Qs+x3WSXge0REOoPJ2fHv+ixmbQ7aPSfMeQXaypqceNiLvatSwspyC4u4JVBREQEuHu74ZlvHpZhXZtbzTn1mRSFoFZN5BfzV4i6qjpWEhGRAlnVGkjterSWjy+9G17+nqyZ36lq1Nj4yWbsXZvGueV2olP/9vLe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r6pn4OiOObs6oWmb4MPNOoT0bdY+BM3aN0Wz9iHwC/Zp9GwuqZMozilDXmYBcq8UIDczH3mZBarczEI3dS1HexMR6cvT1x1tu7eWvkHe8A3yhk+gN3wD////7RPgBQcnw6aYauq1KM0tQ3FOGYpzSpGTkYfsczdx41Ke4L2a7E2nfu3k4Fl90bl/B7h5/f9F7jVqDTKOXcXB+GNG31WQ7K3v7YygVk2WBrdq8kJwWCCCwwIR3KoJPH3d4erhClcPF7h6uMLxNvd0KYF6VT3UtfVQ16mhrvv//3d5QQWKbpai+GYpim+WoOhmqSjNK+cGS6Z6d2cCiayJTxMvtOnWSoa0DoSnnwfqqlQoulmCq2eui8LrXPmeTMPd2w3e/p7Bbl5up929XEPcvNzg5ukGdy9XuHnd+qeTixNUNWrUVdWhrlqFumoVaqtUqKuuQ01F7YrC7OKH1XVMbBIRmbzz6iDg5e8J30DvJJ9A70m+QbcSTN4BXtBqtFDVqqGurf/9n2qoatWoKKpEcU6ZKC+sABcAJvpTmxIC/k194e7t9qO6Vv1wSW4ZuAYMmZOzq9MfE0pLdRrtdnVdffJ/EkX1qnpwBL+V3C+YQCIiIiIiIiIiooY4MARERERERERERNQQJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJqEBNIRERERERERETUICaQiIiIiIiIiIioQUwgERERERERERFRg5hAIiIiIiIiIiKiBjGBREREREREREREDWICiYiIiIiIiIiIGsQEEhERERERERERNYgJJCIiIiIiIiIiahATSERERERERERE1CAmkIiIiIiIiIiIqEFMIBERERERERERUYOYQCIiIiIiIiIiogYxgURERERERERERA1iAomIiIiIiIiIiBrEBBIRERERERERETWICSQiIiIiIiIiImoQE0hERERERERERNQgJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJq0P8Dtwh/n4IOYogAAAAASUVORK5CYII=" alt="Vantive">
+            </div>
+
+
+      <div class="hero-eyebrow animate">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+          Evosys Advanced · 기술 훈련 매뉴얼 Ch.3
+        </div>
+        <h1 class="animate delay-1">소독 단계 및<br>유압 회로 문제 해결</h1>
+        <p class="hero-sub animate delay-2">린스, 화학적 소독, 열 소독, CleanCart 공정의 상세 시퀀스와 유압 회로 장애 유형별 원인 및 대응 방법을 안내합니다.</p>
+        <div class="hero-stats animate delay-3">
+          <div class="stat-item">
+            <div class="stat-num" data-count="4">4</div>
+            <div class="stat-lbl">소독 공정</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="4">4</div>
+            <div class="stat-lbl">장애 유형</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="94">94</div>
+            <div class="stat-lbl">최대 린스 시간(분)</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" data-count="50">50</div>
+            <div class="stat-lbl">최대 물소비(리터)</div>
+          </div>
+        </div>
+
+    </section>
+
+    <!-- ── 스티키 필터 바 ────────────────────────────────── -->
+    <div class="filter-bar" role="navigation" aria-label="카테고리 필터">
+      <div class="filter-inner" id="filterBar">
+        <button class="filter-btn active" data-cat="all" onclick="filterCat('all', this)">전체 항목</button>
+        <button class="filter-btn" data-cat="rinse" onclick="filterCat('rinse', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#1E4EA8"></span>린스 공정</span><span class="filter-en">Rinse Process</span>
+        </button>
+        <button class="filter-btn" data-cat="chemical" onclick="filterCat('chemical', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#D4700A"></span>화학적 소독</span><span class="filter-en">Chemical Disinfection</span>
+        </button>
+        <button class="filter-btn" data-cat="heat" onclick="filterCat('heat', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#C22020"></span>열 소독</span><span class="filter-en">Heat Disinfection</span>
+        </button>
+        <button class="filter-btn" data-cat="cleancart" onclick="filterCat('cleancart', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#105742"></span>CleanCart 공정</span><span class="filter-en">CleanCart Process</span>
+        </button>
+        <button class="filter-btn" data-cat="failure" onclick="filterCat('failure', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#72256B"></span>장애 유형</span><span class="filter-en">Failure Types</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- ── 개요 ──────────────────────────────────────── -->
+      <section class="section" id="sec-overview">
+        <div class="section-hdr">
+          <div class="section-label">챕터 안내</div>
+          <h2 class="section-title">공정 개요 및 핵심 사항</h2>
+        </div>
+        <div class="overview-grid">
+          <div class="ov-card animate delay-1" data-reveal>
+            <div class="ov-icon" style="background:rgba(30,78,168,0.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 2v4M12 22v-4M2 12h4M22 12h-4"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h4>소독 시퀀스 목적</h4>
+            <p>각 소독 공정(린스·화학·열·CleanCart)은 유압 회로의 화학 잔류물 또는 세균을 제거하기 위해 설계된 단계별 시퀀스로 구성되며, 공정 종료 후 자동 린스가 실행됩니다.</p>
+          </div>
+          <div class="ov-card animate delay-2" data-reveal>
+            <div class="ov-icon" style="background:rgba(212,112,10,0.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4700A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6l3 3-3 3v6"/><path d="M6 10H3M21 10h-3"/><path d="M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+            </div>
+            <h4>알람 발생 시 동작</h4>
+            <p>알람 발생 시 현재 단계가 중단되고 모든 펌프가 정지하며 2초 후 전자 밸브(EVDRAIN 제외)가 OFF됩니다. 알람 해제 시 해당 단계 처음부터 재시작됩니다.</p>
+          </div>
+          <div class="ov-card animate delay-3" data-reveal>
+            <div class="ov-icon" style="background:rgba(194,32,32,0.1)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C22020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h4>유압 회로 장애</h4>
+            <p>공기 유입, 튜브 꺾임, 내부 누수, 전도도 셀 드리프트 등 4가지 장애 유형이 기계의 예상치 못한 알람 또는 펌프 오류를 유발할 수 있습니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 1: 린스 공정
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-rinse" data-cat="rinse">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#1E4EA8"></div>
+          <div class="cat-name">
+            린스 공정
+            <span class="cat-name-en">Rinse Process · Section 3.1.1</span>
+          </div>
+          <div class="cat-count">4개 항목</div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- 린스 1: 기본 개요 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#1E4EA8;color:#fff">R-01</div>
+              <div class="info-body">
+                <div class="info-name">린스 공정 개요
+                  <span class="info-name-en">Rinse Process Overview</span>
+                </div>
+                <div class="info-brief">유압 회로에서 화학 잔류물(소독제 또는 투석 농축액)을 제거하는 표준 린스 프로세스</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-time">최소 16분</span>
+              <span class="tag tag-water">물소비 9~50L</span>
+              <span class="tag tag-flow">자동 실행</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">목적</div>
+                  <div class="detail-text">유압 회로에서 화학 잔류물(소독제 또는 투석 농축액 잔류물)을 제거합니다. 공정 시간은 제거할 화학물질에 따라 달라지며 최소 1사이클로 투석 농축액 잔류물 제거에 충분합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">공정 시간 기준</div>
+                  <div class="phase-list">
+                    <div class="phase-row">기본 린스: <strong>16분</strong> (투석 농축액 잔류물 제거, 물소비 약 9L)</div>
+                    <div class="phase-row">저과초산 화학 소독 후 린스: <strong>27분</strong> (물소비 약 17L)</div>
+                    <div class="phase-row">과초산 화학 소독 후 린스: <strong>38분</strong> (물소비 약 25L)</div>
+                    <div class="phase-row">차아염소산염 화학 소독 후 린스: <strong>94분</strong> (물소비 약 50L)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">자동 시작 조건</div>
+                  <div class="detail-text">화학/세정 프로그램 완료 후 자동 시작 / 기계 절전 또는 디스플레이 OFF 상태 해제 시 화학 소독제가 회로에 남아 있을 경우 자동 시작</div>
+                </div>
+                <div class="note-box">
+                  <strong>참고:</strong> 유압 회로는 항상 울트라필터를 통과한 여과수로 세척됩니다. EVR1-EVS 라인은 예외로 수원에서 직접 물이 공급되어 Evaclean 라인을 통해 배수됩니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 린스 2: 표준 린스 시퀀스 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#1E4EA8;color:#fff">R-02</div>
+              <div class="info-body">
+                <div class="info-name">표준 린스 단계 시퀀스
+                  <span class="info-name-en">Standard Rinse Phase Sequence</span>
+                </div>
+                <div class="info-brief">Phase 0 → Fill-up → Phase 5~21 → Draining → Phase 26~29 순서로 실행되는 표준 린스 흐름</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-water">표준 린스</span>
+              <span class="tag tag-flow">21단계</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">단계별 동작</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>Phase 0:</strong> 시작점</div>
+                    <div class="phase-row"><strong>Fill-up:</strong> 유압 회로 충전 (Fill-up phases 시퀀스)</div>
+                    <div class="phase-row"><strong>Phase 5~6:</strong> EVFLUSH/EVP 라인 플러싱</div>
+                    <div class="phase-row"><strong>Phase 7~8:</strong> 혼합 회로(EVPB, EVPA, PB, PSe, PA) 린스</div>
+                    <div class="phase-row"><strong>Phase 9:</strong> EVD1 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 10~11:</strong> 외부 바이패스 및 2차 울트라필터 린스</div>
+                    <div class="phase-row"><strong>Phase 12:</strong> 메인 플로우 패스 린스 (11~12단계 2회 반복)</div>
+                    <div class="phase-row"><strong>Phase 13~15:</strong> 재순환 라인, 내부 바이패스, PS 펌프, EVW1, EVW2 린스</div>
+                    <div class="phase-row"><strong>Phase 16:</strong> EVD2 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 17~20:</strong> 주 흐름 구성으로 2차 울트라필터, EVFLUSH/EVP, 혼합 회로 린스 (2~5사이클 시에만 실행)</div>
+                    <div class="phase-row"><strong>Phase 21:</strong> EVC 또는 EVD 라인 린스</div>
+                    <div class="phase-row"><strong>Draining + Phase 26~29:</strong> 배수 및 공정 종료</div>
+                  </div>
+                </div>
+                <div class="note-box">
+                  <strong>참고:</strong> Phase 6, 16, 18은 EVBHE 밸브도 함께 플러싱합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 린스 3: 차아염소산염 린스 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#1E4EA8;color:#fff">R-03</div>
+              <div class="info-body">
+                <div class="info-name">차아염소산염 소독 후 린스
+                  <span class="info-name-en">Post-Hypochlorite Rinse</span>
+                </div>
+                <div class="info-brief">차아염소산염 소독 후에는 5사이클로 진행되며 히터가 활성화되어 단계별 온도(35°C → 50°C → 65°C)로 세척</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-time">94분</span>
+              <span class="tag tag-heat">히터 활성화</span>
+              <span class="tag tag-water">5사이클</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">온도 단계</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>1사이클:</strong> 35°C (화학 소독과 동일 온도)</div>
+                    <div class="phase-row"><strong>2사이클:</strong> 50°C</div>
+                    <div class="phase-row"><strong>3~5사이클:</strong> 65°C</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">특수 단계</div>
+                  <div class="detail-text">차아염소산염 소독 후 린스 시, 단계 9, 10, 11, 12, 14, 15, 16에서 PA, PB, PSe 펌프가 활성화됩니다. (표준 린스와 다른 점)</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">Hypochlorite 린스 시퀀스 차이</div>
+                  <div class="detail-text">Phase 0 → Draining_wUF → Fillup_wUF → Phase 5~8 → Phase 9~12(2회) → Phase 13~16 → Num Cycle 판단 → Phase 17~20 또는 Phase 21 → Draining → 종료</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 린스 4: 알람 동작 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#1E4EA8;color:#fff">R-04</div>
+              <div class="info-body">
+                <div class="info-name">린스 중 알람 동작
+                  <span class="info-name-en">Alarm Behavior During Rinse</span>
+                </div>
+                <div class="info-brief">알람 발생 시 현재 단계 중단, 모든 펌프 정지, 전자 밸브 OFF 후 알람 해제 시 단계 처음부터 재시작</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">알람 처리</span>
+              <span class="tag tag-time">+30분 대기</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">알람 발생 시 시퀀스</div>
+                  <div class="phase-list">
+                    <div class="phase-row">현재 실행 중인 단계 즉시 중단</div>
+                    <div class="phase-row">모든 펌프 정지</div>
+                    <div class="phase-row">2초 후 전자 밸브(EVDRAIN 제외) 모두 OFF</div>
+                    <div class="phase-row">프로그램 시간 + 30분 경과 후에도 알람 미해제 시 → 디스플레이 OFF</div>
+                    <div class="phase-row">알람 해제 시 중단된 단계의 <strong>처음부터</strong> 재시작 (공정 시간 업데이트)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 2: 화학적 소독
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-chemical" data-cat="chemical">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#D4700A"></div>
+          <div class="cat-name">
+            화학적 소독 공정
+            <span class="cat-name-en">Chemical Disinfection Process · Section 3.1.2</span>
+          </div>
+          <div class="cat-count">4개 항목</div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- 화학 1: 개요 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#D4700A;color:#fff">C-01</div>
+              <div class="info-body">
+                <div class="info-name">화학적 소독 개요
+                  <span class="info-name-en">Chemical Disinfection Overview</span>
+                </div>
+                <div class="info-brief">외부 소독제를 기계가 자동으로 희석하여 유압 회로를 소독하는 공정 (1:35 희석비)</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-chem">소독제 1:35 희석</span>
+              <span class="tag tag-time">물소비 약 4.5L</span>
+              <span class="tag tag-heat">35°C 고정</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">목적 및 원리</div>
+                  <div class="detail-text">기계가 자동으로 소독제를 희석하여 설정 농도(1:35)를 달성합니다. 소독제는 기계 후면의 EVD 또는 EVC 전자 밸브를 통해 유입됩니다. 황색 커넥터: 차아염소산염 / 회색 커넥터: 과초산 소독제 사용.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">공정 구성</div>
+                  <div class="phase-list">
+                    <div class="phase-row">예비 플러싱 및 희석: 약 11분</div>
+                    <div class="phase-row">최소 접촉 시간(Dwell): 5분 / 최대 10분</div>
+                    <div class="phase-row">소독 온도: <strong>35°C</strong> (모든 소독제 공통)</div>
+                    <div class="phase-row">물소비: 약 4.5L (린스 공정은 별도 계산)</div>
+                  </div>
+                </div>
+                <div class="note-box">
+                  <strong>참고:</strong> Phase 13과 14는 EVBHE 밸브도 함께 플러싱합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 화학 2: 단계 시퀀스 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#D4700A;color:#fff">C-02</div>
+              <div class="info-body">
+                <div class="info-name">화학적 소독 단계 시퀀스
+                  <span class="info-name-en">Chemical Process Phase Sequence</span>
+                </div>
+                <div class="info-brief">Phase 0 → Fill_up → Phase 5~18 (소독제 분배) → Phase 19 (접촉 시간) → Phase 20 → 린스 순서로 실행</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-chem">소독제 분배</span>
+              <span class="tag tag-flow">20단계</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">단계별 동작</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>Phase 5:</strong> PS 펌프로 PS 루프 라인을 소독제로 충전, 메인 플로우 패스 고속 플러싱 (750~800ml/min)</div>
+                    <div class="phase-row"><strong>Phase 6~7:</strong> 메인 플로우 패스 및 EVFLUSH 라인 소독제 분배</div>
+                    <div class="phase-row"><strong>Phase 8~10:</strong> EVP 라인 소독</div>
+                    <div class="phase-row"><strong>Phase 11:</strong> 혼합 회로(EVPB, EVPA, PB, PSel, PA) 및 EVD1 라인 소독</div>
+                    <div class="phase-row"><strong>Phase 12~14:</strong> 외부 바이패스, 2차 울트라필터, 내부 바이패스 소독</div>
+                    <div class="phase-row"><strong>Phase 15~17:</strong> EVW1, EVW2, EVD2 소독</div>
+                    <div class="phase-row"><strong>Phase 18:</strong> PS 루프의 순수 소독제를 물로 희석 (IEC Plus 기기: 이 단계에서 P2 펌프 적응 계수 계산)</div>
+                    <div class="phase-row"><strong>Phase 19:</strong> 접촉 시간 유지 (모든 액추에이터 OFF)</div>
+                    <div class="phase-row"><strong>Phase 20:</strong> 모든 액추에이터 리셋 → 자동 린스 시작</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 화학 3: 소독제 종류별 특성 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#D4700A;color:#fff">C-03</div>
+              <div class="info-body">
+                <div class="info-name">소독제 종류 및 린스 구분
+                  <span class="info-name-en">Disinfectant Types &amp; Rinse Classification</span>
+                </div>
+                <div class="info-brief">과초산(38분 린스) / 저과초산(27분 린스) / 차아염소산염(94분 린스) 소독 후 린스 시간 자동 설정</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-chem">3종 소독제</span>
+              <span class="tag tag-time">자동 린스 설정</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">과초산(Peracetic Acid)</div>
+                  <div class="detail-text">최대 과초산 잔류량 0.10% → "과초산" 분류. 화학 소독 후 <strong>38분 린스</strong> 자동 설정.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">저과초산(Low Peracetic Acid)</div>
+                  <div class="detail-text">최대 과초산 잔류량 0.01% → "저과초산" 분류. 화학 소독 후 <strong>27분 린스</strong> 자동 설정. 정균(Bacteriostatic) 모드 지원.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">차아염소산염(Hypochlorite)</div>
+                  <div class="detail-text">화학 소독 후 <strong>94분 린스</strong> 자동 설정 (5사이클, 히터 활성화). 황색 커넥터 사용. 잘못된 소독제 감지 시 알람 578 발생 후 94분 린스 강제 실행.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">빈 소독제 탱크 감지 알고리즘</div>
+                  <div class="detail-text">Phase 19에서 전도도 셀(Cell_A, Cell_B, Diascan) 값을 읽고, 다음 린스 11단계에서 평균값을 비교합니다. 차이가 CCS 0.2mS/cm 미만 / IEC Plus 0.25mS/cm 미만인 경우 알람 533 발생 (탱크 비어있음).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 화학 4: 정균 모드 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#D4700A;color:#fff">C-04</div>
+              <div class="info-body">
+                <div class="info-name">화학 소독 알람 동작
+                  <span class="info-name-en">Chemical Process Alarm Behavior</span>
+                </div>
+                <div class="info-brief">화학 소독 중 알람 발생 시 화학물질 낭비 방지를 위해 단계 재시작 시 남은 시간 기준으로 재개</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">알람 처리</span>
+              <span class="tag tag-chem">화학물질 절약</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">린스와의 차이점</div>
+                  <div class="detail-text">화학 소독 중 알람 발생 후 재시작 시, <strong>단계의 남은 시간 기준으로 재개</strong>합니다 (린스는 처음부터 재시작). 화학물질을 불필요하게 소비하지 않기 위함입니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">정균(Bacteriostatic) 모드</div>
+                  <div class="detail-text">운영자가 정균 모드 선택 시 대기 시간 경과 후 기기 전원이 꺼지고, 다음 재시작 시 린스가 실행됩니다. 저과초산 또는 과초산만 사용 가능합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 3: 열 소독
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-heat" data-cat="heat">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#C22020"></div>
+          <div class="cat-name">
+            열 소독 공정
+            <span class="cat-name-en">Heat Disinfection Process · Section 3.1.3</span>
+          </div>
+          <div class="cat-count">4개 항목</div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- 열 1: 개요 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#C22020;color:#fff">H-01</div>
+              <div class="info-body">
+                <div class="info-name">열 소독 개요
+                  <span class="info-name-en">Heat Disinfection Overview</span>
+                </div>
+                <div class="info-brief">열 효과로 기계를 소독. 온도는 HEAT A: 95°C / HEAT B: 99°C. 평균 소요 시간 약 34분, 물소비 약 11L</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">95°C / 99°C</span>
+              <span class="tag tag-time">약 34분</span>
+              <span class="tag tag-water">약 11L</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">통합 열 소독(Integrated Heat)</div>
+                  <div class="detail-text">중앙 수처리 시설에서 90°C 이하(95°C 미만)의 물이 공급되는 경우 사용합니다. Water Plan 회로와 인렛 수관, 기계 전체를 소독합니다. EVFLUSH는 주기적으로 열려 공기 방울을 제거합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">초기 단계 목적</div>
+                  <div class="detail-text">고유량(High Flow)으로 메인 회로를 플러싱하여 잠재적 침전물을 제거하고 소독 효과를 높입니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">소독 순서</div>
+                  <div class="detail-text">Phase 16에서 설정 온도 도달 → Phase 17: 1차 울트라필터 탄젠셜 소독 → Phase 18~29: 전체 유압 회로 소독 → Phase 30: 종료 전 전환 단계</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 열 2: 단계 시퀀스 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#C22020;color:#fff">H-02</div>
+              <div class="info-body">
+                <div class="info-name">열 소독 단계 시퀀스
+                  <span class="info-name-en">Heat Process Phase Sequence</span>
+                </div>
+                <div class="info-brief">Fill_up → Phase 5~15 플러싱 → Phase 16 온도 도달 → Phase 17~30 소독 → 배수 / Phase 37 종료</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">온도 제어</span>
+              <span class="tag tag-flow">30+단계</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">단계별 동작</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>Phase 5~6:</strong> EVFLUSH, EVP 라인 플러싱</div>
+                    <div class="phase-row"><strong>Phase 7~8:</strong> 혼합 회로(EVPB, EVPA, PB, PSel, PA) 린스</div>
+                    <div class="phase-row"><strong>Phase 9:</strong> EVD1 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 10~11:</strong> 외부 바이패스, 2차 울트라필터 린스</div>
+                    <div class="phase-row"><strong>Phase 12:</strong> EVD2 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 13:</strong> 재순환 라인, 내부 바이패스, PS 펌프 린스</div>
+                    <div class="phase-row"><strong>Phase 14~15:</strong> EVW1, EVW2 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 16:</strong> 설정 온도(99°C 또는 95°C) 도달 - 냉수 차단, 1차 울트라필터 입구로 재순환하여 가열</div>
+                    <div class="phase-row"><strong>Phase 17:</strong> 1차 울트라필터 탄젠셜 소독</div>
+                    <div class="phase-row"><strong>Phase 18~21:</strong> EVFLUSH, EVP, EVD1, EVW1, EVW2 라인 소독</div>
+                    <div class="phase-row"><strong>Phase 22:</strong> 메인 플로우 패스 소독</div>
+                    <div class="phase-row"><strong>Phase 23~25:</strong> 내부 바이패스, 2차 울트라필터, EVD2 라인 소독</div>
+                    <div class="phase-row"><strong>Phase 26~28:</strong> 혼합 회로 소독</div>
+                    <div class="phase-row"><strong>Phase 29:</strong> 외부 바이패스 소독</div>
+                    <div class="phase-row"><strong>Phase 30:</strong> 열 소독 종료 전 전환 단계</div>
+                    <div class="phase-row"><strong>비상 단계 38:</strong> 온도 회복 / 단계 39: 전원 오류 시 수재순환 / 단계 40: 전원 OFF 시 과열 방지</div>
+                  </div>
+                </div>
+                <div class="note-box">
+                  <strong>참고:</strong> Phase 13과 30은 EVBHE 밸브도 함께 플러싱합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 열 3: 온도 이탈 및 알람 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#C22020;color:#fff">H-03</div>
+              <div class="info-body">
+                <div class="info-name">온도 이탈 및 알람 처리
+                  <span class="info-name-en">Temperature Deviation &amp; Alarm Handling</span>
+                </div>
+                <div class="info-brief">Phase 18~28 중 온도 89°C 미만 하락 시 Phase 38(온도 회복 단계)로 이동하여 95°C 복귀 후 재개</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">온도 모니터링</span>
+              <span class="tag tag-warn">89°C 임계값</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">온도 이탈 처리</div>
+                  <div class="phase-list">
+                    <div class="phase-row">Phase 18~28 실행 중 온도 89°C 미만 → Phase 38(온도 회복)으로 이동</div>
+                    <div class="phase-row">Phase 38에서 95°C 도달 시 이전 단계로 복귀하여 재개</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">전원 오류 처리</div>
+                  <div class="phase-list">
+                    <div class="phase-row">TP &gt; 90°C: Phase 39 실행 → 모든 펌프 정지, 2초 후 밸브 OFF → 5분 후에도 전원 미복구 시 자동 전원 OFF</div>
+                    <div class="phase-row">TP &lt; 90°C: Phase 39 건너뜀</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">사용자 중단 처리</div>
+                  <div class="detail-text">사용자가 프로세스를 중단하면 배수 단계 실행 후 중단됩니다. 수동으로 시작한 열 소독은 공정 종료 후 배수를 건너뜁니다 (치료 사이에 시간 절약).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 열 4: Autostart 기능 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#C22020;color:#fff">H-04</div>
+              <div class="info-body">
+                <div class="info-name">Autostart 기능 주의사항
+                  <span class="info-name-en">Autostart Feature Notes</span>
+                </div>
+                <div class="info-brief">Autostart로 예약된 열 소독/통합 열 소독은 Heat with CleanCart 후 빈 CleanCart를 삽입한 채로 실행 가능</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">운영 주의</span>
+              <span class="tag tag-heat">Autostart</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">Autostart 조건</div>
+                  <div class="detail-text">Heat with CleanCart 성공적 완료 후 빈 CleanCart를 BiCart Holder에 삽입한 상태에서 Autostart로 예약된 열/통합 열 소독 실행 가능합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">주의 사항</div>
+                  <div class="detail-text">Heat with CleanCart와 예약된 열 소독 사이에 사용자가 디스플레이 OFF 또는 저전력 상태에서 기기와 상호작용하면, 기기는 BiCart 암이 닫힌 상태에서만 공정을 실행합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 4: CleanCart 공정
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-cleancart" data-cat="cleancart">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#105742"></div>
+          <div class="cat-name">
+            CleanCart 공정
+            <span class="cat-name-en">Heat with CleanCart Process · Section 3.1.4</span>
+          </div>
+          <div class="cat-count">5개 항목</div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- CC 1: 개요 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#105742;color:#fff">CC-01</div>
+              <div class="info-body">
+                <div class="info-name">CleanCart 공정 개요
+                  <span class="info-name-en">CleanCart Process Overview</span>
+                </div>
+                <div class="info-brief">구연산 또는 탄산나트륨이 든 CleanCart를 사용하여 열 효과로 소독 (95°C / 99°C). 평균 약 44분 소요</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">95°C / 99°C</span>
+              <span class="tag tag-time">약 44분</span>
+              <span class="tag tag-water">15~17.5L</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">CleanCart 종류</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>CleanCart C:</strong> 물소비 약 15L</div>
+                    <div class="phase-row"><strong>CleanCart A:</strong> 물소비 약 17.5L</div>
+                    <div class="phase-row">C와 A는 동일한 유압 단계 시퀀스를 사용하지만 P1 펌프 관리 방식이 달라 물소비가 다릅니다.</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">시작 시 PB 펌프 특성</div>
+                  <div class="detail-text">플러싱 단계에서 카트리지에 찬물이 유입되지 않도록 PB 펌프는 절대 활성화되지 않습니다. 분말 용해를 돕기 위해 온수로 먼저 충전합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CC 2: 단계 시퀀스 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#105742;color:#fff">CC-02</div>
+              <div class="info-body">
+                <div class="info-name">CleanCart 단계 시퀀스
+                  <span class="info-name-en">CleanCart Phase Sequence</span>
+                </div>
+                <div class="info-brief">Fill up → Phase 5~16 (온도 90°C 도달) → Phase 17A (농도 확인) → Phase 18~43 (소독 및 냉각) 순서</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">90°C 시작 온도</span>
+              <span class="tag tag-flow">43+단계</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">주요 단계</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>Phase 5~6:</strong> EVFLUSH, EVP 라인 플러싱</div>
+                    <div class="phase-row"><strong>Phase 7:</strong> 혼합 회로(EVPA, PSel, PA) 린스 (PB 미활성화)</div>
+                    <div class="phase-row"><strong>Phase 8:</strong> EVD1 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 9~10:</strong> 2차 울트라필터, 외부 바이패스 린스</div>
+                    <div class="phase-row"><strong>Phase 11:</strong> EVD2 라인 린스</div>
+                    <div class="phase-row"><strong>Phase 12:</strong> EVR1 라인을 EVW1 통해 고유량으로 플러싱, 내부 바이패스 농축물 제거</div>
+                    <div class="phase-row"><strong>Phase 13~14:</strong> EVW1, EVW2 린스 (Phase 14: B 셀 전도도 평균값 계산 → offset)</div>
+                    <div class="phase-row"><strong>Phase 15:</strong> 90°C 도달 목표 (카트리지 프라이밍 시작 온도)</div>
+                    <div class="phase-row"><strong>Phase 16:</strong> 온수로 카트리지 충전 및 유압 회로 잔류 전도도 세정</div>
+                    <div class="phase-row"><strong>Phase 17A:</strong> CleanCart 용액을 메인 유압 회로로 분배 시작 (B 셀 전도도 확인)</div>
+                    <div class="phase-row"><strong>Phase 18~26:</strong> CleanCart 용액 전체 유압 회로 분배 (EVD1, 2차 UF, EVW1, EVW2, 내부/외부 바이패스, EVD2, 혼합 회로)</div>
+                    <div class="phase-row"><strong>Phase 27:</strong> 99°C 또는 95°C 도달 후 210초간 재순환 유지 → 1차 울트라필터 열 소독</div>
+                    <div class="phase-row"><strong>Phase 28~40:</strong> 전체 유압 회로 소독 (EVFLUSH, EVP, EVD1, PS 루프, EVW1/2, 메인, 내부 바이패스, 2차 UF, 혼합, 외부 바이패스, EVD2)</div>
+                    <div class="phase-row"><strong>Phase 41~43:</strong> EVP 라인, EVD1 라인, EVFLUSH 라인 플러싱 및 탈기 루프 냉각</div>
+                  </div>
+                </div>
+                <div class="note-box">
+                  <strong>참고:</strong> Phase 12, 21, 41은 EVBHE 밸브도 함께 플러싱합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CC 3: Phase 17 농도 확인 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#105742;color:#fff">CC-03</div>
+              <div class="info-body">
+                <div class="info-name">Phase 17A 농도 확인 및 카트 막힘
+                  <span class="info-name-en">Phase 17A Concentration Check &amp; Blockage</span>
+                </div>
+                <div class="info-brief">B 셀 전도도 기준값으로 CleanCart 용액 농도 확인. 농도 미달 시 17B→17C→17D 순서로 막힘 해소 시도</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">농도 검증</span>
+              <span class="tag tag-chem">카트 막힘 처리</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">농도 확인 기준</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>CleanCart C:</strong> Cond B &gt; 1 mS/cm (5초간 지속)</div>
+                    <div class="phase-row"><strong>CleanCart A:</strong> Cond B &gt; 1.9 mS/cm (20초간 지속)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">카트 막힘 해소 단계</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>Phase 17B (PB OFF):</strong> PB 사이클이 정방향/역방향으로 동작하며 정지 후 EVPB 열림 (압력 이동 도움)</div>
+                    <div class="phase-row"><strong>Phase 17C:</strong> EVPRIM1 OFF, EVPB ON, P1 개방 루프(3kHz)로 분말 강제 용해</div>
+                    <div class="phase-row"><strong>Phase 17D:</strong> P1을 D1 제어 루프로 설정하여 잔여 막힘 감지 (미관통 카트 감지 시 알람 104 발생)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">알람 504</div>
+                  <div class="detail-text">Phase 17A에서 12분 내 농도 기준 미달 → 알람 504 (CleanCart 소독 불완전, 알람 26 발생) 수행은 되나 스케일 제거 보장 안 됨.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CC 4: 온도 관리 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#105742;color:#fff">CC-04</div>
+              <div class="info-body">
+                <div class="info-name">CleanCart 온도 관리
+                  <span class="info-name-en">CleanCart Temperature Management</span>
+                </div>
+                <div class="info-brief">Phase 18~25: B 셀 전도도 지속 모니터링 ≥ 0.5 mS/cm + water offset. 분배 중 70°C 미만 하락 시 온도 회복</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">70°C 임계값</span>
+              <span class="tag tag-warn">전도도 모니터링</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">온도 이탈 처리</div>
+                  <div class="detail-text">Phase 18~25 분배 중 온도 70°C 미만 하락 시, 90°C 복귀까지 온도 회복 단계를 실행합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">Phase 18~25 전도도 모니터링</div>
+                  <div class="detail-text">B 셀 전도도가 지속적으로 0.5 mS/cm + water offset 이상을 유지해야 합니다 (CleanCart C 및 A 공통).</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">IEC Plus 기기 특성</div>
+                  <div class="detail-text">Phase 26~27에서 P1 펌프 적응 계수를 계산하여 "Blind Mode" 활성화 시 P1 펌프 제어에 사용합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CC 5: 알람 처리 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#105742;color:#fff">CC-05</div>
+              <div class="info-body">
+                <div class="info-name">CleanCart 알람 및 중단 처리
+                  <span class="info-name-en">CleanCart Alarm &amp; Interruption Handling</span>
+                </div>
+                <div class="info-brief">Phase 51(온도 회복) 인터럽트 발생 시 공정 종료 후 자동 린스 실행. 1차 울트라필터로 재순환된 화학물질 제거 필요</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">의무 린스</span>
+              <span class="tag tag-chem">Phase 51</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">비상 단계</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>Phase 51:</strong> 온도 회복 (Phase 28~40 중 활성화)</div>
+                    <div class="phase-row"><strong>Phase 52:</strong> 전원 오류 시 수재순환</div>
+                    <div class="phase-row"><strong>Phase 53:</strong> 전원 OFF 시 히터 과열 방지</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">Phase 51 인터럽트 시 의무 린스</div>
+                  <div class="detail-text">Phase 28~40 중 Phase 51이 활성화된 경우, CleanCart 소독 완료 후 자동으로 린스 프로세스가 실행됩니다. Phase 51 중 1차 울트라필터로 재순환된 화학물질 잔류물 제거를 위함입니다. 이 경우에만 빈 카트리지를 삽입한 채로 린스가 실행됩니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">사용자 중단 처리</div>
+                  <div class="detail-text">Phase 5~42 또는 Phase 51 실행 중 사용자 중단 시 → Phase 43(탈기 루프 냉각)으로 이동 후 배수 → 자동 린스 시작. 충전 단계 중 중단 시 배수 건너뜀.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 5: 유압 회로 장애
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-failure" data-cat="failure">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#72256B"></div>
+          <div class="cat-name">
+            유압 회로 장애 유형
+            <span class="cat-name-en">Hydraulic Circuit Failure Types · Section 3.2</span>
+          </div>
+          <div class="cat-count">4개 항목</div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- 장애 1: 공기 유입 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#72256B;color:#fff">F-01</div>
+              <div class="info-body">
+                <div class="info-name">유압 회로 내 공기 유입
+                  <span class="info-name-en">Air Entering the Hydraulic Circuit</span>
+                </div>
+                <div class="info-brief">수원에서 공기 유입 또는 SelectBag/BiCart 연결부 공기 유입 시 BTP 상시 공기, PC 펌프 속도 저하, LFP 플로우 스위치 오동작 유발</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">공기 유입</span>
+              <span class="tag tag-chem">PC 펌프 오류</span>
+              <span class="tag tag-flow">전도도 오류</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">수원 공기 유입 경로</div>
+                  <div class="detail-text">수처리 시설에서 물과 함께 공기가 방출될 경우, 공기 방울은 1차 울트라필터(습식 막으로 공기 통과 불가)에 의해 포집됩니다. EVFLUSH는 주기적으로 열려 "오염측"을 탈기하지만, 공기 방울이 많은 경우 울트라필터 여과 능력이 저하됩니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">나타나는 장애 증상</div>
+                  <div class="phase-list">
+                    <div class="phase-row">BTP(버블 트랩) 읽기 항상 공기 상태</div>
+                    <div class="phase-row">PC 펌프 속도 평균 대비 저하</div>
+                    <div class="phase-row">LFP 플로우 스위치 상위 위치 유지 실패 → 가열·탈기 서브시스템 저유량 표시</div>
+                    <div class="phase-row">P1 펌프 설정 유량 유지 불가</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">SelectBag/BiCart 공기 유입</div>
+                  <div class="detail-text">SelectBag, SelectCart, BiCart 홀더 및 산 커넥터에서 공기가 유입되면, 혼합 챔버, 전도도 셀, P1 펌프를 통과합니다. BT1 버블 트랩이 모든 공기를 배출하지 못하면 D1c 유량계에도 공기 방울이 통과합니다. 린스/소독 중 EVPRIM 밸브만 통과하는 단계에서 공기가 혼합 회로로 유입되어 유량 제한, P1/P2 펌프 오류, 투석 압력 범위 이탈, 유량 설정 오류 등을 유발합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 장애 2: 튜브 꺾임 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#72256B;color:#fff">F-02</div>
+              <div class="info-body">
+                <div class="info-name">유압 튜브 꺾임 (Kinking)
+                  <span class="info-name-en">Kinking of Hydraulic Tubes</span>
+                </div>
+                <div class="info-brief">실리콘/산토프렌 튜브가 꺾이면 부분적 또는 완전한 막힘 발생. BiCart 중탄산 라인 꺾임 시 전도도 알람 발생 가능</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">튜브 막힘</span>
+              <span class="tag tag-flow">전도도 알람</span>
+              <span class="tag tag-chem">P1 펌프 오류</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">BiCart 중탄산 라인 꺾임</div>
+                  <div class="detail-text">준비 중 BiCart 카트리지 프라이밍 시 기계가 EVPRIM 및 EVPRIM1 밸브를 닫아 혼합 회로에 음압을 형성하고 공기를 배출한 후 EVPRIM1 밸브를 열어 BiCart 카트리지로 물이 유입됩니다. 이때 부분적으로 꺾인 중탄산 라인은 음압에 의해 완전히 접혀 막힘이 완성되고, 카트리지 내 수위가 예상보다 낮아져 전도도 알람을 유발합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">CleanCart 소독 시 영향</div>
+                  <div class="detail-text">CleanCart 소독에서도 동일한 문제가 발생합니다. 유량 저하로 CleanCart 분말이 올바르게 용해되지 않아 전도도 측정 시 낮은 값이 감지되고 알람 504 ("CleanCart 공정 소독제 수준 낮음")이 발생합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">린스/소독 중 영향</div>
+                  <div class="detail-text">EVPRIM 밸브만 통과하는 단계에서 꺾인 튜브가 유량을 제한합니다. P1 펌프가 유량 유지를 위해 속도를 높이면 P2 펌프도 속도를 높여 PFS, PO에 음압이 발생하고, 이는 P1 펌프 오류, 투석 압력 범위 이탈, 유량 설정 오류로 해석될 수 있습니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 장애 3: 내부 누수 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#72256B;color:#fff">F-03</div>
+              <div class="info-body">
+                <div class="info-name">부품 내부 누수
+                  <span class="info-name-en">Internal Leakage of Components</span>
+                </div>
+                <div class="info-brief">전자 밸브, 제한기, 펌프의 내부 누수. EVDEG 밸브 누수 시 PC 펌프 주파수 증가 및 PDG 압력 도달 실패로 알람 발생</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">밸브 누수</span>
+              <span class="tag tag-chem">PC 펌프 오류</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">내부 누수 특성</div>
+                  <div class="detail-text">내부 누수는 전자 밸브와 관련이 많으며, 제한기나 펌프까지 확장될 수 있습니다. 누수 정도는 명백할 수도 있고 매우 미세할 수도 있어 다양한 장애 조건을 만들어냅니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">EVDEG 밸브 누수 예시</div>
+                  <div class="phase-list">
+                    <div class="phase-row">EVDEG 밸브 기능: PC 펌프가 PDG 센서 폐쇄 루프에서 작동 시 ORDEG 제한기를 우회하여 가열·탈기 서브시스템에 음압 형성</div>
+                    <div class="phase-row">EVDEG가 설계상 열린 경우: PDG 압력 무관, PC 펌프는 고정 주파수로 구동 (주로 열 소독 중)</div>
+                    <div class="phase-row">EVDEG 내부 누수 발생: PDG가 원하는 압력(보통 100mmHg 절대)에 도달하지 못함</div>
+                    <div class="phase-row">결과: PC 펌프 주파수 증가 → PC 펌프 관련 알람 발생</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 장애 4: 전도도 셀 드리프트 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#72256B;color:#fff">F-04</div>
+              <div class="info-body">
+                <div class="info-name">전도도 셀 드리프트
+                  <span class="info-name-en">Drift of Conductivity Cells</span>
+                </div>
+                <div class="info-brief">ΓcA 전도도 셀 드리프트 시 PA 세라믹 펌프 속도 오류 및 전도도 T1 테스트 실패 또는 전도도 알람 발생</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">셀 드리프트</span>
+              <span class="tag tag-flow">PA 펌프 오류</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">드리프트 영향</div>
+                  <div class="detail-text">PA 세라믹 펌프는 산 농축액을 끌어당기며 ΓcA 전도도 셀을 제어 루프로 사용합니다. ΓcA 셀의 드리프트는 PA 펌프 속도를 잘못 조절하여 목표 소듐 값에 도달하지 못하게 하고, 전도도 T1 테스트 실패 또는 전도도 알람을 유발할 수 있습니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">불량 셀 확인 방법</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>방법 1 (비교법):</strong> 세 개의 전도도 셀(ΓcA, Γp, ΓcD)을 비교하여 다른 두 셀과 정렬되지 않은 셀을 확인</div>
+                    <div class="phase-row"><strong>방법 2 (외부 참조):</strong> 전도도 테스트를 수행하고 전도도 셀 읽기를 외부 참조값과 비교</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /container -->
+
+    <!-- 푸터 -->
+    <footer class="footer">
+      <p>Evosys Advanced Technical Training Manual · Chapter 3</p>
+      <p style="margin-top:6px">Disinfection Phase and Hydraulic Circuit Troubleshooting · Cod. 8744012400</p>
+    </footer>
+
+  </main><!-- /main-content -->
+
+  <script>
+    // === 메뉴 ===
+    function toggleMenu() {
+      var dropdown = document.getElementById('vizMenuDropdown');
+      if (dropdown) dropdown.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.viz-menu')) {
+        var dropdown = document.getElementById('vizMenuDropdown');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        var dropdown = document.getElementById('vizMenuDropdown');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+    });
+
+    // === 테마 ===
+    var savedTheme = localStorage.getItem('viz-theme');
+    var currentTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    function applyTheme(t) {
+      document.documentElement.className = 'theme-' + t;
+      var icon = document.getElementById('themeIcon');
+      var label = document.getElementById('themeLabel');
+      if (icon) icon.textContent = t === 'dark' ? '🌙' : '☀️';
+      if (label) label.textContent = t === 'dark' ? '다크 모드' : '라이트 모드';
+      localStorage.setItem('viz-theme', t);
+      currentTheme = t;
+    }
+    function cycleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+    applyTheme(currentTheme);
+
+    // === 스크롤 리빌 ===
+    document.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('reveal'); });
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+    // === 숫자 카운터 ===
+    function animateCounters() {
+      document.querySelectorAll('[data-count]').forEach(function(el) {
+        if (el.dataset.counted) return;
+        el.dataset.counted = '1';
+        var target = parseFloat(el.dataset.count);
+        var start = performance.now(), duration = 1200;
+        (function tick(now) {
+          var p = Math.min((now - start) / duration, 1), eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(target * eased).toLocaleString();
+          if (p < 1) requestAnimationFrame(tick);
+        })(start);
+      });
+    }
+    var counterEl = document.querySelector('[data-count]');
+    if (counterEl) {
+      var cObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) { animateCounters(); cObs.disconnect(); } });
+      }, { threshold: 0.3 });
+      cObs.observe(counterEl);
+    }
+
+    // === 카드 토글 ===
+    function toggleCard(card) {
+      card.classList.toggle('open');
+    }
+
+    // === 필터 ===
+    function filterCat(cat, btn) {
+      // 버튼 활성화
+      document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      // 섹션 표시/숨김
+      document.querySelectorAll('.cat-section').forEach(function(sec) {
+        if (cat === 'all' || sec.dataset.cat === cat) {
+          sec.removeAttribute('data-hidden');
+        } else {
+          sec.setAttribute('data-hidden', '');
+        }
+      });
+
+      // overview 항상 표시
+      var ov = document.getElementById('sec-overview');
+      if (ov) ov.removeAttribute('data-hidden');
+    }
+
+    // === PNG 저장 ===
+    async function downloadImage() {
+      var menu = document.querySelector('.viz-menu');
+      if (menu) menu.style.display = 'none';
+      try {
+        var url = await htmlToImage.toPng(document.body, {
+          quality: 1, pixelRatio: 2,
+          filter: function(n) { return !n.classList || !n.classList.contains('viz-menu'); }
+        });
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'evosys-disinfection-guide.png';
+        a.click();
+      } catch(e) { console.error('Download failed:', e); }
+      if (menu) menu.style.display = '';
+    }
+
+    // === Mermaid 초기화 ===
+    if (typeof mermaid !== 'undefined') {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: currentTheme === 'dark' ? 'dark' : 'default',
+        fontFamily: 'Noto Sans KR, Inter, sans-serif',
+        fontSize: 13
+      });
+    }
+  </script>
+</body>
+</html>

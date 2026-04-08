@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CRRT inspection history · Vantive</title>
+<style>
+:root {
+  --plum:        #72256B;
+  --plum-d:      #5C1B56;
+  --plum-light:  rgba(114,37,107,0.09);
+  --plum-mid:    rgba(114,37,107,0.20);
+  --cream:       #FFFAEB;
+  --cream-mid:   #F5EDD8;
+  --pine:        #105742;
+  --pine-light:  rgba(16,87,66,0.10);
+  --euca:        #6CA07A;
+  --euca-light:  rgba(108,160,122,0.12);
+  --sage:        #CDDFD7;
+  --sage-bg:     #E8F3F0;
+  --white:       #FFFFFF;
+  --text:        #1C1C1E;
+  --text2:       #52525B;
+  --text3:       #A1A1AA;
+  --border:      rgba(0,0,0,0.07);
+  --border-p:    rgba(114,37,107,0.14);
+  --shadow:      0 2px 14px rgba(0,0,0,0.06);
+  --shadow-md:   0 6px 24px rgba(0,0,0,0.10);
+  --r:    14px;
+  --r-sm:  9px;
+  --r-xs:  5px;
+  --nav-h: 64px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(150deg, var(--plum-d) 0%, var(--plum) 60%, #8B3080 100%);
+  padding: 16px 18px 0;
+  position: sticky; top: 0; z-index: 200;
+  overflow: hidden;
+}
+
+/* V Watermark (decorative) */
+.header-wm {
+  display: none;
+}
+
+.header-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  position: relative; z-index: 2;
+}
+
+/* ── VANTIVE LOGO ── */
+/* ── VANTIVE WORDMARK: actual logo image, cream-on-plum via blend ── */
+.vantive-logo { display: flex; align-items: center; gap: 0; }
+
+.wordmark-wrap {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+/*
+  The logo PNG is plum-on-cream.
+  filter: invert(1) → cream-on-dark-purple (colors flipped)
+  mix-blend-mode: screen → dark areas become transparent, light (cream logo) shines through
+  Result: cream Vantive wordmark appears on the plum gradient header
+*/
+.wordmark-img {
+  height: 26px;
+  width: auto;
+  max-width: 100px;
+  display: block;
+  /* transparent PNG: cream logo shows naturally on plum header */
+}
+
+.app-tagline {
+  font-size: 12px; font-weight: 700;
+  color: rgba(255,250,235,0.55);
+  letter-spacing: 1.8px; text-transform: uppercase;
+}
+
+.total-badge {
+  background: rgba(255,250,235,0.18);
+  border: 1px solid rgba(255,250,235,0.25);
+  color: var(--cream); font-size: 11px; font-weight: 700;
+  padding: 5px 13px; border-radius: 20px;
+  flex-shrink: 0; margin-top: 2px;
+}
+
+/* ── SEARCH ── */
+.search-wrap { position: relative; margin-bottom: 10px; z-index: 2; }
+
+.search-icon-wrap {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 42px 12px 44px;
+  background: rgba(255,250,235,0.13);
+  border: 1.5px solid rgba(255,250,235,0.22);
+  border-radius: 12px;
+  font-size: 14px; font-weight: 400;
+  color: var(--cream);
+  outline: none; font-family: inherit;
+  transition: background .18s, border-color .18s;
+}
+.search-input:focus {
+  background: rgba(255,250,235,0.22);
+  border-color: rgba(255,250,235,0.45);
+}
+.search-input::placeholder { color: rgba(255,250,235,0.45); }
+
+.search-clear {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: rgba(255,250,235,0.22); border: none; border-radius: 50%;
+  width: 22px; height: 22px; font-size: 12px; line-height: 22px;
+  text-align: center; cursor: pointer; display: none; color: var(--cream); font-weight: 700;
+}
+.search-clear.show { display: block; }
+
+/* AND hint */
+.search-hint {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding-bottom: 12px;
+  font-size: 11px; color: rgba(255,250,235,0.58);
+  position: relative; z-index: 2;
+}
+.v-arrows { color: rgba(255,250,235,0.75); font-weight: 800; font-size: 11px; letter-spacing: -1px; }
+.hint-ex {
+  background: rgba(255,250,235,0.14); border: 1px solid rgba(255,250,235,0.18);
+  color: rgba(255,250,235,0.9);
+  border-radius: 4px; padding: 2px 8px;
+  font-size: 11px; font-weight: 600;
+}
+
+/* ── KW TAGS ── */
+.kw-row {
+  display: none; flex-wrap: wrap; gap: 5px; align-items: center;
+  padding: 8px 18px 10px;
+  background: rgba(255,250,235,0.6);
+  border-bottom: 1px solid var(--border-p);
+}
+.kw-row.show { display: flex; }
+.kw-label { font-size: 11px; color: var(--text2); font-weight: 500; }
+.kw-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--plum-light); color: var(--plum);
+  border-radius: 20px; padding: 3px 11px;
+  font-size: 12px; font-weight: 700;
+}
+
+/* ── FILTERS (Cream Style) ── */
+.filters {
+  background: var(--cream);
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.flabel {
+  font-size: 9.5px; font-weight: 800;
+  color: var(--pine); letter-spacing: 1.4px;
+  text-transform: uppercase; margin-bottom: 7px;
+}
+
+.seg-wrap {
+  display: flex; gap: 6px; overflow-x: auto;
+  scrollbar-width: none; padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.seg-wrap::-webkit-scrollbar { display: none; }
+
+.seg {
+  flex-shrink: 0; padding: 6px 13px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; user-select: none; white-space: nowrap;
+  background: rgba(0,0,0,0.05); color: var(--text2);
+  border: 1.5px solid transparent;
+  transition: all .15s ease; font-family: inherit;
+  display: inline-flex; align-items: center;
+}
+.seg.on {
+  background: var(--plum); color: var(--cream);
+  border-color: var(--plum);
+}
+.seg:active { transform: scale(0.95); }
+
+.seg-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; margin-right: 4px; vertical-align: middle; flex-shrink: 0;
+}
+
+.filter-row { margin-bottom: 10px; }
+.filter-row:last-child { margin-bottom: 0; }
+
+/* ── STATS ── */
+.stats-bar {
+  padding: 8px 18px 6px;
+  font-size: 12px; color: var(--text2); background: var(--cream);
+}
+.stats-bar b { color: var(--plum); font-weight: 700; }
+
+/* ── CARDS ── */
+.cards {
+  padding: 8px 14px calc(var(--nav-h) + env(safe-area-inset-bottom,16px) + 20px);
+  display: flex; flex-direction: column; gap: 9px;
+}
+
+.card {
+  background: var(--white); border-radius: var(--r);
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  overflow: hidden; transition: box-shadow .2s;
+}
+.card:active { box-shadow: var(--shadow-md); }
+
+.card-head {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 13px 13px 11px; cursor: pointer;
+}
+
+/* Alarm badges — Vantive color palette */
+.abadge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 52px; padding: 3px 7px; border-radius: var(--r-xs);
+  font-size: 10px; font-weight: 800; letter-spacing: 0.3px;
+  white-space: nowrap; flex-shrink: 0; margin-top: 2px; text-transform: uppercase;
+}
+.aT { background: var(--euca-light); color: var(--pine);  border: 1px solid rgba(108,160,122,0.28); }
+.aB { background: var(--plum-light); color: var(--plum);  border: 1px solid var(--border-p); }
+.aP { background: var(--pine-light); color: var(--pine);  border: 1px solid rgba(16,87,66,0.2); }
+.aS { background: var(--sage-bg);    color: var(--pine);  border: 1px solid rgba(205,223,215,0.5); }
+.aX { background: rgba(0,0,0,0.04); color: var(--text3); border: 1px solid var(--border); }
+
+.card-body { flex: 1; min-width: 0; }
+
+.card-title { font-size: 13.5px; font-weight: 700; line-height: 1.45; margin-bottom: 6px; color: var(--text); }
+
+.card-meta { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+
+.mtag {
+  display: inline-block; padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.mdev  { background: var(--plum-light); color: var(--plum); }
+.mcat  { background: var(--sage-bg);    color: var(--pine); }
+.mdate { font-size: 10px; color: var(--text3); font-weight: 400; }
+
+.chev {
+  color: var(--text3); font-size: 13px; flex-shrink: 0; margin-top: 2px;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.04); border-radius: 50%;
+  transition: transform .25s ease, background .15s, color .15s;
+}
+.chev.open { transform: rotate(180deg); background: var(--plum-light); color: var(--plum); }
+
+.star-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 18px; padding: 1px; flex-shrink: 0;
+  line-height: 1; opacity: .28;
+  transition: opacity .15s, transform .2s;
+}
+.star-btn.on { opacity: 1; }
+.star-btn:active { transform: scale(1.4); }
+
+/* ── CARD DETAIL ── */
+.card-detail {
+  max-height: 0; overflow: hidden;
+  transition: max-height .32s cubic-bezier(.4,0,.2,1);
+  border-top: 0px solid var(--border);
+}
+.card-detail.open { max-height: 720px; border-top: 1px solid var(--border); }
+
+.card-detail-inner { padding: 15px 13px 18px; background: rgba(255,250,235,0.5); }
+
+.dsec { margin-bottom: 13px; }
+.dsec:last-child { margin-bottom: 0; }
+
+.dlabel {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9.5px; font-weight: 800;
+  color: var(--pine);
+  text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 7px;
+}
+.dlabel-arr { color: var(--plum); font-weight: 900; font-size: 10px; letter-spacing: -1px; }
+
+.dbox {
+  font-size: 13.5px; line-height: 1.7; color: var(--text);
+  background: var(--white); border-radius: 10px;
+  padding: 11px 13px; border: 1px solid var(--border);
+}
+.sbox {
+  font-size: 13.5px; line-height: 1.7;
+  color: var(--pine); font-weight: 500;
+  background: var(--euca-light); border-radius: 10px;
+  padding: 11px 13px; border: 1px solid rgba(108,160,122,0.25);
+}
+
+.ptags { display: flex; flex-wrap: wrap; gap: 5px; }
+.ptag {
+  padding: 3px 10px; border-radius: 5px;
+  background: var(--plum-light); color: var(--plum);
+  font-size: 11px; font-weight: 600;
+}
+
+mark { background: rgba(114,37,107,0.13); color: var(--plum); border-radius: 2px; padding: 0 1px; }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 60px 24px; color: var(--text2); display: none; }
+.empty-icon { font-size: 46px; margin-bottom: 12px; opacity: .4; }
+.empty h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.empty p { font-size: 13px; }
+
+/* ── SUBVIEW ── */
+.subview { display: none; padding: 16px 14px calc(var(--nav-h) + env(safe-area-inset-bottom,16px) + 24px); }
+.subview.on { display: block; }
+
+.sv-title-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--plum);
+}
+.sv-arr { color: var(--plum); font-weight: 900; font-size: 12px; letter-spacing: -1px; }
+.sv-title-text {
+  font-size: 10px; font-weight: 800;
+  color: var(--pine); letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+/* Alarm Tab */
+.alarm-group { margin-bottom: 22px; }
+.alarm-group-header { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.alarm-group-pill {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 3px 11px; border-radius: 20px;
+}
+.ag-T { background: var(--euca-light); color: var(--pine); }
+.ag-B { background: var(--plum-light); color: var(--plum); }
+.ag-P { background: var(--pine-light); color: var(--pine); }
+.ag-X { background: rgba(0,0,0,0.05); color: var(--text2); }
+.ag-cnt { font-size: 11px; color: var(--text3); }
+
+.alarm-list {
+  background: var(--white); border-radius: var(--r);
+  overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.alarm-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 15px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.alarm-row:last-child { border-bottom: none; }
+.alarm-row:active { background: var(--plum-light); }
+
+.alarm-code { font-size: 14px; font-weight: 800; color: var(--plum); }
+.alarm-title-sm { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.alarm-dev-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+  color: var(--pine); background: var(--sage-bg);
+  padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+}
+.alarm-arr { color: var(--plum); font-size: 15px; font-weight: 700; margin-left: 6px; }
+
+/* Parts Tab */
+.parts-info { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.parts-list {
+  background: var(--white); border-radius: var(--r);
+  overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.part-item {
+  display: flex; align-items: center;
+  padding: 12px 15px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.part-item:last-child { border-bottom: none; }
+.part-item:active { background: var(--plum-light); }
+.part-icon-wrap { width: 32px; height: 32px; margin-right: 10px; flex-shrink: 0; color: var(--plum); }
+.part-name { flex: 1; font-size: 13.5px; color: var(--text); font-weight: 500; }
+.part-cnt {
+  background: var(--plum-light); color: var(--plum);
+  border-radius: 8px; font-size: 11px; font-weight: 700;
+  padding: 2px 9px; margin-right: 8px;
+}
+.part-arr { color: var(--plum); font-size: 14px; font-weight: 700; }
+
+/* Fav empty */
+.fav-empty { text-align: center; padding: 60px 24px; color: var(--text2); }
+.fav-empty-icon { font-size: 44px; margin-bottom: 12px; opacity: .32; }
+.fav-empty p { font-size: 13px; line-height: 1.65; }
+
+/* ── BOTTOM NAV ── */
+.bnav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom,0px));
+  background: #B5CFBC; /* Eucalyptus #6CA07A + 50% white */
+  border-top: 1.5px solid rgba(114,37,107,0.18);
+  display: flex; align-items: flex-start; padding-top: 8px; z-index: 200;
+}
+.bnav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 3px 4px; cursor: pointer; border: none; background: none;
+  font-family: inherit; -webkit-tap-highlight-color: transparent;
+}
+.bnav-svg {
+  width: 24px; height: 24px; color: rgba(114,37,107,0.4);
+  transition: color .15s, transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.bnav-label { font-size: 10px; font-weight: 600; color: rgba(114,37,107,0.5); font-family: inherit; }
+
+.bnav-item.on .bnav-svg   { color: var(--plum); transform: scale(1.12); }
+.bnav-item.on .bnav-label { color: var(--plum); font-weight: 800; }
+.bnav-item:active .bnav-svg { transform: scale(0.88); }
+
+#tabSearch { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+
+  <!--
+    Watermark V: mirrors actual Vantive V logo geometry
+    - Two separate bold arms (40% width each) converging inward
+    - Separate diamond element below with a gap (same as real logo)
+  -->
+  <svg class="header-wm" width="240" height="220" viewBox="0 0 200 200" fill="none">
+    <!-- Vantive V: left arm — outer edge nearly vertical, bold wide arm -->
+    <path d="M0,0 L78,0 L100,110 L4,116 Z" fill="#FFFAEB" fill-opacity="0.10"/>
+    <!-- Vantive V: right arm — mirror -->
+    <path d="M200,0 L122,0 L100,110 L196,116 Z" fill="#FFFAEB" fill-opacity="0.10"/>
+    <!-- Vantive V: diamond — visible gap of ~10 below arm tips -->
+    <path d="M100,126 L128,162 L100,196 L72,162 Z" fill="#FFFAEB" fill-opacity="0.10"/>
+  </svg>
+
+  <div class="header-top">
+    <!-- Vantive Wordmark: actual logo image, inverted+screen for cream-on-plum -->
+    <div class="vantive-logo">
+      <div class="wordmark-wrap">
+        <img class="wordmark-img"
+             src="data:image/png;base64,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"
+             alt="Vantive"/>
+        <span class="app-tagline">CRRT inspection history</span>
+      </div>
+    </div>
+    <span class="total-badge" id="totalBadge">55건</span>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-icon-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="rgba(255,250,235,0.6)" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+    <input class="search-input" id="si" type="text"
+      placeholder="알람코드, 증상, 부품명 검색..." autocomplete="off" spellcheck="false">
+    <button class="search-clear" id="sc" onclick="clearS()">✕</button>
+  </div>
+
+  <div class="search-hint">
+    <span class="v-arrows">>>></span>
+    <span>AND 검색:</span>
+    <span class="hint-ex">TherMax 커넥터</span>
+    <span class="hint-ex">배터리 알람</span>
+    <span class="hint-ex">B2002</span>
+  </div>
+
+</div>
+
+<!-- KW Tags -->
+<div class="kw-row" id="kwRow"></div>
+
+<!-- Filters -->
+<div class="filters" id="filtersEl">
+  <div class="filter-row">
+    <div class="flabel">장비</div>
+    <div class="seg-wrap" id="devChips">
+      <button class="seg on" data-v="all">전체</button>
+      <button class="seg" data-v="PrisMax">
+        <span class="seg-dot" style="background:var(--plum)"></span>PrisMax</button>
+      <button class="seg" data-v="PrismaFlex">
+        <span class="seg-dot" style="background:var(--euca)"></span>PrismaFlex</button>
+      <button class="seg" data-v="TherMax">
+        <span class="seg-dot" style="background:var(--pine)"></span>TherMax</button>
+    </div>
+  </div>
+  <div class="filter-row">
+    <div class="flabel">분류</div>
+    <div class="seg-wrap" id="catChips">
+      <button class="seg on" data-v="all">전체</button>
+      <button class="seg" data-v="알람">
+        <span class="seg-dot" style="background:#c0392b"></span>알람</button>
+      <button class="seg" data-v="하드웨어">
+        <span class="seg-dot" style="background:#d68910"></span>하드웨어</button>
+      <button class="seg" data-v="SW">
+        <span class="seg-dot" style="background:var(--pine)"></span>SW</button>
+      <button class="seg" data-v="캘리브레이션">
+        <span class="seg-dot" style="background:var(--euca)"></span>캘리브레이션</button>
+      <button class="seg" data-v="전원">
+        <span class="seg-dot" style="background:var(--plum)"></span>전원</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-bar" id="statsEl">검색 결과 <b id="cnt">0</b>건</div>
+
+<!-- Search Tab -->
+<div id="tabSearch">
+  <div class="cards" id="list"></div>
+  <div class="empty" id="empty">
+    <div class="empty-icon">🔎</div>
+    <h3>검색 결과 없음</h3>
+    <p>다른 키워드로 검색해보세요</p>
+  </div>
+</div>
+
+<!-- Alarm Tab -->
+<div class="subview" id="tabAlarm">
+  <div class="sv-title-bar">
+    <span class="sv-arr">>>></span>
+    <span class="sv-title-text">알람 코드 목록</span>
+  </div>
+  <div id="alarmContent"></div>
+</div>
+
+<!-- Parts Tab -->
+<div class="subview" id="tabParts">
+  <div class="sv-title-bar">
+    <span class="sv-arr">>>></span>
+    <span class="sv-title-text">부품 목록</span>
+  </div>
+  <div id="partsContent"></div>
+</div>
+
+<!-- Fav Tab -->
+<div class="subview" id="tabFav">
+  <div class="sv-title-bar">
+    <span class="sv-arr">>>></span>
+    <span class="sv-title-text">즐겨찾기</span>
+  </div>
+  <div id="favContent"></div>
+</div>
+
+<!-- ══ BOTTOM NAV — Vantive-style SVG icons ══ -->
+<div class="bnav">
+  <!-- 검색 -->
+  <button class="bnav-item on" onclick="switchTab('search')">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <span class="bnav-label">검색</span>
+  </button>
+  <!-- 알람코드 -->
+  <button class="bnav-item" onclick="switchTab('alarm')">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    <span class="bnav-label">알람코드</span>
+  </button>
+  <!-- 부품 -->
+  <button class="bnav-item" onclick="switchTab('parts')">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>
+    <span class="bnav-label">부품</span>
+  </button>
+  <!-- 즐겨찾기 -->
+  <button class="bnav-item" onclick="switchTab('fav')">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+    <span class="bnav-label">즐겨찾기</span>
+  </button>
+</div>
+
+<script>
+const D = [
+{id:1,date:"2023-03-29",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"펌프 로터 고착 – 장비 동작 불량",
+symptom:"로딩 중 선이 꼬이고 클롯 발생 시 튀는 증상. 로터 한쪽이 굳어서 돌아가지 않음.",
+solution:"로터 교체 후 정상 동작 확인.",
+parts:["로터","펌프"],tags:["로터","펌프","클롯","동작불량"]},
+
+{id:2,date:"2023-03-30",alarm:"T1046",device:"PrisMax",cat:"알람",
+title:"T1046 Discharger Ring 알람 반복 발생",
+symptom:"2주 전부터 간헐적 발생. 2번째 키트 교체 시 발생. 껐다 켜면 일시 해소. 블랙박스 확인 시 키트 교체 타이밍에 발생.",
+solution:"Discharger Board 교체. 보드 옆 팬 청소 병행.",
+parts:["Discharger Board","팬"],tags:["T1046","Discharger","보드교체"]},
+
+{id:3,date:"2023-04-19",alarm:"P2301",device:"PrisMax",cat:"SW",
+title:"SW 3.3 업그레이드 후 리부팅 지연 / P2301 알람",
+symptom:"업그레이드 중 'Performing required reboot' 항목에서 5분 이상 진행 안됨. 수동 전원 차단 시 P2301 알람 및 재업그레이드 9번 항목 fail.",
+solution:"① 가능하면 30분 이상 기다린 후 수동 리부팅.\n② P2301 시: 메인보드 재장착 → 메인보드 SST → 클린인스톨로 재업그레이드.",
+parts:["메인보드"],tags:["P2301","SW3.3","리부팅","클린인스톨"]},
+
+{id:4,date:"2023-04-19",alarm:"",device:"PrisMax",cat:"SW",
+title:"3.2 버전 – PrisMax 로고 화면에서 멈춤 (SD카드)",
+symptom:"전원 켰을 때 PrisMax 로고만 뜨고 진행 안됨.",
+solution:"SD카드 제거 → 장비 켜기 → SD카드 삽입/제거 2회 반복 → 부팅 진행 확인. SD카드 교체 고려.",
+parts:["SD카드"],tags:["SD카드","부팅불량","화면멈춤","3.2버전"]},
+
+{id:5,date:"2023-05-04",alarm:"",device:"PrisMax",cat:"캘리브레이션",
+title:"스케일 제로 테스트 페일 → 시스템 장애",
+symptom:"시스템 장애 알람. 알람 안내 멘트가 불친절하여 에러 번호를 잘 봐야 함.",
+solution:"Cal(캘리브레이션) 실시 + SW 3.3 업그레이드. 알람 코드 주의 깊게 확인.",
+parts:["스케일"],tags:["스케일제로","시스템장애","캘리브레이션"]},
+
+{id:6,date:"2023-05-16",alarm:"T1275",device:"PrisMax",cat:"전원",
+title:"T1275 환자 고온 / Discharge Ring 알람",
+symptom:"에크모 등 다른 의료장비와 공용 전원 시 발생. 2대 동시 발생하기도 함.",
+solution:"① 단독 전원에 연결(다른 장비와 전원 공유 금지).\n② Discharge ring 뺐다가 다시 꽂기.\n③ 전원 불안정 시 AVR/UPS 교체.",
+parts:["Discharge Ring","전원"],tags:["T1275","전원","에크모","UPS","AVR"]},
+
+{id:7,date:"2023-05-22",alarm:"",device:"PrisMax",cat:"SW",
+title:"서비스 모드 코드 65505 활성화 안됨",
+symptom:"서비스 모드 코드 65505 입력해도 활성화 안됨.",
+solution:"투석 모드를 강제 마무리(새 프라임/새 환자 누름) → 장비 재시작 → 서비스 모드 재진입.",
+parts:[],tags:["서비스모드","65505","투석모드"]},
+
+{id:8,date:"2023-06-12",alarm:"",device:"PrisMax",cat:"SW",
+title:"'1 Year is Over' 알람 – 날짜 초기화 불가",
+symptom:"날짜를 아무리 변경해도 초기화 안됨. 1 Year is Over 지속.",
+solution:"날짜를 2013년으로 설정 + 현재 시간으로 변경하면 해결.",
+parts:[],tags:["1year","날짜초기화","시간설정"]},
+
+{id:9,date:"2023-06-27",alarm:"",device:"PrisMax",cat:"알람",
+title:"BLD 혈액누출감지 알람 반복",
+symptom:"투석 중 BLD 알람 자주 발생. 세트 불량 또는 장비 자체 문제 의심.",
+solution:"① 수치 < 35,000 → 라인 오염, 라인 교체.\n② < 20,000 노멀 테스트 페일 → 라인 교체.\n③ > 57,000 → 장비 OFF/ON + BLD Normalization.\n④ Diagnos > BLD Test로 장비 확인.\n⑤ 정상: ~43,000 ±3,000. 필요시 BLD 모듈 교체.",
+parts:["BLD 모듈","라인"],tags:["BLD","혈액누출","Normalization"]},
+
+{id:10,date:"2023-06-29",alarm:"T0586",device:"PrisMax",cat:"알람",
+title:"T0586 주사기 라인 점검 알람 (헤파린)",
+symptom:"치료 중 T0586 반복. 해제 가능하나 지속. 3.3 업그레이드 후 여러 장비에서 발생.",
+solution:"① 후탄 묽게 희석 + 주사기 20cc → 50cc 변경.\n② 주사기 브랜드 확인(목록 내 선택).\n③ 시린지 펌프 주변 크랙 확인.\n④ WO 생성 및 컴플레인 보고.",
+parts:["시린지 펌프","주사기"],tags:["T0586","헤파린","시린지","후탄"]},
+
+{id:11,date:"2023-07-11",alarm:"B1866",device:"PrisMax",cat:"하드웨어",
+title:"B1866 PBP 스케일 교체 후 '모두확인' 버튼 비활성화",
+symptom:"PBP Scale 교체 후 환자 처방 화면에서 '모두확인' 버튼 비활성화.",
+solution:"① TSB L8094 참고.\n② Default system config import: 서비스 모드 > 시스템 > USB 탭.\n③ Import 후 시린지 설정 + 시간 설정 필수.\n④ PW: Baxter2021 (또는 Baxter2021!)",
+parts:["PBP 스케일","시린지 설정"],tags:["B1866","모두확인","config","Baxter2021","TSB_L8094"]},
+
+{id:12,date:"2023-08-20",alarm:"T1055",device:"PrisMax",cat:"알람",
+title:"T1055 배터리 온도 알람",
+symptom:"배터리 방전 후 재시작 시 온도 알람. 배터리팩↔파워보드 통신 오류. Power board SST 중 Backup Battery Capacity Test fail.",
+solution:"① 파워 코드 뽑았다가 재연결 반복.\n② 배터리 전압/벽면 전압 확인(접점 불량 가능).\n③ Cool down 후 재가동.\n④ 신형 배터리팩 SC8056 교체 권장.",
+parts:["배터리팩","파워보드","SC8056"],tags:["T1055","배터리","온도알람","방전"]},
+
+{id:13,date:"2023-08-25",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"워머암(Warmer Arm) 나사 탈락/분실",
+symptom:"워머암 나사 빠져 장비 파손 위험. 짧은 나사 사용으로 다수 장비에서 발생.",
+solution:"① 설치 키트 내 긴 볼트 사용.\n② 기존 장비: 록타이트/본드로 고정.\n③ 방문 시마다 나사 상태 점검 필수.",
+parts:["워머암","볼트/나사"],tags:["워머암","나사","록타이트","파손"]},
+
+{id:14,date:"2023-09-05",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"투석 중 삐 소리와 함께 꺼짐",
+symptom:"투석 중 갑자기 삐 소리 → 꺼짐. 2주 전 동일 증상 반복.",
+solution:"① SD카드 문제 가능성 높음 → 점검/교체.\n② 파워보드 교체 고려.\n③ 블랙박스 다운로드 후 원인 분석.",
+parts:["SD카드","파워보드"],tags:["투석중꺼짐","SD카드","삐소리"]},
+
+{id:15,date:"2023-09-25",alarm:"P1521",device:"PrisMax",cat:"알람",
+title:"P1521 알람",
+symptom:"P1521 알람. 스케일/프레셔 관련 원인 불명확.",
+solution:"뒤쪽 보드 커넥터 재장착(선 헐렁 확인). 보드 뺐다가 꽂으면 해결.",
+parts:["파워보드","커넥터"],tags:["P1521","파워보드","커넥터"]},
+
+{id:16,date:"2023-10-04",alarm:"T1722",device:"PrisMax",cat:"알람",
+title:"T1722 시린지 설정 목록 없음",
+symptom:"T1722 알람. System 진입 시 주사기 목록 비어있음.",
+solution:"① 서비스 화면 > System 진입.\n② 아무것도 안하고 10초 대기 → Accept.\n③ System 아이콘 비활성화 후 재활성화 시 목록 확인.",
+parts:["시린지 설정"],tags:["T1722","시린지","주사기설정","목록없음"]},
+
+{id:17,date:"2023-10-12",alarm:"",device:"PrisMax",cat:"SW",
+title:"SW 업그레이드 시 신형 스케일 Fail 표시 (정상)",
+symptom:"SW 업그레이드 시 Scale 항목이 Fail로 표시됨.",
+solution:"신형 저울의 경우 Fail 표시가 정상. TSB L8106 참고. 신형 저울은 안정적이고 캘리 잘 됨.",
+parts:["스케일"],tags:["스케일","업그레이드","신형저울","TSB_L8106","Fail"]},
+
+{id:18,date:"2023-12-07",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"압력 포드 인식 불가 (세트 장착 중)",
+symptom:"세트 장착 중 반환/필터/유입 압력 포드 장착해도 인식 안됨. ARPS 밸브 Open 안됨.",
+solution:"반환 압력 포드 교체 → 3개 프레셔 센서 정상 인식.",
+parts:["반환 압력 포드","ARPS"],tags:["압력포드","ARPS","밸브","포드교체"]},
+
+{id:19,date:"2023-12-15",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"프라이밍 중 공기감지 알람 – 압력 포드 누설",
+symptom:"공기제거챔버에 solution 채워지지 않고 빠져나감. 반환 압력 포드 밸브 close에도 압력 누설.",
+solution:"반환 압력 포드 교체. 압력 포드 불량 빈도 높으므로 재고 관리(입고 약 1개월).",
+parts:["반환 압력 포드"],tags:["압력포드","프라이밍","공기감지","누설"]},
+
+{id:20,date:"2023-12-27",alarm:"B2222",device:"PrisMax",cat:"알람",
+title:"B2222 시스템 고장 알람",
+symptom:"여러 백 동시 교환 시 또는 LLS/ABD T알람 지속 후 자동 재부팅 → B2222.",
+solution:"① 발생 전 B알람(B2247 등) 확인 → 해당 알람 먼저 조치.\n② 블랙박스 다운로드 후 원인 분석.\n③ 재부팅 후 재가동.\n※ SW 3.4에서 개선.",
+parts:[],tags:["B2222","시스템고장","블랙박스","재부팅"]},
+
+{id:21,date:"2023-12-29",alarm:"B0916",device:"PrisMax",cat:"알람",
+title:"B0916 백(Bag) 교환 중 Shut Down",
+symptom:"여러 백 동시 교환 또는 화면 지침 무시 시 B0916과 함께 Shut down.",
+solution:"① 백을 한 번에 하나씩 교환(화면 지침 준수).\n② 사용자 교육 필수.\n※ SW 3.4에서 개선.",
+parts:[],tags:["B0916","백교환","ShutDown","사용자교육"]},
+
+{id:22,date:"2024-01-01",alarm:"",device:"PrisMax",cat:"전원",
+title:"체내 ICD(제세동기) 환자 사용 시 알람",
+symptom:"ICD 내장 환자 치료 시 알람. PrismaFlex에서는 없고 PrisMax에서 발생.",
+solution:"① 단독 전원 사용(다른 장비와 전원 분리).\n② 등전위접지 연결로 전위차 최소화.",
+parts:[],tags:["ICD","제세동기","전원분리","등전위접지"]},
+
+{id:23,date:"2024-01-04",alarm:"",device:"PrisMax",cat:"캘리브레이션",
+title:"추운 곳 보관 장비 – ARPS 알람 및 저울보정온도 알람",
+symptom:"추운 장소 보관 후 설치 시 ARPS 알람 지속. SST 2단계 -450 반복 실패.",
+solution:"① ARPS 튜빙 추위로 굳음 → 실내 온도 적응 대기.\n② 장비 온도 적응 후 Cal & SST 재진행.",
+parts:["ARPS 튜빙"],tags:["ARPS","튜빙","온도","추위","SST실패"]},
+
+{id:24,date:"2024-02-22",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"부팅 시 하얀 로고에서 멈춤 (부팅 불가)",
+symptom:"하얀 로고에서 넘어가지 않음. 서비스/일반 부팅 동일.",
+solution:"① SD카드 점검/교체.\n② 메인보드 커넥터 재장착.\n③ 스케일 캘리 후 SST 미완료 시 발생 가능 → 완료 확인.",
+parts:["SD카드","메인보드"],tags:["부팅불량","로고화면","SD카드","메인보드"]},
+
+{id:25,date:"2024-02-29",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"ARPS SST 반복 실패 – 압력 포드 누설",
+symptom:"ARPS SST 1차 실패. Valve close에서도 leak 발생.",
+solution:"① 튜빙 집어가며 누설 구간 확인.\n② 필터 프레셔 포드 교체 → 해결.\n③ 포드 2개 동시 불량 가능.",
+parts:["필터 압력 포드","ARPS"],tags:["ARPS","SST실패","압력포드","누설","leak"]},
+
+{id:26,date:"2024-07-01",alarm:"B2002",device:"PrisMax",cat:"알람",
+title:"B2002 Discharger Relay Failure – 보드 동시 교체 필수",
+symptom:"B2002 알람. 하나씩 교체 시 무한 루프. Safety보드↔Discharge보드 연쇄 고장 구조.",
+solution:"Safety 보드 + Discharge 보드 반드시 동시 교환. 하나만 교체 시 새 보드도 손상 위험.",
+parts:["Safety 보드","Discharge 보드"],tags:["B2002","Discharger","Relay","동시교체"]},
+
+{id:27,date:"2024-07-04",alarm:"",device:"PrismaFlex",cat:"하드웨어",
+title:"저울 회로판 고장 알람 (간헐적)",
+symptom:"스케일 교정 정상, 진단 탭에서 보호/제어값 정상인데 간헐적으로 발생.",
+solution:"① 장비 내부 및 스케일 주변 먼지 확인.\n② AD 값 비교하여 문제 저울 특정.\n③ 핑테스트 실시.\n④ 최종: 스케일 교체.",
+parts:["스케일"],tags:["저울회로판","스케일","먼지","핑테스트","AD값"]},
+
+{id:28,date:"2024-08-24",alarm:"",device:"PrismaFlex",cat:"캘리브레이션",
+title:"스케일 영점 오류 간헐적 발생 (보정 정상인데 재발)",
+symptom:"캘리 정상, Ping Test 정상, 먼지 없음. 사용 시 저울 0점 오류 반복.",
+solution:"① 블랙박스로 압력/저울 원인 구분.\n② SW 8.22 업그레이드.\n③ 스케일 커넥터 탈착/청소 → 재연결.\n④ 환경 점검(진동, 공사, 엘리베이터 옆).\n⑤ 최종: 스케일 교체.",
+parts:["스케일"],tags:["스케일","영점오류","블랙박스","커넥터"]},
+
+{id:29,date:"2024-09-30",alarm:"",device:"TherMax",cat:"캘리브레이션",
+title:"TherMax PM 타이머 알람 동시 다발",
+symptom:"TherMax에서 동시에 점검 알람 발생. 초기 수입 후 SST가 2년 전인 장비에서 주로 발생.",
+solution:"TherMax SST 실행 → 해결. 자체 PM 타이머 존재(2년 주기).",
+parts:[],tags:["TherMax","PM","SST","타이머","정기점검"]},
+
+{id:30,date:"2023-11-03",alarm:"",device:"TherMax",cat:"알람",
+title:"TherMax 점검 표시등 지속 점등",
+symptom:"점검 표시등이 껐다 켜도 사라지지 않음.",
+solution:"전원 버튼 1회 누름(주황색) → 길게 눌러 완전 꺼짐 → 재시작.",
+parts:[],tags:["TherMax","표시등","점검등","재시작"]},
+
+{id:31,date:"2024-06-17",alarm:"",device:"TherMax",cat:"하드웨어",
+title:"TherMax 통신 불량 – Connected/해제 반복, SST 2페이지 Fail",
+symptom:"Communication 불량. Connected ↔ 해제 반복. SST 1페이지 통과, 2페이지 Fail.",
+solution:"① TherMax 커버 분해 → 내부 모든 커넥터 재연결.\n② 지속 시 Heater Control Board 교체.",
+parts:["내부 커넥터","Heater Control Board"],tags:["TherMax","통신불량","SST","HeaterControlBoard"]},
+
+{id:32,date:"2023-10-09",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"PrisMax 시간이 점점 늦어지는 현상",
+symptom:"현재 시간보다 점점 늦어짐.",
+solution:"Power 보드 Replaceable 보드 내 배터리가 리얼타임 전원. SMPS 파워 사용으로 주파수 설정은 따로 없음. 배터리 확인.",
+parts:["파워보드","배터리"],tags:["시간지연","시계","파워보드","배터리"]},
+
+{id:33,date:"2023-11-28",alarm:"",device:"PrisMax",cat:"캘리브레이션",
+title:"세트 장착 시 ARPS 알람 – 압력 포트 이상",
+symptom:"세트 장착 중 압력포트 인식 안 됨. ARPS 알람. 캘리브레이션 모드에서 압력 0인데 ARPS만 200대.",
+solution:"Pressure SST 실행 → 문제 포트 특정 후 교체.",
+parts:["ARPS","압력 포트"],tags:["ARPS","압력포트","SST","세트장착"]},
+
+{id:34,date:"2024-09-23",alarm:"",device:"PrisMax",cat:"SW",
+title:"모두확인 버튼 비활성화 (스케일 교체/신규 설치 후)",
+symptom:"처방값 입력 후 Pre/Post 선택 불가, 모두확인 비활성화.",
+solution:"① Default System Configuration import: 서비스 모드 > 시스템 > USB.\n② 여유 장비에서 Export 또는 TS Portal 다운.\n③ PW: Baxter2021!\n④ 시린지 브랜드 설정 확인.",
+parts:["시린지 설정"],tags:["모두확인","config","Baxter2021","시린지"]},
+
+{id:35,date:"2023-08-18",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"배터리 SST 중 Backup Battery Capacity fail → 접점 불량",
+symptom:"T1055 알람 후 Power Board SST 3번 항목 Backup Battery Capacity Test fail.",
+solution:"① 배터리 분리 + 벽면 전원선 분리 → 전압 확인 → 재연결 시 SST 통과.\n② 접점 불량 의심 → 커넥터 청소/재연결.",
+parts:["배터리","파워보드"],tags:["배터리","SST","접점","파워보드"]},
+
+{id:36,date:"2025-03-21",alarm:"",device:"TherMax",cat:"하드웨어",
+title:"TherMax 백 인식 안됨 (알람 없음, 장착 중 안넘어감)",
+symptom:"백 장착 시 인식이 안되어 다음 단계로 넘어가지 않음. 2년 사용 장비.",
+solution:"SC7010 (Bag Detector) 교체.",
+parts:["SC7010 Bag Detector"],tags:["TherMax","백인식","SC7010","BagDetector"]},
+
+{id:37,date:"2025-03-21",alarm:"T2293",device:"TherMax",cat:"알람",
+title:"T2293 TherMax 누출 감지기 오류",
+symptom:"TherMax 누출 감지기 오류 알람. 2년 사용 장비에서 발생.",
+solution:"SC7006 (Rear Blood Leak Detector) 교체. 센서 접합 부위 실리콘 도포 주의 → 기존 부품에서 분리하여 재장착.",
+parts:["SC7006 Rear BLD"],tags:["T2293","TherMax","누출감지기","SC7006"]},
+
+{id:38,date:"2025-03-21",alarm:"",device:"TherMax",cat:"하드웨어",
+title:"TherMax 전원 안켜짐 (버튼 눌러도 초록불 안들어옴)",
+symptom:"전원 버튼 눌러도 LED 불빛 안 나옴. 실제로는 LED 문제.",
+solution:"SC7033 (Display Panel) 교체. 아티스 키보드와 같은 스티커 타입.",
+parts:["SC7033 Display Panel"],tags:["TherMax","전원","LED","SC7033"]},
+
+{id:39,date:"2025-04-10",alarm:"",device:"TherMax",cat:"하드웨어",
+title:"TherMax 무게로 R Side Door 파손",
+symptom:"TherMax 무게로 인해 사이드 도어 파손. 볼트 4개 중 2개만 장착된 상태.",
+solution:"① 상단 3개 볼트 반드시 체결(하중 집중 부위).\n② 수리 시 2인 1조 방문 권장.",
+parts:["Side Door","볼트"],tags:["TherMax","도어파손","볼트"]},
+
+{id:40,date:"2025-07-07",alarm:"P1527",device:"PrisMax",cat:"알람",
+title:"P1527 알람",
+symptom:"P1527 알람 발생. 스피커/케이블 등 확인했으나 해결 안됨.",
+solution:"Power Board 교체 + SST 진행 후 해결.",
+parts:["Power Board"],tags:["P1527","파워보드","보드교체"]},
+
+{id:41,date:"2025-07-11",alarm:"T1313",device:"PrisMax",cat:"알람",
+title:"T1313 프라이밍 중 BLD 표준화 실패",
+symptom:"BLD 값 이상(Detection signal 85~125). BLD Calibration 1,2,3 모두 error.",
+solution:"① Safety Board 교체 → Calibration 가능해짐.\n② 환자 실사용 시 재발 → Safety Cable 교체 후 해결.\n③ 주원인: Safety Cable. 케이블이 보드에 영향.",
+parts:["Safety Board","Safety Cable","BLD"],tags:["T1313","BLD","표준화","SafetyBoard"]},
+
+{id:42,date:"2025-07-30",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"PrisMax Clamp 불량 – 라인 잡는 기능 불량",
+symptom:"Clamp가 라인을 제대로 잡지 못해 여러 알람 발생. 치료 불가.",
+solution:"Clamp 교체. TSB L8203 (PrisMax Venous Clamp Sticking Effect) 참고.",
+parts:["Clamp"],tags:["Clamp","클램프","라인","TSB_L8203"]},
+
+{id:43,date:"2025-08-25",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"PrisMax 화면 먹통 (터치 안됨)",
+symptom:"화면 터치가 되지 않는 증상. 간헐적 발생. 전국 다수 병원에서 보고.",
+solution:"치료 종료 후 재부팅으로 해결. APAC에서 조사 중.",
+parts:[],tags:["화면먹통","터치","재부팅","간헐적"]},
+
+{id:44,date:"2025-09-11",alarm:"",device:"PrismaFlex",cat:"하드웨어",
+title:"세트 장착 후 모든 펌프 미작동",
+symptom:"세트 로딩은 되는데 모든 펌프가 돌지 않음. 펌프보드 라이트는 모두 점등.",
+solution:"블러드펌프 또는 로터 4개 중 하나 고장(숨어있는 상태). 시간 지나면 확실히 고장남 → 펌프 교체.",
+parts:["블러드 펌프","로터"],tags:["펌프","로터","미작동","펌프보드"]},
+
+{id:45,date:"2025-09-11",alarm:"",device:"PrisMax",cat:"하드웨어",
+title:"'잘못된 세트 감지' 알람 반복 (세트 불량)",
+symptom:"세트 장착 시 '잘못된 세트 감지' 반복. 세그먼트 장착 정상.",
+solution:"① 클램프 문제 확인.\n② 세트 불량 확인: 필터 윗부분 미세 크랙 여부 점검.\n③ 세트 교체로 해결.",
+parts:["Clamp","세트"],tags:["잘못된세트","클램프","필터크랙"]},
+
+{id:46,date:"2025-09-12",alarm:"",device:"PrismaFlex",cat:"SW",
+title:"PSB(Protective/Supervision Board) 교체 후 통신 에러",
+symptom:"프로텍티브 보드 교체(중고 포함) 후 '통신7' 에러 발생.",
+solution:"① PSB 교체 후 반드시 SW 업그레이드 필요(Single upgrade).\n② 같은 버전이라도 새 부품은 버전 안 맞을 수 있음.",
+parts:["Protective Board","Supervision Board"],tags:["PSB","통신에러","SW업그레이드"]},
+
+{id:47,date:"2025-10-22",alarm:"T2295",device:"TherMax",cat:"알람",
+title:"T2295 TherMax 에러 – I2C Bus / Heater Controller",
+symptom:"T2295 에러. Cal/SST 완료 및 TherMax 리셋 후에도 사용 시 바로 재발.",
+solution:"① 모든 Connector 재연결 확인.\n② I2C bus issue 또는 Heater Controller Board 문제 확인.\n③ 최종: Heater Controller Board 교체.",
+parts:["Heater Controller Board","커넥터"],tags:["T2295","TherMax","I2C","HeaterController"]},
+
+{id:48,date:"2025-11-21",alarm:"",device:"PrismaFlex",cat:"하드웨어",
+title:"PrismaFlex 부팅 불가 – 화면 안켜짐",
+symptom:"부팅이 되지 않고 화면이 켜지지 않음. 특정 화면에서 멈추고 유지.",
+solution:"플래시 메모리 교체 + SW 재설치 + 캘리브레이션.",
+parts:["플래시 메모리"],tags:["부팅불가","플래시메모리"]},
+
+{id:49,date:"2025-12-15",alarm:"",device:"PrisMax",cat:"전원",
+title:"PrisMax 배터리 방전 후 충전 방법",
+symptom:"장기간 미사용으로 배터리 방전. 충전 방법 문의.",
+solution:"① 전원 코드만 꽂아도 Standby 상태에서 충전됨(팬 동작).\n② 완전 방전 후에는 충전 불가 확률 높음 → 배터리 교체 권장.\n③ 장기 미사용 장비는 전원 코드 연결 상태 유지.",
+parts:["배터리"],tags:["배터리","방전","충전","Standby"]},
+
+{id:50,date:"2025-12-23",alarm:"",device:"PrismaFlex",cat:"하드웨어",
+title:"블러드펌프 속도 조절 불가 (깜박거림)",
+symptom:"블러드펌프 속도 조절 시 +/- 안눌림. 오버라이드 버튼 누르면 깜박거리고 꺼짐. 간헐적.",
+solution:"① 키보드 인터페이스 보드 문제 의심.\n② 모니터 쪽 보드 확인.\n③ 커넥터 접점 확인.\n④ OFF/ON 시 조절될 때도 있음.",
+parts:["키보드 인터페이스 보드","커넥터"],tags:["블러드펌프","속도조절","키보드"]},
+
+{id:51,date:"2024-01-18",alarm:"",device:"PrismaFlex",cat:"하드웨어",
+title:"ABD 공기감지기 알람 반복 → PIB 보드 교체",
+symptom:"ABD 교체 후 120시간 사용 후 재발. 먼지 청소 → ABD → PIB 순서로 점검 필요.",
+solution:"① 먼지 청소.\n② ABD 교체.\n③ PIB 보드 교체.\n④ PIB 보드 최근 불량 다수.",
+parts:["ABD","PIB 보드"],tags:["ABD","공기감지기","PIB보드"]},
+
+{id:52,date:"2025-09-29",alarm:"",device:"PrismaFlex",cat:"하드웨어",
+title:"Ping Test – Carrier OK / Protective Fail",
+symptom:"Protect carrier pentium pib arps supervision 모두 교체했으나 동일 증상. I2C 선 도통 정상.",
+solution:"Carrier OK → Protective Fail이면 둘 사이 또는 Protective B 문제. 다른 보드로 재교체 시도.",
+parts:["Protective Board","Carrier Board"],tags:["PingTest","Protective","Carrier","I2C"]},
+
+{id:53,date:"2026-02-24",alarm:"",device:"PrisMax",cat:"알람",
+title:"2번째 프라이밍에서만 공기감지기 알람",
+symptom:"첫 프라이밍은 정상이나 2번째 프라이밍에서만 공기감지기 알람 발생.",
+solution:"조사 중. 동일 케이스 있을 시 보고 필요.",
+parts:[],tags:["프라이밍","공기감지기","2번째","조사중"]},
+
+{id:54,date:"2023-12-19",alarm:"T2295",device:"TherMax",cat:"알람",
+title:"T2295 TherMax 알람 (초기 사례)",
+symptom:"시작하자마자 T2295 발생.",
+solution:"① 케이블 통신 문제 의심.\n② 멀티탭 전원 공유 확인.\n③ TherMax 내부 커넥터 점검.",
+parts:["케이블"],tags:["T2295","TherMax","케이블","통신"]},
+
+{id:55,date:"2023-07-25",alarm:"",device:"PrisMax",cat:"알람",
+title:"UF 수분 제거량 트래킹 일시적 표시 누락",
+symptom:"특정 시간대(오전 4:00~6:00) UF 트래킹 표시 안됨. 시간 지나면 보임.",
+solution:"고장 아닌 고객 불만사항 → Customer Complaint(QA) 접수. 로그파일에는 정상 기록됨.",
+parts:[],tags:["UF","수분제거","트래킹","표시오류","컴플레인"]},
+];
+
+// ─── STATE ───
+let sq="", ad="all", ac="all", openSet=new Set();
+let curTab="search";
+let favs=(()=>{try{return new Set(JSON.parse(localStorage.getItem("prismaxFavs")||"[]"));}catch(e){return new Set();}})();
+
+function acls(a){
+  if(!a) return "aX";
+  const c=a[0].toUpperCase();
+  return c==="T"?"aT":c==="B"?"aB":c==="P"?"aP":c==="S"?"aS":"aX";
+}
+
+function hl(t,q){
+  if(!q) return t;
+  const terms=q.trim().split(/\s+/).filter(Boolean);
+  if(!terms.length) return t;
+  const re=new RegExp('('+terms.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','gi');
+  return t.replace(re,m=>`<mark>${m}</mark>`);
+}
+
+function match(c,q){
+  if(!q) return true;
+  const h=[c.alarm,c.title,c.symptom,c.solution,c.device,c.cat,...(c.parts||[]),...(c.tags||[])].join(" ").toLowerCase();
+  const terms=q.toLowerCase().split(/\s+/).filter(Boolean);
+  return terms.every(t=>h.includes(t));
+}
+
+// SVG icons for parts list (Vantive style — outline, plum stroke)
+const partSVG=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`;
+
+function cardHTML(c,q){
+  const o=openSet.has(c.id);
+  const starred=favs.has(c.id);
+  return `<div class="card" id="c${c.id}">
+    <div class="card-head" onclick="tog(${c.id})">
+      <span class="abadge ${acls(c.alarm)}">${c.alarm||"—"}</span>
+      <div class="card-body">
+        <div class="card-title">${hl(c.title,q)}</div>
+        <div class="card-meta">
+          <span class="mtag mdev">${c.device}</span>
+          <span class="mtag mcat">${c.cat}</span>
+          <span class="mdate">${c.date}</span>
+        </div>
+      </div>
+      <button class="star-btn ${starred?'on':''}" onclick="event.stopPropagation();toggleFav(${c.id})">${starred?'⭐':'☆'}</button>
+      <span class="chev ${o?'open':''}">▾</span>
+    </div>
+    <div class="card-detail ${o?'open':''}">
+      <div class="card-detail-inner">
+        <div class="dsec">
+          <div class="dlabel"><span class="dlabel-arr">>>></span> 증상 / 문제</div>
+          <div class="dbox">${hl(c.symptom.replace(/\n/g,'<br>'),q)}</div>
+        </div>
+        <div class="dsec">
+          <div class="dlabel"><span class="dlabel-arr">>>></span> 해결 방법</div>
+          <div class="sbox">${hl(c.solution.replace(/\n/g,'<br>'),q)}</div>
+        </div>
+        ${c.parts.length?`<div class="dsec">
+          <div class="dlabel"><span class="dlabel-arr">>>></span> 관련 부품</div>
+          <div class="ptags">${c.parts.map(p=>`<span class="ptag">${hl(p,q)}</span>`).join('')}</div>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const q=sq.trim();
+  const f=D.filter(c=>{
+    if(ad!=="all"&&c.device!==ad) return false;
+    if(ac!=="all"&&c.cat!==ac)    return false;
+    return match(c,q);
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+
+  document.getElementById("cnt").textContent=f.length;
+  document.getElementById("totalBadge").textContent=D.length+"건";
+  const el=document.getElementById("list");
+  const em=document.getElementById("empty");
+  if(!f.length){ el.innerHTML=""; em.style.display="block"; return; }
+  em.style.display="none";
+  el.innerHTML=f.map(c=>cardHTML(c,q)).join('');
+}
+
+function switchTab(tab){
+  curTab=tab;
+  const showSearch=(tab==="search");
+
+  ["alarm","parts","fav"].forEach(t=>{
+    const el=document.getElementById("tab"+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el) el.classList.toggle("on",t===tab);
+  });
+  document.getElementById("tabSearch").style.display=showSearch?"block":"none";
+  document.getElementById("filtersEl").style.display=showSearch?"block":"none";
+  document.getElementById("statsEl").style.display=showSearch?"block":"none";
+  const kw=document.getElementById("kwRow");
+  if(kw) kw.style.display=(showSearch&&sq.trim().split(/\s+/).filter(Boolean).length>1)?"flex":"none";
+
+  document.querySelectorAll(".bnav-item").forEach((b,i)=>{
+    b.classList.toggle("on",["search","alarm","parts","fav"][i]===tab);
+  });
+
+  if(tab==="alarm") renderAlarms();
+  if(tab==="parts") renderParts();
+  if(tab==="fav")   renderFavs();
+}
+
+function renderAlarms(){
+  const alarmCases=D.filter(c=>c.alarm).sort((a,b)=>a.alarm.localeCompare(b.alarm));
+  const groups={T:[],B:[],P:[],X:[]};
+  alarmCases.forEach(c=>{
+    const k=c.alarm[0].toUpperCase();
+    if(groups[k]) groups[k].push(c); else groups.X.push(c);
+  });
+  const noAlarm=D.filter(c=>!c.alarm).length;
+  let html="";
+  [["T","T 알람","ag-T"],["B","B 알람","ag-B"],["P","P 알람","ag-P"],["X","기타","ag-X"]].forEach(([g,label,cls])=>{
+    if(!groups[g].length) return;
+    html+=`<div class="alarm-group">
+      <div class="alarm-group-header">
+        <span class="alarm-group-pill ${cls}">${label}</span>
+        <span class="ag-cnt">${groups[g].length}건</span>
+      </div>
+      <div class="alarm-list">
+        ${groups[g].map(c=>`
+          <div class="alarm-row" onclick="goSearch('${c.alarm}')">
+            <div>
+              <div class="alarm-code">${c.alarm}</div>
+              <div class="alarm-title-sm">${c.title}</div>
+            </div>
+            <div style="display:flex;align-items:center">
+              <span class="alarm-dev-tag">${c.device}</span>
+              <span class="alarm-arr">›</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  html+=`<p style="font-size:11px;color:var(--text3);padding:4px 2px 20px">알람코드 없는 케이스 ${noAlarm}건은 검색 탭에서 확인</p>`;
+  document.getElementById("alarmContent").innerHTML=html;
+}
+
+function renderParts(){
+  const map={};
+  D.forEach(c=>(c.parts||[]).forEach(p=>{map[p]=(map[p]||0)+1;}));
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+  const html=`
+    <p class="parts-info">탭하면 관련 케이스를 검색합니다</p>
+    <div class="parts-list">
+      ${sorted.map(([p,n])=>`
+        <div class="part-item" onclick="goSearch('${p.replace(/'/g,"\\'")}')">
+          <div class="part-icon-wrap">${partSVG}</div>
+          <span class="part-name">${p}</span>
+          <span class="part-cnt">${n}건</span>
+          <span class="part-arr">›</span>
+        </div>`).join('')}
+    </div>`;
+  document.getElementById("partsContent").innerHTML=html;
+}
+
+function renderFavs(){
+  const el=document.getElementById("favContent");
+  if(!favs.size){
+    el.innerHTML=`<div class="fav-empty">
+      <div class="fav-empty-icon">⭐</div>
+      <p>카드의 ☆ 버튼을 탭하면<br>여기에 저장됩니다</p>
+    </div>`; return;
+  }
+  const cards=Array.from(favs).map(id=>{
+    const c=D.find(x=>x.id===id); if(!c) return'';
+    return cardHTML(c,"");
+  }).join('');
+  el.innerHTML=`<div class="cards" style="padding:0 0 20px">${cards}</div>`;
+}
+
+function toggleFav(id){
+  favs.has(id)?favs.delete(id):favs.add(id);
+  (()=>{try{localStorage.setItem("prismaxFavs",JSON.stringify([...favs]));}catch(e){}})()
+  if(curTab==="search") render();
+  else if(curTab==="fav") renderFavs();
+}
+
+function goSearch(keyword){
+  switchTab("search");
+  sq=keyword;
+  document.getElementById("si").value=keyword;
+  document.getElementById("sc").classList.add("show");
+  openSet.clear(); renderKwTags(); render();
+}
+
+function tog(id){
+  openSet.has(id)?openSet.delete(id):openSet.add(id);
+  render();
+  setTimeout(()=>{
+    const e=document.getElementById("c"+id);
+    if(e) e.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },60);
+}
+
+function clearS(){
+  sq=""; document.getElementById("si").value="";
+  document.getElementById("sc").classList.remove("show");
+  openSet.clear(); renderKwTags(); render();
+}
+
+function renderKwTags(){
+  const row=document.getElementById("kwRow");
+  const terms=sq.trim().split(/\s+/).filter(Boolean);
+  if(terms.length<2){ row.classList.remove("show"); row.innerHTML=""; return; }
+  row.classList.add("show");
+  row.innerHTML=`<span class="kw-label">AND:</span>`+
+    terms.map(t=>`<span class="kw-tag">›› ${t}</span>`).join('');
+}
+
+document.getElementById("si").addEventListener("input",function(){
+  sq=this.value;
+  document.getElementById("sc").classList.toggle("show",sq.length>0);
+  openSet.clear(); renderKwTags(); render();
+});
+
+document.getElementById("devChips").addEventListener("click",function(e){
+  const c=e.target.closest(".seg"); if(!c) return;
+  ad=c.dataset.v;
+  this.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));
+  c.classList.add("on"); openSet.clear(); render();
+});
+
+document.getElementById("catChips").addEventListener("click",function(e){
+  const c=e.target.closest(".seg"); if(!c) return;
+  ac=c.dataset.v;
+  this.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));
+  c.classList.add("on"); openSet.clear(); render();
+});
+
+// Init
+document.getElementById("tabSearch").style.display="block";
+document.getElementById("tabAlarm").classList.remove("on");
+document.getElementById("tabParts").classList.remove("on");
+document.getElementById("tabFav").classList.remove("on");
+render();
+</script>
+</body>
+</html>

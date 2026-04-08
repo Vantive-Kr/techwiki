@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artis BBOX Analysis Helper — 사용 가이드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+  :root {
+    --plum:        #72256B;
+    --plum-dark:   #5a1d55;
+    --plum-light:  #f3e8f2;
+    --pine:        #105742;
+    --pine-light:  #e8f3ef;
+    --eucalyptus:  #6CA07A;
+    --sage:        #CDDFD7;
+    --cream:       #FFFAEB;
+    --text:        #1A0D18;
+    --text-muted:  #6b5568;
+    --border:      #e0d4df;
+    --radius:      8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, 'Noto Sans KR', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .site-header {
+    background: linear-gradient(135deg, var(--plum-dark) 0%, var(--plum) 60%, #8a2e82 100%);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 16px rgba(114,37,107,.35);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .header-logo {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .header-logo span { color: var(--sage); }
+  .header-divider {
+    width: 2px; height: 28px;
+    background: rgba(255,255,255,.3);
+    border-radius: 2px;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .header-tag {
+    margin-left: auto;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-family: 'Arial Black', Arial, sans-serif;
+  }
+
+  /* ── HERO ────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(160deg, var(--plum-dark) 0%, var(--plum) 50%, #7a2872 100%);
+    padding: 64px 32px 56px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 120%, rgba(108,160,122,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-arrows {
+    color: var(--sage);
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    font-family: 'Arial Black', Arial, sans-serif;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .hero h1 {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .hero h1 em {
+    color: var(--sage);
+    font-style: normal;
+  }
+  .hero-sub {
+    color: rgba(255,255,255,.75);
+    font-size: 15px;
+    margin-bottom: 32px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-badge {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(205,223,215,.4);
+    color: var(--sage);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-family: 'Arial Black', Arial, sans-serif;
+    letter-spacing: .05em;
+  }
+
+  /* ── LAYOUT ──────────────────────────────────── */
+  .page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ── SECTION TITLE ───────────────────────────── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .section-arrows {
+    color: var(--plum);
+    font-size: 16px;
+    font-weight: 900;
+    font-family: 'Arial Black', Arial, sans-serif;
+    letter-spacing: .05em;
+  }
+  .section-title {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--pine);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+  }
+  .section-line {
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(to right, var(--border), transparent);
+    border-radius: 2px;
+  }
+
+  /* ── STEP FLOW ───────────────────────────────── */
+  .step-flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+    margin-bottom: 56px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .step-item {
+    padding: 28px 24px;
+    position: relative;
+    border-right: 1px solid var(--border);
+  }
+  .step-item:last-child { border-right: none; }
+  .step-item::after {
+    content: '›';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: var(--plum);
+    font-weight: 900;
+    z-index: 2;
+    background: #fff;
+    padding: 2px 0;
+  }
+  .step-item:last-child::after { display: none; }
+  .step-num {
+    width: 28px; height: 28px;
+    background: var(--plum);
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .step-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .step-head {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--plum);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 6px;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── FEATURE GRID ────────────────────────────── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+  .feature-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .feature-card-head {
+    background: var(--plum);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .feature-card-head.pine { background: var(--pine); }
+  .feature-card-head.eucalyptus { background: var(--eucalyptus); }
+  .feature-card-icon {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,.2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feature-card-title {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+  }
+  .feature-card-body {
+    padding: 20px;
+  }
+  .feature-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f0f4;
+    align-items: flex-start;
+  }
+  .feature-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .feature-item:first-child { padding-top: 0; }
+  .feature-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--plum);
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .feature-dot.pine { background: var(--pine); }
+  .feature-dot.eucalyptus { background: var(--eucalyptus); }
+  .feature-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .feature-text strong {
+    font-weight: 700;
+    color: var(--plum);
+  }
+  .feature-text strong.pine { color: var(--pine); }
+
+  /* ── UI MOCKUP ───────────────────────────────── */
+  .ui-section {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 56px;
+  }
+  .ui-section-header {
+    background: linear-gradient(135deg, var(--plum-dark), var(--plum));
+    padding: 14px 20px 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ui-section-title {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  .ui-section-body { padding: 28px; }
+
+  /* ── MOCK HEADER ──────────────────────────────── */
+  .mock-header {
+    background: linear-gradient(135deg, #5a1d55, #72256B, #8a2e82);
+    border-radius: 6px 6px 0 0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .mock-logo {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .mock-logo em { color: var(--sage); font-style: normal; }
+  .mock-title { color: rgba(255,255,255,.8); font-size: 12px; }
+
+  /* ── STAT CARDS MOCK ─────────────────────────── */
+  .mock-stats {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    background: var(--cream);
+    flex-wrap: wrap;
+  }
+  .mock-stat {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--plum);
+    border-radius: 4px;
+    padding: 10px 16px;
+    flex: 1;
+    min-width: 110px;
+  }
+  .mock-stat-label {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    color: var(--pine);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 4px;
+  }
+  .mock-stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--plum);
+    line-height: 1;
+  }
+  .mock-stat-val.text { font-size: 14px; color: var(--pine); font-family: 'Arial Black', Arial, sans-serif; }
+
+  /* ── MOCK TABLE ───────────────────────────────── */
+  .mock-table-wrap {
+    padding: 0 14px 14px;
+    background: var(--cream);
+  }
+  .mock-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .mock-input {
+    flex: 1;
+    min-width: 160px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: #fff;
+  }
+  .mock-select {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: #fff;
+    min-width: 100px;
+  }
+  .mock-btn-primary {
+    background: var(--plum);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Arial Black', Arial, sans-serif;
+    letter-spacing: .04em;
+    cursor: default;
+  }
+  .mock-btn-ghost {
+    background: #fff;
+    color: var(--plum);
+    border: 1px solid #c8a0c4;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Arial Black', Arial, sans-serif;
+    cursor: default;
+  }
+  .mock-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .mock-table thead th {
+    background: var(--eucalyptus);
+    color: #fff;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--pine);
+    white-space: nowrap;
+  }
+  .mock-table tbody td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0eaf0;
+    vertical-align: middle;
+  }
+  .mock-table tbody tr:last-child td { border-bottom: none; }
+  .mock-badge-alarm {
+    background: var(--plum-light);
+    color: var(--plum);
+    border: 1px solid #c8a0c4;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Arial Black', Arial, sans-serif;
+    white-space: nowrap;
+  }
+  .mock-badge-info {
+    background: var(--pine-light);
+    color: var(--pine);
+    border: 1px solid #a8c8b8;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Arial Black', Arial, sans-serif;
+    white-space: nowrap;
+  }
+  .mock-csv-btn {
+    background: var(--plum-light);
+    color: var(--plum);
+    border: 1px solid #c8a0c4;
+    border-radius: 3px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Arial Black', Arial, sans-serif;
+    cursor: default;
+  }
+  .mock-code { font-family: monospace; color: var(--plum); }
+  .mock-file { font-family: monospace; font-size: 11px; color: var(--text-muted); }
+
+  /* ── ANNOTATION ───────────────────────────────── */
+  .annotation-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 28px;
+    align-items: start;
+    margin-bottom: 56px;
+  }
+  @media (max-width: 780px) {
+    .annotation-grid { grid-template-columns: 1fr; }
+  }
+  .annotation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .annotation-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--plum);
+  }
+  .annotation-item.pine { border-left-color: var(--pine); }
+  .annotation-item.eucalyptus { border-left-color: var(--eucalyptus); }
+  .annotation-num {
+    width: 24px; height: 24px;
+    background: var(--plum);
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .annotation-num.pine { background: var(--pine); }
+  .annotation-num.eucalyptus { background: var(--eucalyptus); }
+  .annotation-content {}
+  .annotation-title {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--plum);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 4px;
+  }
+  .annotation-title.pine { color: var(--pine); }
+  .annotation-title.eucalyptus { color: var(--eucalyptus); }
+  .annotation-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── VERSION TABLE ───────────────────────────── */
+  .version-table-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 56px;
+  }
+  .version-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .version-table thead th {
+    background: var(--pine);
+    color: #fff;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 12px 18px;
+    text-align: left;
+    font-weight: 900;
+  }
+  .version-table tbody td {
+    padding: 12px 18px;
+    border-bottom: 1px solid #f0eaf0;
+    vertical-align: middle;
+  }
+  .version-table tbody tr:last-child td { border-bottom: none; }
+  .version-table tbody tr:hover { background: #faf5f9; }
+  .ver-badge {
+    display: inline-block;
+    background: var(--sage);
+    color: var(--pine);
+    border: 1px solid var(--eucalyptus);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .mono { font-family: monospace; font-size: 12px; color: var(--text-muted); }
+  td.check { color: var(--pine); font-weight: 700; text-align: center; font-size: 16px; }
+
+  /* ── TIP BOX ──────────────────────────────────── */
+  .tip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 56px;
+  }
+  .tip-card {
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    border: 1px solid;
+  }
+  .tip-card.info {
+    background: var(--plum-light);
+    border-color: #c8a0c4;
+  }
+  .tip-card.success {
+    background: var(--pine-light);
+    border-color: #a8c8b8;
+  }
+  .tip-card.neutral {
+    background: var(--sage);
+    border-color: var(--eucalyptus);
+  }
+  .tip-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tip-icon { font-size: 18px; }
+  .tip-title {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--plum);
+  }
+  .tip-title.pine { color: var(--pine); }
+  .tip-text { font-size: 13px; line-height: 1.55; color: var(--text-muted); }
+
+  /* ── DROP ZONE MOCK ──────────────────────────── */
+  .mock-dropzone {
+    border: 2.5px dashed #c8a0c4;
+    border-radius: 6px;
+    background: #fff;
+    padding: 36px 24px;
+    text-align: center;
+    margin: 0 14px 14px;
+  }
+  .mock-dropzone svg { color: var(--plum); margin-bottom: 10px; }
+  .mock-dropzone h3 { font-size: 15px; margin-bottom: 6px; }
+  .mock-dropzone p { color: var(--text-muted); font-size: 12px; }
+
+  /* ── PROGRESS BAR MOCK ───────────────────────── */
+  .mock-progress-wrap {
+    margin: 12px 14px 0;
+  }
+  .mock-progress-bar {
+    height: 6px;
+    background: var(--plum-light);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+  .mock-progress-fill {
+    height: 100%;
+    width: 65%;
+    background: var(--plum);
+    border-radius: 3px;
+  }
+  .mock-progress-label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ── FILE LIST MOCK ──────────────────────────── */
+  .mock-file-item {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 0 14px 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .mock-file-name { font-weight: 600; flex: 1; word-break: break-all; }
+  .mock-file-meta { color: var(--text-muted); font-size: 11px; }
+  .mock-ver-badge {
+    background: var(--sage);
+    color: var(--pine);
+    border: 1px solid var(--eucalyptus);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .mock-alarm-count { color: var(--plum); font-weight: 700; font-size: 11px; }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  .site-footer {
+    background: var(--plum-dark);
+    padding: 28px 32px;
+    text-align: center;
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .footer-logo {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .footer-logo em { color: var(--sage); font-style: normal; }
+  .footer-text { color: rgba(255,255,255,.5); font-size: 12px; }
+
+  /* ── TABS MOCK ───────────────────────────────── */
+  .mock-tab-bar {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    padding: 0 14px;
+    background: var(--cream);
+  }
+  .mock-tab {
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a07898;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-family: 'Arial Black', Arial, sans-serif;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  .mock-tab.active {
+    color: var(--plum);
+    border-bottom-color: var(--plum);
+  }
+  .mock-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px 0;
+    background: var(--cream);
+  }
+  .mock-action-title {
+    flex: 1;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--plum);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .callout {
+    position: relative;
+    padding: 10px 14px;
+    background: rgba(114,37,107,.08);
+    border-left: 3px solid var(--plum);
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    color: var(--plum);
+    font-weight: 600;
+    margin: 6px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ══════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-logo">Van<em>tive</em></div>
+    <div class="header-divider"></div>
+    <div class="header-title">Artis BBOX Analysis Helper — 사용 가이드</div>
+    <div class="header-tag">Web Edition</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
+<div class="hero">
+  <span class="hero-arrows">&gt;&gt;&gt;</span>
+  <h1>Artis BBOX<br><em>Analysis Helper</em></h1>
+  <p class="hero-sub">Artis 혈액투석기의 블랙박스(.dat) 파일을 웹 브라우저에서 직접 분석하는 도구입니다. 설치 없이 파일을 업로드하면 알람 기록과 장비 상태를 즉시 확인할 수 있습니다.</p>
+  <div class="hero-badges">
+    <span class="hero-badge">Ver 8.09 지원</span>
+    <span class="hero-badge">Ver 8.33 지원</span>
+    <span class="hero-badge">Ver 8.60 지원</span>
+    <span class="hero-badge">Ver 9.05 지원</span>
+    <span class="hero-badge">CSV 내보내기</span>
+    <span class="hero-badge">설치 불필요</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CONTENT ═════════════════════════════ -->
+<div class="page-wrap">
+
+  <!-- ─────── STEP FLOW ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">사용 흐름</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="step-flow">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <span class="step-icon">📁</span>
+      <div class="step-head">파일 업로드</div>
+      <div class="step-desc">Artis BBOX .dat 파일을 드래그 앤 드롭하거나 클릭하여 선택합니다. 여러 파일 동시 업로드 가능</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <span class="step-icon">🔍</span>
+      <div class="step-head">자동 파싱</div>
+      <div class="step-desc">파일 크기를 기반으로 펌웨어 버전을 자동 감지하고 이진 데이터를 파싱합니다</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <span class="step-icon">📊</span>
+      <div class="step-head">결과 확인</div>
+      <div class="step-desc">대시보드에서 알람 이벤트, 총 레코드 수, 감지된 버전을 요약 확인합니다</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <span class="step-icon">⬇️</span>
+      <div class="step-head">CSV 내보내기</div>
+      <div class="step-desc">필터링된 결과 또는 전체 데이터를 CSV 파일로 다운로드하여 분석합니다</div>
+    </div>
+  </div>
+
+  <!-- ─────── UI 화면 구성 ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">화면 구성 (UI 레이아웃)</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="annotation-grid">
+    <div class="ui-section">
+      <!-- Mock App UI -->
+      <div class="mock-header">
+        <span style="font-size:18px;">⬜</span>
+        <span class="mock-logo">Van<em>tive</em></span>
+        <span style="color:rgba(255,255,255,.6);font-size:11px;">|</span>
+        <span class="mock-title">Artis BBOX Analysis Helper &nbsp;›&nbsp; Web Edition</span>
+      </div>
+
+      <!-- Stats -->
+      <div class="mock-stats">
+        <div class="mock-stat"><div class="mock-stat-label">Files</div><div class="mock-stat-val">1</div></div>
+        <div class="mock-stat"><div class="mock-stat-label">Total Records</div><div class="mock-stat-val">490</div></div>
+        <div class="mock-stat"><div class="mock-stat-label">Alarm Events</div><div class="mock-stat-val">13</div></div>
+        <div class="mock-stat"><div class="mock-stat-label">Detected Versions</div><div class="mock-stat-val text">8.60</div></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="mock-tab-bar">
+        <div class="mock-tab active">Alarm Log</div>
+        <div class="mock-tab">Files</div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="mock-action-bar">
+        <span class="mock-action-title">&gt;&gt;&gt; Alarm Records</span>
+        <button class="mock-btn-primary">⬇ Export All CSV</button>
+        <button class="mock-btn-ghost">Reset</button>
+      </div>
+
+      <!-- Filters -->
+      <div style="padding:8px 14px 4px; background:var(--cream);">
+        <div class="mock-filter">
+          <div class="mock-input" style="color:#bbb;">Search alarm description or file name...</div>
+          <div class="mock-select">All files ▾</div>
+          <div class="mock-select">All types ▾</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="mock-table-wrap">
+        <table class="mock-table">
+          <thead>
+            <tr>
+              <th>Date / Time ▲</th>
+              <th>File</th>
+              <th>Type</th>
+              <th>Code</th>
+              <th>Description</th>
+              <th>CSV</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-03-19 07:02:21</td>
+              <td class="mock-file">TalkFile_BB11_...</td>
+              <td><span class="mock-badge-alarm">ALARM</span></td>
+              <td class="mock-code">#559</td>
+              <td>Preparation Completed</td>
+              <td><button class="mock-csv-btn">⬇ CSV</button></td>
+            </tr>
+            <tr>
+              <td>2026-03-19 07:06:57</td>
+              <td class="mock-file">TalkFile_BB11_...</td>
+              <td><span class="mock-badge-alarm">ALARM</span></td>
+              <td class="mock-code">#564</td>
+              <td>Ultrafilter Cover Error</td>
+              <td><button class="mock-csv-btn">⬇ CSV</button></td>
+            </tr>
+            <tr>
+              <td>2026-03-19 07:14:03</td>
+              <td class="mock-file">TalkFile_BB11_...</td>
+              <td><span class="mock-badge-info">OPERATOR_ACT</span></td>
+              <td class="mock-code">#105</td>
+              <td>Heparin infusion complete</td>
+              <td><button class="mock-csv-btn">⬇ CSV</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="annotation-list">
+      <div class="annotation-item">
+        <div class="annotation-num">①</div>
+        <div class="annotation-content">
+          <div class="annotation-title">헤더 & 로고</div>
+          <div class="annotation-desc">Vantive 브랜드 헤더. 앱 이름과 Web Edition 태그가 표시됩니다.</div>
+        </div>
+      </div>
+      <div class="annotation-item pine">
+        <div class="annotation-num pine">②</div>
+        <div class="annotation-content">
+          <div class="annotation-title pine">요약 대시보드</div>
+          <div class="annotation-desc">파일 수, 전체 레코드 수, 알람 이벤트 수, 감지된 버전을 카드로 표시합니다.</div>
+        </div>
+      </div>
+      <div class="annotation-item eucalyptus">
+        <div class="annotation-num eucalyptus">③</div>
+        <div class="annotation-content">
+          <div class="annotation-title eucalyptus">탭 네비게이션</div>
+          <div class="annotation-desc"><strong style="color:var(--eucalyptus)">Alarm Log</strong> — 전체 알람/이벤트 테이블<br><strong style="color:var(--eucalyptus)">Files</strong> — 파일별 요약 정보</div>
+        </div>
+      </div>
+      <div class="annotation-item">
+        <div class="annotation-num">④</div>
+        <div class="annotation-content">
+          <div class="annotation-title">필터 & 검색</div>
+          <div class="annotation-desc">알람 설명·파일명 텍스트 검색, 파일별/유형별 드롭다운 필터를 제공합니다.</div>
+        </div>
+      </div>
+      <div class="annotation-item pine">
+        <div class="annotation-num pine">⑤</div>
+        <div class="annotation-content">
+          <div class="annotation-title pine">알람 테이블</div>
+          <div class="annotation-desc">DATE/TIME, FILE, TYPE, CODE, DESCRIPTION 컬럼. 헤더 클릭으로 정렬 가능합니다.</div>
+        </div>
+      </div>
+      <div class="annotation-item eucalyptus">
+        <div class="annotation-num eucalyptus">⑥</div>
+        <div class="annotation-content">
+          <div class="annotation-title eucalyptus">CSV 내보내기</div>
+          <div class="annotation-desc">행별 개별 CSV 또는 <strong style="color:var(--eucalyptus)">Export All CSV</strong>로 전체 내보내기가 가능합니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────── FILE UPLOAD SECTION ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">파일 업로드 방법</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="ui-section" style="margin-bottom:56px;">
+    <div class="ui-section-header">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="ui-section-title">드래그 앤 드롭 / 파일 선택</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <!-- Left: mock dropzone -->
+      <div style="border-right:1px solid var(--border);">
+        <div class="mock-dropzone">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--plum);display:block;margin:0 auto 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <h3 style="font-size:14px;margin-bottom:6px;">파일을 여기에 드래그하거나 클릭하여 업로드</h3>
+          <p>지원 형식: <strong>.dat</strong> (Artis BBOX 블랙박스 파일)</p>
+          <p style="margin-top:6px;color:#a07898;">여러 파일 동시 선택 가능</p>
+        </div>
+        <div class="mock-progress-wrap">
+          <div class="mock-progress-bar"><div class="mock-progress-fill"></div></div>
+          <div class="mock-progress-label">파싱 중... (65%)</div>
+        </div>
+        <div style="height:14px;"></div>
+      </div>
+      <!-- Right: instructions -->
+      <div style="padding:24px 28px;">
+        <div style="margin-bottom:18px;">
+          <div style="font-family:'Arial Black',Arial,sans-serif;font-size:11px;font-weight:900;color:var(--pine);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">방법 A — 드래그 앤 드롭</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:var(--plum);color:#fff;border-radius:50%;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Arial Black',Arial,sans-serif;">1</div>
+              <div style="font-size:13px;color:var(--text-muted);line-height:1.4;">파일 탐색기에서 <code style="background:#f3e8f2;color:var(--plum);padding:1px 5px;border-radius:3px;font-size:12px;">.dat</code> 파일을 선택합니다</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:var(--plum);color:#fff;border-radius:50%;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Arial Black',Arial,sans-serif;">2</div>
+              <div style="font-size:13px;color:var(--text-muted);line-height:1.4;">점선 박스 위로 파일을 끌어다 놓습니다 (박스가 보라색으로 변합니다)</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="width:20px;height:20px;background:var(--plum);color:#fff;border-radius:50%;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Arial Black',Arial,sans-serif;">3</div>
+              <div style="font-size:13px;color:var(--text-muted);line-height:1.4;">마우스를 놓으면 자동으로 파싱이 시작됩니다</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Arial Black',Arial,sans-serif;font-size:11px;font-weight:900;color:var(--pine);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">방법 B — 클릭하여 선택</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.55;">업로드 영역을 클릭하면 파일 선택 대화상자가 열립니다. <strong>Ctrl+클릭</strong> 또는 <strong>Shift+클릭</strong>으로 여러 파일을 한 번에 선택할 수 있습니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────── FEATURE CARDS ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">주요 기능 상세</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="feature-grid">
+    <!-- Alarm Log -->
+    <div class="feature-card">
+      <div class="feature-card-head">
+        <div class="feature-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <span class="feature-card-title">Alarm Log 탭</span>
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-item">
+          <div class="feature-dot"></div>
+          <div class="feature-text"><strong>텍스트 검색</strong> — 알람 설명(Description) 또는 파일명으로 실시간 검색</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot"></div>
+          <div class="feature-text"><strong>파일 필터</strong> — 특정 .dat 파일의 레코드만 보기</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot"></div>
+          <div class="feature-text"><strong>유형 필터</strong> — ALARM / OPERATOR_ACT / SET_CNF_VALUE / AUTOMATIC / DIAGNOSTIC 중 선택</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot"></div>
+          <div class="feature-text"><strong>컬럼 정렬</strong> — DATE/TIME, TYPE, CODE 등 헤더 클릭으로 오름차순/내림차순 정렬</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot"></div>
+          <div class="feature-text"><strong>행별 CSV</strong> — 각 레코드 우측 ⬇ CSV 버튼으로 해당 행의 전체 파라미터 다운로드</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Files Tab -->
+    <div class="feature-card">
+      <div class="feature-card-head pine">
+        <div class="feature-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <span class="feature-card-title">Files 탭</span>
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-item">
+          <div class="feature-dot pine"></div>
+          <div class="feature-text"><strong class="pine">파일 목록</strong> — 업로드된 모든 .dat 파일 목록 표시</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot pine"></div>
+          <div class="feature-text"><strong class="pine">버전 뱃지</strong> — 자동 감지된 펌웨어 버전 (8.09 / 8.33 / 8.60 / 9.05)</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot pine"></div>
+          <div class="feature-text"><strong class="pine">메타 정보</strong> — 레코드 수, 시작 타임스탬프, 알람 카운트 표시</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot pine"></div>
+          <div class="feature-text"><strong class="pine">파일별 CSV</strong> — 해당 파일의 모든 알람 레코드를 하나의 CSV로 내보내기</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot pine"></div>
+          <div class="feature-text"><strong class="pine">오류 표시</strong> — 파일 형식이 맞지 않을 경우 오류 메시지 표시</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="feature-card">
+      <div class="feature-card-head eucalyptus">
+        <div class="feature-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <span class="feature-card-title">CSV 내보내기</span>
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-item">
+          <div class="feature-dot eucalyptus"></div>
+          <div class="feature-text"><strong style="color:var(--eucalyptus)">Export All CSV</strong> — 현재 필터 조건의 모든 레코드를 하나의 CSV 파일로 다운로드</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot eucalyptus"></div>
+          <div class="feature-text"><strong style="color:var(--eucalyptus)">행별 CSV</strong> — 특정 타임스탬프의 전체 HYD/BLO/PRO 파라미터를 CSV로 다운로드</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot eucalyptus"></div>
+          <div class="feature-text"><strong style="color:var(--eucalyptus)">파일별 CSV</strong> — Files 탭에서 개별 파일의 모든 알람 레코드를 CSV로 내보내기</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot eucalyptus"></div>
+          <div class="feature-text"><strong style="color:var(--eucalyptus)">CSV 구조</strong> — DATE/TIME, TYPE, CODE, DESCRIPTION + 해당 시점 전체 파라미터 컬럼 포함</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot eucalyptus"></div>
+          <div class="feature-text"><strong style="color:var(--eucalyptus)">Reset 버튼</strong> — 모든 로드된 파일과 결과를 초기화하고 새 분석 시작</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────── VERSION TABLE ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">지원 펌웨어 버전</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="version-table-wrap">
+    <table class="version-table">
+      <thead>
+        <tr>
+          <th>버전</th>
+          <th>헤더 크기</th>
+          <th>레코드 크기</th>
+          <th>스키마 ID</th>
+          <th>HY4 파라미터</th>
+          <th>PR4 파라미터</th>
+          <th>지원 여부</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="ver-badge">8.09</span></td>
+          <td class="mono">255 bytes</td>
+          <td class="mono">492 bytes</td>
+          <td class="mono">809</td>
+          <td>미포함</td>
+          <td>미포함</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td><span class="ver-badge">8.33</span></td>
+          <td class="mono">259 bytes</td>
+          <td class="mono">520 bytes</td>
+          <td class="mono">833</td>
+          <td>미포함</td>
+          <td>미포함</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td><span class="ver-badge">8.60</span></td>
+          <td class="mono">262 bytes</td>
+          <td class="mono">540 bytes</td>
+          <td class="mono">860</td>
+          <td>포함</td>
+          <td>포함</td>
+          <td class="check">✓</td>
+        </tr>
+        <tr>
+          <td><span class="ver-badge">9.05</span></td>
+          <td class="mono">263 bytes</td>
+          <td class="mono">540 bytes</td>
+          <td class="mono">905</td>
+          <td>포함</td>
+          <td>포함 (추가 파라미터)</td>
+          <td class="check">✓</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─────── ALARM TYPES ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">이벤트 유형 분류</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="ui-section" style="margin-bottom:56px;">
+    <div class="ui-section-header">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="ui-section-title">Type 컬럼 설명</span>
+    </div>
+    <div class="ui-section-body">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr>
+            <th style="background:var(--eucalyptus);color:#fff;font-family:'Arial Black',Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:10px 16px;text-align:left;border-bottom:2px solid var(--pine);">유형 코드</th>
+            <th style="background:var(--eucalyptus);color:#fff;font-family:'Arial Black',Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:10px 16px;text-align:left;border-bottom:2px solid var(--pine);">표시명</th>
+            <th style="background:var(--eucalyptus);color:#fff;font-family:'Arial Black',Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:10px 16px;text-align:left;border-bottom:2px solid var(--pine);">설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #f0eaf0;">
+            <td style="padding:10px 16px;"><span style="font-family:monospace;color:var(--plum);">0</span></td>
+            <td style="padding:10px 16px;"><span class="mock-badge-alarm">ALARM</span></td>
+            <td style="padding:10px 16px;color:var(--text-muted);">장비 알람 이벤트. 오류 코드와 함께 기록됨</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f0eaf0;">
+            <td style="padding:10px 16px;"><span style="font-family:monospace;color:var(--plum);">1</span></td>
+            <td style="padding:10px 16px;"><span class="mock-badge-info">OPERATOR_ACT</span></td>
+            <td style="padding:10px 16px;color:var(--text-muted);">사용자(오퍼레이터) 조작 이벤트. 버튼 누름, 설정 변경 등</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f0eaf0;">
+            <td style="padding:10px 16px;"><span style="font-family:monospace;color:var(--plum);">2</span></td>
+            <td style="padding:10px 16px;"><span class="mock-badge-info">SET_CNF_VALUE</span></td>
+            <td style="padding:10px 16px;color:var(--text-muted);">설정값 변경 이벤트. 치료 파라미터 설정 기록</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f0eaf0;">
+            <td style="padding:10px 16px;"><span style="font-family:monospace;color:var(--plum);">4</span></td>
+            <td style="padding:10px 16px;"><span class="mock-badge-info">AUTOMATIC</span></td>
+            <td style="padding:10px 16px;color:var(--text-muted);">장비 자동 처리 이벤트. 시스템이 자동으로 수행한 동작</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f0eaf0;">
+            <td style="padding:10px 16px;"><span style="font-family:monospace;color:var(--plum);">6</span></td>
+            <td style="padding:10px 16px;"><span class="mock-badge-info">DIAGNOSTIC_QUEUE</span></td>
+            <td style="padding:10px 16px;color:var(--text-muted);">진단 큐 이벤트. 내부 진단 프로세스 대기열 기록</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 16px;"><span style="font-family:monospace;color:var(--plum);">7</span></td>
+            <td style="padding:10px 16px;"><span class="mock-badge-info">DIAGNOSTIC_TASK</span></td>
+            <td style="padding:10px 16px;color:var(--text-muted);">진단 태스크 이벤트. 내부 진단 태스크 실행 기록</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─────── FILES TAB MOCKUP ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">Files 탭 — 파일별 요약</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="ui-section" style="margin-bottom:56px;">
+    <div class="ui-section-header pine" style="background:var(--pine);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="ui-section-title">Files 탭 화면 구성</span>
+    </div>
+    <div style="background:var(--cream);">
+      <div class="mock-tab-bar">
+        <div class="mock-tab">Alarm Log</div>
+        <div class="mock-tab active">Files</div>
+      </div>
+      <div style="padding:12px 14px 14px;">
+        <div class="mock-file-item">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="2" y="2" width="22" height="28" rx="3" fill="#f3e8f2" stroke="#72256B" stroke-width="1.5"/><path d="M24 2v7h6" stroke="#72256B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 2l6 7" stroke="#72256B" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div style="flex:1;">
+            <div class="mock-file-name">TalkFile_BB11_180326_2151_C400AD3B7AF2_33434.dat.dat</div>
+            <div class="mock-file-meta">Ver. 8.60 &nbsp;·&nbsp; 490 records &nbsp;·&nbsp; Start: 2026-03-19 07:02:21</div>
+          </div>
+          <span class="mock-alarm-count">13 alarms</span>
+          <span class="mock-ver-badge">8.60</span>
+          <button class="mock-csv-btn">⬇ CSV</button>
+        </div>
+        <div class="mock-file-item" style="opacity:.5;">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="2" y="2" width="22" height="28" rx="3" fill="#f3e8f2" stroke="#72256B" stroke-width="1.5"/><path d="M24 2v7h6" stroke="#72256B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 2l6 7" stroke="#72256B" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div style="flex:1;">
+            <div class="mock-file-name">TalkFile_BB11_180326_Example_File_02.dat</div>
+            <div class="mock-file-meta">Ver. 9.05 &nbsp;·&nbsp; 312 records &nbsp;·&nbsp; Start: 2026-02-14 09:15:00</div>
+          </div>
+          <span class="mock-alarm-count">5 alarms</span>
+          <span class="mock-ver-badge">9.05</span>
+          <button class="mock-csv-btn">⬇ CSV</button>
+        </div>
+      </div>
+    </div>
+    <div class="ui-section-body" style="padding-top:16px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div style="background:var(--plum-light);border:1px solid #c8a0c4;border-radius:6px;padding:14px 16px;">
+          <div style="font-family:'Arial Black',Arial,sans-serif;font-size:10px;font-weight:900;color:var(--plum);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">파일 아이콘</div>
+          <div style="font-size:13px;color:var(--text-muted);">업로드된 각 .dat 파일을 아이콘과 함께 표시</div>
+        </div>
+        <div style="background:var(--pine-light);border:1px solid #a8c8b8;border-radius:6px;padding:14px 16px;">
+          <div style="font-family:'Arial Black',Arial,sans-serif;font-size:10px;font-weight:900;color:var(--pine);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">메타 데이터</div>
+          <div style="font-size:13px;color:var(--text-muted);">감지된 버전, 레코드 수, 첫 번째 타임스탬프 표시</div>
+        </div>
+        <div style="background:var(--sage);border:1px solid var(--eucalyptus);border-radius:6px;padding:14px 16px;">
+          <div style="font-family:'Arial Black',Arial,sans-serif;font-size:10px;font-weight:900;color:var(--pine);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">알람 카운트</div>
+          <div style="font-size:13px;color:var(--text);">해당 파일 내 ALARM 유형 이벤트 수를 강조 표시</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────── TIPS ─────── -->
+  <div class="section-label">
+    <span class="section-arrows">&gt;&gt;&gt;</span>
+    <span class="section-title">사용 팁 & 주의사항</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="tip-grid">
+    <div class="tip-card info">
+      <div class="tip-head">
+        <span class="tip-icon">💡</span>
+        <span class="tip-title">로컬 처리</span>
+      </div>
+      <div class="tip-text">모든 파일 처리는 <strong>브라우저 내에서만</strong> 이루어집니다. 파일이 서버로 전송되지 않아 환자 데이터 보안이 보장됩니다.</div>
+    </div>
+    <div class="tip-card success">
+      <div class="tip-head">
+        <span class="tip-icon">📂</span>
+        <span class="tip-title pine">다중 파일</span>
+      </div>
+      <div class="tip-text">여러 .dat 파일을 한 번에 업로드하면 <strong>통합 분석</strong>이 가능합니다. Files 탭 필터로 개별 파일을 선택해 확인할 수 있습니다.</div>
+    </div>
+    <div class="tip-card neutral">
+      <div class="tip-head">
+        <span class="tip-icon">🔄</span>
+        <span class="tip-title pine">초기화</span>
+      </div>
+      <div class="tip-text">다른 장비의 파일을 분석하려면 <strong>Reset 버튼</strong>을 눌러 초기화한 후 새 파일을 업로드하세요.</div>
+    </div>
+    <div class="tip-card info">
+      <div class="tip-head">
+        <span class="tip-icon">⚠️</span>
+        <span class="tip-title">파일 형식</span>
+      </div>
+      <div class="tip-text">지원되지 않는 파일 크기의 .dat 파일은 <strong>오류 메시지</strong>와 함께 표시됩니다. 파일이 손상되지 않았는지 확인하세요.</div>
+    </div>
+    <div class="tip-card success">
+      <div class="tip-head">
+        <span class="tip-icon">📊</span>
+        <span class="tip-title pine">CSV 활용</span>
+      </div>
+      <div class="tip-text">행별 CSV에는 해당 시점의 <strong>모든 HYD/BLO/PRO 파라미터</strong>가 포함되어 심층 분석에 활용할 수 있습니다.</div>
+    </div>
+    <div class="tip-card neutral">
+      <div class="tip-head">
+        <span class="tip-icon">🌐</span>
+        <span class="tip-title pine">브라우저 권장</span>
+      </div>
+      <div class="tip-text">최신 버전의 <strong>Chrome, Edge, Firefox</strong>에서 최적으로 동작합니다. Internet Explorer는 지원되지 않습니다.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════ FOOTER ══════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo">Van<em>tive</em></div>
+    <div class="footer-text">Artis BBOX Analysis Helper — Web Edition &nbsp;·&nbsp; 사용 가이드</div>
+    <div class="footer-text">Internal Use Only</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>CRRT Price List 2026 · Vantive</title>
+<style>
+:root{--nav-h:64px;--plum:#72256B;--plum-d:#5C1B56;--plum-light:rgba(114,37,107,0.09);
+--cream:#FFFAEB;--pine:#105742;--pine-light:rgba(16,87,66,0.10);
+--euca:#6CA07A;--euca-light:rgba(108,160,122,0.12);
+--amber:#D4700A;--amber-light:rgba(212,112,10,0.10);
+--danger:#C0392B;--danger-light:rgba(192,57,43,0.10);
+--white:#FFFFFF;--text:#1C1C1E;--text2:#52525B;--text3:#A1A1AA;
+--border:rgba(0,0,0,0.07);--border-p:rgba(114,37,107,0.14);
+--shadow:0 2px 14px rgba(0,0,0,0.06);--r:14px;--r-xs:5px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+background:var(--cream);color:var(--text);font-size:14px;min-height:100vh;
+-webkit-font-smoothing:antialiased;
+padding-bottom:calc(var(--nav-h) + max(env(safe-area-inset-bottom,0px), 10px));}
+.hdr{background:linear-gradient(150deg,var(--plum-d) 0%,var(--plum) 60%,#8B3080 100%);
+padding:calc(16px + env(safe-area-inset-top,0px)) 18px 0;position:sticky;top:0;z-index:200;overflow:hidden;}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:2;}
+.wmark-wrap{display:flex;flex-direction:column;gap:4px;}
+.wmark-img{height:26px;width:auto;max-width:100px;display:block;}
+.tagline{font-size:13.5px;font-weight:700;color:rgba(255,250,235,0.55);letter-spacing:1.8px;text-transform:uppercase;}
+.total-badge{background:rgba(255,250,235,0.18);border:1px solid rgba(255,250,235,0.25);
+color:var(--cream);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;flex-shrink:0;margin-top:2px;}
+.s-wrap{position:relative;margin-bottom:10px;z-index:2;}
+.s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.s-inp{width:100%;padding:12px 42px 12px 44px;background:rgba(255,250,235,0.13);
+border:1.5px solid rgba(255,250,235,0.22);border-radius:12px;font-size:14px;color:var(--cream);
+outline:none;font-family:inherit;transition:background .18s,border-color .18s;}
+.s-inp:focus{background:rgba(255,250,235,0.22);border-color:rgba(255,250,235,0.45);}
+.s-inp::placeholder{color:rgba(255,250,235,0.45);}
+.s-clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+background:rgba(255,250,235,0.22);border:none;border-radius:50%;
+width:22px;height:22px;font-size:12px;cursor:pointer;color:var(--cream);
+font-weight:700;display:none;line-height:22px;text-align:center;}
+.s-clr.show{display:block;}
+.s-hint{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:12px;
+font-size:11px;color:rgba(255,250,235,0.58);position:relative;z-index:2;}
+.h-arr{color:rgba(255,250,235,0.75);font-weight:800;letter-spacing:-1px;}
+.h-ex{background:rgba(255,250,235,0.14);border:1px solid rgba(255,250,235,0.18);
+color:rgba(255,250,235,0.9);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;}
+.filt{background:var(--cream);padding:12px 18px;border-bottom:1px solid var(--border);}
+.flbl{font-size:9.5px;font-weight:800;color:var(--pine);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:7px;}
+.seg-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.seg-row::-webkit-scrollbar{display:none;}
+.seg{flex-shrink:0;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;
+cursor:pointer;user-select:none;white-space:nowrap;background:rgba(0,0,0,0.05);color:var(--text2);
+border:1.5px solid transparent;transition:all .15s ease;font-family:inherit;display:inline-flex;align-items:center;}
+.seg.on{background:var(--plum);color:var(--cream);border-color:var(--plum);}
+.seg:active{transform:scale(0.95);}
+.sdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;flex-shrink:0;}
+.frow{margin-bottom:10px;}.frow:last-child{margin-bottom:0;}
+.sbar{padding:8px 18px 6px;font-size:12px;color:var(--text2);background:var(--cream);}
+.sbar b{color:var(--plum);font-weight:700;}
+.cards{padding:8px 14px 32px;display:flex;flex-direction:column;gap:9px;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:0 2px 14px rgba(0,0,0,0.06);
+border:1px solid var(--border);overflow:hidden;}
+.chead{display:flex;align-items:flex-start;gap:10px;padding:13px 13px 11px;cursor:pointer;}
+.icode{display:inline-flex;align-items:center;justify-content:center;min-width:42px;padding:3px 7px;
+border-radius:var(--r-xs);font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0;margin-top:2px;font-family:monospace;
+background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
+.cbody{flex:1;min-width:0;}
+.ctitle{font-size:13.5px;font-weight:700;line-height:1.45;margin-bottom:6px;color:var(--text);}
+.cmeta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.chev{color:var(--text3);flex-shrink:0;margin-top:2px;width:22px;height:22px;
+display:flex;align-items:center;justify-content:center;
+background:rgba(0,0,0,0.04);border-radius:50%;transition:transform .25s ease,background .15s,color .15s;}
+.chev.open{transform:rotate(180deg);background:var(--plum-light);color:var(--plum);}
+.cdet{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
+.cdet.open{max-height:400px;border-top:1px solid var(--border);}
+.cdet-in{padding:15px 13px 18px;background:rgba(255,250,235,0.5);}
+.price-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.price-row:last-child{border-bottom:none;}
+.price-lbl{font-size:12px;color:var(--text2);}
+.price-val{font-size:15px;font-weight:800;color:var(--plum);font-family:monospace;}
+.price-val.incl{color:var(--pine);}
+.gbadge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.g-pf{background:var(--plum-light);color:var(--plum);}
+.g-px{background:var(--euca-light);color:var(--pine);}
+.g-tx{background:var(--amber-light);color:var(--amber);}
+.g-se{background:rgba(0,0,0,0.05);color:var(--text2);}
+.g-ot{background:var(--danger-light);color:var(--danger);}
+.price-badge{font-size:12px;font-weight:700;color:var(--plum);white-space:nowrap;
+flex-shrink:0;margin-top:3px;font-family:monospace;padding:2px 6px;
+background:var(--plum-light);border-radius:4px;}
+mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;padding:0 1px;}
+.empty{text-align:center;padding:60px 24px;color:var(--text2);display:none;}
+.empty-ico{font-size:46px;margin-bottom:12px;opacity:.4;}
+.empty h3{font-size:17px;font-weight:700;margin-bottom:6px;}
+.empty p{font-size:13px;}
+.bnav{position:fixed;bottom:0;left:0;right:0;min-height:var(--nav-h);
+background:#B5CFBC;border-top:1.5px solid rgba(114,37,107,0.18);
+display:flex;align-items:flex-start;padding-top:10px;
+padding-bottom:max(env(safe-area-inset-bottom,0px),10px);z-index:200;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+padding:3px 4px;cursor:pointer;border:none;background:none;
+font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.bnav-svg{width:24px;height:24px;color:rgba(114,37,107,0.4);
+transition:color .15s,transform .18s cubic-bezier(.34,1.56,.64,1);}
+.bnav-label{font-size:10px;font-weight:600;color:rgba(114,37,107,0.5);font-family:inherit;}
+.bnav-item.on .bnav-svg{color:var(--plum);transform:scale(1.12);}
+.bnav-item.on .bnav-label{color:var(--plum);font-weight:800;}
+.bnav-item:active .bnav-svg{transform:scale(0.88);}
+.tab-panel{display:none;padding-bottom:20px;}
+.tab-panel.on{display:block;}
+.bycode-panel-inner{padding:0 12px;}
+.ag{margin-bottom:18px;}
+.ag-header{display:flex;align-items:center;gap:8px;margin:14px 0 6px;}
+.ag-cnt{font-size:11px;color:var(--text3);font-weight:600;}
+.ag-list{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;}
+.ag-row{display:flex;align-items:center;justify-content:space-between;
+padding:10px 14px;cursor:pointer;gap:8px;border-bottom:1px solid var(--border);transition:background .12s;}
+.ag-row:last-child{border-bottom:none;}
+.ag-row:active{background:var(--plum-light);}
+.ag-code{font-size:12px;font-weight:700;color:var(--plum);font-family:monospace;min-width:80px;}
+.ag-name{font-size:12px;color:var(--text);flex:1;}
+.ag-price{font-size:11px;color:var(--text3);font-family:monospace;white-space:nowrap;}
+.ag-arr{font-size:16px;color:var(--text3);}
+.fav-panel-inner{padding:0 12px;}
+.fav-empty{text-align:center;padding:60px 24px;color:var(--text3);}
+.fav-empty-icon{font-size:44px;margin-bottom:12px;opacity:.4;}
+.fav-empty p{font-size:13px;line-height:1.65;}
+.fav-btn{border:none;background:none;cursor:pointer;padding:4px 6px;
+font-size:16px;color:var(--text3);line-height:1;
+transition:color .15s,transform .18s cubic-bezier(.34,1.56,.64,1);
+flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.fav-btn.active{color:#F5C518;transform:scale(1.2);}
+.fav-btn:active{transform:scale(0.85);}
+.notice-bar{background:rgba(16,87,66,0.08);border-bottom:1px solid rgba(16,87,66,0.15);
+padding:7px 18px;font-size:11px;color:var(--pine);display:flex;align-items:center;gap:6px;}
+</style>
+</head>
+<body>
+<div class="hdr">
+<div class="hdr-top"><div class="wmark-wrap"><img class="wmark-img" src="data:image/png;base64,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" alt="Vantive"/><span class="tagline">CRRT Parts · 2026</span></div><span class="total-badge" id="totalBadge">0</span></div>
+<div class="s-wrap"><div class="s-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,250,235,0.6)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input class="s-inp" id="sInp" type="text" placeholder="Item code or description..." autocomplete="off" spellcheck="false"><button class="s-clr" id="sClr">&#x2715;</button></div>
+<div class="s-hint"><span class="h-arr">&gt;&gt;&gt;</span> <span>e.g.</span><span class="h-ex">G5000103</span><span class="h-ex">blood pump</span><span class="h-ex">SC6021</span></div>
+</div>
+<div class="notice-bar">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  가격은 부가세 별도 기준이며, 2027년 1월 1일부터 변경될 수 있습니다
+</div>
+<div class="filt">
+<div class="frow">
+  <div class="flbl">Product Group</div>
+  <div class="seg-row" id="grpRow">
+    <button class="seg on" data-v="all">All</button>
+    <button class="seg" data-v="pf"><span class="sdot" style="background:var(--plum)"></span>Prismaflex</button>
+    <button class="seg" data-v="px"><span class="sdot" style="background:var(--pine)"></span>Prismax</button>
+    <button class="seg" data-v="tx"><span class="sdot" style="background:var(--amber)"></span>TherMax</button>
+    <button class="seg" data-v="se"><span class="sdot" style="background:var(--text3)"></span>Service Tools</button>
+    <button class="seg" data-v="ot"><span class="sdot" style="background:var(--danger)"></span>Autoline/Other</button>
+  </div>
+</div>
+</div>
+<div class="sbar"><b id="mCnt">0</b> items · Effective 2026-01-01</div>
+<div class="cards" id="cardsEl"></div>
+<div class="empty" id="emptyEl"><div class="empty-ico">&#x1F50D;</div><h3>No results found</h3><p>Try different search terms or filters.</p></div>
+
+<div class="tab-panel" id="bycodePanel">
+  <div class="bycode-panel-inner" id="bycodeContent"></div>
+</div>
+<div class="tab-panel" id="favPanel">
+  <div class="fav-panel-inner" id="favContent"></div>
+</div>
+
+<script>
+var ITEMS=[
+{code:"8100389",desc:"BLOODLEAK SENSOR 1 TC",excl:999600,incl:1099560,grp:"pf"},
+{code:"8100463",desc:"ASSEMBLY INTERFACE CABLE",excl:248900,incl:273790,grp:"pf"},
+{code:"8100473",desc:"GAUGE FOR WIDTH OF GAP OF PUMP",excl:348600,incl:383460,grp:"pf"},
+{code:"8100582",desc:"TEST TUBE BLOOD LEAK-KIT OF 2",excl:20000,incl:22000,grp:"pf"},
+{code:"8100740",desc:"SERVICE TOOL TEMPERATURE",excl:1025900,incl:1128490,grp:"pf"},
+{code:"8100823",desc:"STORAGE BATTERY 4",excl:149100,incl:164010,grp:"pf"},
+{code:"21910067",desc:"BRACKET AUTOLINE 4R/PRISMAFLEX",excl:185900,incl:204490,grp:"ot"},
+{code:"41311365",desc:"CIRCUIT BOARD AC-201 CONTR.V2",excl:1650000,incl:1815000,grp:"ot"},
+{code:"41311366",desc:"PCB POWER SECTION AC 3XPT 220V",excl:1940400,incl:2134440,grp:"ot"},
+{code:"82300036",desc:"PCB MICRO-CTRLR AC 3XPTINCL",excl:1920500,incl:2112550,grp:"ot"},
+{code:"00001092",desc:"AUTOLINE 4R XPT HIGH FLOW",excl:2800000,incl:3080000,grp:"ot"},
+{code:"00001106",desc:"BRACKET AUTOLINE 4R/PRISMAFLEX",excl:200000,incl:220000,grp:"ot"},
+{code:"G5000103",desc:"CALIBRATION WEIGHT KIT",excl:1300000,incl:1430000,grp:"pf"},
+{code:"G5000201",desc:"CALIBRATION TUBE",excl:30000,incl:33000,grp:"pf"},
+{code:"G5000301",desc:"SLAVE PUMP CENTERING TOOL",excl:225800,incl:248380,grp:"pf"},
+{code:"G5000501",desc:"TECHNICAL DATA CARD",excl:310000,incl:341000,grp:"pf"},
+{code:"G5000901",desc:"RETURN PRESSURE PORT",excl:60000,incl:66000,grp:"pf"},
+{code:"G5001001",desc:"BRAKE FOOT",excl:109200,incl:120120,grp:"pf"},
+{code:"G5001301",desc:"CLAMP DAMPERS KIT",excl:110000,incl:121000,grp:"pf"},
+{code:"G5002201",desc:"MICRO SWITCH",excl:126000,incl:138600,grp:"pf"},
+{code:"G5002301",desc:"WARMER HOLDER",excl:2430000,incl:2673000,grp:"pf"},
+{code:"G5002407",desc:"COMPACT FLASH SW 4.00 AND ABOVE",excl:190000,incl:209000,grp:"pf"},
+{code:"G5002601",desc:"ISOLATED RS232 BOARD",excl:250000,incl:275000,grp:"pf"},
+{code:"G5002901",desc:"SEALS PRESSURE POD",excl:41000,incl:45100,grp:"pf"},
+{code:"G5003202",desc:"PINCH VALVE",excl:1100000,incl:1210000,grp:"pf"},
+{code:"G5003303",desc:'BLOOD LEAK DETECTOR "BLD"',excl:246800,incl:271480,grp:"pf"},
+{code:"G5003601",desc:"HALL SENSOR CONTAINER SLAVE",excl:100000,incl:110000,grp:"pf"},
+{code:"G5003702",desc:"LOADER",excl:430000,incl:473000,grp:"pf"},
+{code:"G5003901",desc:"CORD HOLDER",excl:30500,incl:33550,grp:"pf"},
+{code:"G5004703",desc:"SLAVE PUMP STEPPER MOTOR",excl:1400000,incl:1540000,grp:"pf"},
+{code:"G5005101",desc:"SCALE CARRYING BAR",excl:195000,incl:214500,grp:"pf"},
+{code:"G5005213",desc:"PRISMAFLEX SERVICE MANUAL EN",excl:216300,incl:237930,grp:"pf"},
+{code:"G5005214",desc:"PRISMAFLEX SERVICE MANUAL EN",excl:215300,incl:236830,grp:"pf"},
+{code:"G5005602",desc:"LOADER BOARD",excl:450000,incl:495000,grp:"pf"},
+{code:"G5005703",desc:"BLOOD PUMP ROTOR",excl:300000,incl:330000,grp:"pf"},
+{code:"G5006001",desc:"DISCHARGER CLIP",excl:85000,incl:93500,grp:"pf"},
+{code:"G5006101",desc:"DE-AIRATION CHAMBER HOLDER",excl:40000,incl:44000,grp:"pf"},
+{code:"G5006203",desc:"ARPS PUMP ASSY",excl:1840000,incl:2024000,grp:"pf"},
+{code:"G5006204",desc:"ARPS PUMP ASSY",excl:1840000,incl:2024000,grp:"pf"},
+{code:"G5006501",desc:"PRESSURE TRANSDUCER ARPS",excl:230000,incl:253000,grp:"pf"},
+{code:"G5006702",desc:"AIR BUBBLE DETECTOR ABD",excl:590000,incl:649000,grp:"pf"},
+{code:"G5006802",desc:"RETURN CLAMP ASSY",excl:950000,incl:1045000,grp:"pf"},
+{code:"G5006902",desc:"ARPS BOARD",excl:640000,incl:704000,grp:"pf"},
+{code:"G5007002",desc:"PIB BOARD",excl:850000,incl:935000,grp:"pf"},
+{code:"G5007103",desc:"CARRIER BOARD",excl:1100000,incl:1210000,grp:"pf"},
+{code:"G5007202",desc:"PROTECTIVE BOARD",excl:800000,incl:880000,grp:"pf"},
+{code:"G5007401",desc:"RIGHT HOOK",excl:56700,incl:62370,grp:"pf"},
+{code:"G5007501",desc:"LEFT HOOK",excl:54600,incl:60060,grp:"pf"},
+{code:"G5007603",desc:"TUBE CLIP KIT",excl:140000,incl:154000,grp:"pf"},
+{code:"G5008001",desc:"LOADER STEPPER MOTOR",excl:690000,incl:759000,grp:"pf"},
+{code:"G5008702",desc:"POWER SUPPLY",excl:3500000,incl:3850000,grp:"pf"},
+{code:"G5009001",desc:"BATTERY, 12V",excl:95000,incl:104500,grp:"pf"},
+{code:"G5009502",desc:"MAINS CABLE SUPPORT",excl:60000,incl:66000,grp:"pf"},
+{code:"G5009601",desc:"PUMP CRANK",excl:180000,incl:198000,grp:"pf"},
+{code:"G5009702",desc:"PNEUMATIC SPRING",excl:250000,incl:275000,grp:"pf"},
+{code:"G5010006",desc:"PREVENTIVE MAINTENANCE KIT",excl:262500,incl:288750,grp:"pf"},
+{code:"G5010007",desc:"PREVENTIVE MAINTENANCE KIT",excl:149100,incl:164010,grp:"pf"},
+{code:"G5010008",desc:"PREVENTIVE MAINTENANCE KIT",excl:250000,incl:275000,grp:"pf"},
+{code:"G5010801",desc:"FILTER, 130 MICRON",excl:140700,incl:154770,grp:"pf"},
+{code:"G5010901",desc:"POWER CORD, EURO, 6A",excl:259400,incl:285340,grp:"pf"},
+{code:"G5022801",desc:"BACK POCKET",excl:83000,incl:91300,grp:"pf"},
+{code:"G5029101",desc:"HEPARIN PUMP CARRIER 10-50ML",excl:340000,incl:374000,grp:"pf"},
+{code:"G5029202",desc:"CLIP HOLDER 10-50 ML, MOLDED",excl:80000,incl:88000,grp:"pf"},
+{code:"G5029602",desc:"50 ML CLIP, MOLDED",excl:65100,incl:71610,grp:"pf"},
+{code:"G5035802",desc:"HEPARIN FIXING BLOCK",excl:151200,incl:166320,grp:"pf"},
+{code:"G5035804",desc:"HEPARIN FIXING BLOCK",excl:230000,incl:253000,grp:"pf"},
+{code:"G5040902",desc:"BAR CODE READER",excl:950000,incl:1045000,grp:"pf"},
+{code:"G5041305",desc:"POWER SUPPLY AE H009 H.M.",excl:595400,incl:654940,grp:"pf"},
+{code:"G5041307",desc:"DISPLAY",excl:2000000,incl:2200000,grp:"pf"},
+{code:"G5042302",desc:"MAIN SWITCH",excl:740000,incl:814000,grp:"pf"},
+{code:"G5042304",desc:"MAIN SWITCH AND SOCKET",excl:850000,incl:935000,grp:"pf"},
+{code:"G5043101",desc:"SPEAKER, FAN ASSY.",excl:300000,incl:330000,grp:"pf"},
+{code:"G5043402",desc:"BATTERY BACKUP KIT",excl:4500000,incl:4950000,grp:"pf"},
+{code:"G5043501",desc:"BACKUP BATTERY, 24V",excl:200000,incl:220000,grp:"pf"},
+{code:"G5043902",desc:"SYRINGE PUMP",excl:2200000,incl:2420000,grp:"pf"},
+{code:"G5044002",desc:"PC104 BOARD PCM 9375",excl:1310000,incl:1441000,grp:"pf"},
+{code:"G5044003",desc:"PC104 BOARD PCM 9375",excl:1550000,incl:1705000,grp:"pf"},
+{code:"G5044004",desc:"PC 104 BOARD PCM9375",excl:1550000,incl:1705000,grp:"pf"},
+{code:"G5044101",desc:"RAM MEMORY 512MB FOR PCM 9375",excl:330000,incl:363000,grp:"pf"},
+{code:"G5044701",desc:"ARPS TUBE SET",excl:130000,incl:143000,grp:"pf"},
+{code:"G5047401",desc:"LVDS CABLE FOR PC104 BOARD 93XX",excl:190000,incl:209000,grp:"pf"},
+{code:"G5047503",desc:"SLAVE PUMP ROTORS",excl:280000,incl:308000,grp:"pf"},
+{code:"G5048103",desc:"POWER SUPERVISION BOARD KIT",excl:600000,incl:660000,grp:"pf"},
+{code:"G5048303",desc:"EFFLUENT SCALE, DG2",excl:1510000,incl:1661000,grp:"pf"},
+{code:"G5048304",desc:"EFFLUENT SCALE DG2, FW 5.2.11",excl:1750000,incl:1925000,grp:"pf"},
+{code:"G5048403",desc:"PRE BLOOD PUMP SCALE, DG2",excl:1510000,incl:1661000,grp:"pf"},
+{code:"G5048404",desc:"PRE BLOOD PUMP SCALE DG2, FW 5.2.11",excl:1750000,incl:1925000,grp:"pf"},
+{code:"G5048503",desc:"DIALYSATE SCALE, DG2",excl:1510000,incl:1661000,grp:"pf"},
+{code:"G5048504",desc:"DIALYSATE SCALE DG2, FW 5.2.11",excl:1750000,incl:1925000,grp:"pf"},
+{code:"G5048603",desc:"REPLACEMENT SCALE, DG2",excl:1510000,incl:1661000,grp:"pf"},
+{code:"G5048604",desc:"REPLACEMENT SCALE DG2, FW 5.2.11",excl:1750000,incl:1925000,grp:"pf"},
+{code:"G5048801",desc:"BOTTOM CABINET",excl:230000,incl:253000,grp:"pf"},
+{code:"G5050202",desc:"CABLE KIT",excl:219500,incl:241450,grp:"pf"},
+{code:"G5050702",desc:"CPU BATTERY KIT BR1632",excl:40000,incl:44000,grp:"pf"},
+{code:"G5050901",desc:"LVDS CABLE NEW PC BOARD OLD",excl:270000,incl:297000,grp:"pf"},
+{code:"G5051101",desc:"POD NO.5 ASSY",excl:390000,incl:429000,grp:"pf"},
+{code:"G5051103",desc:"POD NO.5 ASSY",excl:410000,incl:451000,grp:"pf"},
+{code:"G5051201",desc:"FILTER POD ASSY",excl:410000,incl:451000,grp:"pf"},
+{code:"G5051203",desc:"FILTER POD ASSY",excl:410000,incl:451000,grp:"pf"},
+{code:"G5051301",desc:"EFFLUENT POD ASSY",excl:410000,incl:451000,grp:"pf"},
+{code:"G5051303",desc:"EFFLUENT POD ASSY",excl:450000,incl:495000,grp:"pf"},
+{code:"G5051401",desc:"ACCESS POD ASSY",excl:410000,incl:451000,grp:"pf"},
+{code:"G5051403",desc:"ACCESS POD ASSY",excl:450000,incl:495000,grp:"pf"},
+{code:"G5051501",desc:"RETURN PRESSURE PORT ASSY",excl:360000,incl:396000,grp:"pf"},
+{code:"G5051503",desc:"RETURN PRESSURE PORT ASSY",excl:450000,incl:495000,grp:"pf"},
+{code:"G5052502",desc:"BIOS CD FOR SOFTWARE 8.XX",excl:50000,incl:55000,grp:"pf"},
+{code:"G5053201",desc:"TWIN WHEEL CASTER",excl:100000,incl:110000,grp:"pf"},
+{code:"G5053301",desc:"OPTICAL FLUID LEAK DETECTOR",excl:230000,incl:253000,grp:"pf"},
+{code:"G5058301",desc:'BLOOD LEAK DETECTOR "BLD"',excl:310000,incl:341000,grp:"pf"},
+{code:"G5058502",desc:"BLOOD PUMP ASSY",excl:2500000,incl:2750000,grp:"pf"},
+{code:"G5059101",desc:"COMPLETE DRIP TRAY BASE ASSEM",excl:4000000,incl:4400000,grp:"pf"},
+{code:"G5064601",desc:"BATTERY BACKUP KIT WITHOUT",excl:320000,incl:352000,grp:"pf"},
+{code:"G5064802",desc:"ARPS PUMP SEGMENT",excl:57800,incl:63580,grp:"pf"},
+{code:"SC6000",desc:"SCALE, EFFLUENT",excl:1798700,incl:1978570,grp:"px"},
+{code:"SC6001",desc:"SCALE, PRE BLOOD",excl:1676900,incl:1844590,grp:"px"},
+{code:"SC6002",desc:"SCALE, DIALYSATE",excl:1790300,incl:1969330,grp:"px"},
+{code:"SC6003",desc:"SCALE, REPLACEMENT",excl:1798700,incl:1978570,grp:"px"},
+{code:"SC6005",desc:"SCALE, AUTO EFFLUENT",excl:1850100,incl:2035110,grp:"px"},
+{code:"SC6006",desc:"SCALE HANDLE",excl:169100,incl:186010,grp:"px"},
+{code:"SC6010",desc:"BOTTOM CABINET FRONT",excl:237300,incl:261030,grp:"px"},
+{code:"SC6012",desc:"BLOOD PUMP ROTOR",excl:600000,incl:660000,grp:"px"},
+{code:"SC6013",desc:"FLUID PUMP ROTORS",excl:548100,incl:602910,grp:"px"},
+{code:"SC6014",desc:"PREP HOOK",excl:120800,incl:132880,grp:"px"},
+{code:"SC6015",desc:"LIQUID LEVEL SENSOR",excl:1239000,incl:1362900,grp:"px"},
+{code:"SC6017",desc:"BARCODE SCANNER CLIP",excl:77700,incl:85470,grp:"px"},
+{code:"SC6018",desc:"AIR BUBBLE DETECTOR (ABD)",excl:505100,incl:555610,grp:"px"},
+{code:"SC6021",desc:"LCD DISPLAY ASSEMBLY",excl:3344300,incl:3678730,grp:"px"},
+{code:"SC6022",desc:"SYRINGE ARM ASSEMBLY",excl:283500,incl:311850,grp:"px"},
+{code:"SC6023",desc:"FRONT SYRINGE COVER",excl:71400,incl:78540,grp:"px"},
+{code:"SC6024",desc:"SYRINGE CLIP, 20 ML",excl:49400,incl:54340,grp:"px"},
+{code:"SC6026",desc:"SYRINGE CLIP, 50 ML",excl:41000,incl:45100,grp:"px"},
+{code:"SC6027",desc:"SYRINGE PUMP CLIP, 50B",excl:332900,incl:366190,grp:"px"},
+{code:"SC6030",desc:"BLOOD LEAK DETECTOR",excl:210000,incl:231000,grp:"px"},
+{code:"SC6031",desc:"DISCHARGE CLIP",excl:188000,incl:206800,grp:"px"},
+{code:"SC6032",desc:"DISCHARGE CLIP SWITCH ASSEMBLY",excl:200000,incl:220000,grp:"px"},
+{code:"SC6035",desc:"ARPS PUMP",excl:900000,incl:990000,grp:"px"},
+{code:"SC6036",desc:"HAND CRANK BLOOD PUMP",excl:223700,incl:246070,grp:"px"},
+{code:"SC6039",desc:"RETAINER POWER CORD",excl:44100,incl:48510,grp:"px"},
+{code:"SC6047",desc:"POWER ENTRY MODULE FUSES",excl:47300,incl:52030,grp:"px"},
+{code:"SC6049",desc:"PRESSURE POD ASSEMBLY",excl:367500,incl:404250,grp:"px"},
+{code:"SC6050",desc:"RPS MANIFOLD ASSEMBLY",excl:219500,incl:241450,grp:"px"},
+{code:"SC6051",desc:"RETURN PRESSURE PORT",excl:112400,incl:123640,grp:"px"},
+{code:"SC6053",desc:"ARPS PUMP ASSEMBLY",excl:1304100,incl:1434510,grp:"px"},
+{code:"SC6054",desc:"ARPS PUMP FILTER",excl:69300,incl:76230,grp:"px"},
+{code:"SC6056",desc:"LOADER MOTOR ASSEMBLY",excl:713000,incl:784300,grp:"px"},
+{code:"SC6058",desc:"SYRINGE PUMP ACTUATOR",excl:2080100,incl:2288110,grp:"px"},
+{code:"SC6060",desc:"PRIMARY SPEAKER",excl:231000,incl:254100,grp:"px"},
+{code:"SC6061",desc:"BATTERY PACK",excl:611100,incl:672210,grp:"px"},
+{code:"SC6063",desc:"ARPS PRESSURE TUBING",excl:228900,incl:251790,grp:"px"},
+{code:"SC6064",desc:"VENOUS CLAMP ASSEMBLY",excl:871500,incl:958650,grp:"px"},
+{code:"SC6065",desc:"HIGH FLOW PUMP MOTOR",excl:1596000,incl:1755600,grp:"px"},
+{code:"SC6066",desc:"PINCH VALVE",excl:784400,incl:862840,grp:"px"},
+{code:"SC6067",desc:"POWER SUPPLY UNIT",excl:1750000,incl:1925000,grp:"px"},
+{code:"SC6071",desc:"PRESSURE PORT ASSEMBLY",excl:305600,incl:336160,grp:"px"},
+{code:"SC6073",desc:"MAIN BOARD PCBA",excl:1703100,incl:1873410,grp:"px"},
+{code:"SC6074",desc:"SAFETY BOARD PCBA",excl:1420700,incl:1562770,grp:"px"},
+{code:"SC6075",desc:"DRIVER BOARD PCBA",excl:1100000,incl:1210000,grp:"px"},
+{code:"SC6076",desc:"POWER BOARD PCBA",excl:1475300,incl:1622830,grp:"px"},
+{code:"SC6077",desc:"BACKPLANE BOARD PCBA",excl:1100000,incl:1210000,grp:"px"},
+{code:"SC6078",desc:"REPLACEABLE BOARD PCBA",excl:105000,incl:115500,grp:"px"},
+{code:"SC6079",desc:"DISCHARGE BOARD PCBA",excl:200600,incl:220660,grp:"px"},
+{code:"SC6080",desc:"BACK PLANE REPLACEABLE BOARD",excl:106100,incl:116710,grp:"px"},
+{code:"SC6081",desc:"ISOLATION BOARD PCBA",excl:480000,incl:528000,grp:"px"},
+{code:"SC6082",desc:"SD CARD",excl:133400,incl:146740,grp:"px"},
+{code:"SC6085",desc:"SAFETY CABLE",excl:413700,incl:455070,grp:"px"},
+{code:"SC6091",desc:"BARCODE READER CABLE",excl:117600,incl:129360,grp:"px"},
+{code:"SC6106",desc:"FRONT CASTERS",excl:186900,incl:205590,grp:"px"},
+{code:"SC6107",desc:"REAR CASTERS",excl:211100,incl:232210,grp:"px"},
+{code:"SC6120",desc:"PBP FLUID PUMP MOTOR",excl:954500,incl:1049950,grp:"px"},
+{code:"SC6149",desc:"LEFT SIDE HINGE",excl:144900,incl:159390,grp:"px"},
+{code:"SC6153",desc:"SYRINGE PUMP CLIP",excl:47300,incl:52030,grp:"px"},
+{code:"SC6167",desc:"DISCHARGE SWITCH CABLE",excl:84000,incl:92400,grp:"px"},
+{code:"SC6183",desc:"PRISMAX V2 MANUAL KOREAN",excl:991200,incl:1090320,grp:"px"},
+{code:"SC6197",desc:"PRISMAX V2 BASE SPARE",excl:3307500,incl:3638250,grp:"px"},
+{code:"SC6199",desc:"ASSEMBLY LIQUID LEVEL SENSOR",excl:1050000,incl:1155000,grp:"px"},
+{code:"SC6202",desc:"PRISMAX V2 1 YEAR PM KIT",excl:159600,incl:175560,grp:"px"},
+{code:"SC6207",desc:"BOTTOM RIGHT PANEL",excl:614300,incl:675730,grp:"px"},
+{code:"SC7006",desc:"REAR BLOOD LEAK DETECTION BOARD",excl:73500,incl:80850,grp:"tx"},
+{code:"SC7007",desc:"HEATER CONTROL BOARD ASSEMBLY",excl:1575000,incl:1732500,grp:"tx"},
+{code:"SC7009",desc:"BLD SENSOR BOARD",excl:78800,incl:86680,grp:"tx"},
+{code:"SC7010",desc:"ASSY, BAG TYPE AND POSITION DETECT",excl:472500,incl:519750,grp:"tx"},
+{code:"SC7028",desc:"BOTTOM HEATER PLATE HOLDER ASSY",excl:408500,incl:449350,grp:"tx"},
+{code:"SC7033",desc:"DISPLAY CONTROL PANEL",excl:136500,incl:150150,grp:"tx"},
+{code:"SC7051",desc:"THERMAX BWU MANUAL KOREAN",excl:92400,incl:101640,grp:"tx"},
+{code:"SC8005",desc:"PRISMAX V3 TOP PANEL",excl:1858500,incl:2044350,grp:"px"},
+{code:"SC8009",desc:"INTERFACE BOARD ABD",excl:300000,incl:330000,grp:"px"},
+{code:"SC8010",desc:"V2 TO V3 UPGRADE KIT",excl:1154000,incl:1269400,grp:"px"},
+{code:"SC8042",desc:"LIQUID LEAK DETECTOR (LLD)",excl:787500,incl:866250,grp:"px"},
+{code:"SC8044",desc:"PRISMAX OP. MANUAL INSERT",excl:176400,incl:194040,grp:"px"},
+{code:"SC8047",desc:"LCD MONITOR ASSEMBLY",excl:5145000,incl:5659500,grp:"px"},
+{code:"SC8051",desc:"EFFLUENT SCALE GD",excl:1680000,incl:1848000,grp:"px"},
+{code:"SC8052",desc:"PRE-BLOOD SCALE GD",excl:1680000,incl:1848000,grp:"px"},
+{code:"SC8053",desc:"DIALYSATE SCALE GD",excl:1680000,incl:1848000,grp:"px"},
+{code:"SC8054",desc:"REPLACEMENT SCALE GD",excl:1680000,incl:1848000,grp:"px"},
+{code:"SC8055",desc:"AUTO-EFFLUENT SCALE GD",excl:1785000,incl:1963500,grp:"px"},
+{code:"SC8056",desc:"BATTERY PACK",excl:611100,incl:672210,grp:"px"},
+{code:"SC8057",desc:"PRISMAX BARCODE READER",excl:1211700,incl:1332870,grp:"px"},
+{code:"SC8080",desc:"DIGITAL COMMUNICATION MODULE",excl:1081500,incl:1189650,grp:"px"},
+{code:"SC8081",desc:"ISOLATION CONNECTIVITY PCBA",excl:682500,incl:750750,grp:"px"},
+{code:"SC8121",desc:"EFFLUENT SCALE ST",excl:1450000,incl:1595000,grp:"px"},
+{code:"SC8122",desc:"PRE-BLOOD SCALE ST",excl:1798700,incl:1978570,grp:"px"},
+{code:"SC8123",desc:"DIALYSATE SCALE ST",excl:1798700,incl:1978570,grp:"px"},
+{code:"SC8124",desc:"REPLACEMENT SCALE ST",excl:1798700,incl:1978570,grp:"px"},
+{code:"SC8125",desc:"AUTO-EFFLUENT SCALE ST",excl:1450000,incl:1595000,grp:"px"},
+{code:"SC8180",desc:"BATTERY PACK (2024)",excl:504000,incl:554400,grp:"px"},
+{code:"SC8291",desc:"SAFETY CABLE (2024)",excl:430500,incl:473550,grp:"px"},
+{code:"SE6000",desc:"COMBINATION WRENCH 1/2 INCH",excl:343400,incl:377740,grp:"se"},
+{code:"SE6001",desc:"DRIVER",excl:226800,incl:249480,grp:"se"},
+{code:"SE6002",desc:"ESD FINGER COTS",excl:182700,incl:200970,grp:"se"},
+{code:"SE6003",desc:"FLAT NOSE PLIERS",excl:317100,incl:348810,grp:"se"},
+{code:"SE6005",desc:"HEX BITS & TORX BITS",excl:332900,incl:366190,grp:"se"},
+{code:"SE6006",desc:"NEEDLE NOSE PLIERS",excl:285600,incl:314160,grp:"se"},
+{code:"SE6007",desc:"NUT DRIVER 7 MM",excl:173300,incl:190630,grp:"se"},
+{code:"SE6008",desc:"NUT DRIVER 10 MM",excl:165900,incl:182490,grp:"se"},
+{code:"SE6009",desc:"DOUBLE OPEN END WRENCH 22X2",excl:528200,incl:581020,grp:"se"},
+{code:"SE6011",desc:"POD PLUG, SYRINGE, & CLAMP",excl:243600,incl:267960,grp:"se"},
+{code:"SE6012",desc:"POD PLUG (KIT OF 3 PODS)",excl:455700,incl:501270,grp:"se"},
+{code:"SE6013",desc:"GRADUATED CYLINDER WITH LUER",excl:673100,incl:740410,grp:"se"},
+{code:"SE6014",desc:"ARPS TUBING INSTALLATION TOOL",excl:202700,incl:222970,grp:"se"},
+{code:"SE6015",desc:"LOW FLOW PUMP MOTOR CENTERING",excl:554400,incl:609840,grp:"se"},
+{code:"SE6016",desc:"SCALE CENTERING TOOL",excl:479900,incl:527890,grp:"se"},
+{code:"SE6017",desc:"DISCHARGE CLIP ALIGNMENT TOOL",excl:479900,incl:527890,grp:"se"},
+{code:"SE6018",desc:"BLOOD LEAK DETECTOR FILM REFL",excl:458900,incl:504790,grp:"se"},
+{code:"SE6019",desc:"SYRINGE TUBING & CHAMBER ASSY",excl:257300,incl:283030,grp:"se"},
+{code:"SE6020",desc:"RETURN PLUG POD",excl:249900,incl:274890,grp:"se"},
+{code:"SE6022",desc:"DISCHARGE LUG WITH TUBING SEC",excl:248900,incl:273790,grp:"se"},
+{code:"SE6023",desc:"CALIBRATED SYRINGE",excl:1505700,incl:1656270,grp:"se"},
+{code:"SE6024",desc:"USB FLASH DRIVE",excl:227900,incl:250690,grp:"se"},
+{code:"SE6025",desc:"DB9 NULL MODEM LOOPBACK CABLE",excl:219500,incl:241450,grp:"se"},
+{code:"SE6026",desc:"ETHERNET LOOPBACK JACK & PLUG",excl:228900,incl:251790,grp:"se"},
+{code:"SE6027",desc:"FINE TIP DMM PROBES",excl:247800,incl:272580,grp:"se"},
+{code:"SE6029",desc:"RETURN PORT WITH TUBING",excl:248900,incl:273790,grp:"se"},
+{code:"SE6031",desc:"SALINE FILLED BLD TUBE",excl:509300,incl:560230,grp:"se"},
+{code:"SE6032",desc:"50 ML SYRINGE",excl:158600,incl:174460,grp:"se"},
+{code:"SE6045",desc:"RISMAX PROVISIONING TOOL",excl:163800,incl:180180,grp:"se"},
+{code:"SE6046",desc:"SERIAL LOOPBACK TOOL",excl:212100,incl:233310,grp:"se"},
+{code:"SE6051",desc:"PRISMAX V3 BLD TEST TUBE",excl:516600,incl:568260,grp:"se"},
+{code:"SE7000",desc:"REAR BLD FIXTURE",excl:239400,incl:263340,grp:"se"},
+{code:"SE7001",desc:"TEMPERATURE SST TUBING SET",excl:1053200,incl:1158520,grp:"se"},
+{code:"SE7003",desc:"COPPER FOIL",excl:217400,incl:239140,grp:"se"}
+];
+
+var GRP_LABEL={pf:'Prismaflex',px:'Prismax',tx:'TherMax',se:'Service Tools',ot:'Autoline/Other'};
+var GRP_CLASS={pf:'g-pf',px:'g-px',tx:'g-tx',se:'g-se',ot:'g-ot'};
+var GRP_ORDER=['pf','px','tx','se','ot'];
+
+document.getElementById('totalBadge').textContent=ITEMS.length;
+
+var SQ='',GF='all';
+var favs=(function(){try{return new Set(JSON.parse(localStorage.getItem('crrt26_favs')||'[]'));}catch(e){return new Set();}})();
+function saveFavs(){try{localStorage.setItem('crrt26_favs',JSON.stringify(Array.from(favs)));}catch(e){}}
+
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function hl(txt,q){if(!q)return eh(txt);var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');return eh(txt).replace(re,'<mark>$1</mark>');}
+function fmt(n){return n.toLocaleString('ko-KR')+'원';}
+
+function go(){
+  var q=SQ.trim().toLowerCase();
+  var items=ITEMS.filter(function(it){
+    if(GF!=='all'&&it.grp!==GF)return false;
+    if(!q)return true;
+    return it.code.toLowerCase().indexOf(q)>=0||it.desc.toLowerCase().indexOf(q)>=0;
+  });
+  var el=document.getElementById('cardsEl');
+  var emptyEl=document.getElementById('emptyEl');
+  document.getElementById('mCnt').textContent=items.length;
+  if(!items.length){el.innerHTML='';emptyEl.style.display='block';return;}
+  emptyEl.style.display='none';
+  el.innerHTML=items.map(function(it){
+    var isFav=favs.has(it.code);
+    return '<div class="card">'+
+      '<div class="chead" onclick="toggle(this)">'+
+      '<span class="icode">'+hl(it.code,SQ)+'</span>'+
+      '<div class="cbody">'+
+      '<div class="ctitle">'+hl(it.desc,SQ)+'</div>'+
+      '<div class="cmeta"><span class="gbadge '+GRP_CLASS[it.grp]+'">'+GRP_LABEL[it.grp]+'</span></div>'+
+      '</div>'+
+      '<span class="price-badge">'+fmt(it.excl)+'</span>'+
+      '<button class="fav-btn'+(isFav?' active':'')+'\" data-fkey="'+eh(it.code)+'" onclick="event.stopPropagation();toggleFavBtn(this)">'+(isFav?'&#9733;':'&#9734;')+'</button>'+
+      '<div class="chev"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>'+
+      '</div>'+
+      '<div class="cdet"><div class="cdet-in">'+
+      '<div class="price-row"><span class="price-lbl">2026 Standard Price (부가세 제외)</span><span class="price-val">'+fmt(it.excl)+'</span></div>'+
+      '<div class="price-row"><span class="price-lbl">2026 Standard Price (부가세 포함, VAT 10%)</span><span class="price-val incl">'+fmt(it.incl)+'</span></div>'+
+      '</div></div>'+
+      '</div>';
+  }).join('');
+}
+
+function toggle(h){
+  var det=h.parentElement.querySelector('.cdet');
+  var chev=h.querySelector('.chev');
+  var open=det.classList.toggle('open');
+  chev.classList.toggle('open',open);
+}
+
+function toggleFavBtn(btn){
+  var fkey=btn.getAttribute('data-fkey');
+  if(favs.has(fkey))favs.delete(fkey);else favs.add(fkey);
+  saveFavs();
+  btn.classList.toggle('active',favs.has(fkey));
+  btn.innerHTML=favs.has(fkey)?'&#9733;':'&#9734;';
+  if(document.getElementById('favPanel').classList.contains('on'))renderFavs();
+}
+
+var sInp=document.getElementById('sInp');
+var sClr=document.getElementById('sClr');
+sInp.addEventListener('input',function(){SQ=this.value;sClr.classList.toggle('show',!!SQ);go();});
+sClr.addEventListener('click',function(){sInp.value='';SQ='';sClr.classList.remove('show');sInp.focus();go();});
+
+document.querySelectorAll('#grpRow .seg').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#grpRow .seg').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');GF=b.getAttribute('data-v');go();
+  });
+});
+
+function switchBnav(tab,el){
+  document.querySelectorAll('.bnav-item').forEach(function(b){b.classList.remove('on');});
+  if(el)el.classList.add('on');
+  var isSearch=(tab==='search');
+  var filt=document.querySelector('.filt');
+  var sbar=document.querySelector('.sbar');
+  var cards=document.getElementById('cardsEl');
+  var empty=document.getElementById('emptyEl');
+  if(filt)filt.style.display=isSearch?'':'none';
+  if(sbar)sbar.style.display=isSearch?'':'none';
+  if(cards)cards.style.display=isSearch?'':'none';
+  if(empty)empty.style.display='none';
+  ['bycode','fav'].forEach(function(t){
+    var p=document.getElementById(t+'Panel');
+    if(p)p.classList.toggle('on',tab===t);
+  });
+  if(tab==='bycode')renderByCode();
+  if(tab==='fav')renderFavs();
+}
+
+function renderByCode(){
+  var html='';
+  GRP_ORDER.forEach(function(g){
+    var items=ITEMS.filter(function(it){return it.grp===g;});
+    if(!items.length)return;
+    html+='<div class="ag">';
+    html+='<div class="ag-header"><span class="gbadge '+GRP_CLASS[g]+'">'+GRP_LABEL[g]+'</span><span class="ag-cnt">'+items.length+' items</span></div>';
+    html+='<div class="ag-list">';
+    items.forEach(function(it){
+      html+='<div class="ag-row" onclick="goSearch(\''+it.code.replace(/'/g,"\\'")+'\')">';
+      html+='<div class="ag-code">'+eh(it.code)+'</div>';
+      html+='<div class="ag-name">'+eh(it.desc)+'</div>';
+      html+='<span class="ag-price">'+fmt(it.excl)+'</span>';
+      html+='<span class="ag-arr">&#8250;</span>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+  });
+  document.getElementById('bycodeContent').innerHTML=html;
+}
+
+function renderFavs(){
+  var el=document.getElementById('favContent');
+  if(!favs.size){
+    el.innerHTML='<div class="fav-empty"><div class="fav-empty-icon">&#11088;</div><p>&#9734; 버튼을 탭하여<br>즐겨찾기에 추가하세요</p></div>';
+    return;
+  }
+  var html='';
+  favs.forEach(function(fkey){
+    var it=ITEMS.find(function(x){return x.code===fkey;});
+    if(!it)return;
+    html+='<div class="card" style="margin:0 12px 9px">';
+    html+='<div class="chead" onclick="goSearch(\''+it.code.replace(/'/g,"\\'")+'\')"><span class="icode">'+eh(it.code)+'</span>';
+    html+='<div class="cbody"><div class="ctitle">'+eh(it.desc)+'</div>';
+    html+='<div class="cmeta"><span class="gbadge '+GRP_CLASS[it.grp]+'">'+GRP_LABEL[it.grp]+'</span></div></div>';
+    html+='<button class="fav-btn active" data-fkey="'+eh(fkey)+'" onclick="event.stopPropagation();toggleFavBtn(this)">&#9733;</button>';
+    html+='</div></div>';
+  });
+  el.innerHTML='<div style="padding:12px 0 20px">'+html+'</div>';
+}
+
+function goSearch(kw){
+  switchBnav('search',document.querySelector('.bnav-item'));
+  sInp.value=kw;SQ=kw;sClr.classList.add('show');go();
+}
+
+go();
+</script>
+
+<div class="bnav">
+  <button class="bnav-item on" onclick="switchBnav('search',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="bnav-label">Search</span>
+  </button>
+  <button class="bnav-item" onclick="switchBnav('bycode',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <span class="bnav-label">By Code</span>
+  </button>
+  <button class="bnav-item" onclick="switchBnav('fav',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span class="bnav-label">Favorites</span>
+  </button>
+</div>
+</body>
+</html>
