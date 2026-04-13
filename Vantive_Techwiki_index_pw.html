@@ -718,6 +718,13 @@
               <line x1="12" y1="1" x2="12" y2="23"/>
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>`,
+    equipment: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+              <circle cx="9" cy="10" r="1.5"/>
+              <path d="M13 8h4M13 11h4"/>
+            </svg>`,
   };
 
   /* ── Data ────────────────────────────────────── */
@@ -750,6 +757,12 @@
       id: 'price', label: 'Spare Parts Price', icon: SVG.price,
       items: [
         { label: '2026년 Spare Parts Price List', file: 'Vantive_Device_price_search_v3.html' },
+      ]
+    },
+    {
+      id: 'equipment', label: 'Equipment Search', icon: SVG.equipment,
+      items: [
+        { label: 'Vantive Equipment Viewer', file: 'Vantive_Equipment_Viewer.html' },
       ]
     }
   ];
@@ -961,7 +974,7 @@
 
   /* ── Password Gate ───────────────────────────── */
   (function initPasswordGate() {
-    const CORRECT_PW = '65505';          // ← 비밀번호 변경 시 여기 수정
+    const CORRECT_PW = 'Vantive2025';          // ← 비밀번호 변경 시 여기 수정
     const SESSION_KEY = 'vantive_tw_auth';
 
     const gate  = document.getElementById('pw-gate');
