@@ -112,9 +112,61 @@
       background: var(--pine-light);
       display: flex; flex-direction: column;
       overflow-y: auto; overflow-x: hidden;
-      transition: transform var(--transition);
+      transition: width .26s cubic-bezier(.4,0,.2,1), transform var(--transition);
     }
     .sidebar::-webkit-scrollbar { width: 0; }
+
+    /* ── Sidebar collapsed (desktop) ──────────────── */
+    .app.sb-collapsed {
+      --sidebar-w: 0px;
+    }
+    .app.sb-collapsed .sidebar {
+      width: 0;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar toggle button ────────────────────── */
+    .sb-toggle {
+      position: fixed;
+      top: 50vh;
+      left: calc(var(--sidebar-w) - 7px);
+      transform: translateY(-50%);
+      z-index: 195;
+      width: 13px;
+      height: 114px;
+      background: rgba(92,27,86,0.43);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1.5px solid rgba(255,250,235,0.17);
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,250,235,0.53);
+      transition: left .26s cubic-bezier(.4,0,.2,1),
+                  background .15s, opacity .15s, border-color .15s, color .15s;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.11);
+      padding: 0;
+    }
+    .sb-toggle:hover {
+      background: rgba(114,37,107,0.55);
+      color: rgba(255,250,235,0.9);
+      border-color: rgba(255,250,235,0.35);
+    }
+    .sb-toggle:active { transform: translateY(-50%) scale(0.93); }
+    .sb-toggle svg {
+      width: 7px; height: 7px;
+      transition: transform .26s cubic-bezier(.4,0,.2,1);
+      flex-shrink: 0;
+    }
+    /* When collapsed: button at left edge, arrow flips */
+    .app.sb-collapsed .sb-toggle {
+      left: 0px;
+    }
+    .app.sb-collapsed .sb-toggle svg {
+      transform: rotate(180deg);
+    }
 
     .sidebar-section {
       padding: 20px 14px 6px;
@@ -331,12 +383,19 @@
     /* ── Mobile ──────────────────────────────────── */
     @media (max-width: 700px) {
       .hamburger { display: flex; }
+      /* 모바일에서 sb-toggle 버튼 숨김 (햄버거 메뉴 사용) */
+      .sb-toggle { display: none; }
       .sidebar {
         position: fixed; top: var(--header-h); left: 0; bottom: 0; z-index: 180;
         transform: translateX(-100%);
         box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+        /* 모바일에서 width 리셋 */
+        width: var(--sidebar-w) !important;
+        overflow-y: auto !important;
       }
       .sidebar.open { transform: translateX(0); }
+      /* 모바일에서 collapsed 상태 무효화 */
+      .app.sb-collapsed .sidebar { width: var(--sidebar-w) !important; overflow-y: auto !important; }
       /* 헤더 모바일 최적화 */
       .header-brand { flex-shrink: 1; min-width: 0; gap: 7px; align-items: flex-end; }
       .header-brand img.vantive-logo-img { height: 29px; }
@@ -633,7 +692,15 @@
 <div class="overlay" id="overlay"></div>
 
 <!-- ── App shell ──────────────────────────────── -->
-<div class="app">
+<div class="app" id="app-shell">
+
+  <!-- Sidebar toggle button -->
+  <button class="sb-toggle" id="sb-toggle" aria-label="사이드바 접기/펼치기" title="사이드바 접기/펼치기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -775,8 +842,23 @@
   const hmbgr    = document.getElementById('hamburger');
   const overlay  = document.getElementById('overlay');
   const wcCards  = document.getElementById('welcome-cards');
+  const appShell = document.getElementById('app-shell');
+  const sbToggle = document.getElementById('sb-toggle');
 
   let activeLink = null;
+
+  /* ── Sidebar desktop toggle ───────────────────── */
+  (function initSbToggle() {
+    // 저장된 상태 복원 (localStorage)
+    const stored = localStorage.getItem('vt_sb_collapsed');
+    if (stored === 'true') appShell.classList.add('sb-collapsed');
+
+    sbToggle.addEventListener('click', () => {
+      const isCollapsed = appShell.classList.toggle('sb-collapsed');
+      localStorage.setItem('vt_sb_collapsed', isCollapsed ? 'true' : 'false');
+      sbToggle.title = isCollapsed ? '사이드바 펼치기' : '사이드바 접기';
+    });
+  })();
 
   // Chevron SVG
   const chevronSVG = `<svg viewBox="0 0 10 10"><polyline points="3,2 7,5 3,8"/></svg>`;
@@ -974,7 +1056,7 @@
 
   /* ── Password Gate ───────────────────────────── */
   (function initPasswordGate() {
-    const CORRECT_PW = '65505';          // ← 비밀번호 변경 시 여기 수정
+    const CORRECT_PW = 'Vantive2025';          // ← 비밀번호 변경 시 여기 수정
     const SESSION_KEY = 'vantive_tw_auth';
 
     const gate  = document.getElementById('pw-gate');
