@@ -132,8 +132,8 @@
       left: calc(var(--sidebar-w) - 7px);
       transform: translateY(-50%);
       z-index: 195;
-      width: 13px;
-      height: 114px;
+      width: 14px;
+      height: 137px;
       background: rgba(92,27,86,0.43);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -801,6 +801,7 @@
       items: [
         { label: 'AK98 Error Code Search',   file: 'ak98_alarm_search_eng.html' },
         { label: 'ARTIS Alarm Search',        file: 'artis_alarm_search.html' },
+        { label: 'Phoenix Alarm Search',      file: 'phoenix_alarm_search.html' },
         { label: 'Prismaflex Alarm Search',   file: 'prismaflex_alarm_search.html' },
         { label: 'PrisMax Alarm Search',      file: 'prismax_alarm_search.html' },
       ]
@@ -1056,7 +1057,7 @@
 
   /* ── Password Gate ───────────────────────────── */
   (function initPasswordGate() {
-    const CORRECT_PW = '65505';          // ← 비밀번호 변경 시 여기 수정
+    const CORRECT_PW = 'Vantive2025';          // ← 비밀번호 변경 시 여기 수정
     const SESSION_KEY = 'vantive_tw_auth';
 
     const gate  = document.getElementById('pw-gate');
