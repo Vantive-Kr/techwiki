@@ -636,6 +636,73 @@
       color: #72256B;
       opacity: 0.72;
     }
+
+    /* ── Notice Popup ──────────────────────────── */
+    #notice-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.52);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      animation: noticeIn .22s ease;
+    }
+    @keyframes noticeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #notice-box {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+      width: min(480px, 92vw);
+      overflow: hidden;
+      animation: noticeSlideIn .24s cubic-bezier(.34,1.26,.64,1);
+    }
+    @keyframes noticeSlideIn {
+      from { transform: translateY(18px) scale(.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1);      opacity: 1; }
+    }
+    #notice-header {
+      background: var(--plum);
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #notice-title {
+      color: #fff; font-size: 15px; font-weight: 600; letter-spacing: -.2px;
+    }
+    #notice-close {
+      background: rgba(255,255,255,.15); border: none; border-radius: 50%;
+      color: rgba(255,255,255,.8); width: 26px; height: 26px;
+      cursor: pointer; font-size: 13px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    #notice-close:hover { background: rgba(255,255,255,.28); }
+    #notice-body {
+      padding: 20px 22px 14px;
+      font-size: 14px; line-height: 1.65; color: #333;
+    }
+    #notice-body ul {
+      margin: 10px 0 6px 18px;
+    }
+    #notice-body li { margin-bottom: 5px; }
+    #notice-footer {
+      padding: 12px 22px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid #f0f0f0;
+    }
+    #notice-skip-label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: #888; cursor: pointer; user-select: none;
+    }
+    #notice-skip-label input { cursor: pointer; accent-color: var(--plum); }
+    #notice-ok {
+      background: var(--plum); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 22px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background .15s;
+    }
+    #notice-ok:hover { background: var(--plum-dark); }
   </style>
 </head>
 <body>
@@ -673,6 +740,22 @@
   <div class="pw-footer">Vantive Field Support · Techwiki</div>
 </div>
 
+<!-- ── Notice Popup ─────────────────────── -->
+<div id="notice-overlay" style="display:none">
+  <div id="notice-box">
+    <div id="notice-header">
+      <span id="notice-title"></span>
+      <button id="notice-close" onclick="closeNotice()">✕</button>
+    </div>
+    <div id="notice-body"></div>
+    <div id="notice-footer">
+      <label id="notice-skip-label">
+        <input type="checkbox" id="notice-skip"> 오늘 하루 보지 않기
+      </label>
+      <button id="notice-ok" onclick="closeNotice()">확인</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Header ─────────────────────────────────── -->
 <header>
@@ -681,7 +764,7 @@
   </button>
 
   <button class="header-brand" id="logo-btn" aria-label="홈으로">
-    <img src="vantive%20logo.png" class="vantive-logo-img" alt="Vantive">
+    <img src="vantive%20logo.png" id="header-logo-img" class="vantive-logo-img" alt="Vantive">
     <span class="brand-sep"></span>
     <span class="techwiki-label">Techwiki</span>
   </button>
@@ -762,6 +845,55 @@
 </div>
 
 <script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *  📢 공지 팝업 설정  ← 여기만 수정하세요
+ *
+ *  NOTICE_ENABLED : true  → 팝업 표시
+ *                   false → 팝업 숨김 (완전히 끄기)
+ *  NOTICE_UNTIL   : 'YYYY-MM-DD' 이후 자동으로 숨김
+ *                   계속 표시하려면 먼 미래 날짜로 설정
+ *  NOTICE_TITLE   : 팝업 제목
+ *  NOTICE_BODY    : 팝업 본문 (HTML 가능)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const NOTICE_ENABLED = true;
+const NOTICE_UNTIL   = '2026-06-30';          // 이 날짜까지 표시
+const NOTICE_TITLE   = '🔒 보안 업데이트 안내';
+const NOTICE_BODY    = `
+  <p>Techwiki 로그인 보안이 강화되었습니다.</p>
+  <ul>
+    <li>비밀번호가 <b>SHA-256 암호화</b> 방식으로 보호됩니다.</li>
+    <li>로그인 <b>5회 실패</b> 시 15분간 잠금됩니다.</li>
+    <li>세션은 <b>8시간 후 자동 만료</b>됩니다.</li>
+  </ul>
+  <p style="margin-top:12px; font-size:13px; color:#999;">
+    비밀번호 변경이 필요하면 관리자에게 문의하세요.
+  </p>
+`;
+
+/* ── 공지 팝업 로직 (수정 불필요) ─────────────── */
+function showNoticeIfNeeded() {
+  if (!NOTICE_ENABLED) return;
+  const today = new Date().toISOString().slice(0, 10);
+  if (today > NOTICE_UNTIL) return;                          // 만료일 지남
+  const skipKey = 'vantive_notice_skip_' + today;
+  if (localStorage.getItem(skipKey) === '1') return;         // 오늘 숨김 선택
+
+  document.getElementById('notice-title').textContent = NOTICE_TITLE;
+  document.getElementById('notice-body').innerHTML    = NOTICE_BODY;
+  document.getElementById('notice-overlay').style.display = 'flex';
+}
+
+window.closeNotice = function() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (document.getElementById('notice-skip').checked) {
+    localStorage.setItem('vantive_notice_skip_' + today, '1');
+  }
+  const overlay = document.getElementById('notice-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity .18s';
+  setTimeout(() => { overlay.style.display = 'none'; overlay.style.opacity = ''; overlay.style.transition = ''; }, 180);
+};
+
   /* ── SVG Icons (CRRT bottom-nav style: outline, stroke-width 2, round caps) ── */
   const SVG = {
     alarm: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1055,22 +1187,45 @@
     overlay.classList.remove('show');
   }
 
-  /* ── Password Gate ───────────────────────────── */
+  /* ── Password Gate (보안 강화 v2) ───────────────
+   *  ① SHA-256 해시 비밀번호 — 소스에 평문 없음
+   *  ② 5회 실패 → 15분 잠금 (localStorage 지속)
+   *  ③ 8시간 세션 만료 — 자동 로그아웃
+   *
+   *  비밀번호 변경 시:
+   *    https://emn178.github.io/online-tools/sha256.html 에서
+   *    새 비밀번호의 SHA-256 해시 값을 구해 CORRECT_HASH를 교체하세요.
+   * ─────────────────────────────────────────────── */
   (function initPasswordGate() {
-    const CORRECT_PW = '65505';          // ← 비밀번호 변경 시 여기 수정
-    const SESSION_KEY = 'vantive_tw_auth';
+    // ① 비밀번호 해시 (SHA-256) — 원문: 관리자에게 문의
+    const CORRECT_HASH   = '3117f7aab1d822bef0c6e408c474112e9c276c620d9b36309645e5e23e6d384a';
+
+    const SESSION_KEY    = 'vantive_tw_auth';
+    const SESSION_EXP    = 'vantive_tw_exp';    // 세션 만료 시각 (ms)
+    const LOCK_KEY       = 'vantive_tw_lock';   // 잠금 해제 시각 (ms)
+    const ATTEMPT_KEY    = 'vantive_tw_tries';  // 누적 실패 횟수
+
+    const MAX_ATTEMPTS   = 5;
+    const LOCK_MS        = 15 * 60 * 1000;      // 15분
+    const SESSION_MS     = 8  * 60 * 60 * 1000; // 8시간
 
     const gate  = document.getElementById('pw-gate');
     const input = document.getElementById('pw-input');
     const errEl = document.getElementById('pw-error');
+    const btn   = document.querySelector('.pw-btn');
 
-    // 이미 인증된 세션이면 바로 해제
-    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    // ── ③ 세션 유효성 확인 ──────────────────────────
+    const now    = Date.now();
+    const expiry = parseInt(sessionStorage.getItem(SESSION_EXP) || '0');
+    if (sessionStorage.getItem(SESSION_KEY) === '1' && expiry > now) {
       gate.style.display = 'none';
+      showNoticeIfNeeded();
       return;
     }
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_EXP);
 
-    // 로고 Canvas 처리 — base64 방식 (CORS 없음, processWelcomeLogo와 동일)
+    // ── 로고 Canvas 처리 (기존 유지) ────────────────
     (function processPwLogo() {
       const img = document.getElementById('pw-logo');
       if (!img) return;
@@ -1094,31 +1249,129 @@
         };
         tmp.src = dataUrl;
       }
-      // window._LOGO_B64는 processWelcomeLogo가 먼저 세팅함
       if (window._LOGO_B64) {
         applyPine(window._LOGO_B64);
       } else {
-        // fallback: processWelcomeLogo 완료 후 실행되도록 대기
         const t = setInterval(function(){
           if (window._LOGO_B64) { clearInterval(t); applyPine(window._LOGO_B64); }
         }, 30);
       }
     })();
 
-    setTimeout(()=>input && input.focus(), 100);
-
-    window.pwSubmit = function() {
-      const val = input.value;
-      if (val === CORRECT_PW) {
-        sessionStorage.setItem(SESSION_KEY, '1');
-        gate.classList.add('hiding');
-        setTimeout(()=>{ gate.style.display='none'; }, 300);
+    // ── 헤더 로고 Canvas 처리 (Cream color on transparent bg) ─────
+    (function processHeaderLogo() {
+      const img = document.getElementById('header-logo-img');
+      if (!img) return;
+      const cR=255, cG=250, cB=235;  // Cream #FFFAEB
+      function applyCream(dataUrl) {
+        const tmp = new Image();
+        tmp.onload = function(){
+          const c = document.createElement('canvas');
+          c.width = tmp.naturalWidth; c.height = tmp.naturalHeight;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(tmp, 0, 0);
+          const id = ctx.getImageData(0,0,c.width,c.height);
+          const d = id.data;
+          for (let i=0;i<d.length;i+=4){
+            const lum=(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2])/255;
+            if(lum>0.50){d[i]=cR;d[i+1]=cG;d[i+2]=cB;d[i+3]=255;}
+            else{d[i+3]=0;}
+          }
+          ctx.putImageData(id,0,0);
+          img.src = c.toDataURL('image/png');
+        };
+        tmp.src = dataUrl;
+      }
+      if (window._LOGO_B64) {
+        applyCream(window._LOGO_B64);
       } else {
-        errEl.textContent = '비밀번호가 올바르지 않습니다.';
+        const t = setInterval(function(){
+          if (window._LOGO_B64) { clearInterval(t); applyCream(window._LOGO_B64); }
+        }, 30);
+      }
+    })();
+
+    // ── ① SHA-256 해시 함수 (WebCrypto API) ─────────
+    async function sha256(message) {
+      const buf  = new TextEncoder().encode(message);
+      const hash = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hash))
+                  .map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ── ② 잠금 UI ───────────────────────────────────
+    function startLockoutUI(lockUntil) {
+      input.disabled = true;
+      btn.disabled   = true;
+      btn.style.opacity = '0.5';
+      function tick() {
+        const rem = Math.ceil((lockUntil - Date.now()) / 1000);
+        if (rem <= 0) {
+          input.disabled  = false;
+          btn.disabled    = false;
+          btn.style.opacity = '';
+          errEl.textContent = '';
+          localStorage.removeItem(LOCK_KEY);
+          localStorage.setItem(ATTEMPT_KEY, '0');
+          input.focus();
+          return;
+        }
+        const m = Math.floor(rem / 60), s = rem % 60;
+        errEl.textContent = `🔒 ${m}분 ${String(s).padStart(2,'0')}초 후 재시도 가능`;
+        errEl.style.color = '#c0392b';
+        setTimeout(tick, 1000);
+      }
+      tick();
+    }
+
+    // 페이지 로드 시 기존 잠금 복원
+    const lockUntil = parseInt(localStorage.getItem(LOCK_KEY) || '0');
+    if (lockUntil > now) {
+      startLockoutUI(lockUntil);
+    } else {
+      setTimeout(() => input && input.focus(), 100);
+    }
+
+    // ── 로그인 처리 ──────────────────────────────────
+    window.pwSubmit = async function() {
+      if (input.disabled) return;
+      const val = input.value.trim();
+      if (!val) return;
+
+      // 잠금 재확인
+      const lk = parseInt(localStorage.getItem(LOCK_KEY) || '0');
+      if (lk > Date.now()) { startLockoutUI(lk); return; }
+
+      const hash = await sha256(val);
+
+      if (hash === CORRECT_HASH) {
+        // ✅ 인증 성공
+        localStorage.setItem(ATTEMPT_KEY, '0');
+        localStorage.removeItem(LOCK_KEY);
+        const exp = Date.now() + SESSION_MS;
+        sessionStorage.setItem(SESSION_KEY, '1');
+        sessionStorage.setItem(SESSION_EXP, String(exp));
+        gate.classList.add('hiding');
+        setTimeout(() => { gate.style.display = 'none'; showNoticeIfNeeded(); }, 300);
+
+      } else {
+        // ❌ 인증 실패
+        const tries = parseInt(localStorage.getItem(ATTEMPT_KEY) || '0') + 1;
+        localStorage.setItem(ATTEMPT_KEY, String(tries));
         input.value = '';
-        input.focus();
         input.style.borderColor = '#c0392b';
-        setTimeout(()=>{ input.style.borderColor=''; errEl.textContent=''; }, 2000);
+        setTimeout(() => { input.style.borderColor = ''; }, 2000);
+
+        if (tries >= MAX_ATTEMPTS) {
+          const newLock = Date.now() + LOCK_MS;
+          localStorage.setItem(LOCK_KEY, String(newLock));
+          startLockoutUI(newLock);
+        } else {
+          const left = MAX_ATTEMPTS - tries;
+          errEl.textContent = `비밀번호가 올바르지 않습니다. (${left}회 남음)`;
+          setTimeout(() => { errEl.textContent = ''; }, 2500);
+          input.focus();
+        }
       }
     };
 
