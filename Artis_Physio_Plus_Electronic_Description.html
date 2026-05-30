@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artis Physio Plus · Electronic Description</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+/* ─── Vantive Color System ─── */
+:root {
+  --claude-coral:#D4633A; --claude-coral-deep:#B8502D; --claude-coral-soft:#E8896A;
+  --claude-coral-pale:#F5D5C8; --claude-warm:#C96442; --claude-dark:#1E1008;
+}
+.theme-light {
+  --bg:#FBF8F4; --surface:#FFFFFF; --surface-hover:#FDF3EC; --surface-warm:#FEF6EE;
+  --border:rgba(212,99,58,0.12); --border-soft:rgba(212,99,58,0.07);
+  --text:#1E1008; --text-secondary:#8B5E4A; --text-muted:#B08070;
+  --accent:#D4633A; --accent-hover:#B8502D; --accent-secondary:#E8896A;
+  --accent-pale:#F5D5C8; --positive:#5B8A5E; --negative:#B85050; --warning:#C48A2E;
+}
+.theme-dark {
+  --bg:#150D07; --surface:#1E1208; --surface-hover:#2A1A0F; --surface-warm:#261608;
+  --border:rgba(212,99,58,0.18); --border-soft:rgba(212,99,58,0.08);
+  --text:#F5EDE5; --text-secondary:#C49A80; --text-muted:#8B6550;
+  --accent:#E8896A; --accent-hover:#D4633A; --accent-secondary:#F0A882;
+  --accent-pale:rgba(212,99,58,0.18); --positive:#7DAE80; --negative:#D47070; --warning:#D4A850;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans KR','Inter',sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.6;font-size:1rem;min-height:100vh;
+  transition:background .25s,color .25s;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(212,99,58,0.04) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 80% 80%,rgba(200,80,50,0.03) 0%,transparent 50%);
+}
+.skip-link{position:absolute;top:-40px;left:0;padding:8px 16px;background:var(--accent);color:#fff;z-index:9999}
+.skip-link:focus{top:0}
+
+/* ── Menu ── */
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9000}
+.viz-menu-toggle{width:40px;height:40px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(212,99,58,.1);transition:background .2s,box-shadow .2s}
+.viz-menu-toggle:hover{background:var(--surface-hover);box-shadow:0 4px 16px rgba(212,99,58,.18)}
+.viz-menu-toggle svg{stroke:var(--text-secondary)}
+.viz-menu-dropdown{position:absolute;top:48px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px;min-width:190px;box-shadow:0 8px 32px rgba(30,16,8,.14);display:none}
+.viz-menu-dropdown.open{display:block}
+.viz-menu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:.875rem;color:var(--text-secondary);border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s;font-family:inherit}
+.viz-menu-item:hover{background:var(--surface-hover);color:var(--text)}
+
+/* ── Layout ── */
+.container{max-width:1240px;margin:0 auto;padding:32px 24px 100px;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:48px 0 36px;border-bottom:1px solid var(--border);margin-bottom:40px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-pale);border:1px solid rgba(212,99,58,.2);border-radius:100px;padding:5px 14px;font-size:.75rem;font-weight:600;color:var(--accent);font-family:'Inter',sans-serif;letter-spacing:.03em;margin-bottom:18px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:2.5rem;font-weight:800;letter-spacing:-.03em;color:var(--text);line-height:1.2;margin-bottom:8px}
+.hero h1 span{color:var(--accent)}
+.hero-sub{font-size:.875rem;color:var(--text-secondary)}
+.hero-meta{display:flex;gap:24px;margin-top:18px;flex-wrap:wrap}
+.hero-stat{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-secondary)}
+.hero-stat-val{font-weight:700;color:var(--accent);font-size:.95rem}
+
+/* ── Tab nav ── */
+.tab-nav{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:36px;overflow-x:auto}
+.tab-btn{padding:10px 18px;font-size:.875rem;font-weight:500;white-space:nowrap;border:none;background:none;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;border-radius:6px 6px 0 0;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.tab-btn:hover{background:var(--surface-hover);color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Section header ── */
+.section-hdr{margin-bottom:22px;margin-top:36px}
+.section-hdr h2{font-size:1.5rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.section-hdr p{font-size:.82rem;color:var(--text-secondary)}
+
+/* ── Board Architecture SVG card ── */
+.arch-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px;overflow-x:auto}
+.arch-card h2{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:20px}
+
+/* ── Board grid ── */
+.board-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:28px}
+.board-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;transition:box-shadow .2s,border-color .2s;cursor:pointer}
+.board-card:hover{box-shadow:0 4px 20px rgba(212,99,58,.12);border-color:rgba(212,99,58,.25)}
+.board-card.active-card{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,99,58,.12)}
+.board-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-pale);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.board-icon svg{stroke:var(--accent)}
+.board-num{font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.board-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.board-desc{font-size:.8rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
+.board-tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--surface-warm);color:var(--text-secondary);border:1px solid var(--border-soft);font-family:'Inter',sans-serif}
+.tag.key{background:var(--accent-pale);color:var(--accent);border-color:rgba(212,99,58,.2)}
+
+/* ── Detail panel ── */
+.detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px}
+.detail-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.detail-icon{width:52px;height:52px;border-radius:12px;flex-shrink:0;background:var(--accent-pale);display:flex;align-items:center;justify-content:center}
+.detail-icon svg{stroke:var(--accent)}
+.detail-title{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.02em}
+.detail-sub{font-size:.83rem;color:var(--text-secondary);line-height:1.5}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:20px}
+.comp-card{background:var(--surface-warm);border:1px solid var(--border-soft);border-radius:10px;padding:14px}
+.comp-id{font-size:.72rem;font-weight:700;color:var(--accent);font-family:'Inter',sans-serif;letter-spacing:.05em;margin-bottom:4px}
+.comp-name{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.comp-role{font-size:.75rem;color:var(--text-secondary);line-height:1.4}
+
+/* ── Param table ── */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin-top:20px}
+.param-table{width:100%;border-collapse:collapse;font-size:.83rem}
+.param-table th{background:var(--surface-warm);padding:10px 14px;text-align:left;font-weight:700;font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.param-table td{padding:9px 14px;border-bottom:1px solid var(--border-soft);color:var(--text);vertical-align:top}
+.param-table tr:last-child td{border-bottom:none}
+.param-table tr:hover td{background:var(--surface-hover)}
+.param-val{font-weight:700;color:var(--accent);font-family:'Inter',sans-serif}
+
+/* ── Note box ── */
+.note-box{background:rgba(212,99,58,.07);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;font-size:.82rem;color:var(--text-secondary)}
+.note-box strong{color:var(--accent)}
+
+/* ── Sub-section list ── */
+.sub-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.sub-list li{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--surface-warm);border-radius:10px;border:1px solid var(--border-soft)}
+.sub-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:7px;flex-shrink:0}
+.sub-text{font-size:.83rem;color:var(--text);line-height:1.5}
+.sub-text strong{color:var(--accent);font-family:'Inter',sans-serif}
+
+/* ── Animations ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp .4s ease forwards;opacity:0}
+.delay-1{animation-delay:.08s}.delay-2{animation-delay:.16s}.delay-3{animation-delay:.24s}
+.delay-4{animation-delay:.32s}.delay-5{animation-delay:.40s}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── Responsive ── */
+@media(max-width:768px){.hero h1{font-size:1.9rem}.board-grid{grid-template-columns:1fr}.container{padding:24px 16px 80px}.tab-btn{padding:8px 12px;font-size:.78rem}}
+@media(max-width:375px){body{overflow-x:hidden}}
+@media print{.viz-menu,.tab-nav{display:none!important}.tab-panel{display:block!important;margin-bottom:60px}body::before{display:none}}
+@media(prefers-reduced-motion:reduce){.animate{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">본문 바로가기</a>
+
+<nav class="viz-menu" aria-label="유틸리티 메뉴">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown">
+    <button class="viz-menu-item" onclick="cycleTheme()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      테마 전환
+    </button>
+    <button class="viz-menu-item" onclick="downloadImage()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      PNG 저장
+    </button>
+    <button class="viz-menu-item" onclick="window.print()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      인쇄 / PDF
+    </button>
+  </div>
+</nav>
+
+<main id="main-content">
+<div class="container">
+
+<!-- ── HERO ── -->
+<section class="hero animate">
+  <div class="hero-badge"><span class="hero-badge-dot"></span>Artis Physio Plus · SM 9033283000_04 Rev./</div>
+  <h1>Chapter 4. <span>Electronic Description</span></h1>
+  <p class="hero-sub">전자 회로 구조 설명 — 메인 보드부터 슬레이브 보드까지 시스템 아키텍처 및 주요 부품 안내</p>
+  <div class="hero-meta">
+    <div class="hero-stat"><span class="hero-stat-val">5</span> 개 주요 회로 보드</div>
+    <div class="hero-stat"><span class="hero-stat-val">SPI</span> 버스 통신</div>
+    <div class="hero-stat"><span class="hero-stat-val">15"</span> TFT-LCD 터치스크린</div>
+    <div class="hero-stat"><span class="hero-stat-val">100 Mbps</span> Ethernet</div>
+  </div>
+</section>
+
+<!-- ── TAB NAV ── -->
+<nav class="tab-nav animate delay-1">
+  <button class="tab-btn active" onclick="switchTab('arch',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="7" height="7" rx="1"/><rect x="15" y="3" width="7" height="7" rx="1"/><rect x="2" y="14" width="7" height="7" rx="1"/><rect x="15" y="14" width="7" height="7" rx="1"/></svg>
+    시스템 아키텍처
+  </button>
+  <button class="tab-btn" onclick="switchTab('main',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+    4.1 Main Board
+  </button>
+  <button class="tab-btn" onclick="switchTab('blood',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/></svg>
+    4.3 Blood Board
+  </button>
+  <button class="tab-btn" onclick="switchTab('hydraulic',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+    4.4 Hydraulic Board
+  </button>
+  <button class="tab-btn" onclick="switchTab('protective',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    4.5 Protective Board
+  </button>
+  <button class="tab-btn" onclick="switchTab('others',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+    기타 보드
+  </button>
+</nav>
+
+<!-- ══════════════════ TAB 1: 아키텍처 ══════════════════ -->
+<div class="tab-panel active" id="tab-arch">
+
+  <section class="arch-card animate delay-2" aria-label="시스템 아키텍처 다이어그램">
+    <h2>시스템 아키텍처 (System Architecture)</h2>
+    <svg viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" style="min-width:640px;width:100%;height:auto" role="img" aria-label="Artis 전자 시스템 아키텍처 블록 다이어그램">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#D4633A"/></marker>
+        <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8B5E4A"/></marker>
+      </defs>
+
+      <!-- Background -->
+      <rect x="8" y="8" width="844" height="384" rx="12" fill="none" stroke="rgba(212,99,58,0.08)" stroke-width="1.5"/>
+
+      <!-- MAIN BOARD (center top) -->
+      <rect x="300" y="24" width="260" height="80" rx="12" fill="rgba(212,99,58,0.1)" stroke="#D4633A" stroke-width="2"/>
+      <text x="430" y="52" text-anchor="middle" font-size="13" font-weight="800" fill="#D4633A" font-family="Inter">Main Board</text>
+      <text x="430" y="68" text-anchor="middle" font-size="9.5" fill="#8B5E4A" font-family="Inter">PC 104 (CELERON/AMD) + Carrier Board</text>
+      <text x="430" y="82" text-anchor="middle" font-size="9" fill="#B08070" font-family="Inter">256MB CF · 15" LCD · USB · RS232 · Ethernet</text>
+
+      <!-- SPI Bus line -->
+      <line x1="430" y1="104" x2="430" y2="140" stroke="#D4633A" stroke-width="2"/>
+      <rect x="340" y="140" width="180" height="22" rx="6" fill="rgba(212,99,58,0.12)"/>
+      <text x="430" y="155" text-anchor="middle" font-size="9.5" font-weight="700" fill="#D4633A" font-family="Inter">SPI Bus (Mother Board Backplane)</text>
+
+      <!-- 4 slave boards -->
+      <!-- Hydraulic -->
+      <rect x="24" y="200" width="160" height="70" rx="10" fill="rgba(212,99,58,0.07)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="104" y="225" text-anchor="middle" font-size="10.5" font-weight="700" fill="#D4633A" font-family="Inter">Hydraulic</text>
+      <text x="104" y="239" text-anchor="middle" font-size="10.5" font-weight="700" fill="#D4633A" font-family="Inter">Slave Board</text>
+      <text x="104" y="256" text-anchor="middle" font-size="8.5" fill="#8B5E4A" font-family="Inter">펌프·밸브·센서 제어</text>
+      <line x1="340" y1="151" x2="104" y2="200" stroke="#D4633A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Blood -->
+      <rect x="220" y="200" width="160" height="70" rx="10" fill="rgba(212,99,58,0.07)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="300" y="225" text-anchor="middle" font-size="10.5" font-weight="700" fill="#D4633A" font-family="Inter">Blood</text>
+      <text x="300" y="239" text-anchor="middle" font-size="10.5" font-weight="700" fill="#D4633A" font-family="Inter">Slave Board</text>
+      <text x="300" y="256" text-anchor="middle" font-size="8.5" fill="#8B5E4A" font-family="Inter">혈액펌프·클램프·압력</text>
+      <line x1="380" y1="162" x2="300" y2="200" stroke="#D4633A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Protective -->
+      <rect x="416" y="200" width="160" height="70" rx="10" fill="rgba(184,80,80,0.08)" stroke="#B85050" stroke-width="1.5"/>
+      <text x="496" y="225" text-anchor="middle" font-size="10.5" font-weight="700" fill="#B85050" font-family="Inter">Protective</text>
+      <text x="496" y="239" text-anchor="middle" font-size="10.5" font-weight="700" fill="#B85050" font-family="Inter">Slave Board</text>
+      <text x="496" y="256" text-anchor="middle" font-size="8.5" fill="#8B5E4A" font-family="Inter">안전보호·알람·T1테스트</text>
+      <line x1="480" y1="162" x2="496" y2="200" stroke="#B85050" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <!-- Bio -->
+      <rect x="612" y="200" width="160" height="70" rx="10" fill="rgba(91,138,94,0.08)" stroke="#5B8A5E" stroke-width="1.5"/>
+      <text x="692" y="225" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5B8A5E" font-family="Inter">Bio Slave</text>
+      <text x="692" y="239" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5B8A5E" font-family="Inter">Board</text>
+      <text x="692" y="256" text-anchor="middle" font-size="8.5" fill="#8B5E4A" font-family="Inter">Hemoscan 바이오센서</text>
+      <line x1="520" y1="151" x2="692" y2="200" stroke="#5B8A5E" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <!-- Sub-boards (bottom row) -->
+      <!-- PIB -->
+      <rect x="24" y="312" width="110" height="40" rx="8" fill="rgba(212,99,58,0.05)" stroke="rgba(212,99,58,0.3)" stroke-width="1"/>
+      <text x="79" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">PIB Board</text>
+      <text x="79" y="343" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">압력·공기감지</text>
+      <line x1="79" y1="312" x2="104" y2="270" stroke="rgba(212,99,58,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+
+      <!-- Art/Ven Pump Boards -->
+      <rect x="148" y="312" width="130" height="40" rx="8" fill="rgba(212,99,58,0.05)" stroke="rgba(212,99,58,0.3)" stroke-width="1"/>
+      <text x="213" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Art/Ven Pump Boards</text>
+      <text x="213" y="343" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">혈액펌프 모터 드라이버</text>
+      <line x1="213" y1="312" x2="300" y2="270" stroke="rgba(212,99,58,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+
+      <!-- AVI Clamps Board -->
+      <rect x="292" y="312" width="120" height="40" rx="8" fill="rgba(212,99,58,0.05)" stroke="rgba(212,99,58,0.3)" stroke-width="1"/>
+      <text x="352" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">AVI Clamps Board</text>
+      <text x="352" y="343" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">라인 클램프 구동</text>
+      <line x1="352" y1="312" x2="300" y2="270" stroke="rgba(212,99,58,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+
+      <!-- Iso Ethernet -->
+      <rect x="426" y="312" width="130" height="40" rx="8" fill="rgba(91,138,94,0.06)" stroke="rgba(91,138,94,0.3)" stroke-width="1"/>
+      <text x="491" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#5B8A5E" font-family="Inter">Isolated Ethernet</text>
+      <text x="491" y="343" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">LAN 격리·Wi-Fi 스위치</text>
+      <line x1="491" y1="312" x2="430" y2="104" stroke="rgba(91,138,94,0.3)" stroke-width="1" stroke-dasharray="4 2"/>
+
+      <!-- Hour Meter -->
+      <rect x="570" y="312" width="110" height="40" rx="8" fill="rgba(196,138,46,0.07)" stroke="rgba(196,138,46,0.3)" stroke-width="1"/>
+      <text x="625" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#C48A2E" font-family="Inter">Hour Meter Board</text>
+      <text x="625" y="343" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">가동시간·저전력</text>
+      <line x1="625" y1="312" x2="430" y2="104" stroke="rgba(196,138,46,0.3)" stroke-width="1" stroke-dasharray="4 2"/>
+
+      <!-- RS232/Smart KBD -->
+      <rect x="694" y="312" width="140" height="40" rx="8" fill="rgba(212,99,58,0.05)" stroke="rgba(212,99,58,0.3)" stroke-width="1"/>
+      <text x="764" y="330" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">RS232 / Smart KBD</text>
+      <text x="764" y="343" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">외부통신·키보드 인터페이스</text>
+      <line x1="764" y1="312" x2="430" y2="104" stroke="rgba(212,99,58,0.3)" stroke-width="1" stroke-dasharray="4 2"/>
+
+      <!-- Legend -->
+      <line x1="30" y1="378" x2="62" y2="378" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+      <text x="68" y="382" font-size="8" fill="#8B5E4A" font-family="Inter">SPI 버스 / 주 제어</text>
+      <line x1="200" y1="378" x2="232" y2="378" stroke="rgba(212,99,58,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="238" y="382" font-size="8" fill="#8B5E4A" font-family="Inter">서브보드 연결</text>
+      <line x1="370" y1="378" x2="402" y2="378" stroke="#B85050" stroke-width="1.8" marker-end="url(#arr2)"/>
+      <text x="408" y="382" font-size="8" fill="#8B5E4A" font-family="Inter">보호 시스템</text>
+      <line x1="530" y1="378" x2="562" y2="378" stroke="#5B8A5E" stroke-width="1.8" marker-end="url(#arr2)"/>
+      <text x="568" y="382" font-size="8" fill="#8B5E4A" font-family="Inter">바이오센서</text>
+    </svg>
+  </section>
+
+  <!-- Board Summary Cards -->
+  <div class="section-hdr animate delay-3"><h2>주요 보드 한눈에 보기</h2><p>각 보드의 역할 및 담당 기능 요약</p></div>
+  <div class="board-grid animate delay-4">
+    <div class="board-card" onclick="switchTab('main',document.querySelectorAll('.tab-btn')[1])">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div>
+      <div class="board-num">4.1 Main Board</div>
+      <div class="board-title">메인 보드 (PC 104 + Carrier)</div>
+      <div class="board-desc">전체 시스템의 마스터 컨트롤러. SPI 버스를 통해 4개 슬레이브 보드를 제어합니다.</div>
+      <div class="board-tags"><span class="tag key">PC 104</span><span class="tag key">Carrier Board</span><span class="tag">LCD·USB·Ethernet</span><span class="tag">Flash 256MB</span></div>
+    </div>
+    <div class="board-card" onclick="switchTab('blood',document.querySelectorAll('.tab-btn')[2])">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/></svg></div>
+      <div class="board-num">4.3 Blood Slave Board</div>
+      <div class="board-title">혈액 슬레이브 보드</div>
+      <div class="board-desc">혈액 모듈 전담. 동맥/정맥 펌프, 헤파린 펌프, 클램프, 압력 트랜스듀서를 제어합니다.</div>
+      <div class="board-tags"><span class="tag key">동맥·정맥 펌프</span><span class="tag key">헤파린 펌프</span><span class="tag">클램프·BPM</span><span class="tag">Hemoscan</span></div>
+    </div>
+    <div class="board-card" onclick="switchTab('hydraulic',document.querySelectorAll('.tab-btn')[3])">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></div>
+      <div class="board-num">4.4 Hydraulic Slave Board</div>
+      <div class="board-title">유압 슬레이브 보드</div>
+      <div class="board-desc">유압 모듈 전담. 펌프(P1/P2/PC/PWHO), 솔레노이드 밸브, 압력·유량·전도도 센서를 제어합니다.</div>
+      <div class="board-tags"><span class="tag key">P1·P2·PC 펌프</span><span class="tag key">솔레노이드 밸브</span><span class="tag">전도도·압력 센서</span><span class="tag">농축 펌프 PA/PB/PSe</span></div>
+    </div>
+    <div class="board-card" onclick="switchTab('protective',document.querySelectorAll('.tab-btn')[4])">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="board-num">4.5 Protective Slave Board</div>
+      <div class="board-title">보호 슬레이브 보드</div>
+      <div class="board-desc">안전·보호 전담. 혈액 누출 감지, 공기 감지, 클램프 센서, 알람, T1 테스트를 담당합니다.</div>
+      <div class="board-tags"><span class="tag key">공기 감지 (UAD)</span><span class="tag key">BLD 혈액누출</span><span class="tag">알람·버저</span><span class="tag">T1 테스트</span></div>
+    </div>
+    <div class="board-card">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <div class="board-num">4.6 Bio Slave Board</div>
+      <div class="board-title">바이오 슬레이브 보드</div>
+      <div class="board-desc">Hemoscan 센서 취득 전담. BIOSLAVE2 또는 BIOSLAVE2 AFB 보드 2종 호환.</div>
+      <div class="board-tags"><span class="tag key">Hemoscan 센서</span><span class="tag">BIOSLAVE2 / AFB</span></div>
+    </div>
+    <div class="board-card" onclick="switchTab('others',document.querySelectorAll('.tab-btn')[5])">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div class="board-num">4.7 ~ 4.10 기타 보드</div>
+      <div class="board-title">서브 보드 그룹</div>
+      <div class="board-desc">PIB, 동/정맥 펌프 보드, Isolated Ethernet/Switch, Hour Meter 보드 포함.</div>
+      <div class="board-tags"><span class="tag">PIB Board</span><span class="tag">Isolated Ethernet</span><span class="tag">Hour Meter</span></div>
+    </div>
+  </div>
+
+</div><!-- /tab-arch -->
+
+<!-- ══════════════════ TAB 2: Main Board ══════════════════ -->
+<div class="tab-panel" id="tab-main">
+  <div class="section-hdr animate"><h2>4.1 Main Board</h2><p>PC 104 + Carrier Board로 구성된 시스템 마스터 컨트롤러</p></div>
+
+  <div class="detail-panel animate delay-1">
+    <div class="detail-header">
+      <div class="detail-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div>
+      <div>
+        <div class="detail-title">PC 104 보드 (2종 호환)</div>
+        <div class="detail-sub">두 가지 PC 104 보드가 호환됩니다. Carrier 보드에 플러그인 방식으로 장착됩니다.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-id">PCM9371 (6987838)</div>
+        <div class="comp-name">CELERON ULV 400 MHz 보드</div>
+        <div class="comp-role">CELERON ULV 400 MHz · 256MB SODIMM 144핀 · 256MB CF · RS232 2포트 · PS/2</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">PCM9375 (6997167)</div>
+        <div class="comp-name">AMD Geode LX800 500 MHz 보드</div>
+        <div class="comp-role">SW 8.06.10 이상 호환 · AMD Geode 500 MHz · 256/512MB SODIMM 200핀 DDR · 256/512MB CF</div>
+      </div>
+    </div>
+    <div class="note-box" style="margin-top:16px"><strong>NOTE:</strong> 현재 장착된 PC 104 보드 확인: Service 2 메뉴 → "9.5.2.1 Vismode HEXADEC" → Main OS Conf and Main LD Conf 섹션 참조</div>
+  </div>
+
+  <div class="detail-panel animate delay-2" style="margin-top:20px">
+    <div class="detail-header">
+      <div class="detail-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 14V8M8 11h8"/></svg></div>
+      <div>
+        <div class="detail-title">Carrier Board (3종 호환)</div>
+        <div class="detail-sub">SPI 연결용 68HC11 채널 프로세서 및 RS232 2포트 포함. 일부 모델은 PCMCIA 지원.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-id">9032299300</div>
+        <div class="comp-name">Carrier Board (PCMCIA 포함)</div>
+        <div class="comp-role">68HC11 SPI 채널 프로세서 · RS232 2포트 · PCMCIA 컨트롤러 포함</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">9032415400 / 9032415401 / 9032993100</div>
+        <div class="comp-name">Carrier Board (표준형)</div>
+        <div class="comp-role">68HC11 SPI 채널 프로세서 · RS232 2포트 · PCMCIA 미포함</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-hdr animate delay-2" style="margin-top:28px"><h2>4.1 Main Board 하위 기능</h2></div>
+  <div class="board-grid animate delay-3">
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+      <div class="board-num">4.1.1</div>
+      <div class="board-title">Flash Memory</div>
+      <div class="board-desc">256MB (PCM9371) 또는 512MB (PCM9375) Compact Flash에 프로그램 및 데이터 저장. USB 포트를 통해서만 재프로그래밍 가능.</div>
+      <div class="board-tags"><span class="tag key">256 / 512 MB CF</span><span class="tag">USB 업데이트 전용</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div class="board-num">4.1.2</div>
+      <div class="board-title">LCD & Touch Screen</div>
+      <div class="board-desc">15인치(31cm) TFT-LCD, 1024×768 해상도, 18bit 컬러. 5-wire 저항막 방식 터치스크린, RS232 컨트롤러 보드, 오디오 피드백 포함.</div>
+      <div class="board-tags"><span class="tag key">15" TFT 1024×768</span><span class="tag">5-wire 저항막</span><span class="tag">LVDS 연결</span><span class="tag">오디오 피드백</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 12h.01M12 12h.01M8 12h.01"/></svg></div>
+      <div class="board-num">4.1.3</div>
+      <div class="board-title">Card Reader (비접촉식)</div>
+      <div class="board-desc">환자 처방 데이터를 Patient Card에서 기기로 전송/다운로드. Carrier 보드와 TTL 시리얼 버스로 연결.</div>
+      <div class="board-tags"><span class="tag key">비접촉 방식</span><span class="tag">TTL 시리얼</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+      <div class="board-num">4.1.4</div>
+      <div class="board-title">USB Port</div>
+      <div class="board-desc">탈착식 메모리(USB 키) 연결. 교정 데이터, 도움말, 기술 정보 저장 및 소프트웨어 업데이트에 사용. PC 보드 직결.</div>
+      <div class="board-tags"><span class="tag key">소프트웨어 업데이트</span><span class="tag">교정 데이터 저장</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 12H3M21 12h-2M12 5V3M12 21v-2M7.05 7.05 5.636 5.636M18.364 18.364l-1.414-1.414M7.05 16.95l-1.414 1.414M18.364 5.636l-1.414 1.414"/><circle cx="12" cy="12" r="4"/></svg></div>
+      <div class="board-num">4.1.7</div>
+      <div class="board-title">Ethernet (100 Mbps)</div>
+      <div class="board-desc">Exalis/Foxalis 데이터 수집, Black Box 다운로드, LAN 연결, HL7 v2.5 XML 임상 데이터 전송. 후면 패널 장착.</div>
+      <div class="board-tags"><span class="tag key">100 Mbps / 자동협상</span><span class="tag">HL7 v2.5 XML</span><span class="tag">Exalis·Foxalis</span><span class="tag">격리 스위치 보드</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="board-num">4.1.8</div>
+      <div class="board-title">BPM Module</div>
+      <div class="board-desc">혈압 모니터(BPM) 보드. Blood 슬레이브 보드와 RS232 시리얼로 연결. 후면 연결 패널의 커프 포트 통해 환자 접속.</div>
+      <div class="board-tags"><span class="tag key">RS232 연결</span><span class="tag">Blood 보드 경유</span></div>
+    </div>
+  </div>
+</div><!-- /tab-main -->
+
+<!-- ══════════════════ TAB 3: Blood Board ══════════════════ -->
+<div class="tab-panel" id="tab-blood">
+  <div class="section-hdr animate"><h2>4.3 Blood Slave Board</h2><p>혈액 모듈 전담 — 펌프·클램프·압력트랜스듀서·BPM 제어</p></div>
+
+  <div class="board-grid animate delay-1">
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></div>
+      <div class="board-num">4.3.2 ~ 4.3.5</div>
+      <div class="board-title">동맥·정맥 펌프 시스템</div>
+      <div class="board-desc">24V DC 영구자석 브러시리스 모터(ARTPUMP/VENPUMP). 광학 엔코더 32펄스/회전 속도 피드백. 홀 센서로 회전 방향 감지. 커버 센서 포함.</div>
+      <div class="board-tags"><span class="tag key">24V DC BLDC</span><span class="tag key">광학 엔코더 32P</span><span class="tag">홀 센서 방향감지</span><span class="tag">커버 센서</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 8v8M9 11l3-3 3 3"/></svg></div>
+      <div class="board-num">4.3.7 ~ 4.3.9</div>
+      <div class="board-title">라인 클램프 (정맥·동맥·Ultra)</div>
+      <div class="board-desc">AVI Clamps 보드로 구동. 각 클램프 위치 스위치(LVCS/LACS)는 5V 로직 신호로 Protective 슬레이브 보드에 연결.</div>
+      <div class="board-tags"><span class="tag key">AVI Clamps 보드</span><span class="tag">LVCS·LACS 스위치</span><span class="tag">Protective 연동</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="board-num">4.3.10</div>
+      <div class="board-title">동맥·정맥·SN 압력 트랜스듀서</div>
+      <div class="board-desc">4선식 스트레인 게이지, 5Vdc 여기 전압. 동맥·정맥·pre-다이얼라이저 3개소 압력 측정. PIB 보드 통해 Blood/Protective 슬레이브 보드 연결.</div>
+      <div class="board-tags"><span class="tag key">4-wire 스트레인 게이지</span><span class="tag">5Vdc 여기</span><span class="tag">PIB 보드 경유</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 6h18M7 12h10M11 18h2"/></svg></div>
+      <div class="board-num">4.3.11 ~ 4.3.13</div>
+      <div class="board-title">헤파린 펌프 시스템</div>
+      <div class="board-desc">24V 4상 스테퍼 모터. 모터 제어·드라이브 회로 보드 내장. 엔코더 속도 피드백 + 리밋 스위치 2개 포함.</div>
+      <div class="board-tags"><span class="tag key">24V 스테퍼 모터</span><span class="tag">엔코더 피드백</span><span class="tag">리밋 스위치 2개</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/><line x1="12" y1="12" x2="12" y2="18"/></svg></div>
+      <div class="board-num">4.3.15 ~ 4.3.16</div>
+      <div class="board-title">카세트 로더 · 센서 바</div>
+      <div class="board-desc">카세트 로더: 압축기로 EVDR/EVDN/EVSN 경유 공기 압축. 센서 바: 공기 감지기(초음파), Hemoscan, Ultra 포트, 도어 센서 포함.</div>
+      <div class="board-tags"><span class="tag key">공기 감지 (초음파)</span><span class="tag key">Hemoscan</span><span class="tag">Ultra 포트</span><span class="tag">도어 스위치</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.9a16 16 0 0 0 6 6l.9-.9a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.18z"/></svg></div>
+      <div class="board-num">4.3.16.2</div>
+      <div class="board-title">Hemoscan 어셈블리</div>
+      <div class="board-desc">혈중 헤모글로빈 농도 변화 측정 기반. TX LED + RX 포토다이오드 광학 센서로 구성. 측정값은 Bio Slave 보드로 전달.</div>
+      <div class="board-tags"><span class="tag key">광학 센서 (TX·RX)</span><span class="tag">Hb 측정</span><span class="tag">Bio Slave 연동</span></div>
+    </div>
+  </div>
+</div><!-- /tab-blood -->
+
+<!-- ══════════════════ TAB 4: Hydraulic Board ══════════════════ -->
+<div class="tab-panel" id="tab-hydraulic">
+  <div class="section-hdr animate"><h2>4.4 Hydraulic Slave Board</h2><p>유압 모듈 전담 — 펌프·밸브·센서 완전 제어</p></div>
+
+  <div class="board-grid animate delay-1">
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></div>
+      <div class="board-num">4.4.8 ~ 4.4.11</div>
+      <div class="board-title">펌프 제어 (PC·P1·P2·PWHO)</div>
+      <div class="board-desc">PC: PDG 기반 탈기 폐쇄 루프 / P1: D1c 기반 300–800 ml/min 폐쇄 루프 / P2: D1c와 동일 유량 / PWHO: PD 기반 0 mmHg 유지.</div>
+      <div class="board-tags"><span class="tag key">PC 탈기 펌프</span><span class="tag key">P1·P2 투석 펌프</span><span class="tag">PWHO 폐액 펌프</span><span class="tag">폐쇄 루프 제어</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+      <div class="board-num">4.4.4</div>
+      <div class="board-title">솔레노이드 밸브 (2-way / 3-way)</div>
+      <div class="board-desc">2-way(2포트), 3-way(3포트), 2-way 3포트 세 종류. 작동 포지션에 따라 유체 경로를 제어. 전체 유압 회로 밸브 제어 담당.</div>
+      <div class="board-tags"><span class="tag key">2-way 밸브</span><span class="tag key">3-way 밸브</span><span class="tag">유압 회로 전체</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="board-num">4.4.12 ~ 4.4.17</div>
+      <div class="board-title">유량·압력 센서</div>
+      <div class="board-desc">D1c/D2c: 전자기 유량계(제어용) / D1p/D2p: 보호용 이중화 유량계 / PDR·PDG: 드레인·탈기 압력 / PO·PI·PFS: 다이얼라이저 전후 압력.</div>
+      <div class="board-tags"><span class="tag key">D1c·D2c 전자기 유량계</span><span class="tag">D1p·D2p 이중화</span><span class="tag">PDR·PDG·PO·PI·PFS</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+      <div class="board-num">4.4.18 ~ 4.4.20</div>
+      <div class="board-title">농축 펌프 (PA·PB·PSe·PS)</div>
+      <div class="board-desc">PA(산), PB(중탄산), PSe(SelectBag) 세라믹 펌프 및 PS 소독 펌프. 각각 전도도 센서 기반 폐쇄 루프 또는 용적 혼합 방식으로 속도 제어.</div>
+      <div class="board-tags"><span class="tag key">PA·PB·PSe 세라믹</span><span class="tag key">PS 소독 펌프</span><span class="tag">전도도 폐쇄 루프</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M2 12h20M12 2v20"/></svg></div>
+      <div class="board-num">4.4.21 ~ 4.4.22</div>
+      <div class="board-title">전도도 셀 · 수위 센서</div>
+      <div class="board-desc">ΓcA·ΓcB: 투석액 준비 전도도 / ΓcD: Diascan(클리어런스 측정) / LP·LD1·LD2: 기포 트랩 적외선 수위 감지.</div>
+      <div class="board-tags"><span class="tag key">ΓcA·ΓcB·ΓcD</span><span class="tag">LP·LD1·LD2 수위</span><span class="tag">적외선 방식</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2a5 5 0 0 1 5 5 7 7 0 0 1-7 7 5 5 0 0 1-5-5 7 7 0 0 1 7-7z"/><path d="M12 14v8"/></svg></div>
+      <div class="board-num">4.4.23</div>
+      <div class="board-title">히터 온도 센서 시스템</div>
+      <div class="board-desc">TP(PT100): 히터 출구 온도 / STH(PT1000): 115°C 초과 차단 / TcA: 산 혼합 온도 보상 / OVTemp3: 릴레이·OptoTriac·과온 보호 보드.</div>
+      <div class="board-tags"><span class="tag key">TP (PT100)</span><span class="tag key">STH (PT1000) 115°C</span><span class="tag">TcA 온도보상</span><span class="tag">OVTemp3 보드</span></div>
+    </div>
+  </div>
+
+  <div class="note-box animate delay-2">
+    <strong>센서 연결 방식:</strong> 슬레이브 보드와 주요 부품·센서 간 모든 신호는 포인트-투-포인트 방식으로 Mother Board(카드 케이지 백플레인)에 연결됩니다.
+  </div>
+</div><!-- /tab-hydraulic -->
+
+<!-- ══════════════════ TAB 5: Protective Board ══════════════════ -->
+<div class="tab-panel" id="tab-protective">
+  <div class="section-hdr animate"><h2>4.5 Protective Slave Board</h2><p>안전·보호 전담 — 환자 안전에 직결되는 모든 기능 담당</p></div>
+
+  <div class="board-grid animate delay-1">
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="board-num">4.5.1</div>
+      <div class="board-title">공기 감지기 (Air Detector)</div>
+      <div class="board-desc">PIB 보드에 회로 위치. 초음파 기술 사용 — 두 개의 압전 초음파 트랜스듀서로 혈액 튜빙 내 공기 감지.</div>
+      <div class="board-tags"><span class="tag key">초음파 방식</span><span class="tag">PIB 보드 탑재</span><span class="tag">압전 트랜스듀서 2개</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/></svg></div>
+      <div class="board-num">4.5.2 ~ 4.5.4</div>
+      <div class="board-title">클램프 위치 센서</div>
+      <div class="board-desc">정맥(LVCS)·동맥(LACS)·Ultra 클램프 각각의 위치 스위치. 5V 로직 신호로 Protective 슬레이브 보드에 직접 연결.</div>
+      <div class="board-tags"><span class="tag key">LVCS·LACS</span><span class="tag">5V 로직</span><span class="tag">3종 클램프</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/><line x1="12" y1="12" x2="12" y2="18"/></svg></div>
+      <div class="board-num">4.5.7</div>
+      <div class="board-title">혈액 누출 감지기 (BLD)</div>
+      <div class="board-desc">다이얼라이저 막 파열로 인한 혈액 누출 감시. 배출 투석액 흐름에서 혈액 존재 여부를 광학적으로 검출.</div>
+      <div class="board-tags"><span class="tag key">광학 검출</span><span class="tag">다이얼라이저 보호</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg></div>
+      <div class="board-num">4.5.8</div>
+      <div class="board-title">pH 프로브 및 pH 보드 (옵션)</div>
+      <div class="board-desc">투석액의 산성도(pH)를 측정하여 잘못된 농축액 연결 감지. 옵션 항목으로 설치된 경우에만 적용.</div>
+      <div class="board-tags"><span class="tag key">pH 측정</span><span class="tag">농축액 오장착 감지</span><span class="tag">옵션 설치</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+      <div class="board-num">4.5.12 ~ 4.5.14</div>
+      <div class="board-title">원격 알람 · 경고등 · 부저</div>
+      <div class="board-desc">외부 원격 알람 시스템 연결, 적색·황색 경고등 구동, 부저 및 스피커 오디오 알람. 모두 Protective 보드가 직접 제어.</div>
+      <div class="board-tags"><span class="tag key">원격 알람 출력</span><span class="tag">적색·황색 LED</span><span class="tag">부저·스피커</span></div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
+      <div class="board-num">4.5.15 ~ 4.5.16</div>
+      <div class="board-title">D1p·D2p 유량계 / Γp·ΓpSe 전도도</div>
+      <div class="board-desc">D1p·D2p: P1·P2 제어 유량계 이중화(보호용) / Γp: 최종 투석액 전도도 보호 / ΓpSe: SelectBag 전도도 보호 — 모두 Protective 보드 연결.</div>
+      <div class="board-tags"><span class="tag key">D1p·D2p 이중화 유량계</span><span class="tag key">Γp·ΓpSe 전도도</span><span class="tag">보호 기능 전용</span></div>
+    </div>
+  </div>
+
+  <div class="note-box animate delay-2">
+    <strong>Control/Protective 이중화 구조 (4.2):</strong> 4개 슬레이브 보드 각각의 제어 시스템과 Protective 시스템이 같은 부품을 감시·제어합니다. Protective 시스템은 24V 릴레이, 정맥 클램프, 알람 등 환자 안전 직결 부품을 직접 제어하며, 기동 시마다 <strong>T1 테스트</strong>를 수행합니다.
+  </div>
+</div><!-- /tab-protective -->
+
+<!-- ══════════════════ TAB 6: 기타 보드 ══════════════════ -->
+<div class="tab-panel" id="tab-others">
+  <div class="section-hdr animate"><h2>4.7 ~ 4.10 기타 보드</h2><p>서브 보드 및 특수 기능 보드</p></div>
+  <div class="board-grid animate delay-1">
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="board-num">4.7 Arterial/Venous Pump Board</div>
+      <div class="board-title">동맥·정맥 펌프 보드</div>
+      <div class="board-desc">혈액 펌프 24V 모터 옆 전면 혈액 격실에 위치. Blood·Protective 슬레이브 보드와 Mother Board 경유 연결.</div>
+      <div class="board-tags">
+        <span class="tag key">0–20 kHz 속도 명령</span><span class="tag">32P 엔코더 피드백</span>
+        <span class="tag">TTL 방향 신호 (H=CW)</span>
+      </div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+      <div class="board-num">4.8 PIB Board</div>
+      <div class="board-title">PIB (Patient Interface Board)</div>
+      <div class="board-desc">동맥·pre-다이얼라이저·정맥 압력 트랜스듀서의 아날로그 조건화 회로. UAD(초음파 공기감지), Blood Sensor, 트림팟 포함. 내부 SPI 유사 버스로 보드 간 통신.</div>
+      <div class="board-tags">
+        <span class="tag key">압력 아날로그 조건화</span><span class="tag key">UAD 초음파 회로</span>
+        <span class="tag">Blood Sensor</span><span class="tag">내부 SPI 유사 버스</span>
+      </div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 12H3M21 12h-2M12 5V3M12 21v-2M7.05 7.05 5.636 5.636M18.364 18.364l-1.414-1.414M7.05 16.95l-1.414 1.414M18.364 5.636l-1.414 1.414"/><circle cx="12" cy="12" r="4"/></svg></div>
+      <div class="board-num">4.9 Isolated Ethernet &amp; Switch Board</div>
+      <div class="board-title">격리 이더넷 및 스위치 보드</div>
+      <div class="board-desc">외부 LAN과 내부 Ethernet 포트 사이 절연 배리어 구현. 외부 LAN Port + Wi-Fi 모듈(Ethernet Bridge) 간 스위칭. LAN/Wi-Fi 전환용 디지털 입력 포함.</div>
+      <div class="board-tags">
+        <span class="tag key">LAN 절연 배리어</span><span class="tag key">Wi-Fi 브리지</span>
+        <span class="tag">LAN·Wi-Fi 전환 스위치</span>
+      </div>
+    </div>
+    <div class="board-card" style="cursor:default">
+      <div class="board-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="board-num">4.10 Hour Meter Board</div>
+      <div class="board-title">아워 미터 보드</div>
+      <div class="board-desc">전기기계식 아워 카운터 및 저전력 모드 관리. 5VD 전원 또는 백업 배터리(V_BATTERY)로 동작. 가동 시간·저전력 시간 모두 계수.</div>
+      <div class="board-tags">
+        <span class="tag key">5VD / 배터리 이중 전원</span><span class="tag">가동시간 카운터</span>
+        <span class="tag">저전력 모드 관리</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4.2 Control/Protective 설명 -->
+  <section class="detail-panel animate delay-2" style="margin-top:8px">
+    <div class="detail-header">
+      <div class="detail-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div>
+        <div class="detail-title">4.2 Control / Protective 이중화 구조</div>
+        <div class="detail-sub">4개 슬레이브 보드 각각의 제어 시스템과 Protective 시스템이 동일 부품을 이중으로 감시합니다.</div>
+      </div>
+    </div>
+    <ul class="sub-list">
+      <li><span class="sub-dot"></span><span class="sub-text"><strong>슬레이브 제어 시스템:</strong> 모터·밸브 등 부품 구동 담당 (각 슬레이브 보드)</span></li>
+      <li><span class="sub-dot"></span><span class="sub-text"><strong>Protective 시스템:</strong> 동일 부품 감시 및 일부 제어 (이중화) + 환자 안전 직결 부품(24V 릴레이, 정맥 클램프, 알람) 직접 제어</span></li>
+      <li><span class="sub-dot"></span><span class="sub-text"><strong>T1 테스트:</strong> 기동 시마다 Protective 시스템이 개시·수행 — 보호 회로 정상 동작 여부 자가진단</span></li>
+      <li><span class="sub-dot"></span><span class="sub-text"><strong>SPI 버스 마스터:</strong> Main Board가 4개 슬레이브 보드 대상 SPI 통신 마스터 역할 (듀얼포트 RAM + 68HC11 통신 프로세서)</span></li>
+    </ul>
+  </section>
+</div><!-- /tab-others -->
+
+</div><!-- /container -->
+</main>
+
+<script>
+// ── Theme ──
+var currentTheme = localStorage.getItem('viz-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+function applyTheme(t){ document.documentElement.className='theme-'+t; localStorage.setItem('viz-theme',t); currentTheme=t; }
+function cycleTheme(){ applyTheme(currentTheme==='dark'?'light':'dark'); }
+applyTheme(currentTheme);
+
+// ── Menu ──
+function toggleMenu(){
+  var d=document.getElementById('vizMenuDropdown');
+  if(d) d.classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.viz-menu')){ var d=document.getElementById('vizMenuDropdown'); if(d) d.classList.remove('open'); }
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ var d=document.getElementById('vizMenuDropdown'); if(d) d.classList.remove('open'); }
+});
+
+// ── Tabs ──
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  var panel = document.getElementById('tab-'+name);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// ── Scroll Reveal ──
+var ro = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); ro.unobserve(e.target); } });
+},{threshold:0.1});
+document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('reveal'); ro.observe(el); });
+
+// ── Download PNG ──
+async function downloadImage(){
+  var menu = document.querySelector('.viz-menu');
+  menu.style.display='none';
+  try{
+    var url = await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2});
+    var a = document.createElement('a'); a.href=url;
+    a.download='artis-physio-plus-electronic.png'; a.click();
+  }catch(e){ console.error(e); }
+  menu.style.display='';
+}
+</script>
+</body>
+</html>
