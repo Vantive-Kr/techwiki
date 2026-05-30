@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artis Physio Plus · 유압 회로 시각화 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+/* ─── Vantive Color System (DJGJ 동일 팔레트) ─── */
+:root {
+  --claude-coral:      #D4633A;
+  --claude-coral-deep: #B8502D;
+  --claude-coral-soft: #E8896A;
+  --claude-coral-pale: #F5D5C8;
+  --claude-warm:       #C96442;
+  --claude-sand:       #E8C9A0;
+  --claude-cream:      #FBF8F4;
+  --claude-parchment:  #F5EFE6;
+  --claude-brown:      #7A4A35;
+  --claude-dark:       #1E1008;
+}
+.theme-light {
+  --bg:              #FBF8F4;
+  --surface:         #FFFFFF;
+  --surface-hover:   #FDF3EC;
+  --surface-warm:    #FEF6EE;
+  --border:          rgba(212,99,58,0.12);
+  --border-soft:     rgba(212,99,58,0.07);
+  --text:            #1E1008;
+  --text-secondary:  #8B5E4A;
+  --text-muted:      #B08070;
+  --accent:          #D4633A;
+  --accent-hover:    #B8502D;
+  --accent-secondary:#E8896A;
+  --accent-pale:     #F5D5C8;
+  --positive:        #5B8A5E;
+  --negative:        #B85050;
+  --warning:         #C48A2E;
+  --highlight:       #C96442;
+}
+.theme-dark {
+  --bg:              #150D07;
+  --surface:         #1E1208;
+  --surface-hover:   #2A1A0F;
+  --surface-warm:    #261608;
+  --border:          rgba(212,99,58,0.18);
+  --border-soft:     rgba(212,99,58,0.08);
+  --text:            #F5EDE5;
+  --text-secondary:  #C49A80;
+  --text-muted:      #8B6550;
+  --accent:          #E8896A;
+  --accent-hover:    #D4633A;
+  --accent-secondary:#F0A882;
+  --accent-pale:     rgba(212,99,58,0.18);
+  --positive:        #7DAE80;
+  --negative:        #D47070;
+  --warning:         #D4A850;
+  --highlight:       #E8896A;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans KR','Inter',sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.6;font-size:1rem;min-height:100vh;
+  transition:background 0.25s,color 0.25s;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,rgba(212,99,58,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(200,80,50,0.03) 0%,transparent 50%);
+}
+
+.skip-link{position:absolute;top:-40px;left:0;padding:8px 16px;background:var(--accent);color:#fff;z-index:9999;}
+.skip-link:focus{top:0}
+
+/* ── Menu ── */
+.viz-menu{position:fixed;top:16px;right:16px;z-index:9000}
+.viz-menu-toggle{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(212,99,58,0.1);transition:background 0.2s,box-shadow 0.2s;
+}
+.viz-menu-toggle:hover{background:var(--surface-hover);box-shadow:0 4px 16px rgba(212,99,58,0.18)}
+.viz-menu-toggle svg{stroke:var(--text-secondary)}
+.viz-menu-dropdown{
+  position:absolute;top:48px;right:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:6px;min-width:190px;
+  box-shadow:0 8px 32px rgba(30,16,8,0.14);display:none;
+}
+.viz-menu-dropdown.open{display:block}
+.viz-menu-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:8px;cursor:pointer;font-size:0.875rem;
+  color:var(--text-secondary);border:none;background:none;
+  width:100%;text-align:left;transition:background 0.15s,color 0.15s;
+}
+.viz-menu-item:hover{background:var(--surface-hover);color:var(--text)}
+
+/* ── Layout ── */
+.container{max-width:1240px;margin:0 auto;padding:32px 24px 100px;position:relative;z-index:1}
+
+/* ── Hero ── */
+.hero{padding:48px 0 36px;border-bottom:1px solid var(--border);margin-bottom:40px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent-pale);border:1px solid rgba(212,99,58,0.2);
+  border-radius:100px;padding:5px 14px;
+  font-size:0.75rem;font-weight:600;color:var(--accent);
+  font-family:'Inter',sans-serif;letter-spacing:0.03em;margin-bottom:18px;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero h1{font-size:2.5rem;font-weight:800;letter-spacing:-0.03em;color:var(--text);line-height:1.2;margin-bottom:8px}
+.hero h1 span{color:var(--accent)}
+.hero-sub{font-size:0.875rem;color:var(--text-secondary)}
+.hero-meta{display:flex;gap:24px;margin-top:18px;flex-wrap:wrap}
+.hero-stat{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-secondary)}
+.hero-stat-val{font-weight:700;color:var(--accent);font-size:0.95rem}
+
+/* ── Tab nav ── */
+.tab-nav{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:36px;overflow-x:auto}
+.tab-btn{
+  padding:10px 18px;font-size:0.875rem;font-weight:500;white-space:nowrap;
+  border:none;background:none;color:var(--text-secondary);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:all 0.15s;border-radius:6px 6px 0 0;font-family:inherit;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.tab-btn:hover{background:var(--surface-hover);color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Circuit Flow Diagram ── */
+.circuit-diagram{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:28px;margin-bottom:32px;
+  overflow-x:auto;
+}
+.circuit-diagram h2{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:20px}
+.flow-svg{min-width:760px;width:100%;height:auto}
+
+/* ── Module Grid ── */
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px}
+
+/* ── Module Card ── */
+.mod-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px;
+  transition:box-shadow 0.2s,border-color 0.2s;cursor:pointer;
+}
+.mod-card:hover{box-shadow:0 4px 20px rgba(212,99,58,0.12);border-color:rgba(212,99,58,0.25)}
+.mod-card.active-card{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,99,58,0.12)}
+.mod-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--accent-pale);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+}
+.mod-icon svg{stroke:var(--accent)}
+.mod-num{font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.mod-title{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.mod-desc{font-size:0.8rem;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
+.mod-tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{
+  font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:5px;
+  background:var(--surface-warm);color:var(--text-secondary);
+  border:1px solid var(--border-soft);font-family:'Inter',sans-serif;
+}
+.tag.key{background:var(--accent-pale);color:var(--accent);border-color:rgba(212,99,58,0.2)}
+
+/* ── Detail Panel ── */
+.detail-panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:28px;margin-bottom:32px;
+}
+.detail-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.detail-icon{
+  width:52px;height:52px;border-radius:12px;flex-shrink:0;
+  background:var(--accent-pale);
+  display:flex;align-items:center;justify-content:center;
+}
+.detail-icon svg{stroke:var(--accent)}
+.detail-title{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-0.02em}
+.detail-sub{font-size:0.83rem;color:var(--text-secondary);line-height:1.5}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:20px}
+.comp-card{
+  background:var(--surface-warm);border:1px solid var(--border-soft);
+  border-radius:10px;padding:14px;
+}
+.comp-id{font-size:0.72rem;font-weight:700;color:var(--accent);font-family:'Inter',sans-serif;letter-spacing:0.05em;margin-bottom:4px}
+.comp-name{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.comp-role{font-size:0.75rem;color:var(--text-secondary);line-height:1.4}
+
+/* ── Flow Path Visual ── */
+.flow-path{
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;padding-bottom:12px;margin-bottom:28px;
+}
+.flow-step{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:110px;padding:0 4px;
+}
+.flow-node{
+  width:76px;height:76px;border-radius:14px;
+  background:var(--surface-warm);border:2px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;transition:border-color 0.2s,background 0.2s;cursor:pointer;
+  position:relative;
+}
+.flow-node:hover,.flow-node.hl{
+  border-color:var(--accent);background:var(--accent-pale);
+}
+.flow-node svg{stroke:var(--text-secondary)}
+.flow-node:hover svg,.flow-node.hl svg{stroke:var(--accent)}
+.flow-label{font-size:0.65rem;font-weight:600;color:var(--text-muted);text-align:center;margin-top:7px;line-height:1.3}
+.flow-arrow{
+  width:32px;height:2px;background:linear-gradient(to right,var(--accent),var(--accent-secondary));
+  flex-shrink:0;margin-top:-24px;position:relative;
+}
+.flow-arrow::after{
+  content:'';position:absolute;right:-1px;top:-4px;
+  border:5px solid transparent;border-left:8px solid var(--accent-secondary);
+}
+
+/* ── Section header ── */
+.section-hdr{margin-bottom:20px;margin-top:36px}
+.section-hdr h2{font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.section-hdr p{font-size:0.82rem;color:var(--text-secondary)}
+
+/* ── Key Parameters Table ── */
+.param-table{width:100%;border-collapse:collapse;font-size:0.83rem}
+.param-table th{
+  background:var(--surface-warm);padding:10px 14px;
+  text-align:left;font-weight:700;font-size:0.7rem;
+  color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;
+  border-bottom:1px solid var(--border);
+}
+.param-table td{padding:9px 14px;border-bottom:1px solid var(--border-soft);color:var(--text);vertical-align:top}
+.param-table tr:last-child td{border-bottom:none}
+.param-table tr:hover td{background:var(--surface-hover)}
+.param-val{font-weight:700;color:var(--accent);font-family:'Inter',sans-serif}
+
+/* ── Alert / Note box ── */
+.note-box{
+  background:rgba(212,99,58,0.07);border-left:3px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:12px 16px;margin:16px 0;
+  font-size:0.82rem;color:var(--text-secondary);
+}
+.note-box strong{color:var(--accent)}
+
+/* ── Disinfection flow ── */
+.disinfect-flow{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.dis-step{
+  background:var(--surface-warm);border:1px solid var(--border-soft);
+  border-radius:10px;padding:14px;flex:1;min-width:160px;
+  position:relative;
+}
+.dis-step-num{
+  width:22px;height:22px;border-radius:50%;background:var(--accent);
+  color:#fff;font-size:0.7rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+}
+.dis-step-title{font-size:0.83rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.dis-step-desc{font-size:0.73rem;color:var(--text-secondary);line-height:1.4}
+
+/* ── Animations ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.animate{animation:fadeInUp 0.4s ease forwards;opacity:0}
+.delay-1{animation-delay:0.08s}
+.delay-2{animation-delay:0.16s}
+.delay-3{animation-delay:0.24s}
+.delay-4{animation-delay:0.32s}
+.delay-5{animation-delay:0.40s}
+
+/* ── Responsive ── */
+@media(max-width:900px){.module-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.module-grid{grid-template-columns:1fr}.hero h1{font-size:1.9rem}.container{padding:24px 16px 80px}.tab-btn{padding:8px 12px;font-size:0.78rem}}
+@media(max-width:375px){body{overflow-x:hidden}.flow-path{display:grid;grid-template-columns:1fr 1fr}}
+
+/* ── Print ── */
+@media print{
+  .viz-menu,.tab-nav{display:none!important}
+  .tab-panel{display:block!important;margin-bottom:60px}
+  body::before{display:none}
+}
+@media(prefers-reduced-motion:reduce){.animate{animation:none;opacity:1}*{transition:none!important}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">본문 바로가기</a>
+
+<!-- ── Utility Menu ── -->
+<nav class="viz-menu" aria-label="유틸리티 메뉴">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown" role="menu">
+    <button class="viz-menu-item" onclick="cycleTheme()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      테마 전환
+    </button>
+    <button class="viz-menu-item" onclick="downloadImage()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      PNG 저장
+    </button>
+    <button class="viz-menu-item" onclick="window.print()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      인쇄 / PDF
+    </button>
+  </div>
+</nav>
+
+<main id="main-content">
+<div class="container">
+
+<!-- ── HERO ── -->
+<section class="hero animate">
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    Artis Physio Plus · SM 9033283000_02 Rev./
+  </div>
+  <h1>Chapter 2. <span>Hydraulic Circuit Description</span></h1>
+  <p class="hero-sub">Hydraulic Circuit Description — 투석 유체 준비부터 폐액 배출까지 전체 모듈 구조 및 핵심 부품 안내</p>
+  <div class="hero-meta">
+    <div class="hero-stat"><span class="hero-stat-val">9</span> 개 기능 모듈</div>
+    <div class="hero-stat"><span class="hero-stat-val">300–800</span> ml/min 다이얼라이저 유량</div>
+    <div class="hero-stat"><span class="hero-stat-val">100 mmHg</span> 탈기 목표 압력</div>
+    <div class="hero-stat"><span class="hero-stat-val">460 mmHg</span> R1 입구 조정 압력</div>
+  </div>
+</section>
+
+<!-- ── TAB NAV ── -->
+<nav class="tab-nav animate delay-1" aria-label="섹션 탭">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    회로 전체 흐름
+  </button>
+  <button class="tab-btn" onclick="switchTab('modules',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="7" height="7" rx="1"/><rect x="15" y="3" width="7" height="7" rx="1"/><rect x="2" y="14" width="7" height="7" rx="1"/><rect x="15" y="14" width="7" height="7" rx="1"/></svg>
+    모듈별 상세
+  </button>
+  <button class="tab-btn" onclick="switchTab('components',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+    주요 부품 파라미터
+  </button>
+  <button class="tab-btn" onclick="switchTab('disinfection',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/></svg>
+    소독 및 유지보수
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     TAB 1: 회로 전체 흐름
+══════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+
+  <!-- Flow Path Visual -->
+  <section class="circuit-diagram animate delay-2" aria-label="유압 회로 흐름도">
+    <h2>유압 회로 블록 다이어그램 (Hydraulic Circuit Block Diagram)</h2>
+
+    <!-- SVG Circuit Diagram -->
+    <svg class="flow-svg" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Artis 유압 회로 전체 흐름도">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#D4633A"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#5B8A5E"/>
+        </marker>
+        <marker id="arr-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#B08070"/>
+        </marker>
+      </defs>
+
+      <!-- Background zones -->
+      <rect x="10" y="10" width="880" height="400" rx="12" fill="none" stroke="rgba(212,99,58,0.08)" stroke-width="1.5"/>
+
+      <!-- WATER IN -->
+      <rect x="28" y="160" width="84" height="64" rx="10" fill="rgba(212,99,58,0.08)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="70" y="186" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">WATER</text>
+      <text x="70" y="198" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">INLET</text>
+      <text x="70" y="216" text-anchor="middle" font-size="8" fill="#8B5E4A" font-family="Inter">Fluid Feeding</text>
+
+      <!-- arrow 1 -->
+      <line x1="112" y1="192" x2="148" y2="192" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+
+      <!-- HEATING DEGASSING -->
+      <rect x="150" y="148" width="96" height="88" rx="10" fill="rgba(212,99,58,0.06)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="198" y="178" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Heating &amp;</text>
+      <text x="198" y="191" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Degassing</text>
+      <text x="198" y="220" text-anchor="middle" font-size="7.5" fill="#8B5E4A" font-family="Inter">HE1·HE2·FLICK</text>
+
+      <!-- arrow 2 -->
+      <line x1="246" y1="192" x2="282" y2="192" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+
+      <!-- DOSING MIXING CONCENTRATES -->
+      <rect x="284" y="130" width="108" height="124" rx="10" fill="rgba(212,99,58,0.06)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="338" y="165" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Dosing &amp;</text>
+      <text x="338" y="178" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Mixing Conc.</text>
+      <!-- sub-items -->
+      <rect x="294" y="186" width="88" height="14" rx="3" fill="rgba(212,99,58,0.15)"/>
+      <text x="338" y="196" text-anchor="middle" font-size="7.5" fill="#D4633A" font-family="Inter">PB Bicarbonate</text>
+      <rect x="294" y="204" width="88" height="14" rx="3" fill="rgba(196,138,46,0.15)"/>
+      <text x="338" y="214" text-anchor="middle" font-size="7.5" fill="#C48A2E" font-family="Inter">PSe SelectBag</text>
+      <rect x="294" y="222" width="88" height="14" rx="3" fill="rgba(91,138,94,0.15)"/>
+      <text x="338" y="232" text-anchor="middle" font-size="7.5" fill="#5B8A5E" font-family="Inter">PA Acid</text>
+
+      <!-- arrow 3 -->
+      <line x1="392" y1="192" x2="428" y2="192" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+
+      <!-- FLUID DELIVERY WL -->
+      <rect x="430" y="130" width="108" height="124" rx="10" fill="rgba(212,99,58,0.06)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="484" y="162" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Fluid Delivery</text>
+      <text x="484" y="175" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">&amp; WL Control</text>
+      <!-- dialyzer box -->
+      <rect x="440" y="184" width="88" height="22" rx="4" fill="rgba(212,99,58,0.12)" stroke="rgba(212,99,58,0.3)" stroke-width="1"/>
+      <text x="484" y="199" text-anchor="middle" font-size="8" font-weight="700" fill="#D4633A" font-family="Inter">↕ Dialyzer</text>
+      <text x="484" y="226" text-anchor="middle" font-size="7.5" fill="#8B5E4A" font-family="Inter">P1·P2·CDF2/3</text>
+      <text x="484" y="238" text-anchor="middle" font-size="7.5" fill="#8B5E4A" font-family="Inter">BLD·PRV</text>
+
+      <!-- arrow 4 -->
+      <line x1="538" y1="192" x2="574" y2="192" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+
+      <!-- CLEARANCE -->
+      <rect x="576" y="160" width="84" height="64" rx="10" fill="rgba(212,99,58,0.06)" stroke="#D4633A" stroke-width="1.5"/>
+      <text x="618" y="186" text-anchor="middle" font-size="9" font-weight="700" fill="#D4633A" font-family="Inter">Clearance</text>
+      <text x="618" y="210" text-anchor="middle" font-size="8" fill="#8B5E4A" font-family="Inter">ΓcD sensor</text>
+
+      <!-- arrow 5 -->
+      <line x1="660" y1="192" x2="696" y2="192" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+
+      <!-- WASTE FLUID -->
+      <rect x="698" y="160" width="84" height="64" rx="10" fill="rgba(91,138,94,0.08)" stroke="#5B8A5E" stroke-width="1.5"/>
+      <text x="740" y="186" text-anchor="middle" font-size="9" font-weight="700" fill="#5B8A5E" font-family="Inter">Waste Fluid</text>
+      <text x="740" y="200" text-anchor="middle" font-size="8" fill="#8B5E4A" font-family="Inter">PWHO pump</text>
+      <text x="740" y="214" text-anchor="middle" font-size="8" fill="#5B8A5E" font-family="Inter">→ DRAIN</text>
+
+      <!-- DRAIN arrow final -->
+      <line x1="782" y1="192" x2="820" y2="192" stroke="#5B8A5E" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+      <rect x="822" y="175" width="52" height="34" rx="8" fill="rgba(91,138,94,0.12)" stroke="#5B8A5E" stroke-width="1.5"/>
+      <text x="848" y="196" text-anchor="middle" font-size="9" font-weight="700" fill="#5B8A5E" font-family="Inter">DRAIN</text>
+
+      <!-- ── Secondary: Disinfectants (bottom) ── -->
+      <rect x="284" y="314" width="108" height="52" rx="10" fill="rgba(196,138,46,0.08)" stroke="#C48A2E" stroke-width="1.5"/>
+      <text x="338" y="337" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C48A2E" font-family="Inter">Dosing &amp; Mixing</text>
+      <text x="338" y="352" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C48A2E" font-family="Inter">Disinfectants</text>
+      <line x1="338" y1="314" x2="338" y2="254" stroke="#C48A2E" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr-gray)"/>
+
+      <!-- ── EvaClean (bottom right) ── -->
+      <rect x="430" y="314" width="108" height="52" rx="10" fill="rgba(91,138,94,0.08)" stroke="#5B8A5E" stroke-width="1.5"/>
+      <text x="484" y="337" text-anchor="middle" font-size="8.5" font-weight="700" fill="#5B8A5E" font-family="Inter">EvaClean</text>
+      <text x="484" y="352" text-anchor="middle" font-size="8" fill="#8B5E4A" font-family="Inter">Cassette priming</text>
+      <line x1="484" y1="314" x2="484" y2="254" stroke="#5B8A5E" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr-gray)"/>
+
+      <!-- ── Recirculation (top arc) ── -->
+      <path d="M 198 148 Q 198 60 70 148" fill="none" stroke="#B08070" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#arr-gray)"/>
+      <text x="130" y="68" text-anchor="middle" font-size="8" fill="#B08070" font-family="Inter">Recirculation</text>
+      <text x="130" y="80" text-anchor="middle" font-size="7.5" fill="#B08070" font-family="Inter">(소독 시 역류)</text>
+
+      <!-- ── Labels: BiCart / SelectBag inputs ── -->
+      <line x1="338" y1="130" x2="338" y2="80" stroke="#C48A2E" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <rect x="294" y="52" width="88" height="26" rx="5" fill="rgba(196,138,46,0.1)"/>
+      <text x="338" y="63" text-anchor="middle" font-size="7.5" font-weight="700" fill="#C48A2E" font-family="Inter">BiCart / SelectBag</text>
+      <text x="338" y="74" text-anchor="middle" font-size="7" fill="#8B5E4A" font-family="Inter">농축액 공급원</text>
+
+      <!-- ── Label: PS Flushing ── -->
+      <text x="130" y="350" text-anchor="middle" font-size="8" fill="#B08070" font-family="Inter">PS flushing circuit</text>
+      <line x1="112" y1="210" x2="112" y2="340" stroke="#B08070" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="112" y1="340" x2="240" y2="340" stroke="#B08070" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <!-- Legend -->
+      <rect x="28" y="360" width="840" height="40" rx="8" fill="rgba(212,99,58,0.03)" stroke="rgba(212,99,58,0.08)" stroke-width="1"/>
+      <line x1="48" y1="380" x2="80" y2="380" stroke="#D4633A" stroke-width="1.8" marker-end="url(#arr)"/>
+      <text x="86" y="384" font-size="8" fill="#8B5E4A" font-family="Inter">주 유체 흐름</text>
+      <line x1="180" y1="380" x2="212" y2="380" stroke="#5B8A5E" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+      <text x="218" y="384" font-size="8" fill="#8B5E4A" font-family="Inter">폐액 흐름</text>
+      <line x1="300" y1="380" x2="332" y2="380" stroke="#C48A2E" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <text x="338" y="384" font-size="8" fill="#8B5E4A" font-family="Inter">소독제 투입</text>
+      <line x1="430" y1="380" x2="462" y2="380" stroke="#B08070" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <text x="468" y="384" font-size="8" fill="#8B5E4A" font-family="Inter">재순환 / 플러싱</text>
+    </svg>
+  </section>
+
+  <!-- Flow Step Cards -->
+  <section data-reveal>
+    <div class="section-hdr">
+      <h2>단계별 흐름 요약</h2>
+      <p>물 유입에서 폐액 배출까지 순서대로 확인하세요</p>
+    </div>
+    <div class="flow-path" role="list" aria-label="처리 단계 순서">
+      <div class="flow-step" role="listitem">
+        <div class="flow-node" title="Fluid Feeding Module">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><polyline points="8 16 12 12 16 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+          <span style="font-size:7px;color:var(--text-muted);">01</span>
+        </div>
+        <div class="flow-label">Fluid<br>Feeding<br><span style="color:var(--accent)">수처리 입수</span></div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step" role="listitem">
+        <div class="flow-node" title="Heating & Degassing">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2a5 5 0 0 1 5 5 7 7 0 0 1-7 7 5 5 0 0 1-5-5 7 7 0 0 1 7-7z"/><path d="M12 14v8"/></svg>
+          <span style="font-size:7px;color:var(--text-muted);">02</span>
+        </div>
+        <div class="flow-label">Heating &amp;<br>Degassing<br><span style="color:var(--accent)">가열·탈기</span></div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step" role="listitem">
+        <div class="flow-node" title="Dosing & Mixing Concentrates">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><path d="M9 3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+          <span style="font-size:7px;color:var(--text-muted);">03</span>
+        </div>
+        <div class="flow-label">Dosing &amp;<br>Mixing<br><span style="color:var(--accent)">농축액 혼합</span></div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step" role="listitem">
+        <div class="flow-node" title="Fluid Delivery & WL Control">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span style="font-size:7px;color:var(--text-muted);">04</span>
+        </div>
+        <div class="flow-label">Fluid Delivery<br>&amp; WL Control<br><span style="color:var(--accent)">다이얼라이저</span></div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step" role="listitem">
+        <div class="flow-node" title="Clearance Module">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span style="font-size:7px;color:var(--text-muted);">05</span>
+        </div>
+        <div class="flow-label">Clearance<br>Module<br><span style="color:var(--accent)">클리어런스 측정</span></div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step" role="listitem">
+        <div class="flow-node" title="Waste Fluid Module">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          <span style="font-size:7px;color:var(--text-muted);">06</span>
+        </div>
+        <div class="flow-label">Waste Fluid<br>Module<br><span style="color:var(--positive)">폐액 배출</span></div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /tab-overview -->
+
+<!-- ══════════════════════════════════════════════
+     TAB 2: 모듈별 상세
+══════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-modules">
+  <div class="section-hdr animate">
+    <h2>모듈별 상세 설명</h2>
+    <p>카드를 클릭하면 해당 모듈의 세부 부품 및 기능을 확인할 수 있습니다</p>
+  </div>
+
+  <div class="module-grid animate delay-1" id="moduleGrid">
+
+    <!-- 2.2 Fluid Feeding -->
+    <div class="mod-card" onclick="showDetail('ff')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><polyline points="8 16 12 12 16 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+      </div>
+      <div class="mod-num">2.2 Fluid Feeding Module</div>
+      <div class="mod-title">유체 공급 모듈</div>
+      <div class="mod-desc">처리수의 압력을 조절하고 필터링하여 유압 회로에 공급합니다. 입구 필터, 압력 조절기, 초순수 필터(CDF1)를 포함합니다.</div>
+      <div class="mod-tags">
+        <span class="tag key">FH2O 필터</span>
+        <span class="tag key">R1 조절기</span>
+        <span class="tag">SWP 압력스위치</span>
+        <span class="tag">EVH2O 입구밸브</span>
+        <span class="tag">CDF1 UF필터</span>
+      </div>
+    </div>
+
+    <!-- 2.3 Heating & Degassing -->
+    <div class="mod-card" onclick="showDetail('hd')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2a5 5 0 0 1 5 5 7 7 0 0 1-7 7 5 5 0 0 1-5-5 7 7 0 0 1 7-7z"/><path d="M12 14v8"/></svg>
+      </div>
+      <div class="mod-num">2.3 Heating &amp; Degassing</div>
+      <div class="mod-title">가열 및 탈기 모듈</div>
+      <div class="mod-desc">유입수를 가열하고 용존 기체를 제거합니다. 열교환기 2개, FLICK 히터, 기포 트랩(BTP), 탈기 펌프(PC)를 포함합니다.</div>
+      <div class="mod-tags">
+        <span class="tag key">HE1·HE2 열교환기</span>
+        <span class="tag key">FLICK 히터</span>
+        <span class="tag">TP 온도센서</span>
+        <span class="tag">PC 탈기펌프</span>
+        <span class="tag">BTP 기포트랩</span>
+        <span class="tag">R2 조절기</span>
+      </div>
+    </div>
+
+    <!-- 2.4 Dosing & Mixing Concentrates -->
+    <div class="mod-card" onclick="showDetail('dmc')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div class="mod-num">2.4 Dosing &amp; Mixing Conc.</div>
+      <div class="mod-title">농축액 투여 및 혼합 모듈</div>
+      <div class="mod-desc">중탄산염·산·SelectBag 농축액을 처리수에 정확하게 혼합하여 목표 전도도의 투석액을 만듭니다. 세라믹 펌프 3종 사용.</div>
+      <div class="mod-tags">
+        <span class="tag key">PB 중탄산펌프</span>
+        <span class="tag key">PA 산펌프</span>
+        <span class="tag key">PSe SelectBag펌프</span>
+        <span class="tag">ΓcB·ΓcA 전도도센서</span>
+        <span class="tag">BiCart 옵션</span>
+      </div>
+    </div>
+
+    <!-- 2.5 Fluid Delivery & WL -->
+    <div class="mod-card" onclick="showDetail('fd')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      </div>
+      <div class="mod-num">2.5 Fluid Delivery &amp; WL Control</div>
+      <div class="mod-title">유체 공급 및 체중 감소 제어</div>
+      <div class="mod-desc">다이얼라이저 상·하류의 투석액 흐름을 제어합니다. P1·P2 펌프, 초순수 필터 2/3개, 혈액 누출 감지기(BLD)를 포함합니다.</div>
+      <div class="mod-tags">
+        <span class="tag key">P1·P2 펌프</span>
+        <span class="tag key">CDF2·CDF3 UF필터</span>
+        <span class="tag">BLD 혈액누출감지</span>
+        <span class="tag">D1c·D2c 유량센서</span>
+        <span class="tag">PO·PI 압력센서</span>
+        <span class="tag">PRV 조절기</span>
+      </div>
+    </div>
+
+    <!-- 2.6 Clearance -->
+    <div class="mod-card" onclick="showDetail('cl')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="mod-num">2.6 Clearance Module</div>
+      <div class="mod-title">클리어런스 모듈</div>
+      <div class="mod-desc">BLD 이후 배출 투석액의 전도도를 측정하여 다이얼라이저 클리어런스를 추정합니다. ΓcD 전도도 셀과 온도 보상 기능 포함.</div>
+      <div class="mod-tags">
+        <span class="tag key">ΓcD 전도도셀</span>
+        <span class="tag">온도 보상</span>
+        <span class="tag">Hydraulic board 연동</span>
+      </div>
+    </div>
+
+    <!-- 2.7 Waste Fluid -->
+    <div class="mod-card" onclick="showDetail('wf')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </div>
+      <div class="mod-num">2.7 Waste Fluid Module</div>
+      <div class="mod-title">폐액 모듈</div>
+      <div class="mod-desc">폐액을 드레인으로 배출합니다. PWHO 펌프로 안정적 압력(~0 mmHg)을 유지하며, 열교환기 바이패스로 냉각을 가속합니다.</div>
+      <div class="mod-tags">
+        <span class="tag key">PWHO 펌프</span>
+        <span class="tag">EVDRAIN·EVBHE</span>
+        <span class="tag">PD 압력센서</span>
+        <span class="tag">SWP1 고압 감지</span>
+      </div>
+    </div>
+
+    <!-- 2.8 Disinfectants -->
+    <div class="mod-card" onclick="showDetail('dis')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/><line x1="12" y1="12" x2="12" y2="18"/></svg>
+      </div>
+      <div class="mod-num">2.8 Dosing &amp; Mixing Disinfectants</div>
+      <div class="mod-title">소독제 투여 모듈</div>
+      <div class="mod-desc">화학 소독 프로그램 시 소독제를 회로에 투여·혼합합니다. PS 펌프, C/D 영구연결 용기, F5·F6 필터 포함.</div>
+      <div class="mod-tags">
+        <span class="tag key">PS 펌프</span>
+        <span class="tag">CC(황색)·CD(투명) 커넥터</span>
+        <span class="tag">F5·F6 필터</span>
+        <span class="tag">OWEVD1 체크밸브</span>
+      </div>
+    </div>
+
+    <!-- 2.9 EvaClean -->
+    <div class="mod-card" onclick="showDetail('eva')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <div class="mod-num">2.9 EvaClean Module</div>
+      <div class="mod-title">EvaClean 모듈</div>
+      <div class="mod-desc">Artis 카세트 프라이밍 시 발생하는 폐액을 드레인으로 처리합니다. 색상 코딩(빨간/파란) 포트로 구분됩니다.</div>
+      <div class="mod-tags">
+        <span class="tag key">EVW1·EVW2 밸브</span>
+        <span class="tag">SWCON1·2 도어스위치</span>
+        <span class="tag">OWWHO 체크밸브</span>
+        <span class="tag">색상코드 포트</span>
+      </div>
+    </div>
+
+    <!-- 2.10 Recirculation -->
+    <div class="mod-card" onclick="showDetail('rec')">
+      <div class="mod-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </div>
+      <div class="mod-num">2.10 Recirculation Module</div>
+      <div class="mod-title">재순환 모듈</div>
+      <div class="mod-desc">히터 상류 회로를 소독하기 위해 유체를 Fluid Feeding 모듈로 역류시킵니다. EVS 밸브로 제어됩니다.</div>
+      <div class="mod-tags">
+        <span class="tag key">EVS 재순환밸브</span>
+        <span class="tag">EV2S 밸브</span>
+        <span class="tag">소독 프로그램 전용</span>
+      </div>
+    </div>
+
+  </div><!-- /module-grid -->
+
+  <!-- Detail Panel (shown on click) -->
+  <div id="detailPanel" style="display:none" class="detail-panel animate">
+    <div id="detailContent"></div>
+  </div>
+
+</div><!-- /tab-modules -->
+
+<!-- ══════════════════════════════════════════════
+     TAB 3: 주요 부품 파라미터
+══════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-components">
+  <div class="section-hdr animate">
+    <h2>주요 부품 및 파라미터</h2>
+    <p>현장 정비 시 참고하는 핵심 설정값 및 부품 역할</p>
+  </div>
+
+  <section class="circuit-diagram animate delay-1">
+    <h2>압력·온도·유량 주요 설정값</h2>
+    <table class="param-table" aria-label="주요 파라미터 표">
+      <thead>
+        <tr>
+          <th>부품 ID</th>
+          <th>명칭</th>
+          <th>설정값 / 기능</th>
+          <th>위치 모듈</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="param-val">R1</span></td><td>입구 압력 조절기</td><td>해수면 기준 460 mmHg (절대압 기준, 고지대 조정 필요)</td><td>Fluid Feeding</td></tr>
+        <tr><td><span class="param-val">SWP</span></td><td>입구 압력 스위치</td><td>최소 허용 압력 이하 시 히터 전원 차단</td><td>Fluid Feeding</td></tr>
+        <tr><td><span class="param-val">FLICK</span></td><td>히터</td><td>최대 임계 115°C (STH 과온 보호), TP 기준 폐쇄 루프 제어</td><td>Heating &amp; Degassing</td></tr>
+        <tr><td><span class="param-val">TP</span></td><td>히터 온도센서 (PT100)</td><td>히터 출구 온도 측정, 열소독 ~100°C</td><td>Heating &amp; Degassing</td></tr>
+        <tr><td><span class="param-val">STH</span></td><td>과온 보호 (PT1000)</td><td>115°C 초과 시 히터 비활성화</td><td>Heating &amp; Degassing</td></tr>
+        <tr><td><span class="param-val">PC</span></td><td>탈기 기어 펌프</td><td>PDG 기준 100 mmHg (절대압) 폐쇄 루프 제어</td><td>Heating &amp; Degassing</td></tr>
+        <tr><td><span class="param-val">ORDEG</span></td><td>탈기 제한기</td><td>PDG 100 mmHg 기준 약 1,500 ml/min 루프 유량</td><td>Heating &amp; Degassing</td></tr>
+        <tr><td><span class="param-val">R2</span></td><td>압력 조절기</td><td>500 ml/min 기준 180 mmHg (P1 캐비테이션 방지)</td><td>Heating &amp; Degassing</td></tr>
+        <tr><td><span class="param-val">P1</span></td><td>투석액 공급 펌프</td><td>300–800 ml/min 범위, D1c 유량센서 폐쇄 루프</td><td>Fluid Delivery &amp; WL</td></tr>
+        <tr><td><span class="param-val">P2</span></td><td>배출 펌프</td><td>투석유량 + 초여과량, D2c 유량센서 폐쇄 루프</td><td>Fluid Delivery &amp; WL</td></tr>
+        <tr><td><span class="param-val">PRV</span></td><td>온라인 커넥터 압력 조절기</td><td>CO 포인트 최소 ≥ 20 mmHg 양압 보장</td><td>Fluid Delivery &amp; WL</td></tr>
+        <tr><td><span class="param-val">LFP</span></td><td>유량 스위치</td><td>200 ml/min 미만 시 히터 전원 차단</td><td>Fluid Delivery &amp; WL</td></tr>
+        <tr><td><span class="param-val">PWHO</span></td><td>폐액 처리 펌프</td><td>PD 센서 기준 약 0 mmHg 안정 압력 유지</td><td>Waste Fluid</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="circuit-diagram animate delay-2" style="margin-top:20px">
+    <h2>밸브·센서 주요 부품 역할 정리</h2>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-id">FH2O</div>
+        <div class="comp-name">입구 필터</div>
+        <div class="comp-role">대형 입자가 유압 회로로 유입되는 것을 방지</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">EVH2O</div>
+        <div class="comp-name">입구 솔레노이드 밸브</div>
+        <div class="comp-role">정상 운전 시 OPEN(여자), 불필요 시 자동 닫힘 (상시폐쇄형)</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">OWH2O</div>
+        <div class="comp-name">체크 밸브</div>
+        <div class="comp-role">고장 시 기계→수계 역오염 방지</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">CDF1</div>
+        <div class="comp-name">입구 초여과막</div>
+        <div class="comp-role">온라인 옵션 지원 시 세균·내독소 차단</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">EVDEG</div>
+        <div class="comp-name">탈기 바이패스 밸브</div>
+        <div class="comp-role">열 소독 사이클 시 OPEN → ORDEG 우회하여 비등 방지</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">BTP / LP</div>
+        <div class="comp-name">기포 트랩 + 수위 센서</div>
+        <div class="comp-role">공기 포집 후 EVP 밸브로 드레인 배출</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">ΓcB / ΓcA</div>
+        <div class="comp-name">전도도 제어 센서</div>
+        <div class="comp-role">중탄산/산 농도 측정 → 각 세라믹 펌프 속도 폐쇄 루프 제어</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">ΓpSe</div>
+        <div class="comp-name">SelectBag 전도도 보호 센서</div>
+        <div class="comp-role">정상 범위 외 시 알람, 다른 SelectBag 오장착 감지</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">EVDS1 / EVDS2</div>
+        <div class="comp-name">다이얼라이저 바이패스 밸브</div>
+        <div class="comp-role">비정상 투석액 감지 시 다이얼라이저 및 UF 바이패스</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">BLD</div>
+        <div class="comp-name">혈액 누출 감지기</div>
+        <div class="comp-role">다이얼라이저 막 파열에 의한 혈액 누출 감시</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">ΓcD</div>
+        <div class="comp-name">클리어런스 전도도 셀</div>
+        <div class="comp-role">배출 투석액 전도도로 다이얼라이저 용질 제거율 추정</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-id">SWP1</div>
+        <div class="comp-name">드레인 고압 감지</div>
+        <div class="comp-role">드레인 고압 임계 초과 시 바이패스 전환, 전 펌프 정지</div>
+      </div>
+    </div>
+  </section>
+</div><!-- /tab-components -->
+
+<!-- ══════════════════════════════════════════════
+     TAB 4: 소독 및 유지보수
+══════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-disinfection">
+  <div class="section-hdr animate">
+    <h2>소독 프로그램 및 유지보수 흐름</h2>
+    <p>Artis Physio Plus의 화학·열 소독 시퀀스 및 운영 주의사항</p>
+  </div>
+
+  <!-- 열 소독 -->
+  <section class="detail-panel animate delay-1">
+    <div class="detail-header">
+      <div class="detail-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2a5 5 0 0 1 5 5 7 7 0 0 1-7 7 5 5 0 0 1-5-5 7 7 0 0 1 7-7z"/><path d="M12 14v8"/></svg>
+      </div>
+      <div>
+        <div class="detail-title">열 소독 (Heat Disinfection)</div>
+        <div class="detail-sub">약 100°C의 열수로 회로를 순환시켜 소독합니다. EVDEG 밸브를 열어 ORDEG를 우회함으로써 비등을 방지합니다.</div>
+      </div>
+    </div>
+    <div class="disinfect-flow">
+      <div class="dis-step">
+        <div class="dis-step-num">1</div>
+        <div class="dis-step-title">R1 압력 상승</div>
+        <div class="dis-step-desc">R1 조절기를 고도에 맞게 조정하여 보일링 포인트 유지 (~100°C)</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">2</div>
+        <div class="dis-step-title">EVDEG OPEN</div>
+        <div class="dis-step-desc">탈기 제한기(ORDEG) 바이패스 → 열수 비등 방지</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">3</div>
+        <div class="dis-step-title">EVS 재순환</div>
+        <div class="dis-step-desc">히터 상류까지 열수 순환 → CDF1 내독소 소독 포함</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">4</div>
+        <div class="dis-step-title">EVS 통한 CDF1 소독</div>
+        <div class="dis-step-desc">EVS 밸브로 열수 재순환 → 압력 상승 모니터링</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">5</div>
+        <div class="dis-step-title">냉각 가속</div>
+        <div class="dis-step-desc">EVDRAIN + EVBHE 조합으로 HE 바이패스 → 신속 냉각</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 화학 소독 -->
+  <section class="detail-panel animate delay-2" style="margin-top:20px">
+    <div class="detail-header">
+      <div class="detail-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/><line x1="12" y1="12" x2="12" y2="18"/></svg>
+      </div>
+      <div>
+        <div class="detail-title">화학 소독 (Chemical Disinfection)</div>
+        <div class="detail-sub">CC(황색)/CD(투명) 커넥터로 연결된 소독제 용기에서 PS 펌프가 소독액을 흡인하여 회로 전체에 분배합니다.</div>
+      </div>
+    </div>
+    <div class="disinfect-flow">
+      <div class="dis-step">
+        <div class="dis-step-num">1</div>
+        <div class="dis-step-title">소독제 선택</div>
+        <div class="dis-step-desc">CC(황색) 또는 CD(투명) 중 해당 소독제 용기 연결 확인</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">2</div>
+        <div class="dis-step-title">PS 펌프 가동</div>
+        <div class="dis-step-desc">EVD 또는 EVC 밸브 개방 → 소독제 흡인</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">3</div>
+        <div class="dis-step-title">희석·분배</div>
+        <div class="dis-step-desc">입구 순수와 혼합하여 회로 각 분기로 분배</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">4</div>
+        <div class="dis-step-title">OWEVD1 보호</div>
+        <div class="dis-step-desc">체크밸브로 소독제 역류(플러싱 회로 오염) 방지</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">5</div>
+        <div class="dis-step-title">린스·배출</div>
+        <div class="dis-step-desc">소독 후 순수 린스 → 드레인 완전 배출</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BiCart / SelectCart 프라이밍 -->
+  <section class="detail-panel animate delay-3" style="margin-top:20px">
+    <div class="detail-header">
+      <div class="detail-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </div>
+      <div>
+        <div class="detail-title">BiCart / SelectCart 프라이밍 시퀀스</div>
+        <div class="detail-sub">카트리지 교체 후 공기 제거 및 정상 농도 달성까지의 순서입니다.</div>
+      </div>
+    </div>
+    <div class="disinfect-flow">
+      <div class="dis-step">
+        <div class="dis-step-num">1</div>
+        <div class="dis-step-title">EVPRIM1 닫힘</div>
+        <div class="dis-step-desc">주 흐름을 혼합 라인으로 강제 전환</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">2</div>
+        <div class="dis-step-title">공기 배출 단계</div>
+        <div class="dis-step-desc">EVPRIM·EVPRIM1 닫기 + EVPB·EVPA 열기 → 카트리지 내 공기 신속 흡입</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">3</div>
+        <div class="dis-step-title">물 주입 단계</div>
+        <div class="dis-step-desc">EVPRIM 열기 → 카트리지 상단으로 물 유입, 포화 용액 생성</div>
+      </div>
+      <div class="dis-step">
+        <div class="dis-step-num">4</div>
+        <div class="dis-step-title">프라이밍 완료</div>
+        <div class="dis-step-desc">EVPB·EVPA 닫기 → 전도도 피드백 제어로 복귀</div>
+      </div>
+    </div>
+
+    <div class="note-box" style="margin-top:16px">
+      <strong>NOTE:</strong> BiCart Select 미사용 시 프라이밍은 BiCart(PB, EVPB) 관련 구간만 진행됩니다.
+    </div>
+  </section>
+
+  <!-- Key Notes -->
+  <section data-reveal style="margin-top:20px">
+    <div class="section-hdr">
+      <h2>운영 주의사항</h2>
+    </div>
+    <div class="module-grid">
+      <div class="mod-card" style="cursor:default">
+        <div class="mod-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="mod-title">고지대 R1 재조정</div>
+        <div class="mod-desc">대기압이 해수면보다 낮은 환경에서는 R1을 재조정하여 물의 비등점(~100°C)을 유지해야 합니다. 교정 섹션의 압력 차트를 참고하세요.</div>
+      </div>
+      <div class="mod-card" style="cursor:default">
+        <div class="mod-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="mod-title">EvaClean 도어 알람</div>
+        <div class="mod-desc">투석 또는 열 소독 모드 중 EvaClean 도어가 열리면 알람 발생 + EVW1·EVW2 자동 닫힘.</div>
+      </div>
+      <div class="mod-card" style="cursor:default">
+        <div class="mod-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="mod-title">펌프 인코더 확인</div>
+        <div class="mod-desc">PB·PSe·PA 세라믹 펌프의 농도 투여 확인 시 반드시 보호 모드에서 인코더를 취득해야 합니다.</div>
+      </div>
+      <div class="mod-card" style="cursor:default">
+        <div class="mod-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div class="mod-title">ΓpSe 항상 장착 유지</div>
+        <div class="mod-desc">BiCart Select 미사용 기기도 SelectBag 전도도 보호 센서(ΓpSe)는 반드시 장착 상태를 유지해야 합니다 (ΓcB 고장 감지 역할).</div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /tab-disinfection -->
+
+</div><!-- /container -->
+</main>
+
+<script>
+// ── Theme ──
+var currentTheme = localStorage.getItem('viz-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+function applyTheme(t){
+  document.documentElement.className='theme-'+t;
+  localStorage.setItem('viz-theme',t);
+  currentTheme=t;
+}
+function cycleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
+applyTheme(currentTheme);
+
+// ── Menu ──
+function toggleMenu(){
+  var d=document.getElementById('vizMenuDropdown');
+  if(d)d.classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.viz-menu')){
+    var d=document.getElementById('vizMenuDropdown');
+    if(d)d.classList.remove('open');
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    var d=document.getElementById('vizMenuDropdown');
+    if(d)d.classList.remove('open');
+  }
+});
+
+// ── Tabs ──
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  var panel=document.getElementById('tab-'+name);
+  if(panel){panel.classList.add('active');}
+  if(btn){btn.classList.add('active');}
+}
+
+// ── Module Detail ──
+var details={
+  ff:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><polyline points="8 16 12 12 16 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>',
+    title:'2.2 유체 공급 모듈 (Fluid Feeding Module)',
+    sub:'처리수 입수 → 압력 조절 → 초순수 필터까지의 흐름을 관리합니다.',
+    comps:[
+      {id:'FH2O',name:'입구 필터',role:'대형 입자 차단 — 회로 보호 1단계'},
+      {id:'SWP',name:'압력 스위치',role:'최소 압력 이하 시 히터 차단 + No Water 알람'},
+      {id:'R1',name:'입구 압력 조절기',role:'해수면 460 mmHg 출구 압력으로 수동 조정 (고지대 재조정 필요)'},
+      {id:'EVH2O',name:'입구 솔레노이드 밸브',role:'정상 운전 OPEN(여자), 회로 불필요 시 자동 닫힘'},
+      {id:'OWH2O',name:'체크 밸브',role:'고장 시 기계→수계 역오염 방지'},
+      {id:'EVA',name:'공기 유입 밸브',role:'비움(Emptying) 작업 시 공기 유입 허용 + UF 완결성 테스트 시 사용'},
+      {id:'CDF1',name:'입구 초여과막',role:'온라인 옵션 지원용 — 세균·내독소 차단'},
+      {id:'EVFLUSH',name:'플러싱 밸브',role:'CDF1 전용 플러싱 라인 개방'},
+      {id:'ORFLUSH',name:'플러싱 오리피스',role:'드레인으로의 플러싱 유량 제한'},
+    ]
+  },
+  hd:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2a5 5 0 0 1 5 5 7 7 0 0 1-7 7 5 5 0 0 1-5-5 7 7 0 0 1 7-7z"/><path d="M12 14v8"/></svg>',
+    title:'2.3 가열 및 탈기 모듈 (Heating &amp; Degassing)',
+    sub:'유입수를 목표 온도로 가열하고 용존 기체를 제거합니다.',
+    comps:[
+      {id:'HE1·HE2',name:'열교환기 (직렬 2개)',role:'배출측 열을 유입수로 전달 — 스테인리스 격막 분리'},
+      {id:'FLICK',name:'히터 (가열 소자)',role:'유입수 가열 — TP 센서 기반 폐쇄 루프 제어'},
+      {id:'TP (PT100)',name:'히터 출구 온도센서',role:'히터 출구 온도 측정, 열소독 ~100°C 기준'},
+      {id:'STH (PT1000)',name:'과온 보호 센서',role:'히터 소자 115°C 초과 시 전원 비활성화'},
+      {id:'PC',name:'탈기 기어 펌프',role:'PDG 기반 100 mmHg(절대압) 폐쇄 루프 → 1,500 ml/min 루프 유량'},
+      {id:'ORDEG',name:'탈기 제한기',role:'기포·용존 기체 감소 — 히터 하류 위치'},
+      {id:'EVDEG',name:'탈기 바이패스 밸브',role:'열 소독 시 OPEN → ORDEG 우회 (비등 방지)'},
+      {id:'BTP + LP',name:'기포 트랩 + 수위 센서',role:'기체 포집 후 EVP 밸브로 드레인 배출'},
+      {id:'R2',name:'압력 조절기',role:'500 ml/min 기준 180 mmHg → P1 캐비테이션 방지'},
+      {id:'OWDGL',name:'탈기 루프 체크밸브',role:'HE에서 Dosing 모듈로 직접 유입 차단'},
+    ]
+  },
+  dmc:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
+    title:'2.4 농축액 투여 및 혼합 (Dosing &amp; Mixing Concentrates)',
+    sub:'중탄산염·SelectBag·산 순서로 혼합하여 목표 전도도의 투석액을 생성합니다. (혼합 순서: B → Se → A)',
+    comps:[
+      {id:'PB',name:'중탄산 세라믹 펌프',role:'ΓcB 전도도 기반 폐쇄 루프 속도 제어'},
+      {id:'TcB',name:'중탄산 온도 센서',role:'온도에 따른 전도도 보정'},
+      {id:'ΓcB',name:'중탄산 전도도 제어 센서',role:'PB 펌프 속도 결정 기준값'},
+      {id:'PSe',name:'SelectBag 세라믹 펌프',role:'용적 혼합 방식으로 속도 제어'},
+      {id:'TpSe',name:'SelectBag 온도 보호 센서',role:'혼합액 온도 보상'},
+      {id:'ΓpSe',name:'SelectBag 전도도 보호 센서',role:'알람 감지 + ΓcB 고장 감지 보조 (항상 장착 필수)'},
+      {id:'PA',name:'산(Acid) 세라믹 펌프',role:'ΓcA 전도도 기반 폐쇄 루프 속도 제어'},
+      {id:'TcA',name:'산 온도 제어 센서',role:'혼합액 온도 보상'},
+      {id:'ΓcA',name:'산 전도도 제어 센서',role:'PA 펌프 속도 결정'},
+      {id:'MCB·MCS·MCA',name:'혼합 챔버 (3개)',role:'각 농축액 합류점에 설치 — 신속 균질화'},
+      {id:'EVPRIM·EVPRIM1',name:'프라이밍 밸브',role:'BiCart/SelectCart 프라이밍 시퀀스 제어'},
+      {id:'EVPB·EVPA',name:'펌프 바이패스 밸브',role:'공기 배출 단계에서 개방'},
+    ]
+  },
+  fd:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+    title:'2.5 유체 공급 및 체중 감소 제어 (Fluid Delivery &amp; WL Control)',
+    sub:'다이얼라이저 상·하류 투석액 흐름을 제어하고, 온라인 대체 요법(HF/HDF) 시 주입액 공급을 관리합니다.',
+    comps:[
+      {id:'P1',name:'투석액 공급 펌프',role:'300–800 ml/min 범위 — D1c 유량센서 폐쇄 루프'},
+      {id:'D1c',name:'유량 센서 (제어)',role:'P1 제어용 전자기 유량계'},
+      {id:'D1P',name:'유량계 (보호)',role:'D1c 이중화 — 보호 기능용'},
+      {id:'BT1 + LD1',name:'기포 트랩 + 수위 센서',role:'최종 공기 배출 — EVD1 개방으로 벤팅'},
+      {id:'CDF2·CDF3',name:'2·3차 초여과막',role:'EVDS1 개방 시 EVBP2·EVBP3 상태에 따라 순차 통과'},
+      {id:'CO',name:'온라인 커넥터',role:'HF/HDF 주입/치환액 분기 포인트'},
+      {id:'PRV',name:'온라인 압력 조절기',role:'CO 포인트 최소 20 mmHg 양압 보장'},
+      {id:'EVDS1·EVDS2',name:'다이얼라이저 바이패스 밸브',role:'비정상 투석액 검출 시 바이패스 (EVDS2 이중화)'},
+      {id:'P2',name:'배출 펌프',role:'투석유량 + 초여과량 배출 — D2c 유량센서 폐쇄 루프'},
+      {id:'D2c·D2P',name:'배출 유량 센서 (제어·보호)',role:'P2 폐쇄 루프 및 이중화 계측'},
+      {id:'BT2 + LD2',name:'배출측 기포 트랩',role:'P2 하류 공기 배출 — EVD2 개방 벤팅'},
+      {id:'BLD',name:'혈액 누출 감지기',role:'다이얼라이저 막 파열로 인한 혈액 누출 감시'},
+      {id:'PO·PI',name:'다이얼라이저 압력 센서',role:'TMP 계산 + 회로 완결성 테스트'},
+    ]
+  },
+  cl:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    title:'2.6 클리어런스 모듈 (Clearance Module)',
+    sub:'BLD 이후 배출 투석액의 전도도를 측정하여 다이얼라이저 용질 제거율을 추정합니다.',
+    comps:[
+      {id:'ΓcD',name:'클리어런스 전도도 셀',role:'배출 투석액 전도도 측정 → 클리어런스 추정'},
+      {id:'온도 센서',name:'온도 보정 센서',role:'전도도의 온도 의존성 보정'},
+      {id:'Hydraulic Board',name:'유압 제어 보드',role:'ΓcD 및 온도 센서 값 취득 → 투석액 전도도 결정'},
+    ]
+  },
+  wf:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+    title:'2.7 폐액 모듈 (Waste Fluid Module)',
+    sub:'클리어런스 모듈 이후 폐액을 드레인으로 배출합니다. PWHO 펌프로 안정적 압력을 유지하여 병원 배수 조건에서 독립됩니다.',
+    comps:[
+      {id:'PWHO',name:'폐액 처리 펌프',role:'PD 피드백 기준 약 0 mmHg 안정 압력 유지 — 병원 배수 독립'},
+      {id:'PD',name:'압력 트랜스듀서',role:'PWHO 폐쇄 루프 기준 센서'},
+      {id:'EVDRAIN',name:'드레인 밸브',role:'HE 바이패스와 조합 → 냉각 가속'},
+      {id:'EVBHE',name:'HE 바이패스 밸브',role:'열교환기 우회 → 신속 냉각'},
+      {id:'SWP1',name:'드레인 고압 감지',role:'임계 초과 시 바이패스 전환 + 전 펌프 정지'},
+      {id:'OWD',name:'체크 밸브',role:'기포 트랩 플러싱 라인 역류 방지'},
+      {id:'OWWHO4',name:'체크 밸브',role:'UF 완결성 테스트 중 압력 안정 유지'},
+    ]
+  },
+  dis:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s-6 4-6 10a6 6 0 0 0 12 0C18 6 12 2 12 2z"/><line x1="12" y1="12" x2="12" y2="18"/></svg>',
+    title:'2.8 소독제 투여 모듈 (Dosing &amp; Mixing Disinfectants)',
+    sub:'화학 소독 프로그램 시 소독제를 회로 전체에 투여·혼합합니다. PS 펌프의 플러싱 회로는 BTP~BT1 탈기 라인과 연결됩니다.',
+    comps:[
+      {id:'PS',name:'소독제 세라믹 펌프',role:'소독액 흡인 및 투여 — 전용 플러싱 회로 포함'},
+      {id:'CC (황색)',name:'소독제 커넥터 C',role:'용기 C 영구 연결 — EVD 밸브로 접근'},
+      {id:'CD (투명)',name:'소독제 커넥터 D',role:'용기 D 영구 연결 — EVC 밸브로 접근'},
+      {id:'F5·F6',name:'흡입 필터',role:'소독제의 입자성 물질이 펌프로 유입 방지'},
+      {id:'OWEVD1',name:'체크 밸브',role:'소독제 잔류물이 플러싱 회로로 역류 방지'},
+      {id:'EV1S',name:'밸브',role:'소독제 분배 제어'},
+    ]
+  },
+  eva:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+    title:'2.9 EvaClean 모듈',
+    sub:'Artis 카세트 프라이밍 시 발생하는 폐액을 편리하게 처리합니다. 색상 코딩(빨간/파란)으로 포트를 구분합니다.',
+    comps:[
+      {id:'EVW1·EVW2',name:'배액 밸브 (파란·빨간)',role:'미사용 시 도어 닫힘 → 자동 린스 허용'},
+      {id:'SWCON1·SWCON2',name:'도어 스위치',role:'EvaClean 도어 개폐 감지 — 투석 중 열리면 알람'},
+      {id:'OWWHO1·2·3',name:'체크 밸브',role:'배출 흐름에서 카세트로의 역류 방지'},
+      {id:'PWHO',name:'폐액 처리 펌프 (공유)',role:'PD 기준 일정 압력 유지하며 폐액 드레인'},
+    ]
+  },
+  rec:{
+    icon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+    title:'2.10 재순환 모듈 (Recirculation Module)',
+    sub:'히터 상류 회로 소독을 위해 유체를 Fluid Feeding 모듈로 역류시킵니다. P1 펌프가 다이얼라이저 바이패스 경로로 구동합니다.',
+    comps:[
+      {id:'EVS',name:'재순환 밸브',role:'소독 프로그램 시 재순환 루프 개방'},
+      {id:'EV2S',name:'열수 분기 밸브',role:'탈기 모듈 열수를 EvaClean 및 하류 회로로 직접 공급'},
+      {id:'EVW1·EVW2',name:'EvaClean 격리 밸브',role:'재순환 중 EvaClean 모듈 격리'},
+    ]
+  }
+};
+
+function showDetail(key){
+  var d=details[key];
+  if(!d)return;
+  // highlight card
+  document.querySelectorAll('.mod-card').forEach(function(c){c.classList.remove('active-card')});
+  event.currentTarget.classList.add('active-card');
+  var html='<div class="detail-header">'
+    +'<div class="detail-icon">'+d.icon+'</div>'
+    +'<div><div class="detail-title">'+d.title+'</div><div class="detail-sub">'+d.sub+'</div></div>'
+    +'</div>'
+    +'<div class="comp-grid">';
+  d.comps.forEach(function(c){
+    html+='<div class="comp-card">'
+      +'<div class="comp-id">'+c.id+'</div>'
+      +'<div class="comp-name">'+c.name+'</div>'
+      +'<div class="comp-role">'+c.role+'</div>'
+      +'</div>';
+  });
+  html+='</div>';
+  var panel=document.getElementById('detailPanel');
+  var content=document.getElementById('detailContent');
+  content.innerHTML=html;
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── Scroll Reveal ──
+document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('reveal')});
+var ro=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');ro.unobserve(e.target);}});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(function(el){ro.observe(el)});
+
+// ── Download PNG ──
+async function downloadImage(){
+  var menu=document.querySelector('.viz-menu');
+  menu.style.display='none';
+  try{
+    var url=await htmlToImage.toPng(document.body,{quality:1,pixelRatio:2});
+    var a=document.createElement('a');a.href=url;
+    a.download='artis-physio-plus-hydraulic.png';a.click();
+  }catch(e){console.error(e);}
+  menu.style.display='';
+}
+
+// reveal class CSS
+var style=document.createElement('style');
+style.textContent='.reveal{opacity:0;transform:translateY(16px);transition:opacity 0.6s ease,transform 0.6s ease}.reveal.visible{opacity:1;transform:translateY(0)}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
