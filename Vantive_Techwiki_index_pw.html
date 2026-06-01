@@ -274,11 +274,16 @@
     .welcome {
       flex: 1;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 0; padding: 60px 40px;
+      align-items: center; justify-content: flex-start;
+      gap: 0; padding: 0 40px 0;
       text-align: center;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+    }
+    /* 가운데 안내 영역 — 비율 그대로 (0.7 → 0.875, 기존 대비 25% 확대) */
+    .welcome-hero {
+      display: flex; flex-direction: column; align-items: center;
+      zoom: 0.875;
     }
     .welcome-logo {
       width: 72px; height: 72px; border-radius: 18px;
@@ -314,55 +319,85 @@
       font-size: 15px; font-weight: 400;
       color: #6e6e73; letter-spacing: -0.1px;
       max-width: 360px; line-height: 1.6;
-      margin-bottom: 32px;
+      margin-bottom: 14px;
     }
 
-    /* Category cards */
-    .welcome-cards {
-      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+    /* ── Top nav (vantive.com 스타일 pill 메뉴) ── */
+    .welcome-topnav {
       width: 100%;
+      display: flex; flex-wrap: wrap;
+      justify-content: center; align-items: center;
+      gap: 4px;
+      padding: 18px 0 14px;
+      border-bottom: 1.5px solid rgba(114,37,107,0.12);
     }
-    .welcome-card {
-      background: #fff;
-      border: 1.5px solid rgba(0,0,0,0.07);
-      border-left: 4px solid var(--plum);
-      border-radius: 14px;
-      padding: 18px 22px;
-      /* ── 가로 배치 ── */
-      display: flex; flex-direction: row; align-items: center; gap: 16px;
-      flex: 1 1 0;
-      min-width: 200px;
-      max-width: 320px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.05);
-      transition: transform var(--transition), box-shadow var(--transition);
-      cursor: pointer;
-    }
-    .welcome-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 14px 40px rgba(0,0,0,0.08);
-    }
-    .welcome-card .wc-icon {
-      /* 36 × 1.3 ≈ 47px */
-      width: 47px; height: 47px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(114,37,107,0.08);
-      border-radius: 12px;
-    }
-    .welcome-card .wc-icon svg {
-      /* 20 × 1.3 ≈ 26px */
-      width: 26px; height: 26px;
-      stroke: var(--plum); stroke-width: 2.6;
-    }
-    .welcome-card .wc-info { display: flex; flex-direction: column; gap: 4px; text-align: left; }
-    .welcome-card .wc-title {
+    .topnav-item {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 11px 18px;
+      border: none; background: transparent; cursor: pointer;
+      border-radius: 999px;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
       font-size: 15px; font-weight: 700;
-      color: #1d1d1f; letter-spacing: -0.2px;
+      color: var(--plum); letter-spacing: -0.2px;
+      white-space: nowrap;
+      transition: background var(--transition), color var(--transition);
     }
-    .welcome-card .wc-count {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      font-size: 12px; font-weight: 500;
-      color: var(--plum); opacity: 0.7; letter-spacing: 0;
+    .topnav-item .tn-icon {
+      width: 20px; height: 20px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .topnav-item .tn-icon svg {
+      width: 20px; height: 20px;
+      stroke: var(--plum); stroke-width: 2.2;
+      transition: stroke var(--transition);
+    }
+    .topnav-item .tn-label { line-height: 1; }
+    .topnav-item .tn-chev {
+      width: 14px; height: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0.65;
+      transition: transform var(--transition);
+    }
+    .topnav-item .tn-chev svg {
+      width: 13px; height: 13px;
+      stroke: var(--plum); stroke-width: 2.6;
+    }
+    /* hover → sage pill (vantive.com 강조 방식) */
+    .topnav-item:hover { background: var(--sage); }
+    /* active(열림) → sage pill + chevron 회전 */
+    .topnav-item.active { background: var(--sage); }
+    .topnav-item.active .tn-chev { transform: rotate(180deg); }
+
+    /* Brand banner image (Champion of Positive Change) — 전체 펼침 */
+    .welcome-brand-banner {
+      position: relative;
+      /* .welcome 의 좌우 padding(40px)을 상쇄해 본문 폭 가득 채움 */
+      width: calc(100% + 80px);
+      margin: 8px -40px 0;
+      background: #fff;
+      overflow: hidden;
+      flex-shrink: 0;   /* 스크롤 컨테이너(.welcome) 안에서 눌려 사라지지 않도록 */
+    }
+    .welcome-brand-banner img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    /* 상단 경계선 그라데이션 — 크림 배경에서 이미지로 자연스럽게 연결 */
+    .welcome-brand-banner::before {
+      content: '';
+      position: absolute; left: 0; right: 0; top: 0;
+      height: 110px;
+      background: linear-gradient(to bottom, var(--cream) 0%, rgba(255,250,235,0) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    @media (max-width: 700px) {
+      .welcome-brand-banner {
+        width: calc(100% + 40px);
+        margin: 36px -20px 0;
+      }
+      .welcome-brand-banner::before { height: 70px; }
     }
 
     /* iframe */
@@ -414,7 +449,7 @@
       .welcome-sub-card {
         width: 100%;
       }
-      .wc-cards-inner {
+      .welcome-expand-grid {
         grid-template-columns: 1fr;
       }
       .welcome-card {
@@ -423,78 +458,97 @@
       }
     }
 
-    /* ── Welcome drill-down ──────────────────────── */
+    /* ── Welcome top-nav wrap + accordion ─────────── */
     .welcome-cards-wrap {
-      width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px;
+      width: 100%; max-width: 1100px;
+      margin-bottom: 20px;
+      display: flex; flex-direction: column; align-items: stretch; gap: 0;
     }
-    /* Back bar */
-    .wc-back-bar { display: none; align-self: flex-start; }
-    .wc-back-bar.visible { display: flex; }
-    .wc-back-btn {
-      display: flex; align-items: center; gap: 6px;
-      background: none; border: 1.5px solid rgba(114,37,107,0.22);
-      cursor: pointer; padding: 5px 12px 5px 8px; border-radius: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      font-size: 13px; font-weight: 500; color: var(--plum);
-      transition: background .15s;
-    }
-    .wc-back-btn:hover { background: rgba(114,37,107,0.06); }
-    .wc-back-btn svg { width: 16px; height: 16px; display: block; }
-    /* Category name header */
-    .wc-cat-header { display: none; align-self: flex-start; }
-    .wc-cat-header.visible { display: block; }
-    .wc-cat-header span {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-      font-size: 20px; font-weight: 700; color: var(--plum); letter-spacing: -0.3px;
-    }
-    /* Card area */
-    .wc-cards-inner {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: minmax(80px, auto);
-      gap: 14px;
+    /* 아래로 펼쳐지는 패널 (아코디언) */
+    .welcome-expand {
       width: 100%;
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height .38s ease, opacity .28s ease, margin-top .38s ease;
+      margin-top: 0;
     }
-    /* Sub-item cards */
-    .welcome-sub-card {
-      background: #fff;
-      border: 1.5px solid rgba(0,0,0,0.07);
-      border-left: 4px solid var(--pine-dark);
-      border-radius: 14px; padding: 16px 20px;
-      display: flex; flex-direction: row; align-items: center; gap: 14px;
-      width: 100%; height: 100%; cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    .welcome-expand.open {
+      max-height: 1400px; opacity: 1; margin-top: 18px;
     }
-    .welcome-sub-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(16,87,66,0.13);
-      border-left-color: var(--pine-light);
+    .welcome-expand-inner {
+      background: linear-gradient(180deg, rgba(16,87,66,0.085) 0%, rgba(16,87,66,0.03) 100%);
+      border: 1.5px solid rgba(16,87,66,0.14);
+      border-radius: 18px;
+      padding: 20px 22px 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 12px 34px rgba(16,87,66,0.09);
     }
-    .welcome-sub-card .wsc-icon {
-      width: 40px; height: 40px; flex-shrink: 0;
+    /* 2단 레이아웃 (vantive.com 메가메뉴 스타일): 좌 설명 / 우 목록 */
+    .welcome-expand-layout {
+      display: flex; align-items: stretch; gap: 40px;
+      text-align: left;
+    }
+    .welcome-expand-left {
+      flex: 0 0 32%; max-width: 320px;
+      display: flex; flex-direction: column;
+    }
+    .welcome-expand-right { flex: 1 1 auto; min-width: 0; }
+    .welcome-expand-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; text-align: left;
+    }
+    .welcome-expand-head .weh-icon {
+      width: 34px; height: 34px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(16,87,66,0.08); border-radius: 10px;
+      background: rgba(16,87,66,0.12); border-radius: 10px;
     }
-    .welcome-sub-card .wsc-icon svg {
-      width: 22px; height: 22px; display: block;
-      stroke: var(--pine-dark); fill: none; stroke-width: 2;
-      stroke-linecap: round; stroke-linejoin: round;
+    .welcome-expand-head .weh-icon svg {
+      width: 20px; height: 20px; stroke: var(--pine-dark); stroke-width: 2.4;
     }
-    .welcome-sub-card .wsc-info { flex: 1; display: flex; flex-direction: column; gap: 3px; text-align: left; }
-    .welcome-sub-card .wsc-label {
+    .welcome-expand-head .weh-title {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      font-size: 24px; font-weight: 700; color: var(--pine-dark); letter-spacing: -0.4px;
+      line-height: 1.15;
+    }
+    .weh-desc {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      font-size: 14px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.1px; line-height: 1.3;
+      font-size: 14.5px; font-weight: 400; color: var(--pine-dark);
+      opacity: 0.82; line-height: 1.65; letter-spacing: -0.1px;
+      max-width: 300px;
     }
-    .welcome-sub-card .wsc-hint {
-      font-size: 11px; font-weight: 500; color: var(--pine-dark); opacity: 0.55;
+    /* 메뉴 목록 (구분선으로 나뉜 행) */
+    .welcome-expand-list {
+      display: flex; flex-direction: column;
     }
-    .welcome-sub-card .wsc-arrow { flex-shrink: 0; opacity: 0.30; transition: opacity .15s, transform .15s; }
-    .welcome-sub-card:hover .wsc-arrow { opacity: 0.75; transform: translateX(3px); }
-    .welcome-sub-card .wsc-arrow svg {
-      width: 16px; height: 16px; display: block;
+    .we-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 15px 4px;
+      border-top: 1px solid rgba(16,87,66,0.16);
+      cursor: pointer;
+      transition: padding-left .16s ease, color .16s ease;
+    }
+    .we-item:last-child { border-bottom: 1px solid rgba(16,87,66,0.16); }
+    .we-item:hover { padding-left: 8px; }
+    .we-item .we-label {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      font-size: 16.5px; font-weight: 700; color: var(--pine-dark);
+      letter-spacing: -0.2px; line-height: 1.35;
+      transition: color .16s ease;
+    }
+    .we-item:hover .we-label { color: var(--plum); }
+    .we-item .we-arrow {
+      flex-shrink: 0; opacity: 0.35;
+      transition: opacity .16s ease, transform .16s ease;
+    }
+    .we-item:hover .we-arrow { opacity: 0.85; transform: translateX(3px); }
+    .we-item .we-arrow svg {
+      width: 18px; height: 18px; display: block;
       stroke: var(--pine-dark); fill: none; stroke-width: 2;
       stroke-linecap: round; stroke-linejoin: round;
+    }
+    .we-item:hover .we-arrow svg { stroke: var(--plum); }
+    @media (max-width: 760px) {
+      .welcome-expand-layout { flex-direction: column; gap: 18px; }
+      .welcome-expand-left { flex: none; max-width: none; }
+      .weh-desc { max-width: none; }
     }
     /* welcome-card clickable */
     .welcome-card { cursor: pointer; }
@@ -800,45 +854,51 @@
   <main class="content" id="main">
 
     <div class="welcome" id="welcome">
-      <!-- App icon -->
-      <div class="welcome-logo">
-        <!-- Apple-style minimal wiki/doc icon -->
-        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="8" y="5" width="20" height="26" rx="4"
-                stroke="#FFFAEB" stroke-width="1.8" fill="rgba(255,250,235,0.1)"/>
-          <line x1="13" y1="13" x2="23" y2="13"
-                stroke="#FFFAEB" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="13" y1="18" x2="23" y2="18"
-                stroke="#FFFAEB" stroke-width="1.8" stroke-linecap="round"/>
-          <line x1="13" y1="23" x2="19" y2="23"
-                stroke="#FFFAEB" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </div>
-
-      <div class="welcome-internal-badge">
-        <div class="welcome-internal-badge-line"></div>
-        <span class="welcome-internal-badge-text">Internal Use Only</span>
-        <div class="welcome-internal-badge-line right"></div>
-      </div>
-      <h2>
-        <img class="welcome-vantive-logo-img" src="vantive%20logo.png" alt="Vantive">
-        <span class="welcome-techwiki">Techwiki</span>
-      </h2>
-      <p>좌측 메뉴에서 도구를 선택하세요.<br>알람 검색, 점검 이력, 기기 정보를 빠르게 확인할 수 있습니다.</p>
-
+      <!-- ── Top nav (vantive.com 스타일 pill 메뉴) + 펼침 패널 ── -->
       <div class="welcome-cards-wrap" id="welcome-cards-wrap">
-        <div class="wc-back-bar" id="wc-back-bar">
-          <button class="wc-back-btn" id="wc-back-btn">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
-            <span class="wc-back-label">카테고리 목록</span>
-          </button>
+        <nav class="welcome-topnav" id="welcome-cards">
+          <!-- nav pills: dynamically populated -->
+        </nav>
+        <div class="welcome-expand" id="welcome-expand">
+          <div class="welcome-expand-inner">
+            <div class="welcome-expand-layout">
+              <!-- 좌: 카테고리 제목 + 설명 (vantive.com 스타일) -->
+              <div class="welcome-expand-left">
+                <div class="welcome-expand-head">
+                  <span class="weh-icon" id="welcome-expand-icon"></span>
+                  <span class="weh-title" id="welcome-expand-title"></span>
+                </div>
+                <p class="weh-desc" id="welcome-expand-desc"></p>
+              </div>
+              <!-- 우: 메뉴 목록 -->
+              <div class="welcome-expand-right">
+                <div class="welcome-expand-list" id="welcome-expand-grid">
+                  <!-- sub-items: dynamically populated -->
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="wc-cat-header" id="wc-cat-header">
-          <span id="wch-label"></span>
+      </div>
+
+      <!-- 가운데 안내 영역 (비율 유지) -->
+      <div class="welcome-hero">
+        <div class="welcome-internal-badge">
+          <div class="welcome-internal-badge-line"></div>
+          <span class="welcome-internal-badge-text">Internal Use Only</span>
+          <div class="welcome-internal-badge-line right"></div>
         </div>
-        <div class="wc-cards-inner" id="welcome-cards">
-          <!-- dynamically populated -->
-        </div>
+        <h2>
+          <img class="welcome-vantive-logo-img" src="vantive%20logo.png" alt="Vantive">
+          <span class="welcome-techwiki">Techwiki</span>
+        </h2>
+        <p>메뉴에서 필요한 항목을 선택하세요.<br>알람 검색, 점검 이력, 기기 정보를 빠르게 확인할 수 있습니다.</p>
+      </div>
+
+      <!-- Brand banner: Champion of Positive Change -->
+      <div class="welcome-brand-banner">
+        <img src="vantive_image01.png"
+             alt="Vantive — Champion of Positive Change">
       </div>
     </div>
 
@@ -864,8 +924,8 @@ const NOTICE_TITLE   = '업데이트 안내';
 const NOTICE_BODY    = `
   <p>Techwiki 로그인 보안이 강화되었습니다.</p>
   <ul>
-    <li>Device info에 <b>Artis Hydraulic Circuit Description,</b></li>
-    <b>Artis Electronic Description</b> 업데이트 됐습니다</li>
+    <li>Device info에 <b>Artis Hydraulic Circuit Description</b></li>
+    <li><b>Artis Electronic Description</b> 업데이트 됐습니다</li>
   </ul>
   <p style="margin-top:12px; font-size:13px; color:#999;">
     문의사항 및 요청사항은 관리자에게 문의하세요
@@ -932,6 +992,7 @@ window.closeNotice = function() {
   const TREE = [
     {
       id: 'alarm', label: 'Alarm Search', icon: SVG.alarm,
+      desc: '기기별 알람·에러 코드를 검색하고 원인과 조치 방법을 빠르게 확인하세요.',
       items: [
         { label: 'AK98 Error Code Search',   file: 'ak98_alarm_search_eng.html' },
         { label: 'ARTIS Alarm Search',        file: 'artis_alarm_search.html' },
@@ -942,17 +1003,19 @@ window.closeNotice = function() {
     },
     {
       id: 'inspection', label: 'Device Inspection History', icon: SVG.inspection,
+      desc: '장비별 점검 이력과 기록을 조회하고 관리합니다.',
       items: [
         { label: 'CRRT Inspection History', file: 'CRRT_inspection.html' },
       ]
     },
     {
       id: 'info', label: 'Device Info', icon: SVG.info,
+      desc: '기기 사용법, 소독·자가진단, 유압 회로 등 기술 자료를 확인하세요.',
       items: [
         { label: 'Artis UF Deviation Alarm (505/506)',  file: 'UF_Deviation_alarm_505_506_weightloss.html' },
         { label: 'Artis 소독 단계 및 유압 회로 문제 해결', file: 'Artis_disinfection_guide_kor.html' },
         { label: 'Artis Hydraulic Circuit Description', file: 'Artis_Physio_Plus_Hydraulic_Manual.html' },
-        { label: 'Artis Electronic Description', file: 'Artis_Physio_Plus_Electronic_Description.html' },        
+        { label: 'Artis Electronic Description', file: 'Artis_Physio_Plus_Electronic_Description.html' },
         { label: 'PrisMax 모의 환자 치료 절차',      file: 'prismax_simulated_treatment_kor_v2.html' },
         { label: 'PrisMax 시스템 자가진단 가이드(SST)',   file: 'prismax_sst_guide_kor_v3.html' },
         { label: 'WRO 300 H 위생 기능 & 소독 가이드',   file: 'wro300h_hygiene_guide_kor.html' },
@@ -960,12 +1023,14 @@ window.closeNotice = function() {
     },
     {
       id: 'price', label: 'Spare Parts Price', icon: SVG.price,
+      desc: '소모품·부품의 최신 가격 정보를 조회합니다.',
       items: [
         { label: '2026년 Spare Parts Price List', file: 'Vantive_Device_price_search_v3.html' },
       ]
     },
     {
       id: 'equipment', label: 'Equipment Search', icon: SVG.equipment,
+      desc: '보유 장비 정보를 검색하고 상세 사양을 확인합니다.',
       items: [
         { label: 'Vantive Equipment Viewer', file: 'Vantive_Equipment_Viewer.html' },
       ]
@@ -1044,85 +1109,80 @@ window.closeNotice = function() {
     group.appendChild(items);
     treeEl.appendChild(group);
 
-    // Welcome card
-    const card = document.createElement('div');
-    card.className = 'welcome-card';
-    card.innerHTML = `
-      <span class="wc-icon">${cat.icon}</span>
-      <div class="wc-info">
-        <div class="wc-title">${cat.label}</div>
-        <div class="wc-count">${cat.items.length} items</div>
-      </div>`;
-    card.addEventListener('click', () => showSubItems(cat));
-    wcCards.appendChild(card);
+    // Top-nav pill (vantive.com 스타일)
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'topnav-item';
+    item.innerHTML = `
+      <span class="tn-icon">${cat.icon}</span>
+      <span class="tn-label">${cat.label}</span>
+      <span class="tn-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>`;
+    item.addEventListener('click', () => toggleTab(item, cat));
+    wcCards.appendChild(item);
   });
 
-  /* ── Sub-items drill-down ─────────────────────── */
-  const wcCardsInner = document.getElementById('welcome-cards');
-  const wcBackBar    = document.getElementById('wc-back-bar');
-  const wcCatHeader  = document.getElementById('wc-cat-header');
-  const wchLabel     = document.getElementById('wch-label');
+  /* ── Tab accordion (가운데 메뉴: 호버 강조 + 클릭 시 아래로 펼침) ── */
+  const wcExpand      = document.getElementById('welcome-expand');
+  const wcExpandGrid  = document.getElementById('welcome-expand-grid');
+  const wcExpandTitle = document.getElementById('welcome-expand-title');
+  const wcExpandIcon  = document.getElementById('welcome-expand-icon');
+  const wcExpandDesc  = document.getElementById('welcome-expand-desc');
 
-  // origCards captured AFTER forEach so it has actual card nodes
-  const origCardNodes = Array.from(wcCardsInner.children);
+  let activeTab = null;   // 현재 펼쳐진 카드
 
-  const fileIconSVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
-  const arrowSVG     = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,18 15,12 9,6"/></svg>`;
+  const arrowSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,18 15,12 9,6"/></svg>`;
 
-  function transition(fn) {
-    wcCardsInner.style.opacity = '0';
-    wcCardsInner.style.transform = 'translateY(6px)';
-    setTimeout(() => {
-      fn();
-      wcCardsInner.style.transition = 'opacity .18s ease, transform .18s ease';
-      wcCardsInner.style.opacity = '1';
-      wcCardsInner.style.transform = 'translateY(0)';
-    }, 160);
-  }
-
-  function showSubItems(cat) {
-    transition(() => {
-      // Update back bar label
-      wcBackBar.querySelector('.wc-back-label').textContent = '← ' + cat.label;
-      wcBackBar.classList.add('visible');
-      wcCatHeader.classList.add('visible');
-      wchLabel.textContent = cat.label;
-
-      // Build sub-item cards
-      wcCardsInner.innerHTML = '';
-      cat.items.forEach(item => {
-        const sc = document.createElement('div');
-        sc.className = 'welcome-sub-card';
-        sc.innerHTML = `
-          <span class="wsc-icon">${fileIconSVG}</span>
-          <div class="wsc-info">
-            <div class="wsc-label">${item.label}</div>
-            <div class="wsc-hint">탭하여 열기</div>
-          </div>
-          <span class="wsc-arrow">${arrowSVG}</span>`;
-        sc.addEventListener('click', () => {
-          // Find matching nav-item
-          let matched = null;
-          document.querySelectorAll('.nav-item').forEach(ni => {
-            if (ni.textContent.trim().includes(item.label.trim().slice(0, 6))) matched = ni;
-          });
-          loadPage(item.file, matched);
+  function buildSubItems(cat) {
+    wcExpandIcon.innerHTML  = cat.icon;
+    wcExpandTitle.textContent = cat.label;
+    wcExpandDesc.textContent  = cat.desc || '';
+    wcExpandGrid.innerHTML = '';
+    cat.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'we-item';
+      row.innerHTML = `
+        <span class="we-label">${item.label}</span>
+        <span class="we-arrow">${arrowSVG}</span>`;
+      row.addEventListener('click', () => {
+        let matched = null;
+        document.querySelectorAll('.nav-item').forEach(ni => {
+          if (ni.textContent.trim().includes(item.label.trim().slice(0, 6))) matched = ni;
         });
-        wcCardsInner.appendChild(sc);
+        loadPage(item.file, matched);
       });
+      wcExpandGrid.appendChild(row);
     });
   }
 
-  function showCategories() {
-    transition(() => {
-      wcCardsInner.innerHTML = '';
-      origCardNodes.forEach(n => wcCardsInner.appendChild(n));
-      wcBackBar.classList.remove('visible');
-      wcCatHeader.classList.remove('visible');
-    });
+  function closeTab() {
+    if (activeTab) activeTab.classList.remove('active');
+    activeTab = null;
+    wcExpand.classList.remove('open');
   }
 
-  document.getElementById('wc-back-btn').addEventListener('click', showCategories);
+  function toggleTab(card, cat) {
+    // 같은 탭 다시 클릭 → 닫기
+    if (activeTab === card) { closeTab(); return; }
+
+    const switching = !!activeTab;
+    if (activeTab) activeTab.classList.remove('active');
+    activeTab = card;
+    card.classList.add('active');
+
+    if (switching) {
+      // 이미 열려있으면 내용만 교체 (살짝 페이드)
+      wcExpandGrid.style.opacity = '0';
+      setTimeout(() => {
+        buildSubItems(cat);
+        wcExpandGrid.style.transition = 'opacity .2s ease';
+        wcExpandGrid.style.opacity = '1';
+      }, 130);
+    } else {
+      buildSubItems(cat);
+      wcExpandGrid.style.opacity = '1';
+      wcExpand.classList.add('open');
+    }
+  }
 
   /* ── Load page ───────────────────────────────── */
   function loadPage(file, linkEl) {
@@ -1178,6 +1238,7 @@ window.closeNotice = function() {
     frame.style.display = 'none';
     frame.src = '';
     welcome.style.display = '';   /* restore default flex */
+    closeTab();                   /* 아코디언 초기화 */
   }
   document.getElementById('logo-btn').addEventListener('click', goHome);
 
