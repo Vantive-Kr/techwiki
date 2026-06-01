@@ -284,6 +284,7 @@
     .welcome-hero {
       display: flex; flex-direction: column; align-items: center;
       zoom: 0.875;
+      margin-bottom: 0;
     }
     .welcome-logo {
       width: 72px; height: 72px; border-radius: 18px;
@@ -297,7 +298,7 @@
       display: flex; align-items: center; justify-content: center;
       gap: 10px; flex-wrap: wrap;
       line-height: 1.1;
-      margin-bottom: 12px;
+      margin-bottom: 0;
     }
 
     /* Vantive logo — Canvas-processed: Pine text on cream bg */
@@ -373,7 +374,7 @@
       position: relative;
       /* .welcome 의 좌우 padding(40px)을 상쇄해 본문 폭 가득 채움 */
       width: calc(100% + 80px);
-      margin: 8px -40px 0;
+      margin: 5px -40px 0;
       background: #fff;
       overflow: hidden;
       flex-shrink: 0;   /* 스크롤 컨테이너(.welcome) 안에서 눌려 사라지지 않도록 */
@@ -387,7 +388,7 @@
     .welcome-brand-banner::before {
       content: '';
       position: absolute; left: 0; right: 0; top: 0;
-      height: 110px;
+      height: 40px;
       background: linear-gradient(to bottom, var(--cream) 0%, rgba(255,250,235,0) 100%);
       pointer-events: none;
       z-index: 1;
@@ -892,7 +893,6 @@
           <img class="welcome-vantive-logo-img" src="vantive%20logo.png" alt="Vantive">
           <span class="welcome-techwiki">Techwiki</span>
         </h2>
-        <p>메뉴에서 필요한 항목을 선택하세요.<br>알람 검색, 점검 이력, 기기 정보를 빠르게 확인할 수 있습니다.</p>
       </div>
 
       <!-- Brand banner: Champion of Positive Change -->
