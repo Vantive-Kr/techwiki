@@ -617,6 +617,40 @@
     .topnav-feedback:hover,
     .topnav-feedback.active { background: rgba(114,37,107,0.12); }
 
+    /* 게시판 삭제 버튼 — 날짜 오른쪽에 인라인 배치 */
+    .fb-delete-btn {
+      background: none; border: none; cursor: pointer;
+      padding: 2px 5px; border-radius: 6px; flex-shrink: 0;
+      color: #c0392b; opacity: 0;
+      transition: opacity .15s, background .15s;
+      font-size: 14px; line-height: 1;
+    }
+    .fb-item:hover .fb-delete-btn { opacity: 0.5; }
+    .fb-delete-btn:hover { opacity: 1 !important; background: rgba(192,57,43,0.09); }
+    /* 페이지네이션 */
+    .fb-pager {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px solid rgba(16,87,66,0.16);
+    }
+    .fb-pager-btn {
+      background: none; border: 1.5px solid rgba(16,87,66,0.25);
+      border-radius: 8px; padding: 5px 14px; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--pine-dark);
+      transition: background .15s, border-color .15s;
+    }
+    .fb-pager-btn:hover { background: rgba(16,87,66,0.08); border-color: var(--pine-dark); }
+    .fb-pager-btn:disabled { opacity: 0.35; cursor: default; }
+    .fb-pager-info { font-size: 12.5px; color: var(--pine-dark); opacity: 0.65; }
+    /* 관리자 모드 표시 */
+    .fb-admin-badge {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      color: var(--plum); background: rgba(114,37,107,0.10);
+      border-radius: 6px; padding: 2px 7px; margin-left: 8px;
+      vertical-align: middle; cursor: default;
+    }
+    .weh-title { cursor: default; user-select: none; }
+
     /* welcome-card clickable */
     .welcome-card { cursor: pointer; }
 
@@ -1105,10 +1139,10 @@ window.closeNotice = function() {
       ]
     },
     {
-      id: 'inspection', label: 'Device Inspection', icon: SVG.inspection,
+      id: 'inspection', label: 'Device Inspection History', icon: SVG.inspection,
       desc: '장비별 점검 이력과 기록을 조회하고 관리합니다.',
       items: [
-        { label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
+        { label: 'CRRT Inspection History', file: 'CRRT_inspection.html' },
       ]
     },
     {
@@ -1291,7 +1325,14 @@ window.closeNotice = function() {
 
   /* ── 💬 의견·제안 게시판 ───────────────────────── */
   const FB_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
-  let _fbInited = false, fbDB = null, fbUnsub = null;
+  let _fbInited = false, fbDB = null, fbUnsub = null, fbAdminMode = false;
+
+  /* ── 내 글 토큰 관리 (localStorage) ── */
+  const MY_POSTS_KEY = 'tw_fb_mine';
+  function getMyPosts()       { try { return JSON.parse(localStorage.getItem(MY_POSTS_KEY)||'{}'); } catch(e){ return {}; } }
+  function saveMyPost(id, tok){ const m=getMyPosts(); m[id]=tok; localStorage.setItem(MY_POSTS_KEY, JSON.stringify(m)); }
+  function removeMyPost(id)   { const m=getMyPosts(); delete m[id]; localStorage.setItem(MY_POSTS_KEY, JSON.stringify(m)); }
+  function genToken()         { return (typeof crypto.randomUUID==='function') ? crypto.randomUUID() : Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2); }
 
   function getFbDB() {
     if (_fbInited) return fbDB;
@@ -1333,6 +1374,10 @@ window.closeNotice = function() {
       <div class="fb-status" id="fb-status"></div>
       <div class="fb-list" id="fb-list"></div>`;
 
+    // 관리자 모드: 제목 3번 클릭
+    const titleEl = document.getElementById('welcome-expand-title');
+    if (titleEl) titleEl.addEventListener('click', handleAdminTap);
+
     const msgEl = document.getElementById('fb-msg');
     const cntEl = document.getElementById('fb-count');
     msgEl.addEventListener('input', () => { cntEl.textContent = msgEl.value.length + ' / 200'; });
@@ -1344,21 +1389,58 @@ window.closeNotice = function() {
     fbLoad();
   }
 
+  const FB_PAGE_SIZE = 10;
+  let fbAllPosts = [], fbPage = 0;
+
   function fbRender(posts) {
+    fbAllPosts = posts;
+    fbPage = 0;
+    fbRenderPage();
+  }
+
+  function fbRenderPage() {
     const list = document.getElementById('fb-list');
     if (!list) return;
-    if (!posts.length) {
+    if (!fbAllPosts.length) {
       list.innerHTML = '<div class="fb-empty">아직 등록된 의견이 없습니다. 첫 의견을 남겨보세요!</div>';
       return;
     }
-    list.innerHTML = posts.map(p => `
-      <div class="fb-item">
+    const totalPages = Math.ceil(fbAllPosts.length / FB_PAGE_SIZE);
+    const slice = fbAllPosts.slice(fbPage * FB_PAGE_SIZE, (fbPage + 1) * FB_PAGE_SIZE);
+    const mine = getMyPosts();
+    list.innerHTML = '';
+
+    // 글 목록
+    slice.forEach(p => {
+      const isMine = p.id && mine[p.id];
+      const canDel = isMine || fbAdminMode;
+      const item = document.createElement('div');
+      item.className = 'fb-item';
+      item.innerHTML = `
         <div class="fb-item-head">
           <span class="fb-item-name">${fbEsc(p.name || '익명')}</span>
           <span class="fb-item-date">${fbFmtDate(p.ts || Date.now())}</span>
+          ${canDel ? `<button class="fb-delete-btn" title="삭제">🗑</button>` : ''}
         </div>
-        <div class="fb-item-msg">${fbEsc(p.msg)}</div>
-      </div>`).join('');
+        <div class="fb-item-msg">${fbEsc(p.msg)}</div>`;
+      if (canDel) {
+        item.querySelector('.fb-delete-btn').addEventListener('click', () => fbDelete(p.id));
+      }
+      list.appendChild(item);
+    });
+
+    // 페이지네이션 (2페이지 이상일 때만 표시)
+    if (totalPages > 1) {
+      const pager = document.createElement('div');
+      pager.className = 'fb-pager';
+      pager.innerHTML = `
+        <button class="fb-pager-btn" id="fb-prev" ${fbPage === 0 ? 'disabled' : ''}>← 이전</button>
+        <span class="fb-pager-info">${fbPage + 1} / ${totalPages}</span>
+        <button class="fb-pager-btn" id="fb-next" ${fbPage >= totalPages - 1 ? 'disabled' : ''}>다음 →</button>`;
+      pager.querySelector('#fb-prev').addEventListener('click', () => { fbPage--; fbRenderPage(); list.scrollIntoView({block:'nearest'}); });
+      pager.querySelector('#fb-next').addEventListener('click', () => { fbPage++; fbRenderPage(); list.scrollIntoView({block:'nearest'}); });
+      list.appendChild(pager);
+    }
   }
 
   function fbLoadLocal() {
@@ -1371,12 +1453,12 @@ window.closeNotice = function() {
     if (fbUnsub) { fbUnsub(); fbUnsub = null; }
     const db = getFbDB();
     if (db) {
-      fbUnsub = db.collection(FB_COLLECTION).orderBy('createdAt','desc').limit(30)
+      fbUnsub = db.collection(FB_COLLECTION).orderBy('createdAt','desc').limit(100)
         .onSnapshot(
           snap => {
             const posts = snap.docs.map(d => {
               const v = d.data();
-              return { name: v.name, msg: v.msg, ts: v.createdAt ? v.createdAt.toMillis() : (v.ts || Date.now()) };
+              return { id: d.id, name: v.name, msg: v.msg, authorToken: v.authorToken, ts: v.createdAt ? v.createdAt.toMillis() : (v.ts || Date.now()) };
             });
             fbRender(posts);
           },
@@ -1404,17 +1486,21 @@ window.closeNotice = function() {
     btn.disabled = true; btn.textContent = '등록 중…';
     const db = getFbDB();
     try {
+      const authorToken = genToken();
       if (db) {
-        await db.collection(FB_COLLECTION).add({
-          name, msg,
+        const ref = await db.collection(FB_COLLECTION).add({
+          name, msg, authorToken,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        saveMyPost(ref.id, authorToken); // 내 글로 localStorage에 저장
         // onSnapshot 이 목록 자동 갱신
       } else {
+        const fakeId = 'local_' + Date.now();
         let arr = [];
         try { arr = JSON.parse(localStorage.getItem('tw_feedback') || '[]'); } catch(e) {}
-        arr.unshift({ name, msg, ts: Date.now() });
+        arr.unshift({ id: fakeId, name, msg, authorToken, ts: Date.now() });
         localStorage.setItem('tw_feedback', JSON.stringify(arr.slice(0, 50)));
+        saveMyPost(fakeId, authorToken);
         fbLoadLocal();
       }
       msgEl.value = ''; nameEl.value = ''; cntEl.textContent = '0 / 200';
@@ -1427,6 +1513,68 @@ window.closeNotice = function() {
   }
 
   // 게시판 pill 을 상단 메뉴 맨 끝에 추가
+  /* ── 게시판 글 삭제 ─────────────────────────────── */
+  async function fbDelete(docId) {
+    if (!docId) return;
+    if (!confirm('이 의견을 삭제하시겠습니까?')) return;
+    const db = getFbDB();
+    try {
+      if (db) {
+        await db.collection(FB_COLLECTION).doc(docId).delete();
+      } else {
+        // localStorage fallback
+        let arr = [];
+        try { arr = JSON.parse(localStorage.getItem('tw_feedback') || '[]'); } catch(e) {}
+        arr = arr.filter(p => p.id !== docId);
+        localStorage.setItem('tw_feedback', JSON.stringify(arr));
+        fbLoadLocal();
+      }
+      removeMyPost(docId);
+    } catch(e) {
+      console.warn('삭제 실패:', e);
+      alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }
+
+  /* ── 관리자 모드 (제목 3번 클릭 → 비밀번호 확인) ── */
+  let _adminTapCount = 0, _adminTapTimer = null;
+  function handleAdminTap() {
+    _adminTapCount++;
+    clearTimeout(_adminTapTimer);
+    if (_adminTapCount >= 3) {
+      _adminTapCount = 0;
+      activateAdminMode();
+    } else {
+      _adminTapTimer = setTimeout(() => { _adminTapCount = 0; }, 1200);
+    }
+  }
+  async function activateAdminMode() {
+    if (fbAdminMode) {
+      // 이미 관리자 모드 → 해제
+      fbAdminMode = false;
+      const badge = document.querySelector('.fb-admin-badge');
+      if (badge) badge.remove();
+      const titleEl = document.getElementById('welcome-expand-title');
+      if (titleEl) titleEl.textContent = '의견·제안 게시판';
+      fbLoad(); // 목록 재렌더
+      return;
+    }
+    const pw = prompt('관리자 비밀번호를 입력하세요:');
+    if (!pw) return;
+    if (!window._tw_sha256 || !window._tw_ch) { alert('초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    const hash = await window._tw_sha256(pw.trim());
+    if (hash !== window._tw_ch) {
+      alert('비밀번호가 올바르지 않습니다.');
+      return;
+    }
+    fbAdminMode = true;
+    const titleEl = document.getElementById('welcome-expand-title');
+    if (titleEl) {
+      titleEl.innerHTML = '의견·제안 게시판 <span class="fb-admin-badge">관리자 모드</span>';
+    }
+    fbLoad(); // 모든 글에 삭제 버튼 표시
+  }
+
   (function addFeedbackPill() {
     const fb = document.createElement('button');
     fb.type = 'button';
@@ -1619,6 +1767,9 @@ window.closeNotice = function() {
       return Array.from(new Uint8Array(hash))
                   .map(b => b.toString(16).padStart(2, '0')).join('');
     }
+    // 관리자 모드에서도 sha256·CORRECT_HASH 사용 가능하도록 외부 노출
+    window._tw_sha256 = sha256;
+    window._tw_ch     = CORRECT_HASH;
 
     // ── ② 잠금 UI ───────────────────────────────────
     function startLockoutUI(lockUntil) {
