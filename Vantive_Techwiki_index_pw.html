@@ -333,8 +333,8 @@
       border-bottom: 1.5px solid rgba(114,37,107,0.12);
     }
     .topnav-item {
-      display: inline-flex; align-items: center; gap: 9px;
-      padding: 11px 18px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 14px;
       border: none; background: transparent; cursor: pointer;
       border-radius: 999px;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
@@ -445,7 +445,7 @@
       }
       .welcome {
         justify-content: flex-start;
-        padding: 32px 20px 40px;
+        padding: 40px 20px 40px;
       }
       /* 모바일: 상단 메뉴를 왼쪽(아이콘 기준) 정렬 */
       .welcome-topnav {
@@ -466,7 +466,7 @@
 
     /* ── Welcome top-nav wrap + accordion ─────────── */
     .welcome-cards-wrap {
-      width: 100%; max-width: 1100px;
+      width: 100%; max-width: 1280px;
       margin-bottom: 20px;
       display: flex; flex-direction: column; align-items: stretch; gap: 0;
     }
@@ -556,6 +556,66 @@
       .welcome-expand-left { flex: none; max-width: none; }
       .weh-desc { max-width: none; }
     }
+
+    /* ── 💬 의견·제안 게시판 ───────────────────────── */
+    .fb-form {
+      display: flex; flex-direction: column; gap: 9px;
+      margin-bottom: 14px; text-align: left;
+    }
+    .fb-input {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', sans-serif;
+      font-size: 14px; color: #1d1d1f;
+      background: #fff; border: 1.5px solid rgba(16,87,66,0.22);
+      border-radius: 10px; padding: 10px 13px; outline: none;
+      transition: border-color .15s;
+    }
+    .fb-input::placeholder { color: #9aa7a1; }
+    .fb-input:focus { border-color: var(--pine-dark); }
+    .fb-name { max-width: 200px; }
+    .fb-msg { width: 100%; resize: vertical; min-height: 46px; line-height: 1.5; }
+    .fb-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .fb-count { font-size: 12px; color: var(--pine-dark); opacity: 0.6; }
+    .fb-submit {
+      background: var(--pine-dark); color: #fff; border: none;
+      border-radius: 10px; padding: 9px 22px;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .fb-submit:hover { background: var(--pine-light); }
+    .fb-submit:disabled { opacity: 0.55; cursor: default; }
+    .fb-status { text-align: left; margin-bottom: 6px; }
+    .fb-note { font-size: 12px; color: #b9770c; line-height: 1.5; }
+    .fb-list { display: flex; flex-direction: column; }
+    .fb-empty {
+      text-align: left; font-size: 13px; color: var(--pine-dark);
+      opacity: 0.6; padding: 14px 4px;
+    }
+    .fb-item {
+      text-align: left; padding: 12px 4px;
+      border-top: 1px solid rgba(16,87,66,0.16);
+    }
+    .fb-item:first-child { border-top: none; }
+    .fb-item-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 10px; margin-bottom: 4px;
+    }
+    .fb-item-name {
+      font-size: 13px; font-weight: 700; color: var(--pine-dark);
+      letter-spacing: -0.2px;
+    }
+    .fb-item-date { font-size: 11.5px; color: var(--pine-dark); opacity: 0.55; flex-shrink: 0; }
+    .fb-item-msg {
+      font-size: 13.5px; color: #1d1d1f; line-height: 1.55;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    /* 게시판 pill 살짝 구분 (자주색 계열) */
+    .topnav-feedback { color: var(--plum); }
+    .topnav-feedback .tn-icon svg,
+    .topnav-feedback .tn-chev svg { stroke: var(--plum); }
+    .topnav-feedback:hover,
+    .topnav-feedback.active { background: rgba(114,37,107,0.12); }
+
     /* welcome-card clickable */
     .welcome-card { cursor: pointer; }
 
@@ -912,7 +972,43 @@
 
 </div>
 
+<!-- ── Firebase (의견·제안 게시판용) ─────────────── -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *  💬 의견·제안 게시판 설정  ← 여기에 Firebase 설정 붙여넣기
+ *
+ *  사용법 (1회만 설정):
+ *   1) https://console.firebase.google.com 에서 프로젝트 생성
+ *   2) 좌측 "빌드 → Firestore Database" → 데이터베이스 만들기(프로덕션 모드)
+ *   3) 프로젝트 설정(⚙️) → "내 앱" → 웹앱(</>) 추가 → firebaseConfig 복사
+ *   4) 아래 FIREBASE_CONFIG 에 그대로 붙여넣기
+ *   5) Firestore "규칙(Rules)" 탭에 아래 규칙 붙여넣고 게시:
+ *        rules_version = '2';
+ *        service cloud.firestore {
+ *          match /databases/{db}/documents {
+ *            match /techwiki_feedback/{doc} {
+ *              allow read: if true;
+ *              allow create: if request.resource.data.msg is string
+ *                            && request.resource.data.msg.size() <= 200;
+ *              allow update, delete: if false;
+ *            }
+ *          }
+ *        }
+ *   ※ 설정 전에는 "내 브라우저 임시 저장(localStorage)"으로 동작합니다.
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCmETRzolNXQP0kudESHsRrxzaGScaO18Y",
+  authDomain: "techwiki-opinion-board.firebaseapp.com",
+  projectId: "techwiki-opinion-board",
+  storageBucket: "techwiki-opinion-board.firebasestorage.app",
+  messagingSenderId: "403848657716",
+  appId: "1:403848657716:web:09fc892ddcfbb63b9a4361"
+};
+const FB_COLLECTION = 'techwiki_feedback';
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *  📢 공지 팝업 설정  ← 여기만 수정하세요
  *
@@ -1122,7 +1218,7 @@ window.closeNotice = function() {
       <span class="tn-icon">${cat.icon}</span>
       <span class="tn-label">${cat.label}</span>
       <span class="tn-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>`;
-    item.addEventListener('click', () => toggleTab(item, cat));
+    item.addEventListener('click', () => toggleTab(item, () => buildSubItems(cat)));
     wcCards.appendChild(item);
   });
 
@@ -1160,15 +1256,17 @@ window.closeNotice = function() {
   }
 
   function closeTab() {
+    if (fbUnsub) { fbUnsub(); fbUnsub = null; }   // 게시판 실시간 구독 해제
     if (activeTab) activeTab.classList.remove('active');
     activeTab = null;
     wcExpand.classList.remove('open');
   }
 
-  function toggleTab(card, cat) {
+  function toggleTab(card, builder) {
     // 같은 탭 다시 클릭 → 닫기
     if (activeTab === card) { closeTab(); return; }
 
+    if (fbUnsub) { fbUnsub(); fbUnsub = null; }   // 탭 전환 시 게시판 구독 해제
     const switching = !!activeTab;
     if (activeTab) activeTab.classList.remove('active');
     activeTab = card;
@@ -1178,16 +1276,166 @@ window.closeNotice = function() {
       // 이미 열려있으면 내용만 교체 (살짝 페이드)
       wcExpandGrid.style.opacity = '0';
       setTimeout(() => {
-        buildSubItems(cat);
+        builder();
         wcExpandGrid.style.transition = 'opacity .2s ease';
         wcExpandGrid.style.opacity = '1';
       }, 130);
     } else {
-      buildSubItems(cat);
+      builder();
       wcExpandGrid.style.opacity = '1';
       wcExpand.classList.add('open');
     }
   }
+
+  /* ── 💬 의견·제안 게시판 ───────────────────────── */
+  const FB_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+  let _fbInited = false, fbDB = null, fbUnsub = null;
+
+  function getFbDB() {
+    if (_fbInited) return fbDB;
+    _fbInited = true;
+    try {
+      if (window.firebase && FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        fbDB = firebase.firestore();
+      }
+    } catch (e) { console.warn('Firebase 초기화 실패:', e); }
+    return fbDB;
+  }
+
+  function fbEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function fbFmtDate(ms) {
+    const d = new Date(ms);
+    const p = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  // 게시판 패널 구성 (toggleTab 의 builder 로 사용)
+  function buildFeedback() {
+    wcExpandIcon.innerHTML    = FB_ICON;
+    wcExpandTitle.textContent = '의견·제안 게시판';
+    wcExpandDesc.textContent  = '운영·콘텐츠에 대한 의견을 자유롭게 남겨주세요. (최대 200자)';
+    wcExpandGrid.innerHTML = `
+      <div class="fb-form">
+        <input id="fb-name" class="fb-input fb-name" type="text" maxlength="20" placeholder="이름 (선택)">
+        <textarea id="fb-msg" class="fb-input fb-msg" rows="2" maxlength="200" placeholder="의견을 입력하세요 (최대 200자)"></textarea>
+        <div class="fb-bottom">
+          <span class="fb-count" id="fb-count">0 / 200</span>
+          <button class="fb-submit" id="fb-submit" type="button">등록</button>
+        </div>
+      </div>
+      <div class="fb-status" id="fb-status"></div>
+      <div class="fb-list" id="fb-list"></div>`;
+
+    const msgEl = document.getElementById('fb-msg');
+    const cntEl = document.getElementById('fb-count');
+    msgEl.addEventListener('input', () => { cntEl.textContent = msgEl.value.length + ' / 200'; });
+    document.getElementById('fb-submit').addEventListener('click', fbSubmit);
+    if (!getFbDB()) {
+      document.getElementById('fb-status').innerHTML =
+        '<span class="fb-note">⚠ 게시판 서버가 아직 설정되지 않아 <b>내 브라우저에만</b> 임시 저장됩니다. (관리자 Firebase 설정 필요)</span>';
+    }
+    fbLoad();
+  }
+
+  function fbRender(posts) {
+    const list = document.getElementById('fb-list');
+    if (!list) return;
+    if (!posts.length) {
+      list.innerHTML = '<div class="fb-empty">아직 등록된 의견이 없습니다. 첫 의견을 남겨보세요!</div>';
+      return;
+    }
+    list.innerHTML = posts.map(p => `
+      <div class="fb-item">
+        <div class="fb-item-head">
+          <span class="fb-item-name">${fbEsc(p.name || '익명')}</span>
+          <span class="fb-item-date">${fbFmtDate(p.ts || Date.now())}</span>
+        </div>
+        <div class="fb-item-msg">${fbEsc(p.msg)}</div>
+      </div>`).join('');
+  }
+
+  function fbLoadLocal() {
+    let arr = [];
+    try { arr = JSON.parse(localStorage.getItem('tw_feedback') || '[]'); } catch(e) {}
+    fbRender(arr);
+  }
+
+  function fbLoad() {
+    if (fbUnsub) { fbUnsub(); fbUnsub = null; }
+    const db = getFbDB();
+    if (db) {
+      fbUnsub = db.collection(FB_COLLECTION).orderBy('createdAt','desc').limit(30)
+        .onSnapshot(
+          snap => {
+            const posts = snap.docs.map(d => {
+              const v = d.data();
+              return { name: v.name, msg: v.msg, ts: v.createdAt ? v.createdAt.toMillis() : (v.ts || Date.now()) };
+            });
+            fbRender(posts);
+          },
+          err => {
+            console.warn('게시판 로드 오류:', err);
+            const st = document.getElementById('fb-status');
+            if (st) st.innerHTML = '<span class="fb-note">목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</span>';
+          }
+        );
+    } else {
+      fbLoadLocal();
+    }
+  }
+
+  async function fbSubmit() {
+    const nameEl = document.getElementById('fb-name');
+    const msgEl  = document.getElementById('fb-msg');
+    const cntEl  = document.getElementById('fb-count');
+    const btn    = document.getElementById('fb-submit');
+    if (!msgEl) return;
+    const name = (nameEl.value || '').trim().slice(0, 20) || '익명';
+    const msg  = (msgEl.value || '').trim().slice(0, 200);
+    if (!msg) { msgEl.focus(); return; }
+
+    btn.disabled = true; btn.textContent = '등록 중…';
+    const db = getFbDB();
+    try {
+      if (db) {
+        await db.collection(FB_COLLECTION).add({
+          name, msg,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        // onSnapshot 이 목록 자동 갱신
+      } else {
+        let arr = [];
+        try { arr = JSON.parse(localStorage.getItem('tw_feedback') || '[]'); } catch(e) {}
+        arr.unshift({ name, msg, ts: Date.now() });
+        localStorage.setItem('tw_feedback', JSON.stringify(arr.slice(0, 50)));
+        fbLoadLocal();
+      }
+      msgEl.value = ''; nameEl.value = ''; cntEl.textContent = '0 / 200';
+    } catch (e) {
+      console.warn('등록 실패:', e);
+      alert('등록에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      btn.disabled = false; btn.textContent = '등록';
+    }
+  }
+
+  // 게시판 pill 을 상단 메뉴 맨 끝에 추가
+  (function addFeedbackPill() {
+    const fb = document.createElement('button');
+    fb.type = 'button';
+    fb.className = 'topnav-item topnav-feedback';
+    fb.innerHTML = `
+      <span class="tn-icon">${FB_ICON}</span>
+      <span class="tn-label">의견·제안</span>
+      <span class="tn-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>`;
+    fb.addEventListener('click', () => toggleTab(fb, buildFeedback));
+    wcCards.appendChild(fb);
+  })();
 
   /* ── Load page ───────────────────────────────── */
   function loadPage(file, linkEl) {
