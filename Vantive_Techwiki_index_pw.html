@@ -626,6 +626,7 @@
       font-size: 14px; line-height: 1;
     }
     .fb-item:hover .fb-delete-btn { opacity: 0.5; }
+    .fb-item.fb-mine .fb-delete-btn { opacity: 0.75; }  /* 내 글: 항상 표시 */
     .fb-delete-btn:hover { opacity: 1 !important; background: rgba(192,57,43,0.09); }
     /* 페이지네이션 */
     .fb-pager {
@@ -1139,10 +1140,10 @@ window.closeNotice = function() {
       ]
     },
     {
-      id: 'inspection', label: 'Device Inspection', icon: SVG.inspection,
+      id: 'inspection', label: 'Device Inspection History', icon: SVG.inspection,
       desc: '장비별 점검 이력과 기록을 조회하고 관리합니다.',
       items: [
-        { label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
+        { label: 'CRRT Inspection History', file: 'CRRT_inspection.html' },
       ]
     },
     {
@@ -1415,7 +1416,7 @@ window.closeNotice = function() {
       const isMine = p.id && mine[p.id];
       const canDel = isMine || fbAdminMode;
       const item = document.createElement('div');
-      item.className = 'fb-item';
+      item.className = 'fb-item' + (isMine ? ' fb-mine' : '');
       item.innerHTML = `
         <div class="fb-item-head">
           <span class="fb-item-name">${fbEsc(p.name || '익명')}</span>
