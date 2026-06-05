@@ -879,13 +879,18 @@ function printQuote(){
   d+='<tr><td contenteditable="true" style="padding:3px 6px;font-size:6pt;line-height:1.52;white-space:pre-wrap;min-height:60px;">'+notes.join("\n")+'<\/td><\/tr>';
   d+='<\/table>';
 
-  d+='<script>setTimeout(function(){window.print();},800);<\/script>';
+  // 자동 인쇄: 로고 이미지 로딩까지 기다린 뒤 포커스 후 인쇄 다이얼로그 호출
+  d+='<script>(function(){var done=false;function fire(){if(done)return;done=true;try{window.focus();}catch(e){}window.print();}';
+  d+='function ready(){var img=document.querySelector("img.doc-logo");if(img&&!img.complete){img.addEventListener("load",function(){setTimeout(fire,250);});img.addEventListener("error",function(){setTimeout(fire,250);});setTimeout(fire,2000);}else{setTimeout(fire,400);}}';
+  d+='if(document.readyState==="complete"){ready();}else{window.addEventListener("load",ready);}})();<\/script>';
   d+='<\/body><\/html>';
 
   var w=window.open('','_blank','width=850,height=1060,scrollbars=yes');
   if(!w){alert('팝업이 차단되었습니다.\n브라우저 팝업 허용 후 다시 시도해주세요.');return;}
+  w.document.open();
   w.document.write(d);
   w.document.close();
+  try{w.focus();}catch(e){}
 }
 
 go();
