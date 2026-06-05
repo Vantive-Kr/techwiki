@@ -1004,7 +1004,7 @@
     </div>
 
     <iframe id="content-frame" title="Content"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals allow-popups-to-escape-sandbox"></iframe>
   </main>
 
 </div>
@@ -1062,7 +1062,8 @@ const NOTICE_TITLE   = '업데이트 안내';
 const NOTICE_BODY    = `
   <p>Techwiki 로그인 보안이 강화되었습니다.</p>
   <ul>
-    <li> <b>의견 및 제안 게시판</b> 업데이트 됐습니다</li>
+    <li>Device info에 <b>Artis Hydraulic Circuit Description</b></li>
+    <li><b>Artis Electronic Description</b> 업데이트 됐습니다</li>
   </ul>
   <p style="margin-top:12px; font-size:13px; color:#999;">
     문의사항 및 요청사항은 관리자에게 문의하세요
@@ -1139,10 +1140,10 @@ window.closeNotice = function() {
       ]
     },
     {
-      id: 'inspection', label: 'Device Inspection', icon: SVG.inspection,
+      id: 'inspection', label: 'Device Inspection History', icon: SVG.inspection,
       desc: '장비별 점검 이력과 기록을 조회하고 관리합니다.',
       items: [
-        { label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
+        { label: 'CRRT Inspection History', file: 'CRRT_inspection.html' },
       ]
     },
     {
