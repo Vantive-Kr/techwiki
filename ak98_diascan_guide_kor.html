@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AK98 Diascan™ 클리어런스 측정 가이드 · Vantive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+/* ─── Color System (coral warm palette — from 2026-fileshare-migration-meeting) ─── */
+:root {
+  --claude-coral:      #D4633A;
+  --claude-coral-deep: #B8502D;
+  --claude-coral-soft: #E8896A;
+  --claude-coral-pale: #F5D5C8;
+  --claude-warm:       #C96442;
+  --claude-sand:       #E8C9A0;
+  --claude-cream:      #FBF8F4;
+  --claude-brown:      #7A4A35;
+  --claude-dark:       #1E1008;
+}
+
+.theme-light {
+  --bg:              #FBF8F4;
+  --surface:         #FFFFFF;
+  --surface-hover:   #FDF3EC;
+  --surface-warm:    #FEF6EE;
+  --border:          rgba(212,99,58,0.12);
+  --border-soft:     rgba(212,99,58,0.07);
+  --text:            #1E1008;
+  --text-secondary:  #8B5E4A;
+  --text-muted:      #B08070;
+  --accent:          #D4633A;
+  --accent-hover:    #B8502D;
+  --accent-secondary:#E8896A;
+  --accent-pale:     #F5D5C8;
+  --positive:        #5B8A5E;
+  --negative:        #B85050;
+  --warning:         #C48A2E;
+  --highlight:       #C96442;
+}
+
+.theme-dark {
+  --bg:              #150D07;
+  --surface:         #1E1208;
+  --surface-hover:   #2A1A0F;
+  --surface-warm:    #261608;
+  --border:          rgba(212,99,58,0.18);
+  --border-soft:     rgba(212,99,58,0.08);
+  --text:            #F5EDE5;
+  --text-secondary:  #C49A80;
+  --text-muted:      #8B6550;
+  --accent:          #E8896A;
+  --accent-hover:    #D4633A;
+  --accent-secondary:#F0A882;
+  --accent-pale:     rgba(212,99,58,0.18);
+  --positive:        #7DAE80;
+  --negative:        #D47070;
+  --warning:         #D4A850;
+  --highlight:       #E8896A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 1rem;
+  min-height: 100vh;
+  transition: background 0.25s, color 0.25s;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(212,99,58,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,80,50,0.04) 0%, transparent 50%);
+}
+
+/* ── Skip link ── */
+.skip-link { position: absolute; top: -40px; left: 0; padding: 8px 16px; background: var(--accent); color: #fff; z-index: 9999; text-decoration: none; border-radius: 0 0 8px 0; }
+.skip-link:focus { top: 0; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate { animation: fadeInUp 0.55s ease-out both; }
+.animate.delay-1 { animation-delay: 0.08s; }
+.animate.delay-2 { animation-delay: 0.16s; }
+.animate.delay-3 { animation-delay: 0.24s; }
+.animate.delay-4 { animation-delay: 0.32s; }
+.animate.delay-5 { animation-delay: 0.40s; }
+
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ── Menu ── */
+.viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9000; }
+.viz-menu-toggle {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(212,99,58,0.1);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.viz-menu-toggle:hover { background: var(--surface-hover); box-shadow: 0 4px 16px rgba(212,99,58,0.18); }
+.viz-menu-toggle svg { stroke: var(--text-secondary); }
+.viz-menu-dropdown {
+  position: absolute; top: 48px; right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 6px; min-width: 190px;
+  box-shadow: 0 8px 32px rgba(30,16,8,0.14);
+  display: none;
+}
+.viz-menu-dropdown.open { display: block; }
+.viz-menu-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 8px; cursor: pointer; font-size: 0.875rem;
+  color: var(--text-secondary); border: none; background: none;
+  width: 100%; text-align: left; transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.viz-menu-item:hover { background: var(--surface-hover); color: var(--text); }
+
+/* ── Hero ── */
+.hero {
+  padding: 72px 28px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  left: 50%; right: 50%;
+  margin-left: -50vw; margin-right: -50vw;
+}
+.theme-light .hero {
+  background:
+    radial-gradient(ellipse 130% 180% at -10% 60%, rgba(210,110,75,0.48) 0%, rgba(230,155,120,0.22) 45%, transparent 75%),
+    radial-gradient(ellipse 100% 150% at 20% -10%, rgba(220,130,95,0.28) 0%, transparent 65%),
+    linear-gradient(110deg, rgba(235,165,130,0.20) 0%, rgba(251,248,244,0) 70%);
+  background-color: var(--bg);
+}
+.theme-dark .hero {
+  background:
+    radial-gradient(ellipse 80% 120% at 0% 50%, rgba(180,80,45,0.5) 0%, rgba(140,60,30,0.25) 35%, transparent 65%),
+    radial-gradient(ellipse 60% 100% at 15% 0%, rgba(160,70,35,0.3) 0%, transparent 55%),
+    linear-gradient(105deg, rgba(120,50,20,0.2) 0%, rgba(21,13,7,0) 55%);
+  background-color: var(--bg);
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(180,100,65,0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 35%, transparent 65%);
+  mask-image: linear-gradient(to left, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 35%, transparent 65%);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent-pale); color: var(--accent);
+  font-size: 0.73rem; font-weight: 700; letter-spacing: 0.09em;
+  padding: 6px 14px; border-radius: 100px;
+  margin-bottom: 22px; text-transform: uppercase;
+  position: relative; z-index: 1;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
+}
+.hero h1 span { color: var(--accent); }
+.hero-sub {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+  position: relative; z-index: 1;
+}
+.hero-meta {
+  display: flex; align-items: center; justify-content: center; gap: 24px;
+  flex-wrap: wrap;
+  font-size: 0.8rem; color: var(--text-muted);
+  position: relative; z-index: 1;
+}
+.hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+/* ── KPI Grid (Diascan 3 파라미터) ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 20px;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.kpi-card:hover { box-shadow: 0 8px 24px rgba(212,99,58,0.1); background: var(--surface-hover); }
+.kpi-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.kpi-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--accent-pale);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-icon svg { stroke: var(--accent); }
+.kpi-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.kpi-value { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 8px; color: var(--accent); }
+.kpi-formula {
+  display: inline-block; font-size: 0.75rem; font-weight: 600;
+  background: var(--surface-warm); border: 1px solid var(--border);
+  padding: 3px 10px; border-radius: 6px; color: var(--text-secondary);
+  margin-bottom: 8px; font-style: italic;
+}
+.kpi-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
+
+/* ── Sticky Filter ── */
+.sticky-filter {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(251,248,244,0.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.theme-dark .sticky-filter {
+  background: rgba(21,13,7,0.92);
+}
+.filter-inner {
+  max-width: 1100px; margin: 0 auto; padding: 10px 24px;
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; align-items: center;
+}
+.filter-inner::-webkit-scrollbar { display: none; }
+.filter-btn {
+  flex-shrink: 0; padding: 7px 15px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; border: 1.5px solid transparent;
+  background: transparent; color: var(--text-secondary);
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-btn:hover { background: var(--surface); color: var(--text); }
+.filter-btn.active {
+  background: var(--surface); color: var(--text);
+  border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.filter-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+
+/* ── Container ── */
+.container { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+
+/* ── Section Headers ── */
+.section-header { margin-bottom: 24px; }
+.section-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 4px;
+}
+.section-title {
+  font-size: 1.45rem; font-weight: 700;
+  color: var(--text); letter-spacing: -0.02em;
+}
+.section-desc {
+  font-size: 0.88rem; color: var(--text-secondary);
+  margin-top: 6px; line-height: 1.6;
+}
+section { margin-bottom: 64px; }
+
+/* ── Phase Group ── */
+.phase-group { margin-bottom: 48px; }
+.phase-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 16px; padding-bottom: 14px;
+  border-bottom: 2px solid var(--border);
+}
+.phase-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.phase-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.phase-title-en { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.5; letter-spacing: 0.04em; font-style: italic; margin-top: 2px; }
+.phase-badge {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+/* ── Step Cards (Accordion) ── */
+.step-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; margin-bottom: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  overflow: hidden; transition: box-shadow 0.2s;
+}
+.step-card:hover { box-shadow: 0 4px 18px rgba(212,99,58,0.1); }
+
+details.step-card > summary {
+  list-style: none; display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 18px; cursor: pointer; user-select: none;
+}
+details.step-card > summary::-webkit-details-marker { display: none; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent-pale); color: var(--accent);
+  font-size: 12px; font-weight: 800; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+.step-info { flex: 1; }
+.step-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.step-preview { font-size: 0.8rem; color: var(--text-secondary); }
+.step-chevron {
+  width: 20px; height: 20px; flex-shrink: 0; margin-top: 3px;
+  color: var(--text-muted); transition: transform 0.2s;
+}
+details.step-card[open] .step-chevron { transform: rotate(90deg); }
+
+.step-body {
+  padding: 0 18px 18px 60px;
+  border-top: 1px solid var(--border-soft);
+}
+.step-body p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+.step-body p:last-child { margin-bottom: 0; }
+
+/* ── Procedure Steps (numbered list inside accordion) ── */
+.proc-list { list-style: none; counter-reset: proc; }
+.proc-list li {
+  counter-increment: proc;
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+  font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;
+}
+.proc-list li:last-child { border-bottom: none; }
+.proc-list li::before {
+  content: counter(proc);
+  min-width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.proc-list li strong { color: var(--text); }
+
+/* ── Info / Warning Callouts ── */
+.callout {
+  border-radius: 10px; padding: 14px 18px;
+  display: flex; gap: 12px; align-items: flex-start;
+  margin: 12px 0;
+  font-size: 0.85rem; line-height: 1.6;
+}
+.callout-note {
+  background: rgba(212,99,58,0.07);
+  border: 1px solid rgba(212,99,58,0.18);
+  border-left: 3px solid var(--accent);
+}
+.callout-warn {
+  background: rgba(196,138,46,0.08);
+  border: 1px solid rgba(196,138,46,0.2);
+  border-left: 3px solid var(--warning);
+}
+.callout-caution {
+  background: rgba(184,80,80,0.07);
+  border: 1px solid rgba(184,80,80,0.2);
+  border-left: 3px solid var(--negative);
+}
+.callout-icon {
+  width: 22px; height: 22px; flex-shrink: 0;
+}
+.callout-icon svg { width: 100%; height: 100%; }
+.callout-note .callout-icon svg { stroke: var(--accent); }
+.callout-warn .callout-icon svg { stroke: var(--warning); }
+.callout-caution .callout-icon svg { stroke: var(--negative); }
+.callout strong {
+  display: block; margin-bottom: 3px;
+  font-size: 0.82rem; font-weight: 700; color: var(--text);
+}
+.callout p { color: var(--text-secondary); margin: 0; }
+
+/* ── Result Box ── */
+.result-box {
+  background: rgba(91,138,94,0.08);
+  border: 1px solid rgba(91,138,94,0.2);
+  border-radius: 10px; padding: 14px 16px;
+  margin-top: 12px;
+  font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;
+}
+.result-box strong { display: block; color: var(--positive); margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── Factor Tags ── */
+.factor-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+}
+.factor-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.78rem; font-weight: 500;
+  background: var(--surface-warm); border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 20px; color: var(--text-secondary);
+}
+
+/* ── Display Field description ── */
+.display-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-top: 12px;
+}
+@media (max-width: 560px) { .display-grid { grid-template-columns: 1fr; } }
+.display-item {
+  background: var(--surface-warm); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+}
+.display-item-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 3px; }
+.display-item-desc { font-size: 0.82rem; color: var(--text-secondary); }
+
+/* ── Interval Option ── */
+.option-row {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+}
+.option-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.8rem; font-weight: 600;
+  background: var(--accent-pale); color: var(--accent);
+  padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(212,99,58,0.2);
+}
+
+/* ── Concept Explainer ── */
+.concept-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 20px 18px;
+  position: relative; overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.concept-card:hover { box-shadow: 0 6px 20px rgba(212,99,58,0.1); }
+.concept-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.concept-card.k::before    { background: var(--accent); }
+.concept-card.kt::before   { background: var(--warning); }
+.concept-card.ktv::before  { background: var(--positive); }
+.concept-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.concept-symbol {
+  font-size: 2rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1;
+}
+.concept-card.k   .concept-symbol { color: var(--accent); }
+.concept-card.kt  .concept-symbol { color: var(--warning); }
+.concept-card.ktv .concept-symbol { color: var(--positive); }
+.concept-unit { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+.concept-name { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.concept-desc { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .container { padding: 32px 16px 64px; }
+  .hero { padding: 56px 20px 44px; }
+}
+@media (max-width: 375px) {
+  body { overflow-x: hidden; }
+  .step-body { padding-left: 18px; }
+  .display-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Print ── */
+@media print {
+  body { background: white !important; color: black !important; }
+  .viz-menu, .sticky-filter { display: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  details.step-card { overflow: visible; }
+  details.step-card .step-body { display: block; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  @page { margin: 20mm; }
+}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">본문 바로가기</a>
+
+<!-- ── Menu ── -->
+<nav class="viz-menu" role="navigation" aria-label="유틸리티 메뉴">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-label="메뉴 열기" aria-expanded="false">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown" role="menu">
+    <button class="viz-menu-item" onclick="cycleTheme()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      테마 전환
+    </button>
+    <button class="viz-menu-item" onclick="downloadImage()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      PNG 저장
+    </button>
+    <button class="viz-menu-item" onclick="window.print()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      인쇄 / PDF
+    </button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<header class="hero" role="banner">
+  <div class="hero-badge animate">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    AK98 운영자 가이드 · Chapter 9
+  </div>
+  <h1 class="animate delay-1">Diascan™ <span>클리어런스</span> 측정</h1>
+  <p class="hero-sub animate delay-2">
+    투석 효율을 실시간으로 측정하고 처방된 투석 용량이 충족되고 있는지 확인하는<br>
+    Diascan™ 클리어런스 측정 기능의 원리와 사용 방법을 쉽게 설명합니다.
+  </p>
+  <div class="hero-meta animate delay-3">
+    <span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      HCEN12609 Rev.02.2015
+    </span>
+    <span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      소요 시간 약 10분
+    </span>
+    <span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      투석실 운영자 대상
+    </span>
+  </div>
+</header>
+
+<!-- ── Sticky Filter ── -->
+<nav class="sticky-filter" aria-label="섹션 필터">
+  <div class="filter-inner">
+    <button class="filter-btn active" onclick="scrollTo('overview')" data-section="overview">
+      <span class="filter-dot" style="background:#D4633A"></span>개요
+    </button>
+    <button class="filter-btn" onclick="scrollTo('params')" data-section="params">
+      <span class="filter-dot" style="background:#C48A2E"></span>3가지 파라미터
+    </button>
+    <button class="filter-btn" onclick="scrollTo('kkt')" data-section="kkt">
+      <span class="filter-dot" style="background:#5B8A5E"></span>K · Kt 확인
+    </button>
+    <button class="filter-btn" onclick="scrollTo('ktv')" data-section="ktv">
+      <span class="filter-dot" style="background:#D4633A"></span>Kt/V 확인
+    </button>
+    <button class="filter-btn" onclick="scrollTo('history')" data-section="history">
+      <span class="filter-dot" style="background:#B08070"></span>측정 기록
+    </button>
+    <button class="filter-btn" onclick="scrollTo('target')" data-section="target">
+      <span class="filter-dot" style="background:#C48A2E"></span>목표치 설정
+    </button>
+    <button class="filter-btn" onclick="scrollTo('alarm')" data-section="alarm">
+      <span class="filter-dot" style="background:#B85050"></span>알람 설정
+    </button>
+    <button class="filter-btn" onclick="scrollTo('factors')" data-section="factors">
+      <span class="filter-dot" style="background:#7A4A35"></span>주의사항
+    </button>
+  </div>
+</nav>
+
+<!-- ── Main Content ── -->
+<main id="main-content">
+<div class="container">
+
+  <!-- ── Section 1: 개요 ── -->
+  <section id="overview" data-section="overview">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.1 — Overview</div>
+      <h2 class="section-title">Diascan™이란 무엇인가?</h2>
+      <p class="section-desc">Diascan은 AK98 투석기에 내장된 클리어런스 측정 기능으로, 투석 치료 중 실시간으로 혈액 정화 효율을 계산합니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:14px; margin-bottom:20px;">
+        <div class="concept-card k">
+          <div class="concept-top">
+            <div>
+              <div class="concept-symbol">K</div>
+              <div class="concept-unit">mL/min</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div class="concept-name">클리어런스 (Clearance)</div>
+          <div class="concept-desc">단위 시간당 혈액이 정화되는 양. 사용 중인 투석막과 혈류속도에 따라 달라집니다.</div>
+        </div>
+        <div class="concept-card kt">
+          <div class="concept-top">
+            <div>
+              <div class="concept-symbol">Kt</div>
+              <div class="concept-unit">mL (혈액 정화 누적량)</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="concept-name">클리어런스 × 치료 시간</div>
+          <div class="concept-desc">현재 치료에서 지금까지 정화된 혈액의 총 누적량입니다.</div>
+        </div>
+        <div class="concept-card ktv">
+          <div class="concept-top">
+            <div>
+              <div class="concept-symbol">Kt/V</div>
+              <div class="concept-unit">무차원 (목표: ≥ 1.2)</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--positive)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="concept-name">투석 용량 (Dialysis Dose)</div>
+          <div class="concept-desc">Kt/V = 1.0이면 환자의 수분 분포 용적 전체가 1회 정화된 것입니다. 처방 목표치 달성 여부를 나타냅니다.</div>
+        </div>
+      </div>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="step-info">
+            <div class="step-title">측정 원리 — 어떻게 클리어런스를 계산하나요?</div>
+            <div class="step-preview">도전율(conductivity) 측정 기반의 Diascan 원리 설명</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <p>Diascan은 <strong>투석막 전·후에서 투석액의 도전율(conductivity)</strong>을 측정합니다. 이 도전율 차이를 분석하면 소듐(Na⁺) 클리어런스를 계산할 수 있으며, 이는 요소(urea)를 비롯한 소분자 노폐물 전반의 클리어런스를 대표합니다.</p>
+          <p>임상 연구에 의해 이온성 투석량(Effective Ionic Dialysance)과 생체 내 요소 클리어런스(In Vivo Urea Clearance) 사이의 상관관계가 검증되어 있습니다. <em>(Lindsay et al., AJKD, 2001)</em></p>
+          <div class="callout callout-note">
+            <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div><strong>📌 참고</strong><p>Diascan으로 얻은 클리어런스 데이터는 혈액 요소 데이터를 기반으로 수집된 클리어런스 데이터와 대조하여 검증되었습니다.</p></div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Section 2: 파라미터 ── -->
+  <section id="params" data-section="params">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.2 — Parameters</div>
+      <h2 class="section-title">Diascan이 확인하는 3가지 파라미터</h2>
+      <p class="section-desc">치료 시작 후 투석기가 측정·계산할 수 있는 핵심 수치들입니다.</p>
+    </div>
+    <div class="phase-group reveal">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-card-top">
+            <div class="kpi-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+            <div class="kpi-label">K — Clearance</div>
+          </div>
+          <div class="kpi-value">K</div>
+          <div class="kpi-formula">단위: mL/min</div>
+          <div class="kpi-desc">단위 시간당 혈액 정화량. 투석막 종류와 혈류속도(Qb)에 따라 결정됩니다.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card-top">
+            <div class="kpi-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="kpi-label">Kt — Cumulative</div>
+          </div>
+          <div class="kpi-value" style="color:var(--warning)">Kt</div>
+          <div class="kpi-formula">K × 치료 시간(t)</div>
+          <div class="kpi-desc">현재까지 정화된 혈액의 누적 부피. 치료 진행에 따라 지속 증가합니다.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card-top">
+            <div class="kpi-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="kpi-label">Kt/V — Dose</div>
+          </div>
+          <div class="kpi-value" style="color:var(--positive)">Kt/V</div>
+          <div class="kpi-formula">Kt ÷ V (분포 용적)</div>
+          <div class="kpi-desc">환자 맞춤형 투석 용량. Kt/V ≥ 1.2가 일반적인 적정 목표치입니다.</div>
+        </div>
+      </div>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num">V</div>
+          <div class="step-info">
+            <div class="step-title">V(분포 용적)란 무엇인가요?</div>
+            <div class="step-preview">Kt/V 계산에 필요한 환자 개별 수분 분포 용적</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <p><strong>V(분포 용적)</strong>는 환자 체내 요소(urea)가 분포되는 수분의 양(리터)으로, 환자의 건체중(dry weight)을 기반으로 추정합니다.</p>
+          <p>V값은 처방 담당 의사가 지정한 공식(Watson 공식 등)을 사용하여 계산하거나, 운영자가 직접 입력합니다. <strong>정확한 Kt/V를 얻으려면 V값을 정확히 입력하는 것이 매우 중요합니다.</strong></p>
+          <div class="callout callout-warn">
+            <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div><strong>⚠ 중요</strong><p>신뢰할 수 있는 Kt/V 값을 얻으려면 환자의 V(분포 용적)를 정확하게 입력해야 합니다. 의사와 협력하여 환자별로 올바른 값을 확인하세요.</p></div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Section 3: K · Kt 확인 ── -->
+  <section id="kkt" data-section="kkt">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.3 — Check K and Kt</div>
+      <h2 class="section-title">K 및 Kt 확인 방법</h2>
+      <p class="section-desc">투석기에서 클리어런스(K)와 누적 클리어런스(Kt)를 단회 또는 주기적으로 측정하는 절차입니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <div class="phase-header">
+        <div class="phase-icon" style="background:rgba(91,138,94,0.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--positive)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <div class="phase-title">K · Kt 측정 절차
+            <span class="phase-title-en">Measurement Procedure</span>
+          </div>
+        </div>
+        <span class="phase-badge" style="background:rgba(91,138,94,0.12); color:var(--positive)">3 STEPS</span>
+      </div>
+
+      <div class="callout callout-note" style="margin-bottom:14px;">
+        <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><strong>📌 주의</strong><p>투석기가 측정에 일정 시간이 필요합니다. <strong>치료 종료 30분 미만</strong>이 남은 경우에는 단회 측정(Single)을 시작하지 마세요.</p></div>
+      </div>
+
+      <details class="step-card" open>
+        <summary>
+          <div class="step-num">1</div>
+          <div class="step-info">
+            <div class="step-title">Diascan 버튼 누르기</div>
+            <div class="step-preview">화면에서 Diascan 메뉴 진입</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <p>투석기 화면에서 <strong>Diascan 버튼</strong>을 누릅니다. Diascan 메인 메뉴가 열립니다.</p>
+        </div>
+      </details>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <div class="step-title">Setup 탭 → Interval 선택</div>
+            <div class="step-preview">측정 간격 설정 — 60분 / 30분 / Single 중 선택</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <ol class="proc-list">
+            <li><strong>Setup 탭</strong>을 선택합니다.</li>
+            <li><strong>Interval</strong> 버튼을 누릅니다.</li>
+            <li>원하는 측정 간격을 선택합니다.</li>
+          </ol>
+          <div class="option-row">
+            <div class="option-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              60분 간격
+            </div>
+            <div class="option-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              30분 간격
+            </div>
+            <div class="option-pill" style="background:rgba(91,138,94,0.12); color:var(--positive); border-color:rgba(91,138,94,0.25);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              단회 (Single)
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num">3</div>
+          <div class="step-info">
+            <div class="step-title">Confirm 눌러 측정 시작 → 결과 확인</div>
+            <div class="step-preview">클리어런스 측정 결과 읽기 필드에서 값 확인</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <p><strong>Confirm</strong>을 눌러 측정을 시작합니다. 측정이 완료되면 클리어런스 측정 결과 표시 필드에 다음 정보가 표시됩니다:</p>
+          <div class="display-grid">
+            <div class="display-item">
+              <div class="display-item-label">최근 측정값</div>
+              <div class="display-item-desc">가장 최근에 측정된 K(클리어런스) 값</div>
+            </div>
+            <div class="display-item">
+              <div class="display-item-label">최근 측정 시각</div>
+              <div class="display-item-desc">마지막 측정이 수행된 시간</div>
+            </div>
+            <div class="display-item" style="grid-column: span 2;">
+              <div class="display-item-label">Diascan 버튼</div>
+              <div class="display-item-desc">결과 필드에서 이 버튼을 누르면 메인 메뉴로 돌아갑니다</div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Section 4: Kt/V 확인 ── -->
+  <section id="ktv" data-section="ktv">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.4 — Check Kt/V</div>
+      <h2 class="section-title">Kt/V 확인 방법</h2>
+      <p class="section-desc">환자의 분포 용적(V)을 설정한 후 Kt/V를 측정합니다. Watson 공식으로 자동 계산하거나 수동 입력할 수 있습니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <div class="phase-header">
+        <div class="phase-icon" style="background:rgba(212,99,58,0.10)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <div class="phase-title">V 입력 방법 선택
+            <span class="phase-title-en">Distribution Volume Setup</span>
+          </div>
+        </div>
+        <span class="phase-badge" style="background:rgba(212,99,58,0.10); color:var(--accent)">2 OPTIONS</span>
+      </div>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num" style="background:rgba(196,138,46,0.12); color:var(--warning)">A</div>
+          <div class="step-info">
+            <div class="step-title">옵션 A — 수동 입력 (분포 용적을 이미 알고 있는 경우)</div>
+            <div class="step-preview">Distribution volume (manual) → 직접 값 입력</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <ol class="proc-list">
+            <li><strong>Diascan 버튼</strong>을 누릅니다.</li>
+            <li>Setup 탭에서 <strong>Distribution volume (manual)</strong>을 누릅니다.</li>
+            <li>환자의 분포 용적 값을 입력합니다.</li>
+            <li>Setup 탭에서 <strong>Interval</strong>을 눌러 측정 간격을 선택합니다.</li>
+            <li><strong>Confirm</strong>을 눌러 측정을 시작합니다.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num" style="background:rgba(91,138,94,0.12); color:var(--positive)">B</div>
+          <div class="step-info">
+            <div class="step-title">옵션 B — Watson 공식으로 자동 계산</div>
+            <div class="step-preview">Watson 탭 → 환자 정보 입력 → 자동 계산</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <ol class="proc-list">
+            <li><strong>Diascan 버튼</strong>을 누릅니다.</li>
+            <li><strong>Watson 탭</strong>을 선택합니다.</li>
+            <li><strong>Enter parameters</strong>를 누릅니다.</li>
+            <li>화면에 표시된 환자 정보 항목(성별, 나이, 키, 건체중 등)을 입력합니다.</li>
+            <li>Setup 탭으로 돌아가 <strong>Interval</strong>을 선택합니다.</li>
+            <li><strong>Confirm</strong>을 눌러 측정을 시작합니다.</li>
+          </ol>
+          <div class="callout callout-warn">
+            <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div><strong>⚠ Watson 공식 사용 시</strong><p>처방 담당 의사가 Watson 공식 사용을 지시한 경우에만 선택하세요. 환자 정보를 정확하게 입력해야 신뢰할 수 있는 Kt/V 값을 얻을 수 있습니다.</p></div>
+          </div>
+        </div>
+      </details>
+
+      <div class="result-box reveal" style="margin-top:16px;">
+        <strong>✅ 측정 결과 표시</strong>
+        측정 결과는 클리어런스 측정 결과 표시 필드에서 확인할 수 있으며, 최근 측정값, 측정 시각, Diascan 버튼이 표시됩니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 5: 측정 기록 ── -->
+  <section id="history" data-section="history">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.5 — Measurement History</div>
+      <h2 class="section-title">측정 기록 조회</h2>
+      <p class="section-desc">이전 측정 결과 기록을 History 탭에서 확인할 수 있습니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <details class="step-card">
+        <summary>
+          <div class="step-num">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 0 .5-4.67"/><polyline points="3 3 3 9 9 9"/></svg>
+          </div>
+          <div class="step-info">
+            <div class="step-title">측정 기록 보기 절차</div>
+            <div class="step-preview">Diascan 버튼 → History 탭 → History 버튼</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <ol class="proc-list">
+            <li><strong>Diascan 버튼</strong>을 누릅니다.</li>
+            <li><strong>History 탭</strong>을 선택합니다.</li>
+            <li><strong>History</strong> 버튼을 누릅니다.</li>
+          </ol>
+          <div class="callout callout-note" style="margin-top:12px;">
+            <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div><strong>📌 참고</strong><p>추가 수분(volume)이 투여된 경우 Diascan History 화면 표시가 달라질 수 있습니다.</p></div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Section 6: 목표치 설정 ── -->
+  <section id="target" data-section="target">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.6 — Set Kt/V Target</div>
+      <h2 class="section-title">Kt/V 목표치 설정</h2>
+      <p class="section-desc">치료 종료 시점까지 환자가 달성해야 할 Kt/V 목표치를 설정하고, 투석기가 남은 치료 시간을 자동 추정합니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <div class="callout callout-warn" style="margin-bottom:16px;">
+        <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div><strong>⚠ 사전 조건</strong><p>Kt/V 목표치를 설정하기 전에 먼저 환자의 V(분포 용적)를 입력해야 합니다. (섹션 9.4 참조)</p></div>
+      </div>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="step-info">
+            <div class="step-title">Kt/V 목표치 설정 절차</div>
+            <div class="step-preview">Diascan → Setup → Alarm settings → Kt/V target</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <ol class="proc-list">
+            <li><strong>Diascan 버튼</strong>을 누릅니다.</li>
+            <li><strong>Setup 탭</strong>을 선택합니다.</li>
+            <li><strong>Alarm settings</strong>를 누릅니다.</li>
+            <li><strong>Kt/V target</strong>을 누릅니다.</li>
+            <li>목표 Kt/V 값을 입력합니다.</li>
+            <li><strong>OK</strong>를 누릅니다.</li>
+            <li><strong>Activate</strong>를 눌러 활성화하고 메뉴를 닫습니다.</li>
+          </ol>
+          <div class="result-box">
+            <strong>✅ 목표치 활성화 결과</strong>
+            투석기가 목표 Kt/V에 도달하기까지 남은 치료 시간을 추정합니다. Diascan 메뉴의 <strong>Time to target</strong> 항목에서 이 값을 확인할 수 있습니다.
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Section 7: 알람 설정 ── -->
+  <section id="alarm" data-section="alarm">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.7 — Set Alarms</div>
+      <h2 class="section-title">K 또는 Kt/V 하한 알람 설정</h2>
+      <p class="section-desc">K 또는 Kt/V 값이 설정한 하한치 아래로 떨어지면 투석기가 알람을 발생시키도록 설정합니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <div class="callout callout-warn" style="margin-bottom:16px;">
+        <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div><strong>⚠ 사전 조건</strong><p>Kt/V 알람을 설정하기 전에 환자의 V(분포 용적)가 먼저 입력되어 있어야 합니다.</p></div>
+      </div>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num" style="background:rgba(184,80,80,0.12); color:var(--negative)">!</div>
+          <div class="step-info">
+            <div class="step-title">K 또는 Kt/V 하한 알람 설정 절차</div>
+            <div class="step-preview">Diascan → Setup → Alarm settings → K limit / Kt/V limit</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <ol class="proc-list">
+            <li><strong>Diascan 버튼</strong>을 누릅니다.</li>
+            <li><strong>Setup 탭</strong>을 선택합니다.</li>
+            <li><strong>Alarm settings</strong>를 누릅니다.</li>
+            <li>알람 종류를 선택합니다:<br>
+              <span style="font-size:0.82rem; color:var(--accent); font-weight:600;">K limit</span> — 클리어런스(K) 하한치 알람<br>
+              <span style="font-size:0.82rem; color:var(--positive); font-weight:600;">Kt/V limit</span> — 투석 용량(Kt/V) 하한치 알람
+            </li>
+            <li>알람을 트리거할 하한치 값을 입력합니다.</li>
+            <li><strong>OK</strong>를 누릅니다.</li>
+            <li><strong>Activate</strong>를 눌러 활성화하고 메뉴를 닫습니다.</li>
+          </ol>
+          <div class="result-box">
+            <strong>✅ 알람 활성화 결과</strong>
+            K 또는 Kt/V 값이 설정한 하한치 아래로 내려가면 투석기가 알람을 발생시킵니다. 즉각적인 상황 확인 후 조치를 취하세요.
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Section 8: 주의사항 ── -->
+  <section id="factors" data-section="factors">
+    <div class="section-header reveal">
+      <div class="section-label">Section 9.8 — Factors & Cautions</div>
+      <h2 class="section-title">측정에 영향을 미치는 요소</h2>
+      <p class="section-desc">다음 상황에서는 클리어런스 측정 결과의 신뢰도가 낮아지거나 측정이 불가능할 수 있습니다.</p>
+    </div>
+
+    <div class="phase-group reveal">
+      <div class="callout callout-caution" style="margin-bottom:20px;">
+        <div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div><strong>🚨 CAUTION — 임상적 주의</strong><p>의료적 판단은 Diascan 기능의 정보에만 근거해서는 안 됩니다. 다른 많은 요소들을 종합적으로 고려해야 합니다.</p></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
+        <details class="step-card">
+          <summary>
+            <div class="step-num" style="background:rgba(196,138,46,0.12); color:var(--warning);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <div class="step-info">
+              <div class="step-title">신뢰도 저하 요소</div>
+              <div class="step-preview">측정 정확도에 영향을 주는 설정</div>
+            </div>
+            <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </summary>
+          <div class="step-body">
+            <p><strong>이중 바늘 vs 단일 바늘:</strong> 이중 바늘(double needle) 치료에서 측정 결과가 더 신뢰할 수 있습니다.</p>
+            <p><strong>프로파일링 활성:</strong> 소듐 또는 중탄산염 프로파일링이 활성화된 경우 측정이 영향을 받을 수 있습니다.</p>
+          </div>
+        </details>
+
+        <details class="step-card">
+          <summary>
+            <div class="step-num" style="background:rgba(184,80,80,0.12); color:var(--negative);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            </div>
+            <div class="step-info">
+              <div class="step-title">측정 불가 상황</div>
+              <div class="step-preview">UF 관련 모드 활성 시</div>
+            </div>
+            <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </summary>
+          <div class="step-body">
+            <p>다음 상황에서는 클리어런스 측정이 <strong>불가능</strong>합니다:</p>
+            <ul style="padding-left:16px; margin-top:8px;">
+              <li style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">단독 한외여과(Isolated UF) 활성 중</li>
+              <li style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">단계적(Step) UF 활성 중</li>
+              <li style="font-size:0.85rem; color:var(--text-secondary);">주기적(Interval) UF 활성 중</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <details class="step-card">
+        <summary>
+          <div class="step-num">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          </div>
+          <div class="step-info">
+            <div class="step-title">측정 중 조작이 영향을 미치는 항목 전체 목록</div>
+            <div class="step-preview">다음 조작은 진행 중인 측정에 영향을 줍니다</div>
+          </div>
+          <svg class="step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </summary>
+        <div class="step-body">
+          <div class="factor-grid">
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>혈류속도(Qb) 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>혈액펌프 버튼 조작</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>한외여과(UF) 버튼 조작</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Fluid bypass 버튼 조작</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>투석액 소듐 농도 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>투석액 중탄산염 농도 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>투석액 온도 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>투석액 유량(Qd) 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>UF량 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>선형 UF 프로파일 설정 변경</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>선형 UF 프로파일 활성/비활성</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>소듐/중탄산염 프로파일 활성/비활성</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>단독 UF 활성화</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>투석액 bypass 알람 발생</div>
+            <div class="factor-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>혈액펌프 정지 알람 발생</div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── Quick Reference ── -->
+  <section>
+    <div class="section-header reveal">
+      <div class="section-label">Quick Reference</div>
+      <h2 class="section-title">빠른 참조 — 버튼 경로 요약</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:12px;" class="reveal">
+      <div class="kpi-card" style="border-left:3px solid var(--positive);">
+        <div class="kpi-label">K · Kt 측정</div>
+        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.7; margin-top:8px;">
+          Diascan → <strong>Setup 탭</strong> → Interval → 60분/30분/Single → <strong>Confirm</strong>
+        </div>
+      </div>
+      <div class="kpi-card" style="border-left:3px solid var(--accent);">
+        <div class="kpi-label">Kt/V 측정 (수동 V)</div>
+        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.7; margin-top:8px;">
+          Diascan → <strong>Distribution volume (manual)</strong> → 값 입력 → Interval → <strong>Confirm</strong>
+        </div>
+      </div>
+      <div class="kpi-card" style="border-left:3px solid var(--warning);">
+        <div class="kpi-label">Kt/V 측정 (Watson)</div>
+        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.7; margin-top:8px;">
+          Diascan → <strong>Watson 탭</strong> → Enter parameters → 환자 정보 입력 → Interval → <strong>Confirm</strong>
+        </div>
+      </div>
+      <div class="kpi-card" style="border-left:3px solid var(--negative);">
+        <div class="kpi-label">알람 / 목표치 설정</div>
+        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.7; margin-top:8px;">
+          Diascan → Setup 탭 → <strong>Alarm settings</strong> → K limit / Kt/V limit / Kt/V target → 값 입력 → OK → <strong>Activate</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<script>
+/* ── Theme ── */
+var currentTheme = localStorage.getItem('viz-theme') ||
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(currentTheme);
+
+function applyTheme(t) {
+  document.documentElement.className = 'theme-' + t;
+  currentTheme = t;
+  localStorage.setItem('viz-theme', t);
+}
+function cycleTheme() {
+  applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+  toggleMenu();
+}
+
+/* ── Menu ── */
+function toggleMenu() {
+  var d = document.getElementById('vizMenuDropdown');
+  d.classList.toggle('open');
+  var btn = document.querySelector('.viz-menu-toggle');
+  btn.setAttribute('aria-expanded', d.classList.contains('open'));
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.viz-menu')) {
+    var d = document.getElementById('vizMenuDropdown');
+    if (d) d.classList.remove('open');
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var d = document.getElementById('vizMenuDropdown');
+    if (d) d.classList.remove('open');
+  }
+});
+
+/* ── Scroll to section ── */
+function scrollTo(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var offset = 60;
+    var top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  }
+  /* update active filter btn */
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+    if (btn.dataset.section === id) btn.classList.add('active');
+  });
+}
+
+/* ── Scroll Reveal ── */
+var revealObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+/* ── Filter active tracking on scroll ── */
+var sections = document.querySelectorAll('section[data-section]');
+var scrollObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      var id = e.target.getAttribute('data-section');
+      document.querySelectorAll('.filter-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.section === id);
+      });
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-60px 0px -40% 0px' });
+sections.forEach(function(s) { scrollObserver.observe(s); });
+
+/* ── Download PNG ── */
+function downloadImage() {
+  if (typeof htmlToImage === 'undefined') { alert('html-to-image 라이브러리를 로딩 중입니다. 잠시 후 다시 시도하세요.'); return; }
+  htmlToImage.toPng(document.body, { cacheBust: true })
+    .then(function(dataUrl) {
+      var a = document.createElement('a');
+      a.download = 'ak98-diascan-guide.png';
+      a.href = dataUrl;
+      a.click();
+    });
+  toggleMenu();
+}
+</script>
+</body>
+</html>
