@@ -150,16 +150,16 @@ body::before {
 }
 .theme-light .hero {
   background:
-    radial-gradient(ellipse 130% 180% at -10% 60%, rgba(210,110,75,0.48) 0%, rgba(230,155,120,0.22) 45%, transparent 75%),
-    radial-gradient(ellipse 100% 150% at 20% -10%, rgba(220,130,95,0.28) 0%, transparent 65%),
-    linear-gradient(110deg, rgba(235,165,130,0.20) 0%, rgba(251,248,244,0) 70%);
+    radial-gradient(ellipse 130% 180% at -10% 60%, rgba(168,88,60,0.58) 0%, rgba(184,124,96,0.26) 45%, transparent 75%),
+    radial-gradient(ellipse 100% 150% at 20% -10%, rgba(176,104,76,0.34) 0%, transparent 65%),
+    linear-gradient(110deg, rgba(188,132,104,0.24) 0%, rgba(251,248,244,0) 70%);
   background-color: var(--bg);
 }
 .theme-dark .hero {
   background:
-    radial-gradient(ellipse 80% 120% at 0% 50%, rgba(180,80,45,0.5) 0%, rgba(140,60,30,0.25) 35%, transparent 65%),
-    radial-gradient(ellipse 60% 100% at 15% 0%, rgba(160,70,35,0.3) 0%, transparent 55%),
-    linear-gradient(105deg, rgba(120,50,20,0.2) 0%, rgba(21,13,7,0) 55%);
+    radial-gradient(ellipse 80% 120% at 0% 50%, rgba(144,64,36,0.60) 0%, rgba(112,48,24,0.30) 35%, transparent 65%),
+    radial-gradient(ellipse 60% 100% at 15% 0%, rgba(128,56,28,0.36) 0%, transparent 55%),
+    linear-gradient(105deg, rgba(96,40,16,0.24) 0%, rgba(21,13,7,0) 55%);
   background-color: var(--bg);
 }
 .hero::after {
@@ -562,28 +562,28 @@ details.step-card[open] .step-chevron { transform: rotate(90deg); }
 <!-- ── Sticky Filter ── -->
 <nav class="sticky-filter" aria-label="섹션 필터">
   <div class="filter-inner">
-    <button class="filter-btn active" onclick="scrollTo('overview')" data-section="overview">
+    <button class="filter-btn active" onclick="scrollToSection('overview')" data-section="overview">
       <span class="filter-dot" style="background:#D4633A"></span>개요
     </button>
-    <button class="filter-btn" onclick="scrollTo('params')" data-section="params">
+    <button class="filter-btn" onclick="scrollToSection('params')" data-section="params">
       <span class="filter-dot" style="background:#C48A2E"></span>3가지 파라미터
     </button>
-    <button class="filter-btn" onclick="scrollTo('kkt')" data-section="kkt">
+    <button class="filter-btn" onclick="scrollToSection('kkt')" data-section="kkt">
       <span class="filter-dot" style="background:#5B8A5E"></span>K · Kt 확인
     </button>
-    <button class="filter-btn" onclick="scrollTo('ktv')" data-section="ktv">
+    <button class="filter-btn" onclick="scrollToSection('ktv')" data-section="ktv">
       <span class="filter-dot" style="background:#D4633A"></span>Kt/V 확인
     </button>
-    <button class="filter-btn" onclick="scrollTo('history')" data-section="history">
+    <button class="filter-btn" onclick="scrollToSection('history')" data-section="history">
       <span class="filter-dot" style="background:#B08070"></span>측정 기록
     </button>
-    <button class="filter-btn" onclick="scrollTo('target')" data-section="target">
+    <button class="filter-btn" onclick="scrollToSection('target')" data-section="target">
       <span class="filter-dot" style="background:#C48A2E"></span>목표치 설정
     </button>
-    <button class="filter-btn" onclick="scrollTo('alarm')" data-section="alarm">
+    <button class="filter-btn" onclick="scrollToSection('alarm')" data-section="alarm">
       <span class="filter-dot" style="background:#B85050"></span>알람 설정
     </button>
-    <button class="filter-btn" onclick="scrollTo('factors')" data-section="factors">
+    <button class="filter-btn" onclick="scrollToSection('factors')" data-section="factors">
       <span class="filter-dot" style="background:#7A4A35"></span>주의사항
     </button>
   </div>
@@ -1181,7 +1181,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ── Scroll to section ── */
-function scrollTo(id) {
+function scrollToSection(id) {
   var el = document.getElementById(id);
   if (el) {
     var offset = 60;
