@@ -1062,7 +1062,7 @@ const NOTICE_TITLE   = '업데이트 안내';
 const NOTICE_BODY    = `
   <p>Techwiki 로그인 보안이 강화되었습니다.</p>
   <ul>
-    <li>Device info <b> Artis CRC 가이드 </b> 업데이트 됐습니다</li>
+    <li><b>의견 & 제안 게시판이 </b> 업데이트 됐습니다</li>
   </ul>
   <p style="margin-top:12px; font-size:13px; color:#999;">
     문의사항 및 요청사항은 관리자에게 문의하세요
@@ -1123,6 +1123,11 @@ window.closeNotice = function() {
               <circle cx="9" cy="10" r="1.5"/>
               <path d="M13 8h4M13 11h4"/>
             </svg>`,
+    serviceplan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>`,
   };
 
   /* ── Data ────────────────────────────────────── */
@@ -1172,6 +1177,17 @@ window.closeNotice = function() {
       desc: '보유 장비 정보를 검색하고 상세 사양을 확인합니다.',
       items: [
         { label: 'Vantive Equipment Viewer', file: 'Vantive_Equipment_Viewer.html' },
+      ]
+    },
+    {
+      id: 'serviceplan', label: 'Service Plan', icon: SVG.serviceplan,
+      desc: '서비스 플랜 및 파트너 프로그램',
+      items: [
+        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
+        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
+        { label: 'Prismaflex Technical Services Partner Advantage (KOR)', file: 'Prismaflex_TSPA_Brochure_KOR_RevC.pdf' },
+        { label: 'PrisMax Technical Services Partner Advantage (KOR)',    file: 'PrisMax_TSPA_Brochure_KOR_RevB.pdf' },
+        { label: 'WRO300 Technical Services Partner Advantage (KOR)',     file: 'WRO300_TSPA_Brochure_KOR_RevC.pdf' },
       ]
     }
   ];
@@ -1590,12 +1606,18 @@ window.closeNotice = function() {
   })();
 
   /* ── Load page ───────────────────────────────── */
+  const FRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals allow-popups-to-escape-sandbox';
   function loadPage(file, linkEl) {
     if (activeLink) activeLink.classList.remove('active');
     activeLink = linkEl;
     if (linkEl && linkEl.classList) linkEl.classList.add('active');
     welcome.style.display = 'none';
     frame.style.display = 'block';
+    // PDF는 브라우저 내장 뷰어(플러그인)로 렌더링되는데, sandbox가 걸리면 차단되어
+    // 흰 화면만 나온다. PDF일 때만 sandbox를 해제하고 그 외에는 다시 적용한다.
+    const isPdf = /\.pdf(?:[?#]|$)/i.test(file);
+    if (isPdf) frame.removeAttribute('sandbox');
+    else       frame.setAttribute('sandbox', FRAME_SANDBOX);
     frame.src = file + '?v=' + Date.now();
   }
 
