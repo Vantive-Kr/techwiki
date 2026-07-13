@@ -326,19 +326,22 @@
     /* ── Top nav (vantive.com 스타일 pill 메뉴) ── */
     .welcome-topnav {
       width: 100%;
-      display: flex; flex-wrap: wrap;
-      justify-content: center; align-items: center;
-      gap: 4px;
+      display: flex; flex-wrap: nowrap;         /* 항상 한 줄 (두 줄 방지) */
+      justify-content: safe center; align-items: center;
+      gap: 2px;
       padding: 18px 0 14px;
       border-bottom: 1.5px solid rgba(114,37,107,0.12);
+      overflow-x: auto;                         /* 좁은 창에서도 줄바꿈 대신 한 줄 유지 */
+      scrollbar-width: none;                    /* 스크롤바 숨김 (Firefox) */
     }
+    .welcome-topnav::-webkit-scrollbar { display: none; }  /* 스크롤바 숨김 (WebKit) */
     .topnav-item {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 14px;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 11px 10px; flex: 0 0 auto;
       border: none; background: transparent; cursor: pointer;
       border-radius: 999px;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      font-size: 15px; font-weight: 700;
+      font-size: 14px; font-weight: 700;
       color: var(--plum); letter-spacing: -0.2px;
       white-space: nowrap;
       transition: background var(--transition), color var(--transition);
