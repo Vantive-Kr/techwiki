@@ -40,7 +40,7 @@
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       height: var(--header-h);
-      background: #72256B;           /* exact match to vantive logo.png bg */
+      background: linear-gradient(90deg, #72256B 0%, #7D2977 55%, #9B3690 100%);  /* left matches vantive logo.png bg, brightens toward right */
       border-bottom: 1px solid rgba(0,0,0,0.18);
       display: flex; align-items: center; gap: 10px;
       padding: 0 20px;
@@ -1001,7 +1001,7 @@
 
       <!-- Brand banner: Champion of Positive Change -->
       <div class="welcome-brand-banner">
-        <img src="vantive_image02.png"
+        <img src="vantive_image01.png"
              alt="Vantive — Champion of Positive Change">
       </div>
     </div>
@@ -1184,7 +1184,7 @@ window.closeNotice = function() {
     },
     {
       id: 'serviceplan', label: 'Service Plan', icon: SVG.serviceplan,
-      desc: '서비스 플랜 및 파트너 프로그램에 대한 정보를 확인합니다',
+      desc: '서비스 플랜 및 파트너 프로그램',
       items: [
         { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
