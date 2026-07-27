@@ -1022,9 +1022,9 @@
         </h2>
       </div>
 
-      <!-- Brand banner: Champion of Positive Change -->
+      <!-- Brand banner: Champion of Positive Change (주 1회 자동 교체 — 아래 rotateBanner 참조) -->
       <div class="welcome-brand-banner">
-        <img src="vantive_image02.png"
+        <img id="brand-banner-img" src="vantive_image01.png"
              alt="Vantive — Champion of Positive Change">
       </div>
     </div>
@@ -1118,6 +1118,50 @@ window.closeNotice = function() {
   overlay.style.transition = 'opacity .18s';
   setTimeout(() => { overlay.style.display = 'none'; overlay.style.opacity = ''; overlay.style.transition = ''; }, 180);
 };
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *  🖼️ 메인 배경 이미지 주 1회 자동 교체  ← 여기만 수정하세요
+ *
+ *  BANNER_START   : 교체 시작일 (이 날짜가 속한 주부터 1번 이미지)
+ *                   반드시 '월요일' 날짜로 지정
+ *  BANNER_IMAGES  : 순환할 이미지 목록 (위에서부터 매주 순서대로,
+ *                   끝나면 다시 처음으로). 파일 추가/삭제 시 여기만 수정
+ *
+ *  동작: 시작일 전에는 목록의 첫 이미지, 시작일부터 매주 월요일 0시에
+ *        다음 이미지로 자동 교체됩니다. (서버 없이 브라우저에서 계산)
+ *        파일이 없으면 첫 이미지로 자동 대체됩니다.
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const BANNER_START  = '2026-08-03';          // 월요일부터 적용
+const BANNER_IMAGES = [
+  'vantive_image01.png', 'vantive_image02.png', 'vantive_image03.png',
+  'vantive_image04.png', 'vantive_image05.png', 'vantive_image06.png',
+  'vantive_image07.png', 'vantive_image08.png', 'vantive_image09.png',
+  'vantive_image10.png',
+];
+
+/* ── 배경 교체 로직 (수정 불필요) ─────────────── */
+function rotateBanner() {
+  const img = document.getElementById('brand-banner-img');
+  if (!img || !BANNER_IMAGES.length) return;
+
+  // 로컬 자정 기준으로 날짜만 비교 (시간대·서머타임 영향 제거)
+  const parts = BANNER_START.split('-').map(Number);
+  const start = new Date(parts[0], parts[1] - 1, parts[2]);
+  const now   = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const DAY_MS  = 86400000;
+  const weeks   = Math.floor((today - start) / (DAY_MS * 7));
+  const index   = weeks < 0 ? 0 : weeks % BANNER_IMAGES.length;  // 시작 전 → 첫 이미지
+  const nextSrc = BANNER_IMAGES[index];
+
+  // 파일이 없을 때 첫 이미지로 폴백 (무한 루프 방지 위해 1회만)
+  img.onerror = function () {
+    img.onerror = null;
+    if (img.getAttribute('src') !== BANNER_IMAGES[0]) img.src = BANNER_IMAGES[0];
+  };
+  if (img.getAttribute('src') !== nextSrc) img.src = nextSrc;
+}
 
   /* ── SVG Icons (CRRT bottom-nav style: outline, stroke-width 2, round caps) ── */
   const SVG = {
@@ -1779,6 +1823,7 @@ window.closeNotice = function() {
     const expiry = parseInt(sessionStorage.getItem(SESSION_EXP) || '0');
     if (sessionStorage.getItem(SESSION_KEY) === '1' && expiry > now) {
       gate.style.display = 'none';
+      rotateBanner();
       showNoticeIfNeeded();
       return;
     }
@@ -1915,7 +1960,7 @@ window.closeNotice = function() {
         sessionStorage.setItem(SESSION_KEY, '1');
         sessionStorage.setItem(SESSION_EXP, String(exp));
         gate.classList.add('hiding');
-        setTimeout(() => { gate.style.display = 'none'; showNoticeIfNeeded(); }, 300);
+        setTimeout(() => { gate.style.display = 'none'; rotateBanner(); showNoticeIfNeeded(); }, 300);
 
       } else {
         // ❌ 인증 실패
