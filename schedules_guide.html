@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Schedules 메뉴 사용 가이드 · Vantive</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   Vantive Techwiki — Schedules Guide
+   Design language: 2026-07-22-korea-midyear-communication.html
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* — brand constants — */
+  --plum:#72256B; --plum-deep:#58184F; --plum-soft:#A4599C;
+  --cream:#FFFAEB; --pine:#105742; --eucalyptus:#6CA07A; --sage:#CDDFD7;
+
+  /* — light theme tokens (reference 정본) — */
+  --bg:#F6F0EA;
+  --surface:#FFFFFF;
+  --surface-hover:#FFFAEB;
+  --border:rgba(114,37,107,0.14);
+  --border-strong:rgba(114,37,107,0.26);
+  --text:#1B1219;
+  --text-secondary:#6B5468;
+  --text-muted:#7A6478;          /* reference #9B879A darkened → AA for small text */
+  --accent:#72256B;
+  --accent-secondary:#6CA07A;
+  --positive:#105742;
+  --negative:#9A2F38;
+  --warning:#8A5A12;
+  --info:#0B5563;
+
+  /* — tints (all paired fg/bg verified ≥ 4.5:1) — */
+  --accent-tint:rgba(114,37,107,0.10);
+  --accent-tint-strong:rgba(114,37,107,0.16);
+  --positive-tint:rgba(16,87,66,0.12);
+  --warning-tint:rgba(176,125,46,0.16);
+  --negative-tint:rgba(174,64,72,0.12);
+  --info-tint:rgba(11,85,99,0.12);
+
+  /* — geometry — */
+  --r:14px; --r-md:12px; --r-sm:10px; --r-xs:6px;
+  --shadow:0 2px 14px rgba(27,18,25,0.05);
+  --shadow-lift:0 4px 20px rgba(114,37,107,0.09);
+
+  --font-sans:'Noto Sans KR','Inter',-apple-system,BlinkMacSystemFont,
+    'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',Roboto,
+    'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+
+  /* — legacy aliases (inline styles in body reference these) — */
+  --plum-d:var(--plum-deep);
+  --plum-light:var(--accent-tint);
+  --plum-mid:rgba(114,37,107,0.22);
+  --cream-mid:#F3EADD;
+  --pine-light:var(--positive-tint);
+  --euca:#4E7D5D;
+  --euca-light:rgba(108,160,122,0.18);
+  --amber:var(--warning);
+  --amber-light:var(--warning-tint);
+  --teal:var(--info);
+  --teal-light:var(--info-tint);
+  --white:var(--surface);
+  --text2:var(--text-secondary);
+  --text3:var(--text-muted);
+  --border-p:var(--border-strong);
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--font-sans);
+  background:var(--bg); color:var(--text);
+  font-size:0.9375rem; line-height:1.7;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img { max-width:100%; }
+
+/* ── PAGE HEADER ── */
+.page-hdr {
+  background:linear-gradient(90deg,#58184F 0%,#72256B 26%,#105742 62%,#6CA07A 100%);
+  padding:1.5rem 2rem 2.5rem;
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column; align-items:center;
+  box-shadow:0 2px 16px rgba(88,24,79,0.22);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.page-hdr::before {
+  content:''; position:absolute; top:-70px; right:-50px;
+  width:250px; height:250px; border-radius:50%;
+  background:rgba(255,255,255,0.06); pointer-events:none;
+}
+.page-hdr::after {
+  content:''; position:absolute; bottom:-90px; left:-40px;
+  width:200px; height:200px; border-radius:50%;
+  background:rgba(255,255,255,0.05); pointer-events:none;
+}
+.page-hdr-img {
+  height:26px; width:auto; display:block; opacity:0.95;
+  align-self:flex-start; margin-bottom:1.75rem; position:relative; z-index:2;
+}
+.page-hdr-logo {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  color:rgba(255,255,255,0.72); margin-bottom:0.75rem;
+  padding:5px 14px; border-radius:20px;
+  background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.24);
+  position:relative; z-index:2;
+}
+.page-hdr h1 {
+  font-size:1.75rem; font-weight:800; color:#fff;
+  letter-spacing:-0.02em; line-height:1.3; margin-bottom:0.625rem;
+  text-align:center; position:relative; z-index:2;
+}
+.page-hdr p {
+  font-size:0.875rem; color:rgba(255,250,235,0.82); max-width:34rem;
+  text-align:center; position:relative; z-index:2; line-height:1.7;
+}
+.guide-badge {
+  display:inline-block; margin-top:1.125rem;
+  background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.30);
+  color:#fff; font-size:0.75rem; font-weight:600;
+  padding:5px 16px; border-radius:20px; letter-spacing:0.04em;
+  position:relative; z-index:2;
+}
+
+/* ── TOC ── */
+.toc {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:0.75rem 1.5rem; display:flex; gap:8px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:100;
+}
+.toc-item {
+  display:flex; align-items:center; gap:7px;
+  font-size:0.8125rem; font-weight:500; color:var(--text-secondary);
+  padding:5px 12px 5px 6px; border-radius:20px;
+  background:var(--bg); text-decoration:none;
+  border:1px solid var(--border); transition:background .15s, color .15s, border-color .15s;
+}
+.toc-item:hover { background:var(--surface-hover); color:var(--accent); border-color:var(--border-strong); }
+.toc-num {
+  flex-shrink:0; width:20px; height:20px; border-radius:var(--r-xs);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.6875rem; font-weight:800; line-height:1;
+  background:var(--accent-tint); color:var(--accent);
+}
+
+/* ── CONTENT ── */
+.content { max-width:60rem; margin:0 auto; padding:2.5rem 1.5rem 4rem; }
+
+/* ── SECTION ── */
+.section { margin-bottom:3.5rem; scroll-margin-top:4rem; }
+.sec-label {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:0.75rem;
+}
+.sec-num {
+  flex-shrink:0; width:24px; height:24px; border-radius:var(--r-xs);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; font-weight:800; line-height:1;
+  background:var(--accent-tint); color:var(--accent);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.section h2 { font-size:1.5rem; font-weight:700; letter-spacing:-0.02em; color:var(--text); margin-bottom:0.5rem; line-height:1.3; }
+.section > .desc { font-size:0.9375rem; color:var(--text-secondary); margin-bottom:1.5rem; line-height:1.7; }
+.section > .desc strong { color:var(--text); font-weight:600; }
+.sub-h {
+  font-size:1rem; font-weight:600; color:var(--text); margin:2rem 0 0.875rem;
+  display:flex; align-items:center; gap:9px; letter-spacing:-0.01em;
+}
+.sub-h svg { width:18px; height:18px; stroke:var(--accent); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+/* ── FRAME ── */
+.frame {
+  background:var(--surface); border-radius:var(--r);
+  border:1px solid var(--border); box-shadow:var(--shadow);
+  overflow:hidden; margin-bottom:1.25rem;
+}
+.frame-title {
+  background:var(--surface-hover); border-bottom:1px solid var(--border);
+  padding:0.625rem 1rem; font-size:0.75rem; font-weight:700; color:var(--text-secondary);
+  letter-spacing:0.04em; display:flex; align-items:center; gap:8px;
+}
+.frame-title::before { content:''; width:16px; height:1.5px; background:var(--accent); border-radius:1px; flex-shrink:0; }
+.frame-body { padding:1.375rem; }
+.frame-body.tight { padding:0.875rem; }
+
+/* ── MENU TREE DIAGRAM ── */
+.tree { padding:2px; }
+.tree-root {
+  display:inline-flex; align-items:center; gap:9px;
+  background:var(--surface-hover); color:var(--accent);
+  border:1px solid var(--border-strong);
+  font-size:0.9375rem; font-weight:700;
+  padding:9px 16px; border-radius:var(--r-sm);
+}
+.tree-root svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.tree-branches { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+.tree-group {
+  border:1px solid var(--border); border-radius:var(--r-md);
+  overflow:hidden; background:var(--surface); border-top:3px solid var(--accent);
+}
+.tree-group.alt { border-top-color:var(--positive); }
+.tg-head {
+  padding:0.75rem 1rem 0.5rem; font-size:0.875rem; font-weight:700; color:var(--accent);
+  display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+}
+.tree-group.alt .tg-head { color:var(--positive); }
+.tg-head .cnt {
+  font-size:0.6875rem; font-weight:700; color:var(--text-muted);
+  background:var(--bg); border:1px solid var(--border);
+  padding:2px 9px; border-radius:20px; white-space:nowrap;
+}
+.tg-purpose {
+  padding:0 1rem 0.75rem; font-size:0.8125rem; color:var(--text-secondary); line-height:1.65;
+  border-bottom:1px solid var(--border);
+}
+.tg-purpose b { color:var(--text); font-weight:600; }
+.tg-items { list-style:none; }
+.tg-items li {
+  padding:0.75rem 1rem; border-bottom:1px solid var(--border);
+  font-size:0.8125rem; line-height:1.6;
+}
+.tg-items li:last-child { border-bottom:none; }
+.tg-items b { display:block; font-size:0.875rem; font-weight:600; color:var(--text); margin-bottom:2px; }
+.tg-items span { color:var(--text-secondary); font-size:0.8125rem; }
+.pin {
+  display:inline-block; font-size:0.6875rem; font-weight:700; letter-spacing:0.02em;
+  padding:1px 8px; border-radius:20px; margin-left:6px; vertical-align:1px;
+  background:var(--warning-tint); color:var(--warning);
+}
+.pin.reg { background:var(--info-tint); color:var(--info); }
+.pin.cal { background:var(--positive-tint); color:var(--positive); }
+
+/* ── HORIZONTAL FLOW DIAGRAM ── */
+.flow { display:flex; align-items:stretch; gap:0; flex-wrap:nowrap; overflow-x:auto; padding:2px 2px 6px; }
+.flow-node {
+  flex:1 1 0; min-width:0;
+  background:var(--surface-hover); border:1px solid var(--border); border-radius:var(--r-md);
+  padding:1rem 0.75rem; text-align:center; position:relative;
+}
+.fn-ico {
+  width:38px; height:38px; border-radius:var(--r-sm); margin:0 auto 0.625rem;
+  background:transparent; border:1px solid var(--border-strong); color:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+}
+.flow-node.pine .fn-ico { border-color:rgba(16,87,66,0.28); color:var(--positive); }
+.fn-ico svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.fn-step {
+  font-size:0.6875rem; font-weight:700; letter-spacing:0.1em; color:var(--accent);
+  margin-bottom:4px; text-transform:uppercase;
+}
+.flow-node.pine .fn-step { color:var(--positive); }
+.fn-title { font-size:0.875rem; font-weight:600; color:var(--text); line-height:1.4; margin-bottom:4px; }
+.fn-desc { font-size:0.8125rem; color:var(--text-secondary); line-height:1.55; }
+.fn-who {
+  display:inline-block; margin-top:0.5rem; font-size:0.6875rem; font-weight:700;
+  padding:2px 10px; border-radius:20px;
+  background:var(--surface); border:1px solid var(--border); color:var(--text-secondary);
+}
+.fn-who.auto { background:var(--positive-tint); border-color:transparent; color:var(--positive); }
+.fn-who.partner { background:var(--warning-tint); border-color:transparent; color:var(--warning); }
+.flow-arrow { flex:0 0 26px; display:flex; align-items:center; justify-content:center; color:var(--accent); opacity:.55; }
+.flow-arrow svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* ── ANNOTATED MOCKUP ── */
+.anno-row { display:grid; grid-template-columns:1fr 1px 20rem; gap:0; }
+.anno-ui { align-self:start; }
+.anno-divider { background:var(--border); }
+.anno-list { padding-left:1.25rem; align-self:start; }
+.anno-item {
+  display:flex; gap:11px; align-items:flex-start;
+  padding:0.75rem 0.875rem; margin-bottom:0.625rem;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md);
+}
+.anno-item:last-child { margin-bottom:0; }
+
+/* Badge — reference `.agenda-num` pattern:
+   tinted background + solid accent glyph + 8px rounded square + flex centering.
+   accent #72256B on 10% tint over #FFFFFF (#F1E9F0) = 8.05:1 (WCAG AAA). */
+.anno-item > .anno-dot {
+  flex-shrink:0; width:26px; height:26px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.8125rem; font-weight:800; line-height:1;
+  font-family:'Inter',var(--font-sans);
+  background:var(--accent-tint); color:var(--accent);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.anno-item > div > strong { display:block; font-size:0.875rem; font-weight:600; color:var(--text); margin-bottom:3px; }
+.anno-item > div > span { font-size:0.8125rem; color:var(--text-secondary); line-height:1.65; display:block; }
+.anno-item > div > span b { color:var(--text); font-weight:600; }
+/* colour classes retained for markup compatibility — deliberately identical:
+   items are distinguished by their glyph, not by hue. */
+.anno-item > .d-a, .anno-item > .d-b, .anno-item > .d-c,
+.anno-item > .d-d, .anno-item > .d-e, .anno-item > .d-f { background:var(--accent-tint); color:var(--accent); }
+
+/* Marker stamped on the mockup — same shape language, ring keeps it legible
+   on any mockup surface. accent #72256B on #FFFFFF = 9.58:1. */
+.mark-host { position:relative; }
+.anno-mark {
+  position:absolute; top:50%; right:-11px; transform:translateY(-50%);
+  width:22px; height:22px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.6875rem; font-weight:800; line-height:1;
+  font-family:'Inter',var(--font-sans);
+  background:var(--surface); color:var(--accent);
+  border:1.5px solid var(--accent);
+  box-shadow:0 0 0 2px var(--surface), 0 1px 5px rgba(27,18,25,0.22);
+  z-index:4; pointer-events:none;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+
+/* ── PHONE-ISH FORM MOCKUP ── */
+.ui-app { max-width:20.5rem; margin:0 auto; }
+.ui-app-hdr {
+  background:linear-gradient(120deg,#58184F 0%,#72256B 55%,#105742 130%);
+  padding:0.875rem 1rem; border-radius:var(--r-md) var(--r-md) 0 0;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.ui-app-hdr .badge {
+  display:inline-block; font-size:0.6875rem; font-weight:700; letter-spacing:0.02em;
+  color:#fff; background:rgba(255,255,255,0.18);
+  border:1px solid rgba(255,255,255,0.30); padding:2px 10px; border-radius:20px; margin-bottom:7px;
+}
+.ui-app-hdr h4 { font-size:1rem; font-weight:700; color:#fff; letter-spacing:-0.01em; }
+.ui-app-hdr .sub { font-size:0.625rem; color:rgba(255,250,235,0.62); font-weight:600; letter-spacing:0.1em; margin-top:2px; }
+.ui-app-body {
+  background:var(--surface); border:1px solid var(--border); border-top:none;
+  border-radius:0 0 var(--r-md) var(--r-md); padding:0.875rem;
+}
+.ui-sec-t { font-size:0.6875rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-bottom:0.5rem; }
+.ui-f { margin-bottom:0.5rem; }
+.ui-f label { display:block; font-size:0.6875rem; font-weight:600; color:var(--text-secondary); margin-bottom:4px; }
+.ui-inp {
+  border:1px solid var(--border); border-radius:var(--r-xs); padding:8px 10px;
+  font-size:0.75rem; color:var(--text-muted); background:var(--bg);
+}
+.ui-inp.filled { color:var(--text); font-weight:600; background:var(--surface); }
+.ui-inp.sel { display:flex; align-items:center; justify-content:space-between; }
+.ui-inp.sel::after { content:'▾'; color:var(--text-muted); font-size:0.6875rem; }
+.ui-toggle { display:flex; gap:4px; background:var(--bg); border:1px solid var(--border); border-radius:var(--r-sm); padding:3px; margin-bottom:0.5rem; }
+.ui-toggle div { flex:1; text-align:center; font-size:0.6875rem; font-weight:700; padding:6px 0; border-radius:7px; color:var(--text-secondary); }
+.ui-toggle div.on { background:var(--surface); color:var(--accent); box-shadow:0 1px 3px rgba(27,18,25,0.10); }
+.ui-row2 { display:flex; gap:7px; align-items:center; }
+.ui-row2 .ui-f { flex:1; margin-bottom:0; }
+.ui-row2 .tilde { font-size:0.8125rem; font-weight:700; color:var(--text-muted); }
+.ui-btn {
+  margin-top:0.625rem; padding:10px; border-radius:var(--r-xs); text-align:center;
+  font-size:0.8125rem; font-weight:700; color:#fff; background:var(--accent);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.ui-btn.plum { background:var(--accent); color:#fff; }
+.ui-btn.ghost { background:var(--surface); color:var(--accent); border:1px solid var(--border-strong); }
+.ui-hr { height:1px; background:var(--border); margin:0.875rem 0; }
+.ui-qr {
+  width:104px; height:104px; margin:2px auto 0.625rem; border-radius:var(--r-xs);
+  border:1px solid var(--border-strong);
+  background:
+    repeating-linear-gradient(90deg,var(--accent) 0 7px,transparent 7px 14px),
+    repeating-linear-gradient(0deg,var(--accent) 0 7px,transparent 7px 14px);
+  background-blend-mode:multiply; opacity:.8;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.ui-note { font-size:0.6875rem; color:var(--text-muted); line-height:1.6; margin-top:0.5rem; text-align:center; }
+.ui-link {
+  font-size:0.6875rem; color:var(--accent); font-weight:600; word-break:break-all;
+  background:var(--accent-tint); border-radius:var(--r-xs); padding:8px 10px; text-align:left;
+}
+.ui-alert {
+  background:var(--accent-tint); border:1px solid var(--border-strong); border-radius:var(--r-md);
+  padding:0.75rem; text-align:center; margin-bottom:0.75rem;
+}
+.ui-alert b { display:block; font-size:0.8125rem; font-weight:700; color:var(--accent); }
+.ui-alert span { font-size:0.6875rem; color:var(--accent); }
+.ui-person {
+  background:var(--surface-hover);
+  border:1px solid var(--border); border-top:3px solid var(--positive);
+  border-radius:var(--r-md); padding:1rem 0.75rem; text-align:center; margin-bottom:0.75rem;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.ui-person .role { font-size:0.6875rem; font-weight:700; color:var(--positive); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:5px; }
+.ui-person .nm { font-size:1.375rem; font-weight:800; color:var(--text); letter-spacing:-0.02em; line-height:1.2; }
+.ui-person .ph { font-size:0.9375rem; font-weight:700; color:var(--accent); margin-top:4px; }
+.ui-person .cap { font-size:0.6875rem; color:var(--text-secondary); margin-top:8px; line-height:1.55; }
+.ui-btn.kakao { background:#FEE500; color:#191600; }
+
+/* ── MINI CALENDAR MOCKUP ── */
+.mini-cal { border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--surface); }
+.mc-topbar {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:0.625rem 0.875rem;
+  background:linear-gradient(90deg,#58184F 0%,#72256B 30%,#105742 78%,#6CA07A 100%);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.mc-topbar .t { font-size:0.8125rem; font-weight:700; color:#fff; letter-spacing:0.01em; }
+.mc-topbar .r {
+  font-size:0.6875rem; font-weight:700; color:#fff;
+  background:rgba(255,255,255,0.20); border:1px solid rgba(255,255,255,0.32);
+  padding:2px 10px; border-radius:20px; white-space:nowrap;
+}
+.mc-month {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:0.5rem 0.875rem; border-bottom:1px solid var(--border); background:var(--surface-hover);
+}
+.mc-month .m { font-size:0.875rem; font-weight:700; color:var(--text); }
+.mc-month .nav { display:flex; gap:5px; }
+.mc-month .nav i {
+  min-width:24px; height:24px; border:1px solid var(--border); border-radius:var(--r-xs);
+  display:flex; align-items:center; justify-content:center;
+  font-style:normal; font-size:0.6875rem; font-weight:700; color:var(--accent);
+  background:var(--surface); line-height:1;
+}
+.mc-month .nav i.wide { padding:0 9px; }
+.mc-head { display:grid; grid-template-columns:repeat(7,1fr); background:var(--bg); }
+.mc-head div { text-align:center; padding:6px 0; font-size:0.6875rem; font-weight:700; color:var(--text-secondary); }
+.mc-head div:first-child { color:var(--negative); }
+.mc-head div:last-child { color:var(--positive); }
+.mc-week { position:relative; border-bottom:1px solid var(--border); }
+.mc-week:last-child { border-bottom:none; }
+.mc-days { display:grid; grid-template-columns:repeat(7,1fr); }
+.mc-day { border-right:1px solid var(--border); min-height:62px; padding:5px 0; }
+.mc-day:last-child { border-right:none; }
+.mc-day .n {
+  /* stays a circle — the guide text describes 오늘 as 동그라미 */
+  width:22px; height:22px; margin:0 auto; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.6875rem; font-weight:600; color:var(--text); line-height:1;
+}
+.mc-day.sun .n { color:var(--negative); }
+.mc-day.sat .n { color:var(--positive); }
+.mc-day.today .n { background:var(--accent); color:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.mc-day.other .n { color:var(--text-muted); }
+.mc-bars { position:absolute; left:0; right:0; top:30px; }
+.mc-bar {
+  position:absolute; height:18px; display:flex; align-items:center;
+  padding:0 6px; font-size:0.625rem; font-weight:600; color:#fff;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-radius:4px;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.mc-bar .sep { opacity:.65; margin:0 3px; font-weight:400; }
+.mc-legend { font-size:0.75rem; color:var(--text-secondary); margin-top:0.625rem; display:flex; align-items:center; gap:8px; line-height:1.6; }
+.mc-legend .chip { flex-shrink:0; width:20px; height:9px; border-radius:3px; background:var(--accent); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+/* ── STEP CARDS (timeline vocabulary) ── */
+.steps { display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem; }
+.step {
+  display:flex; gap:0.875rem; align-items:flex-start;
+  background:var(--surface); border-radius:var(--r-md);
+  border:1px solid var(--border); padding:1.125rem 1.25rem;
+}
+.step-num {
+  flex-shrink:0; width:30px; height:30px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.9rem; font-weight:800; line-height:1;
+  font-family:'Inter',var(--font-sans);
+  background:var(--accent-tint); color:var(--accent);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.step.pine .step-num { background:var(--positive-tint); color:var(--positive); }
+.step-body h3 { font-size:0.9375rem; font-weight:600; color:var(--text); margin-bottom:5px; letter-spacing:-0.01em; }
+.step-body p { font-size:0.875rem; color:var(--text-secondary); line-height:1.7; }
+.step-body p b { color:var(--text); font-weight:600; }
+.step-tip {
+  margin-top:0.625rem; font-size:0.8125rem; color:var(--text-secondary);
+  border-left:3px solid var(--accent); background:var(--surface-hover);
+  padding:0.625rem 0.875rem; border-radius:0 var(--r-sm) var(--r-sm) 0; line-height:1.6;
+}
+.step.pine .step-tip { border-left-color:var(--positive); }
+
+/* ── INFO CARDS (feature-card vocabulary) ── */
+.info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:1rem; margin-bottom:1.25rem; }
+.info-card {
+  background:var(--surface); border-radius:var(--r); border:1px solid var(--border);
+  padding:1.375rem; display:flex; flex-direction:column; gap:0.625rem;
+  transition:box-shadow .2s, background .2s;
+}
+.info-card:hover { box-shadow:var(--shadow-lift); background:var(--surface-hover); }
+.info-ico {
+  width:42px; height:42px; border-radius:var(--r-md);
+  background:transparent; border:1px solid var(--border-strong); color:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+}
+.info-ico.pine { border-color:rgba(16,87,66,0.28); color:var(--positive); }
+.info-ico.amber { border-color:rgba(138,90,18,0.32); color:var(--warning); }
+.info-ico svg { width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.info-card h3 { font-size:1rem; font-weight:600; color:var(--text); letter-spacing:-0.01em; }
+.info-card p { font-size:0.875rem; color:var(--text-secondary); line-height:1.7; }
+.info-card p b { color:var(--text); font-weight:600; }
+
+/* ── COMPARE TABLE (scorecard vocabulary) ── */
+.cmp-wrap { overflow-x:auto; border-radius:var(--r); border:1px solid var(--border); background:var(--surface); }
+table.cmp { width:100%; border-collapse:collapse; min-width:34rem; }
+table.cmp th, table.cmp td { padding:0.85rem 1.1rem; text-align:left; border-bottom:1px solid var(--border); font-size:0.875rem; line-height:1.65; vertical-align:top; }
+table.cmp thead th {
+  background:var(--surface-hover); font-size:0.72rem; font-weight:700;
+  color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase;
+}
+table.cmp thead th.c-al { color:var(--accent); }
+table.cmp thead th.c-ws { color:var(--positive); }
+table.cmp tbody th { font-weight:600; color:var(--text); white-space:nowrap; font-size:0.875rem; }
+table.cmp tbody td { color:var(--text-secondary); }
+table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
+.tag { display:inline-block; font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:20px; margin-bottom:4px; }
+.tag.ok { background:var(--positive-tint); color:var(--positive); }
+.tag.no { background:var(--negative-tint); color:var(--negative); }
+.tag.warn { background:var(--warning-tint); color:var(--warning); }
+
+/* ── FAQ ── */
+.faq { display:flex; flex-direction:column; gap:0.75rem; }
+.faq-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.25rem 1.375rem; }
+.faq-q { display:flex; gap:11px; align-items:flex-start; font-size:1rem; font-weight:600; color:var(--text); margin-bottom:0.625rem; letter-spacing:-0.01em; line-height:1.5; }
+.faq-q .qm {
+  flex-shrink:0; width:26px; height:26px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.8125rem; font-weight:800; line-height:1;
+  font-family:'Inter',var(--font-sans);
+  background:var(--accent-tint); color:var(--accent);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.faq-a { font-size:0.875rem; color:var(--text-secondary); line-height:1.75; padding-left:calc(26px + 11px); }
+.faq-a strong { color:var(--text); font-weight:600; }
+.faq-a b { color:var(--text); font-weight:600; }
+
+/* ── TIP BOX (callout vocabulary — 3px left accent border) ── */
+.tip-box {
+  border-left:3px solid var(--accent); border-radius:0 var(--r-sm) var(--r-sm) 0;
+  background:var(--surface); border-top:1px solid var(--border);
+  border-right:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:1rem 1.25rem; margin:1.25rem 0 0; display:flex; gap:11px; align-items:flex-start;
+}
+.tip-box.info { border-left-color:var(--info); }
+.tip-box.warn { border-left-color:var(--warning); }
+.tip-box.success { border-left-color:var(--accent-secondary); }
+.tip-box + .tip-box { margin-top:0.75rem; }
+.tip-ico { flex-shrink:0; margin-top:2px; }
+.tip-ico svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.tip-box.info .tip-ico { color:var(--info); }
+.tip-box.warn .tip-ico { color:var(--warning); }
+.tip-box.success .tip-ico { color:var(--positive); }
+.tip-box p { font-size:0.875rem; color:var(--text-secondary); line-height:1.7; }
+.tip-box strong { font-weight:600; color:var(--text); }
+
+.divider { height:1px; background:var(--border); margin:2.5rem 0; }
+
+.foot {
+  border-top:1px solid var(--border); padding:1.5rem;
+  text-align:center; font-size:0.8125rem; color:var(--text-muted); line-height:1.8;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .anno-row { grid-template-columns:1fr 1px 17rem; }
+}
+@media(max-width:760px){
+  .anno-row { grid-template-columns:1fr; }
+  .anno-divider { display:none; }
+  .anno-list { padding-left:0; padding-top:1.25rem; margin-top:0.5rem; border-top:1px solid var(--border); }
+  .tree-branches { grid-template-columns:1fr; }
+  .flow { flex-direction:column; overflow:visible; }
+  .flow-arrow { flex:0 0 24px; transform:rotate(90deg); }
+  .flow-node { text-align:left; display:flex; gap:0.875rem; align-items:flex-start; padding:0.875rem; }
+  .fn-ico { margin:0; flex-shrink:0; }
+  .fn-body { flex:1; min-width:0; }
+}
+@media(max-width:560px){
+  .toc { display:none; }
+  .page-hdr { padding:1.25rem 1.125rem 1.75rem; }
+  .page-hdr-img { height:22px; margin-bottom:1.125rem; }
+  .page-hdr h1 { font-size:1.3125rem; }
+  .page-hdr p { font-size:0.8125rem; }
+  .content { padding:1.75rem 0.875rem 3rem; }
+  .section { margin-bottom:2.5rem; }
+  .section h2 { font-size:1.25rem; }
+  .frame-body { padding:0.875rem; }
+  .info-card, .faq-item { padding:1.125rem; }
+  .faq-a { padding-left:0; }
+  .mc-day { min-height:54px; }
+  .mc-bar { font-size:0.5625rem; padding:0 4px; }
+  .ui-app { max-width:100%; }
+  .anno-mark { right:-8px; width:20px; height:20px; border-radius:6px; font-size:0.625rem; }
+  table.cmp th, table.cmp td { padding:0.7rem 0.85rem; }
+}
+
+/* ── DARK (opt-in via OS preference only; light is the Techwiki default) ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#150A14;
+    --surface:#1F0F1D;
+    --surface-hover:#2C182A;
+    --border:rgba(205,223,215,0.16);
+    --border-strong:rgba(205,223,215,0.28);
+    --text:#F3EFE4;
+    --text-secondary:#C9B4C6;
+    --text-muted:#A594A3;
+    --accent:#C77BBD;
+    --accent-secondary:#8FC49E;
+    --positive:#7FC49A;
+    --negative:#E08A8A;
+    --warning:#D9AE55;
+    --info:#7FC0CE;
+    --accent-tint:rgba(199,123,189,0.16);
+    --accent-tint-strong:rgba(199,123,189,0.24);
+    --positive-tint:rgba(127,196,154,0.16);
+    --warning-tint:rgba(217,174,85,0.16);
+    --negative-tint:rgba(224,138,138,0.16);
+    --info-tint:rgba(127,192,206,0.16);
+    --cream-mid:#2C182A;
+    --euca:#8FC49E;
+    --shadow:0 2px 14px rgba(0,0,0,0.4);
+    --shadow-lift:0 4px 20px rgba(0,0,0,0.5);
+  }
+  .ui-inp.filled, .ui-toggle div.on, .mc-month .nav i { background:var(--surface-hover); }
+  .ui-btn { color:#1B1219; }
+  .ui-btn.ghost { background:var(--surface); color:var(--accent); }
+  .mc-bar { color:#FFFFFF; }
+  .anno-mark { box-shadow:0 0 0 2px var(--surface), 0 1px 5px rgba(0,0,0,0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+
+/* ── PRINT ── */
+@media print {
+  body { background:#fff; font-size:11.5px; }
+  .toc { display:none; }
+  .content { max-width:100%; padding:16px 0 0; }
+  .section { margin-bottom:26px; page-break-inside:avoid; }
+  .frame, .step, .info-card, .faq-item, .cmp-wrap, .tip-box, .mini-cal { box-shadow:none; page-break-inside:avoid; }
+  .flow { overflow:visible; }
+  .page-hdr { padding:16px 20px 22px; }
+  .divider { margin:20px 0; }
+  a { color:inherit; text-decoration:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ PAGE HEADER ══════════ -->
+<div class="page-hdr">
+  <img class="page-hdr-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJAAAAEQCAYAAADvWI5WAABztUlEQVR42u3ddXhU17o/8O+KuxEhWPAgCcHd3YMUq3tLe+o9bU/hnhq01KhSp9QgwaNAILgHh6CBBALE3WcyM+v3Bz3319PbhmEyuuf7eZ7z9D69zey93rXX3mu/e4mY3+VJEBERERERERER/R0HhoCIiIiIiIiIiBrCBBIRERERERERETWICSQiIiIiIiIiImoQE0hERERERERERNQgJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJqEBNIRERERERERETUICaQiIiIiIiIiIioQUwgERERERERERFRg5hAIiIiIiIiIiKiBjGBREREREREREREDWICiYiIiIiIiIiIGsQEEhERERERERERNYgJJCIiIiIiIiIiahATSERERERERERE1CAmkIiIiIiIiIiIqEFODAERERERkXI1aeaPbsM7y65DwhHUMgC+QT5wdv3r14D6unqUF1WiMLsY6Xsv4vSu86Ikt4xBJCIiiPldnmQUiIiIiIgUpGmboEm9xnVL6jaiM1p0DAWEgT8kgesXc3F65zkc23pmTH5WYSqjS0Rkn5hAIiIiIiJSiICmfpj89GjZd1J3CAdh1N+WOonDiSeQ9FWqKM0vZ7CJiOwME0hERERERDbOw8cd4x4ZJofNHfC309OMpV6lwa5VB7H1x92iprKWwScishNMIBERERER2bCoEV3kvW/NgIePu1mPW11ei1//vQ5ndl8QrAUiIuXjLmxERERERLZIAOMeHS4f+/husyePAMDT1x1PfHIvxj40VLIyiIiUj7uwERERERHZGGdXZ9z75gzZe0I3i56HcBCIfm4cmrVvKle+vUHUqzSsHCIihbK6BJKXvycGz+wj20S1gk8TbwgjDYiVev9LU9H/YDqtDuVFlbh87CrSkk6IqrIaXql21yl0Qs+x3WSXge0REOoPJ2fHv+ixmbQ7aPSfMeQXaypqceNiLvatSwspyC4u4JVBREQEuHu74ZlvHpZhXZtbzTn1mRSFoFZN5BfzV4i6qjpWEhGRAlnVGkjterSWjy+9G17+nqyZ36lq1Nj4yWbsXZvGueV2olP/9vLet2bAP8SXwfidpl6L2EXxOBh/jO2AiIjsmoOjA+Z/fp/sMqijVZ5f+t6L+Pa5X4VOx1ltRESKewZZy4n4hfjgiU/vYfLoT1w9XDB3QTQmzx/Np7Ad6D6qq3x62QNMHv2Jk7Mj7n5jOjr0asN2QEREdm368+OtNnkEABFDwhH93Dg+r4mIFMhqEkgj7x0sPX09WCN/Y8LjI9BlUEc+jBWsSXN/3Pf2TDg4cm37v7xZOQhMmj+KgSAiIrs1ILqXHHnfIKs/z9H3D0G/KT3YbyUiUto7mbWcSOcB7VkbDRHA3NenwsXNmbFQqDn/mirdPF0ZiAa079UGzq5c+5+IiOxPy06he+cuiLaZfuvd/zMNzTs2/ZE1R0SkHFaTQOLoo9tr0twfE58Yya85CtRzTITsOrgjA3G7/qiARbYpJiIisrTpL04Y7OTiaDPn6+TihOkvTHiINUdEpBxWk0AqvF7M2tDDyPsGo1n7kDcYCeVw83LDXf+czEDoQVWjRkVRFQNBRER2pcugjjK8bzubO+/OA9qjU//2/PhJRKQQVpNAOpx4grWhB0cnB8xbOO1NIbgZlVJMfXqM9A32ZiD0kJZ0AlKyH0pERPZDOAhMe26czZ7/tOfGgf1WIiJlsJrFRA4nnRAj7xskQ9sGs1Zuo233Vhg4o7fcv/4In8Y2LqxrC93QOf0YCD3UVauwZfluXvNERCbg6OSImf+cKFt3bXFrvrCN0Wl1OLblNHauOqC450Tfid1l845Nbfb8W3Zuht4Tuskjm07xGU5EZOOsJoGkrdcidlE8nl/+GPiR4vamPTcOp3eeR2UJp/PYKgdHB8xbGC2EAy94fSQuS0VZfjkDQURkAlEju8hhc/rbdBnaRLbEyR1nUZqnrGfF8LsH2H4Z5g3EkU2n2NCIiGz9HdaaTuby8avi4MajrBU9ePi4Y8ZLEziXx4YNm9tftuzcjIHQQ/bZm9gTe4iZNiIiU/UrvN1svxAC8PB2X6akevEP8UWrzs1tvhxhEc3hG+TDhkZEZOMcrO2ENn62RVSWVLNm9NB3YneE92vHJJKNdggnPzWagdCDTqvDqkVx6TqdjsEgIiK7Ejm8s4QCPp8IIRA5rBP7rERENs7qEkg15bXY8PEm1oxeT2Ng7uvRcHZxYixszKxXJ0s3T1cGQg+7Yg7i+vmcSEaCiIjsTdTwzsopy4jOrFAiIhvnYI0nlZZ8Ulw4dIW1o4fgsCYY+8gwftGxIZHDOsuokV0YCD2U5pUj6atUTl0jIiK74+7thg692yimPB37tAM/nhER2TYHaz2x2Hfj/etVGtaQHsY+NAwhrYMGMRLWz9XdBbNfm8xA6GnNkkSoatQMBBER2Z0W4aHS0dlRMeVxcnFEi/BQfvQkIrJhVptAKswuLtvywy7WkJ4P5LkLpu4Dx2lYvUnzR8mAUD8GQg+ndpzD6V3neVUTEZFd8lPgotO+Qd6sWCIiG+ZgzSeX+tMekZtZwFrSQ8c+bdFvcg9+1bFizTuG/jbi7oEMhB7qqlVY834Sk0dERGS3lJhs4U5sRES2zaoTSJp6LWIXxUMyLaKXGS9OgKevBwNhhYSDwN0Lo+9xcHJgMPSQtCwVZfnlDAQREdktX45AIiIiK2P1b7OXj18VB+OOsqb04OXviWnPj2e6zQoNntlXtu7WkoHQQ/a5m9gde4ijj4iIyK5xBBIREVkbmxgOEffpFlFZUs3a0sOAab3QvmdrJpGsiE+gN6KfHctA6EGn1WHVO3HpOp2OwSAiIrvm4eOuwDK5sWKJiGyYTSSQqstrseHjTawtPQgBzF0QDSXt2mHrZr48Ubp7s8Okj90xh3D9fE4kI0FERPauslR5H08rS2pYsURENsxmFmRJSz4pLhy6whrTQ2i7YIy+fzBHIVmBzgM6yN7juzEQeijNK0fiV6mcukZERASgvLBScWWqKKxgxRIR2TCbWtE39t14/3qVhrWmhwmPjUBgiwAGwoKcXZ0x5/WpDISe1ixJhKpGxUAQEREBKFdgsqVMgUkxIiJ7YlMJpMLs4rItP+xirenB2c0Zc/41laOQLGj8Y8NlUEsm8fRxasc5nN51nqOPiIiIfqfEEUjlHIFERGTTbG5P8dSf9oi8zELWnB66DOqAXuMimUSygKZtg+8e88AQBkIPddUqrH0/ickjIiKiPygvUF6yhQkkIiLbZnMJJE29FjGL4iCZFtHLzJcnwd2LCzibkxAC8xZEr+RC5vpJWpaK0vxyBoKIiOgPss/nCHWtWjHlUVWrcf1CLj8YERHZMAdbPOnLx6+Kg3HHWHt68A3yxtRnxjLdZkb9p/aU7Xu1ZiD06Ryfu4ndqw+xM0lERPQn9ap6nDtwWTHlOXfgEjRqrmVKRGTLHGz1xOM+3SIqS6pZg3oYMqsvWke0YBLJDLz8PTH9hfEMhB50WomYd+Iu6bQ6BoOIiOgvnN51TjFlObXzPCuUiMjG2WwCqbq8Bhs+3sQa1INwEJj3P9Pg4OjAYJjY9BfGS08/DwZCD7tjDyL7fE44I0FERPTX0vdcFEr40KLV6HB230WOOCYisnE2nVFISz4pLh6+wlrUQ4vwUIy4eyBHIZlQh95tZP8pPRkIPZTmlSNxWSo7kkRERA2oLq/B5eNXbb4cGUezUFNRywolIrJxNj8kJXZxfEi9ivOp9TFp/ij4N/VlIEzAydkR8xZEA0yJ6GXt+0lQ1agYCCIiotvY9tNemy9D6k97WJFERApg8wmkguzigpQfdrEm9eDq4YLZr07hKCQTGPPQUBnSJoiB0MOpnedxauc5ptqIiIj0cG7/JXExLdNmz//Cwcs4f+gyn/tERAqgiEVxtv20R+RlFrI29dBtRGdEjejCJJIRBbVq4jfukeEMhB7qqlVYuySRnUgiIqI7EPfplnxpg703qZOI+ywljTVIRKQMikggaeq1iFkUB8m0iF5mvToZrh4uDISRzH19aqmzqxMDoYekr1JRml/OQBAREd2B7HM3mx5POW1z5310y2lcv5DTjzVIRKQMitmW6/Lxq+Jg3DHWqB78m/pi8vzRTLcZQZ+JUbJT//YMhF6d3xzsjj3E0UdEREQGiP98q7Clhairy2uQ8MVWPveJiBREUfu6x326RVSVVLNW9TD87gFo0Sl0OyNhOA8fd8x8aSIDoQedViJmUVy+ErYiJiIisoTinFIsfyUWtvAs1Wp0WP7PGJTklrHiiIgURFEJpOryGqxfupm1qk/FOzrg7oXTRgoHfhgyVPSz46R3Ey8GQg+7Yw8i+9zNpowEERGR4S4cuizWf7TJ6s9z3QdJuJiWyU4mEZHCOCitQGlJJ8TFw1dYs3oIi2iBIbP6cSqbAdpGtZKDZvRmIPRQml+OxGWp7EQSEREZwa6Yg2L/+iNWe35716Rhz5rDfO4TESmQgxILFbs4PqRepWHt6mHqM2PgG+TNQNwBRycHzF0YDY7e0s/aJUlQ1agYCCIiIiNZvSRRnNiWbnXndSzlDNZ+kMQOEhGRQikygVSQXVyQsnwXa1cP7l5uuOvlSRyFdAdG3jtINu/A2Vj6OL3zPE7tPMeOJBERkRFp67VY/kqs2PTNDqvYhVhKiaSvUrHitdVCq9GygoiIFMpBqQXbtmKPyMssZA3roee4SHQZ1JFJJD00aeaPiU+MYiD0oKpRY837iUweERERmYCUEsnfbBfLX4mBurbeos/7H16Owebvdgop2Z0kIlIyxSaQNPVaxCyOA59j+pnzr6lwcXNmIG5j9mtTpIs746SPxGXbUJpXzkAQERGZ0Ilt6WLpQ9+l5V4pMPuxcy7nY+mD3607uf0sPxgREdkBByUX7vKxq+JQ/DHWsh4CW/hj/GMjmG5rQI/RXWXE0HAGQg/Z53KwO/YQO5NERERmcP1CTr93Z38hVr61EWUFFSY/Xll+BX57YwPem/2luHEpdxZrgIjIPjgovYAbP9kiqkqqWdN6GH3/YIS2C3mOkfi/3DxdcdcrkxkIPei0EjGL4vJ1Wh2DQUREZLbnrw4HNh4Vb01dKhK+2IrayjqjH6O2sg7xn6XgzalLxcH4Y0Kn47OeiMieKD6BVF1eg/VLN7Om9eDo7Ih5C6M/FYIDR/5sytNjpF+wDwOhh92xB5F97iZXGSciIrIAdV09UpbvFgsnfChWvLYax1LOoK7K8N1Qa6vqcHTLafz46mosHP+B2Lpij6hX1TPQRER2yMkeCpmWdEL0n9JDhvdrxxq/jXY9wjBgWi95YONRZpF+16pL87yhc/ozEHooza9A0lepvHaIiIgsrO5W4kcc3XIaTs6O6Ninrew6JBxBLZvAN8gbvkE+8PLzgHC49diWOomqsmqUF1aivLAShdnFSN97EZeOZgptPXdWIyIiO0kgAUDs4oSWr6995rqzqxNr/TamPT8ep3edR1Upp/45ODhg3sJpIQ6OzInoY+37iairVjEQREREVkRTr8W5Axni3IGM//r3jk6O8An0AgBUFFVBq2GiiIiIGng/tpeCFmQX3UhZvos1rgdPX3fMeHECF9QGMGxuf9mqSzMGQg+nd57HqR3nmGkjIiKyEVqNFqV55SjNK2fyiIiIbsvBngq7bcUekZdVyFrXQ7/JPdCxT1u7TiL5Bftg8tOjeTHoQVWjxpr3E5k8IiIiIiIiUii7SiBp6rWIXRQPybE1tyeAuQui4eRiv1P+Zr0yWbp5uvJa0EPSV6kozStnIIiIiIiIiBTKwd4KnHEsSxyKP8aa10NI60CMfWioXabbIoZ2kt1Hd+VFoIfr53OwK+YgRx8REREREREpmIM9FnrjJ1sEF4jWz7hHhiE4LLCDPZXZxd0Fc16bwsrXg04rseqduHydVsdgEBERERERKZhdJpCqy2uw4ePNrH09OLk4Ye7rUy/ZU5knPTFSBjTzY+XrYffqg8g+d7MpI0FERERERKRsDvZa8MNJJ8TFtCu8AvQQ3q8d+k7qbhdT2Zp3aLpsxL2DWOl6KMuvQNKyVE5dIyIiIiIisgMO9lz42MUJHTUqDa8CPcx4aSI8fNwVXUYhBOYtjH7K0cmBFa6HNe8noq5axUAQERERERHZAbt+Uy64VpSxZfluXgV68A7wxLTnxyt6FNKgmX1km6hWrGw9nN51Hqd2nOPoIyIiIiIiIjth90Mttq3YLfKyCnkl6GHg9F5o1z1MkUkknyZeiH52LCtZD6oaNdYsSWTyiIiIiIiIyI442XsANPVaxC6Kx3M/PArBV+IGCSEwd2E0lsxdBq1Gq6iyzXh5olT6FD1jSfoqFaV55Yq8vn2DvOEb5KNz9XARLu4ucHV3gavHrX+6uDtDCAGtRgdVjQrV5bWoLq9BdXlNenV5bWRNeQ2n9BH9iYOjAwJC/eDh457n4e0W4u7tDg8fN7h7u8PJ2RH1Kg3q1RpoVBrUq+tRV61CRVGVrCiudKgsroKmXssgEhER2ThnVycEtWzyRnCrwDeDWjWBp687XD1c4erpAjcP11v9bQ9XuP3+T61Wh/q6eqhV9bf+Wff//6muq0dlSRVK8spQmluO0ryyyaV55cmqWjUDbQZODAGQcSxLHIo/JgdM68Vg3Eaz9iEYdd8guXXFHsWk2zr1by/7jI9i5erh+vkc7Io5aNN17+rhgtYRLWXTtkEIatEEgS0DENgiAIHN/eHs5mzIT0YAkACgUWtQeKME+ZmFyMsqRF5WAfKyCtPzrxZFqvlQI4VzcXNG8w5NZYtOoWgR3gwtOoWiefsQQ9qVACAhgeqKWpQVlKPgahHysgqRf7UQ+VmFl/KvFYWratimiIiIrCq54OKE1pEtZYvwpggOC0Rwq0AEhwUioKkvhIPJXiGSAKC6vBaleWUoySnDjUu5yD53E9nnborywkpWjDHrmCG4ZeOnW0TksE7Sy9+TwbiNCU+MxLGtZ1B8s9Tmy+Ls6oS5r0+99bpCDdJpJVa9E5ev0+ps6rz9m/qibVSYbNu9Fdp1D0Pzjk3h4Gia2btOLk4IbRuM0LbBf/zXEVJKmZdZiEtHM5FxJAsZx7JEVWk1Lyqyed4BXogc1klGjeiC8H7t4OxqxG6FADx93eHp647mHZr+8f/TUeqkzM0sQNbp68g6lY3MU9mDC64V7ZdSslKIiIjM+C7VOrKl7NC7DTr2aovW3Voaty9wB/7TZ2gRHopuIzr/51/L8sLK/ySTkH3uJjJPZYuailpWnqHds/ldnmQUftdvSg95/zt3MRB6OLvvEr76x882n3aZ/NRoOeHxEaxQPexadRBrP0iy+joXQqB1t5ayx6iuiBrZFYEt/K3uHKWUyLmcj4wjWUjfewEX0zKFrSXmyH75NPFCn0ndZdSILmgb1cqUXxTvSHV5DS4dyUL6ngs4u/eiqGSS9o5MeHyEnPzUaJsvxxdPrsCFQ5f5WYiIyERC2wXP7zE64quOfdqidaTlEkaG0ml1yDyVjfS9F5G+5+LzuVfyP2Ot3sG7FhNIf4wG8Oy3j8jwvm0ZCz0s/2cMjm9Lt9lOWtM2QZP+teaZJCdnR1bmbZTlV+CdGZ8Ka13jx8FBoG2P1rLH6K7oPrIr/EJ8bCq+FUVVOJZyGkc2n8K19BsmbVOBzQMQHNZEOjhZ+XUvJSpKqipuXMj1tabkmoOjA/xDfOEb5G1V66ZJKZGbWSBKcspMdoyWnZudGXH3wIhe47rBycW6rx+pk7h65jrO7LmIUzvP3ZOXWbBKafdlN09XtI0Kkw5OjR9R2STUD1OfGQs3L1ebj0vBtWJs+nYHaqvqzHavys0sEKYeld2kmT+GzRsgA1sE2MyanVICRdeLsXPVQVGaZ9i9qcvADrL76Ah4B3hC/Kng/z3g0MKjD/90+JrKWlw6koljW04LruVmwlc3IRAxNFxGDAmHd4DX/7lGLD/DQPzpfP9wjVTU4sKhyzi6+bTQ6az/I6J/iC96je8m+0yMQovwUEVdR8U3S5G+7yLO7rmIi0cyhUatYeNq6KpmAum/BYcFdliw9plLTi6c3Xc75QWVeHvGp6LOXJ00oz5wgOe+f1R26N2GFamH719chZM7zlpdl9XL3xODZvSRQ2b3hX+IryJiXZBdjKObTmHf+jSjztn2buKF+9+eKbsM6mhbD/WcMqx8cwMupl2x6PXXsU9b2X9qT0QMCYenn4fVJk0Sl6UiZfkuo8XKwdEBUSO6yBH3DES7HmE2266unrmOg3HHcCzljKi1wWfW/6kXBwe8vvYZGdoumA8oK6BRa/DBvV+vuHkp72GT9E1bNQn+56/z8z18bXOzj6qyGnx479ei6EbJHf3d9OfHy9EPDrHpayM3swDfPPvrHZedbs/dyw2PfXy3DO/XzqbLkb7nIr594TerHInu4eOOHmMiZJ8JUWjfs7XVjDg2peryGqQlnsS+DUcU+fHJKO/RTCD9XxOfGCknzR/FQOhhd+whm9zSvf/UnvK+t2eyAvVwetd5fPv8b1ZVxy07NTs8bN6Avr3Hd7O5YbN38kJyOOkkUn/e27HgWlFGY37L0ckRr/w2X7boZJtfjOpVGnx0/zfJNy7mTjb3sYNbBbaY9erk610GdbCJWEkp8c70zwbnXy3c39jfihzWSU57fjyatglSTLtS19XjZOpZ7N94BJePXbXZnrB/iC8WpbzCBZ+syJolidgde8gk19R9b8+U/af2tOn47N9wFKve3qh3fNp2D5Mv/fS4Iq6N/KtFWDL3S6Guq2dDMaKnvnhAdh3SURFliVkUj33r0qzmmRTaNvjB0Q8OWdF7QhTsdqaGBC6fuIr964/gRGq6qFdxVNJ/cJjNX9j64x7Re3w3GaKgTrOpDJ3dD4cTT+iunb3hYCvn7OnngekvTGDl6UFVo8aaJdaz7lHXIeFy3EPD0K5nmOJj7+TihEEzemPgtF6XTu04h60/7TF4eluPMRE2mzwCbi3QOPGJkZO+e3GlWY/beUAH+cgHc+Hu7WYzsRJCoEV40335VwsNbretOje7OP3FCR079lHedG4XN2f0ndwdfSd3R9bp6zLlh11I33tR2Nzi24JL/Fhj2zPhy5zNxye07Z31qbsN66SYayOkdSAmPD5Sxn+ewoZrJH0mRCkmeQQA3YZ3xr51aRY/j7ZRreSYh4Yiclgnk97TbOOmDrTv2Rrte7bGXa9MlmlJJ7Bj5X6TLhVgM+8ovAX9X5p6DWIWx+O57x9lH+12bctBYN7CaPHBvV/DVhYBnv7CeOnl78HK00PSV6kwdN0CY2oT2VJGPz8OHXq1scs21n10V3Qf3RXpey/K9R8mhxRkFxfcYYfA5uPQppt5y9CpX3v51Bf3wxjry5j/mjHsnP1CfBH9zFjZZ2KUXQxTb9OtJZ78/D7cuJgnU5bvwsnUdKHTcVAPKadN23IZrH6dvjs06v5BOLLp5Bs5l/Pf4hXdOB4+7pj58kRFlclUuwPr1TaFQNch4XLsQ0Nteqq6KXn6umPEPQMxZHY/uX/9EaT8sEuUF1XabTwceEn8tYyjWeJQwnEGQg8tOzfD8LkDbKLX3b5XG9l/ai9Wmh6un8/BrpiDFn2LDGkdNOixj++WL//ypF0mj/4sYkg4Fqx7Lj/62XHS1cNF779zcXO2+bK7uJuvDIEtAvDIh3NtMnlkqP5Te8qF656VfSd3t4vk0R+1CG+KRz6YiwXrn5OdB3RgBonIClw4eFlR5XF0csTcBdFvCn6ZbrToZ8dJ7yZeyrreD1nmeu8yqKN8fe0zcv7n9zF5pAcnZ0cMm9sfbya9JKc9P15a65qYpsYEUgM2frJZVHEbYL1MemqU1S9i7OTsiHkLojmqTA86rUTMojiVpUaVuXu7Ye6CaLlw/bP7uo/qagW7aFjRdeziiLEPD8W/416QfSZEScbG+Ga8NNGqdlgzJZ9Abzz52X3yvrdn2tRUPVNo2iYI//j6QTz28d0yINSPDYHIgs4fzBAZR7MUVaZ2PcIwcHovJqkboW1UKzloRm9Flak0rxx71x42a28uqGUTlyc/u08+vewBNGsfwgvrDrm4OWPMg0PwdtLLctKTo6Sbp6tdlZ8JpAZUl9Vgw9LNDIQe3DxdMevVyVb9UBz9wBDZtC3XtdLHntWHcO3sTYu8TUYMCZcL1z0nh8zqa9EhvdbOL9gHD743G//46kHpo7AvcZbUpltLGTW8s12Utdf4bnLhumdlpILWGjGG7qO64n82Pi/HPzpcckdWIsuQUiJ2cfxkTb1WUeWa9tx4eAd4soIN4OjkgLkLoxU3SnbN+4lQ1ajNcixXdxdMfWasXLj+WRWf/UZ4//VyxcQnR+J/NjwvI4aG201ymG9nt3E46YS4lJbJQOghamQXRA7rbJWNJ6hlE5fxj41gJemhLL8Cicu2mf3p7OnrgQcWzZLzv7gffiE+rAg9dR7QAa+veUZ2GdiRXzWNoO+kHoof8ebs4oT73popH14yB/Y6/Pp2XNycMeUfY/Ba7NOyWfuQNxgRIvPLyypMTv1pj6LK5OHrjhkvTuTz2gAj7x0km3doqqgynd55Hqd3njd9r0MAvSdEyX/HvSDHPTIM/DhiXH4hPpj/+f14YNEs6emr/BHsTCDdjgRiFsd31Ki5dZ8+Zr82Ga7uLlZ3XnNen6pS6nbvxrb2gyTUVavMesyokV3kwvXPyb6Tu7MCDODdxAtPLbsfM16cIO12u1Uj6abw0Ud+Ib544cfHZP/onqxsPYS2DcY/f5v/5qAZvfnCR2QBW37YJQqvFyuqTH0ndUd433a8p9yBJs38MfGJUYoqk6pGjTXvJ5o8eeQb5I1nvn5IPvTebH6gNXXbntwdC9c/L6NGdlF0+2YCSQ8F14oyUpbvZiD0EBDqh0nzR1lVo+k9vpvsPKA9K0cPZ3ZfwMntZ802/sLRyQF3/XOSfHzpPfAJ5DSsxhBCYNT9g/HSz0/IgKZ+DIgB3L3dFN25atejtXx11VMyLKIFK/sOuLg54+5/T8dD782xu3UOiCytXqXB6sUJgJJexwQwd8FUjgK5A7NfmyLNuZmGOSR9nYrSvHKTHiNyWCf5+ppnZKf+fA8yF59ALzy+9B48/P5cxS6yzQSSnrau2CPyswoZCD2MuHsgWnQMXWstL4QzX57EStGDqkaNNe8lmi155B3ghWe+eViOuGcgg29Erbo0x0u/PCGbd2z6I6NxZ3yDfO5WatmGzOonn/vuYXC9LMP1ntANr8Y8LUPCAiMYDSLzOX/osji65bSiyhQcFohxDw/jKCQ9dB/dVUYMDVdUmW5cyMWuVabb6djZ1QmzX5sin/z0Pnj5c80tS+g1LhKvrnxKkdPgmUDSk0atQczieGV9ATHVReXkgHkLo++yhkXuop8dJzmyRT9JX6eiJK/MLMdqHdlSvhbztOzQuw0DbwJ+wT544cfHH+IQ+Tvj4e22UonlmvL0aDl3wVQ4cnpj41/6WjXBCyseP9OyU7PDjAaR+az/KFnUVNQpqkxjHx6K4LDADqzdv+fm6YpZ/5ysqDJJnUTMojiYaqfj0PYh/3rlt6fksLn9uYuxhTVp7o+Xfn7izW5Wukawwe/6rFr9ZRzNEocSjjMQ+iQIurXE4Jl9LdpY2nRrKQfP7MPK0MN1E38J+aOB03rLF5Y/xnnYJubu5Yqnlj2APhOjmESyU0IIzP7XFMkNBIzLO8ATz/3wSN/2PVuzbRGZSUVxFRI+T1FUmZxcnDB3QfQl1u7fm/L0GKm0/uLetWm4mn7DJH3ugdN7y1d/m/9usw4hvHishJunKx7/5B6MVdCIQyaQ7tCGTzaLqtJqBkIP0c+OhU+gt0WO7ejogHkLpyluq09T0OkkYt6Jk6b6EvJHYx4aKu95YzqcXDgSwiydU2dHPLB4NroM6shg2BlHJwc8sHiWHDanP4NhAu5ebvjHVw/CnrbtJbK0fRuOiKxT1xVVpvC+bdF3cg/eR/5Cqy7N84Yq7BlWXliJhC+2Gv3lRAiBqc+Mlfe8MR3Obs68eKyMcBCIfnYsHnx3tlTCpk5MIN2h6rIabFi6hYHQp4Pt7YaZL1tmq9IR9wySzTs2ZSXoYc/qQ7h29obJ7wVTnxkrpz03jsNpzf3QErd24CD74R/ii8c+vkf2mRjFYJiQs5szHl96LyKGMIlEZA5SJxGzOG6FVqNTVLlmvDgB9rD19x29oDo4YN7C6BAHR2V1Gtd/mIzaKuNOxbz1sXCWHPfIMF44Vq7PxCg8++0jNr8hBxNIBjicdFxcSstkIPTQe3w3dB7Qwayd64BQP0ycP5LB10NZfgUSv9xm0qezEAKzX5vCBxuRmUx7fhwih3ViIMzA0ckBDy+ZCy5aT2QeNy/lPbxz5X5Flck7wBPRz41nIvoPhs7tL1t1aa6oMp3bfwnHtp4xap/bw9sd//j6IX4wsiFtu7fC/C/uly7uLjZbBiaQDCGB2MXxkRq1hrHQw5zXp8LZ1XzDKWe/NkW62nCjNKe1HyShrlpluhuMowPue3vmrYX8iIgUyNXTBfM/v/8hS03ZJrI3yd/sECU5ZYoq08DpvdCuRxiTSLi1EciUp0crqkzqunqsNvJOxwGhfnjxp8e5IY0Nat+zNZ789F5pzvdjo77fsQoNk3+tKD1l+W4GQg9BLQMw/rHhZnkodh/ZVfLLu37O7L6Ak9vPmnT00dzXp8p+U3ow2ESkaP5NffHkp/dKF649QWT6l/FaNdYsSVRUmYQQmLsgGo5OXCNy1iuTbX6Kz59t+W4nim6UGO33mrYNvvvlX56Uoe2CeUOwUeH92uGxj++WTja4Qy4TSI2wdcUekX+1iIHQw5gHhqBp2+C7TXkMN09XzHp1MoOtB1WNGmuWJJo0eTTxiZFyEHfBIyI7ERbRAve+NZMjCIjM4MyeC+Lk9rOKKlOz9iEYdf9gu76HRAwNl91Hd1VUmXKvFCD1l31G63MHtgjAs988tJLrW9q+roM74uEP5klbSxwzgdQIGrUGMYviAHYXb8vR2RHzFkSvFMJ0OYvJT42W3BpeP8lfb0dJbpnJfn/g9N5y0pOjGGgisiu9xkWi94Qo9gqIzGDt+0nClNPwLWHC4yMQ2NzfLuvTxd0Fc16bqqgySQnELIqDVqM1yu/5BfvgmW8elr7BfN9RiqgRnXHPmzNsqt/ABFIjZRzNEocSjjMQemjfqzX6T+1pkgbSsnOzM1xnRz/XL+Ri56oDJsvkRQwJl/MWRnO3NSKyS7NemQQvf08GgsjEygoqkLQsVVFlcnFzxux/TbXLJPTEJ0bKgGZ+iirTwbijuHLimlF6xF7+nnjmm4dkYAt/Nn6F6Te5O4bO6W8z7Z4JJCPY8MlmUVVaw0DoYfoL443esXZwEJi3cFqEgyMv59uROomYd+KkTmuaLXBbdm525pEP5oJ1QUT2ysvfE7NemcRRSERmsHv1IZF9LkdRZeo6uCN6jo20q3tI8w5Nl428d5CiylRVUo24T1OMkjxy93LD0189KJu25ZpHSjXz5YloHdnSJto93/KMoLqsBhs/2cxA6MHTzwPTXzDuVqVDZveXYV2bM7j6dbRw7ewNk7R7dy83PPLBvAgX7oBHRHau94QoRA7txCQSkYnptDrELIrL12mV1dzu+uckuHu52UUdCiEwb2H0U45Oynot3bB0M6rLGz/AwMXNGfO/uF+26tyMDV7BnJwd8egH8+Dl52H158oEkpEcSjwuLh3JZCD00H9KT3To3cYoT3rfIB9M/ccYBlUPZQUVSPxym8kmlt397+kyqGUAA01EBGDugmhwVzYi08s+d7PpntWHFFUm3yBvTPnHGLtIQg+a2Ue2iWqlqDJdSsvE4eQTRulzz/ufabJdjzA2dDvgH+qLB9+dLYWDda8DwgSSsUggdnF8X41aw1jcjrjVsTbGtoWzXpkk3bxcGVM9rH0/CaZabHLo7H6y59gIBpmI6Hd+IT4YMK03RyERmUHism2irKBCUWUaOrsfwiJaKPoe4tPEC9HPjlVUmTRqDWLfje9rjE2Whs7pL/tO6s4Gbkc6D+yAiU+MtOp2zwSSEeVfLTqS8uNuBkIPTdsEYcxDQxvVOLoODpc9xjBpoY8zuy/g5PazJklnt+zU7PDMlyYyyEREfzL6gcGwte15iWxRXbUK6z5IVlSZxK01PhW9ruSMlyZKDx93RZVp6497kH+16Ehjf6dNZEs582X2r+3RhMdGIKxr8zprPT8mkIx/0xD5V4sYCD106te+cX/fvx2DqAdVjRprliSaJHnk4uaMhz+Y29fJ1YmBJiL6k4BQP/SZGMVRSERmcCI1XaTvvaioMrXsFIrh8wYo8h7SqX972WdClKLKVHCtCCk/7m50n9vL3xOPfDTPKLM1yPYIB4E5r0e7WutUNr71GZlGrUHsong89/0j3Ma8ATqtDms/SGrUp6LN3+0UvSdESZ8mXgxoA5K/3o6S3DKT/PaEJ0bK4FZNGGQior8x9uFhOJx0AlLHPBKRqa15L1F07N1WurgrZ/2xyU+Nxolt6SjNL1dMmZxdnTD39anKeleSQOziBDR2ORMHRwc8vGSO9A/xtYs2W1tZh2tnb6K8sAI1FbX/9T+tRgt3b3d4+LjDw9sN7j7uCAkLRMvOzeDmqewlTMK6NsfgmX3k3rVpVtdKmEAygUtHM8WhxOOy/9SeDMbf2LnqIG5czJ3cmN+oqajFho824cH3ZjOgf+PGhVzsXHXAJDeeZu1D3hh132AGmYioASGtA9F9VFd5Yls6PysRmVhxTik2fbsD054fp5gyuXq4YNark+V3L65UzD1k3CPDZZDCPkCmJZ/ExbQrja6jyfNHyfB+yp1lUXyzFBcOX0HW6Wxknb5+T35W4Sop7+wDi3AQaNom+LmwiOafdujZBt1Hd1VkQmnqP8biROpZVJVWW9V5cQqbiWxcullUldYwEH+hNK8cyV+nGuUheGTzKXHh0GUG9S9IncSqRXHQaXVG/20hBOYuiH5TaVuuEhGZwsBpvRkEIjPZ8dt+kZORr6gyRY3sgm7DOytiGGNIm6DRYx4aqqj6qSmvxYalmxr9btOqS/O8MQ8NU1yb1Gp0OJl6Fl/O/wlvTP5YrHp7ozgYd0zkZRbccfLoP+84uVfyPzsUf1z8+sZ68froJeLXf69HxrEsSAUN9vXwdce058dZXYn49mciVWU12PjJZgbiL6xZkghVjdpovxf7boJ/vYq73/3ZntWHcS39hkm+Vg2c3otbihIR6Sm8b1u4e7sxEERmeVnVImZRnOKmjc56dQpcPVxsugxCAPMWRG9T2to+cZ+loLKkcaNEHBwdcPe/p4c4OCpnsKq6rh6bvtmBheM/EN+/vEqcP5ghpAkyPKpaNQ4lHBefPvKDeHf2F59cOpKpmBj2n9oLbbuHWdXNjAkkEzqceFwo6QI2hlM7z+P0rvNGvTMWZheXpSzfxeD+QVlBBRK+3GqSJ5CXvyemPTeeQSYi0pOjsyMih3biIkhEZpJ5Klvs33BUUWUKCPXFpCdH2fR9pN+UnrJD7zaKqpcrJ67hwMajje5zj7xnoGzZKVQxcTm3PwOL7/pcJH+zXVQUVZrtuDkZeS9+9thy8eOrsYpYN0wI4K5/TrKqc2ICyYSkBGIXx/dt7GJqSqGqUWPt+6bZDWzbij0iL6uQQf7dug+SUFetMslvj390uPTwdWeQiYjuQPdRXRkEIjOK/zxFVBZXKapMI+4ZiBbhoUm2eO6efh6Y/sIERdWHVqNF7OL4Nxs7qqZJM39Mmj9aETGpKqnGj6+txrKnfxJFN0osdh7HUs6Id6Z9Ko5uOW3zMQ3r2hzh/dpZTfKYCSQTy79adGTrj3sYCABJX6WiNM80mWBNvRaxi+MBft/FmT0XcCL1rEkSdb5BPhh8V18GmYjoDnUe2AGu7i4MBJGZ1FTUYv3HmxRVJgdHB8xbGD3JWrf3bsj058dLL38PRdXH9l/2I+dy/luN/Z25C6YqYufA4pul+OiBb12PbTltFReoqlaNn/61RqQs323zsR3zoPWsG8Zd2Mwg5cfdotf4bjKkdaDdxuDGhVzsijlo0ptJxtEsu9/9TlWjxpr3Ek0W53EPD5POrrxtENkrdV09rp6+jpK8MpTll6M0rwKl+eUoK6hY6erhco9/sA/8QnzhF+IDv2AfBLcKRIvwUGVt1WwgFzdndBnUUZ5I5W5sROZyZNMp0X9qL9mpv3J2tWod2RJD7uor96w5bDP3kva9Wsv+0b0UdW0V3yzF5u92NLoOek+Ikl0GdbT5eORk5OPLp1aI8sJKqzovKSUSvtgqim6UyLkLomGrGwB17t8eLTs1O3z9Qk4/S58L3wTNQKPWIHZxPJ777hG77ESbcjewP9u4dIuIHNpJevp52OW1lvzNdpTklpnkt/1DfDFoJncSIrI3qho1zu67iBOpZ3F270Whqv3bTRDu/at/GdgiAL3GRcpe47uheYemdh3L9r1a40RqOi8qIjOKfTfef8HaZ0uV9AFs6jNjcXLHOZhzbRmDXzadHTFvwTQIhb0DrX4vAeq6+sbFxsUJ054fZ/OxuHb2Jr6cv0LUVNRa7Tke2HhUODo5yLkLom0zyAIY8+CQvj++ttrip8IpbGZy6UimOJR43C7Lvmet6XYD+7Oqsmps/GSLXcb5xsVc7Fx5wHSjjx4ZJp1cmHMmshcXD1/B9y+twmsj3xXLX4kVx7eeaSh59LeKbpQgZflu8e6sL8SimZ89lfrzXmjUWruMaYuOxlkgtaq0CtXlNbxIrQjXYbReStxsxd3bDXe9PNEmFm4Y/cAQ2bRtkKLif3xrOs7uu9ToPvfA6b2lf4ivTceiurwG37+0yqqTR/+xd22aTS+u32NMBAJbBFj8PPg2aEYbl24WEUM7SS87Gh1TXliJxC+2mfWbw6GE46L/1J6yfa/WdhNnqZNY9Y7pRnn5BftgwHSOPrpTddUqVBRXQaPWwKeJFzx9PWCL6xaQfcnJyEfcZ1uM0jn+s9wrBV9v/GTL1wc2Hu0z9/XotI5929pVbJt3bHprJHIjX/vqVRp88vAPz/cY3fVTB8fGfwts0swffSZGKeL+VFetwqGE46itrDPbMa+fz8GFQ5d5c7di21bsFX0mRMmQNspJZPQa3w2HEo7LcwcyrPbaC2oZgPGPjVDUtVRbpcK6D5MbHXMnFyeMe3iYbb9/SODXf69HaV6ZzZzzmvcSRbN2wbJNVCubi7eDowNG3TdYrn4vwaJtngkkM6oqq8HGpZtx39sz7abM6z5MRm2VYZ24Js38UZxTasDNTCJmcfw9/1r9j5VOzo52Eec9a0w7ymvgjN7SXmJpyMvKhUOXkXE0C2UFFagorkJFUaWoKK6C+k+jNRydHOEd4AmfQO88n0DvEN9Ab4RFtEDEkHD4BnkzmGRRZQUVSPoqFYcTjgudzrQftvOvFh357PHlou/kHnLGixPgHeBpFzF293ZDQFM/o0w1zr2S/1nulfzPjHVuNRW1cvjdA2w+xjHvxOGolSzgStZDU69BzOJ4PP/9o4paTmLO61OxaObnqFfVW+f5/Wuq4tbOTPxyK8oLKxr9O4Om95Z+IT42HYudv+3Hmd0XhK3dC5a/Eiv+HfeCTS5c3n9qD2z8dMv/eccwJyaQzOxQ4nHRf0pP2aFPG8WX9dz+Szi+9YxBNxVPXw+8/MuT8utnf8nPPnfzjhfNyMssWJX6096V4x8brvg4lxdUIOFL043ycnB0wECOPvovBdeKkL73ItL3XsSV41eFpl6/6ThajRZlBRUoK6j432t6/4YjEEKgZedmeRFDwkMihnZCqy7NIATff8h89q5Nw4aPN4nGrudwp9KSToj0vRfwxNJ77WbUaIvwUFmSW2Z1DTz3Sr4i4pt7peArtmj6K0rcbCWwRQAmPDZcmrIfaKje47vJzgM7KOoaupZ+A3uNsHi5k4sTxtr46KPK4iokLttmk53V0vxy7Phtn02OjnNxd0Hk0E7yWIrlPpRwDSRzk0DM4vjBGrVG0cVU19VjdSN2A5v2/DjpE+iFeQunhTg4GHaZbvlhlyi8XqL4S2rtB8moqzLdUP2ugzva/PxsY6hXabD91/14a+rSkLeiPxHrP9okLh6+onfyqMHbgpTIPnez6aZvd4gP7vlKvD7mfRH3WQrXOCGT06i1WPnWRsQujjd78ug/asprsezpn8T5g5ftIubNOzblhUdkIRs/2SKqy5T1bB39wBCEtg1+0JrOyd3bDTNfnqSoOOu0OsQsik8zxgjdQTNsf/RR6i/7YKl+gzFs+2mvqCyptslz7zUu0qLHZwLJAvKvFu7f+uMeRZdxy3c7UXTDsORNux5hcsC0WyNeWnVphqFz+xt0p65X1WP1uwmKjnP6nosw9ZbQg+/qa9ftVavRYd+6NLw55WOx4eNNoiC7uMDUx6woqsS2FXvEG5M+Flu+3wlVjRpExlZWUIFPHvkeBzYetfgXRHVdPb557ldxZvcFxcc9tF0ILz4iC6kqrcbGT5W12YqjsyPmLoxeYU0jl6OfufUhWEl2xRyEMbZQd3J2tPnRR1Wl1UYZiWVJddUqbPp2h02ee5dBHeHm6Wqx4zOBZCEpP+4W+VeLFFm23CsFSP1ln0E3FUcnR8xb+N9bfU55ejT8gg3L0p8/mCGObjmtyDiratUw9SJqAaF+6DKoo122UamTSEs+ibenfSJiFsWLsoIKs59DbVUdEpelijcmfyx2rTpotztXkfFlnsrG+3d/Ja6euW41HUCNWoPvX1olTmxT9jb3nr4evACJLOhQ/HFx+dhVRZWpfc/W6B/d0yp2ZWvTraUcfFcfRcW3NK8cSV9tN8rzMmJYJ2noe4212LnyAFS1tv9xc/+GIzY5ItHZ1Qndhne2WHtnAsmCHeXYxfGN3onF6l66JRCzKA5ajWEvuqPvHyxD2wX/179z83TFrFcmGxyp9R9tEubcjcVckr/ebpSFWBvSf2pP6WCHu4blXy3Ce3O/XPHzgrXC0JF0xlRZUoW1HySJt6d9Iq6evs4bKDXKjYu5WPbUT6KiqNLqzk2r0eKX/1kn8hW8Jbq7txsvQiKL9lVvbbairVfWR5npz4+Hl79lNyRwcHTA3IXTFLfj7NoPkqCqURnltwZE97L5eBzfekYRQ2m19Voct9GPVr3GdbNcO+djxHIuHckUhxJPKKpMB+OO4sqJawY9NQJbBGD843+9mFn30V0RMbSTQUmkiqJKxH++VXEvgDtXHjD50zlqZBe7a5fpey/iw3u/Fjcv5T1sbedWnFOKTx79QRxKOM4bKBmkJKcMX/3jZ1FXrbLac1TX1eOnBWvzDf0QYe3cvVx5IRJZWF5mwaptP+9VVJk8/Tww44UJFv00PfKegbKFwtZ5O73rPE7tOGeUPrdvkDe62PjC4gXXimCO5RzM5ejmUzZ53p0HtIeHj7tFjs0EkoVtXLpZMYv5VZVUI+7TFINvsHP+NUW6uP39dopzXpsCF3cXg3573/o0kaWQkRtSJxHzThx0Wp1JjxMQ6ocWHUPtpzFKIGX5bnzz3K+itsp6R6xp1Br8+u/1Yt2HySa/BkhZasprsewfP99TXlhp9eeafe5m003f7FBkPbh5cQQSkTXY8v0uUaSwzVb6TemBjr3bWiSJFBDqh4nzRykqnqoaNdYuSTLaB9t+k3tIB0fbfv1O33tRUXV85cQ1UZpbbnPn7ejsaLFpbEwgWVhVWTU2LN2siLJsWLrZ4F2jeo2NlLdbayegmR8mPjHSoIYidRIxi+JW6DS2/8K9Z81hXE2/YfLRR5HDOknYyew1da0ay1+NRcIXW4XU2ca80p0rD4hlT/2E6vJa3kjptupVGnzz/G/IyyxYZSvnvHXFHpF58pri6sKdCSQiK7kv1iP2PYVttiKAuQunwsnFyeyHnv3aFOlq4Idea5X8zXaU5JUZ7ff6K2D62rn9lxRVx1JKnNhum9PY2vdqY5HjMoFkBQ4nHhcZR7NsugyX0jJxOPmEQekGdy83zPynflt9jrx3EJp3aLrMkOPcvJT38I6VB2w6zuUFFUj4cptZ0jrdhnW2i/anqlXjk0d+yD++9YzNpcsuHL4iPrr/m45K25KYjC9x2TZcOXHVpq5xnVaHte8nXVJaXTi7OsHJ2ZEXJZEVOH8gQxxT2GYrIa2DMObBIWb9GhY1souMHNZJUXE09nIRbbuHyZDWgTYfl7KCyueVdh8oySmzyfNu172VRY7LBJIVuLXwdPxgW91hSaPWIPbd+L6GLgg+5Zkx0jfIW6//1tHJAfMWRj9l6Falm77ZLky98LQprf0gGXVmmF7l5uWGDr3b2EHbk/hl4Tpkn7tpsxP2C64VZfzwcgy0Gk5no7+Wk5GPXasO2OR4wuzzOeEX0zIVVyecxkZkPdYpcLOVcY8MR3CrJsFmuZ95uGLWq1OU1T/UScQsijfqUgH9p/ZURGzCujb/VGn3gJZdmtvkeQe3CrTIwvlMIFmJ/KuF+7eu2G2T5771xz3Iv1p0xJC/bR3RQg6d1e+O/qZNVCsMmtnHoHSVqlaNNUsSbTLO6Xsu4kRqulleArsM6CAd7eALefLX23Fy+1mbn6h36WimWPt+Em+k9H87wRKIfTfBphOMqQpb6Ba4tVMREVmHiqJKxH+hrM1WnF2dMOf16HxzHGvy06Olf4iPouK3d10arp65btT+YcTgjoqIzeSnRsO/qa9i6rpT//ayz4RutnnyAmjXPczsa284gaxGyvLdote4bjY1vLHgWhFSftxt0A3WwdEB8wzc6jP62bE4vfMcKoqr7vhvz+y+IE7tOCdtaYcxda0aq99LMFuio12PMMW3t+MpZ7Dl+12KWeVp79rDonmHpnLI7L68mdL/Opx43Oamrv3Z+QOXRE5GvmzWIYQVSkQmsW9dmug/uYds3a2lgl6M26HPxCh5ZNMpkz0DWnZudmbY3P6KuhYqiiqR8MVWo8YstG3wg77Bykiy+Tf1xetrnpFpySdRfLMUtrJ26J85OjmiZedQ9BwbadMfddp2b4VTO8+Z9ZhMIFkRjVqD2MXxeO67R2ATixdLIHZxAjRqjUF/PvzuAbJFJ8N2+fLwcceMlybKn15fY1Ck1r6fJML7tZNunraxnXLy1ztgzql3rSNaKLqtZZ/Lwa9vrBdSSkWVa+0HSaJpmyDZoY/ypx/S7dVW1iHu0y02nySVEtj+6z7c9/ZMVioRmeY+c2vK0rpXVz11l4OTckYIznxpIs7uu4SaCuNvuOHgIDBv4bQIpY2oXPfhJhh7SmOn/u1XKClGHj7uGD5vAG8cVqBtd/N/9OcYaitz6UimOJx0wibONW3TSVxMu2LQy4l/U19Mnj+6UcfvMyEKnfq3NygDUJpfjqSvUm0izjcu5mLHyv1mewl0cnaEoYk9W6BRa/HDP1cJdV294sqm1Wix/NVYUVet4s2UcHTzaVSWVCuiLKd3nRe2+pWTiGzDjUu5s3auOqCoMnk38UL0s+NMcvMcMru/DOvaXFHxOncgA8dSThu9z92pfzs2MDKJVp2bw9nMuy4ygWSFNizdLKx9V6Wa8lps+HizwTfY2a9Oka4ejdzqUwBzX58KZ1fDGs3u2EPi+vkcq46z1EnEvGPcRfxup3nHUJ0ltn81l71rD6P4Zqliy1dZUoXtv+zjjZSQlnxCMWWpqajF9Qs5rFQiMqnkr217s5W/MmhGb7SNamXUJJJvkA+m/mOMouJUX1eP1e8af7kIRydHi223Tsrn5OKIFp2bmfULGxNIVqiqtBobPtli1ecY91kKKkuqDPrbbsM7y24jjLNFfFCrJhj3yHCDGo1Oq0PMojiVzoq/au9ZexhX06+bdQpK64gWQqltq65ahS0/7BJKv4fs+G2/qFLIyBMyTOH1EmSezlbUta7E3diIyLrc2mxFWZtSiFtTzeDoZLzNUWa9Mkm6ebkqKk6bv9+Fohslxu9XR7a0mSUzyDYFt2pi1uMxgWSlDiccFxlHs6zy3DJPXsOBjUcNejFx9XDB7NeMu9XnmIeGommboEmG/O21szfd9q4+bJVxLi+oROIX28z+AhgWqdz1j7b/uh9VpcpPrNRVq7Bl+S7eSO1YWvJJQGEzvi6mXWHFEpHJndl9XpzacU5RZWrWIQQj7x1klKdC18HhsseYCEXFJ/dKAVJ/2WuSPjenr5GpBTYPMOvxmECyUlJKxCyKH6xRa63qvLQaHWIWxb9p6OLDk+aPlsbe+tHJ2RFzF0QnCQNv+wnLtonyggqruwbWfpiE2qo6sx+3eYemimxTVSXV2PHrPmEv95C9a9MUNwyf9Hck+aTiPndeOXFNaOu1rFwiMn0f7P0kxa0nOPGJkWjSzL9Rv+Hi5ow5/5qiqLhICcQujoepni9hXVuwQZFJNWnBBBL9Lv9q4f6tK3Zb1Tlt/3Ufci7nv2XI37YID00acbdpVuzv0LsN+k3paVBWq66qDms/TLaqOKfvvYgT29ItkuwICPVTZHva8sMu2NPi0hq1Bslfb+eN1A5Vl9eg8HqxWmnlUteqUZpfwQomIpMrzS9H8lfKeoa6uDtj9r+mNGoU0oQnRsomzf0VFZeD8cdw+fhVk/W5m7YJYoMikwo0c5tkAsnKpSzfLQquFVnFuRTfLMXmb3cYdIP9ff71JFNu9Tn9hQnw9PMw6G9PbEsXZ/despqXpNXvJVgkeeTm6QoPH3fFtSONWosDcceEvd0/jmw6JWqruCObvSnJKVNs2apKq1jBRGQWu2IPWv1mK3cqYkg4eoyOMCiJ1Kx9yBuj7hussGdKNeI+2WKy/qGLm7NiP8yS9QjkCCT67xdfDWIWx1vFWhar30uEoVufD5nVT7Y28do6Xv4emP78eIMjtXpJglVs7Z78zQ6LvQAGhPq9ocR2lHEsE6oa+0ukaDVaXDiYwRupnSlWcAKpkovDE5GZ3NpsJV5KnbIWlLvrlUm400WdhRCYt3Dam45Oynp13LB0C6rLTbfzdUjrwL3CQbAxkUn5BHrD2dXZbMdjAskGXErLFIeTLLsd8/Ft6Ti776JBd0DfQG+zbfXZP7oX2vdqbdCT/vcRVhaN842Ledjx236LPWkCQv3eVGIbSt9z0W7vH2f2XOBN1M6U5JYqtmxMIBGROV07e8Nhj5VutmIov2AfTHl6zB31lQfO6C3bdm+lrPerI5k4nHTcpH3ukDbBg9mKyNSEAJo097/bXMdjAslGbFi6WVSX1Vjk2HVVKqz7INngG+zMf06S7t5uZmtA8xZMg5OzYVuVbv91v8i5nG+ROEudRMyiOOi0OotdZ/4KHWZ7Zs8Fu/38c27fJaG0r6fUME5hIyIynlubrVQqqkxD5/RHqy7N8/T5b70DvDDt2XGKKr9GrUXs4oTBpp7hwfWPyFwCm/uvNNexmECymU5zNTZ+ssUyD84vt6G80LCFS7sM6ih7jYs06/k2bRuE0Q8MMeiRoNVoEbMoHobuMtcYe9em4eqZ6xZNdChxnnbulQIU3yy123tHZWk1rqbf4E3Uzp4XSsU1vYjI3Oqq6rDuwyRFlcnBUWDewmkh+qxNOuOlCdLDV1nrY25bsQf5Vwv3m/ydhAkkMhOfQG/z3T8YbttxKOG4yDiaZdZjXjt7E3vXHDIoqWHJrT7HPzYCQS0NW1As8+Q1cWDDUbOeb3lhJRK+2GrxUTIBTf0U127SOYWLMbAzHG9GRGRcx7eli7P7LimqTK26NMOwOf0bfGSE92sn+07srqhyF2QXI2X5LrP0uYNaBbLxkFm4uruY7VhMINnSS4GUiFkcP0aj1prleLcWD4xL1xk4/WX8YyOkuVeF/w9nVyfM+ddUg9+j4j5LEZUl5psqse6DJNRW1Vn8GlPiCKTzBy/b/b3j/MHLzCkQERE1wur3rGOzFWOa/PRo+AX7/HVf2sUJc1+PBpS0CIAEVi+OR71aY5bDKXFnY7JOLu5cRJv+Rn5WYerWFbvNcqzdMYdw/XyOQfPPQtsFzx99v2XXjes8sAN6j+9m0ItzTUUtNny82Sznmb73Io5vS7eKx7N3Ey/FtZmS3DJXe79vlOSW8V5PRETUCNaw2YqxuXm6Ytark/+yrzz2kWEyOKyJosp7ZPMpXDh8RZgvvi5sOGQWLhyBRA3Zuny3KLhWZNJjlOaXI/GrVINusEIIzFsw7StHAxeyNqaZL0+CoQt4pyWfFBcPXzHp+alr1VjzXqLVfNtxsoI6M7aK4kq1vd8zqsqqLbo4OxERkRJYcrMVU+k+qisih3b6ryRSSOvAPmMfGqaoctZU1GL9R5vM2ud283RloyGzcHVjAokaUK/WIHZxgkkXulj7fhJUNYYtVjpgWi/ZrmeYVcTKJ9AL0c+MMzhSse8mdNSoTDfMNfmbHSjOsZ4Fnh0VlkBS1aihqrH7/BGkTnL7cyIiokay5GYrpjT7tSn/fwSDAOYuiE5zclFWnzD+sxSYc3kKFzdn6LNIOZFRrjdOYaPbuZh2RRxOOmGS3z6z+wJO7ThnUIbey98T0563rq0+B9/VB226tTToSV9wrSgj5UfTTBm8cSkPO1fut6qZ5U5OyuosVBRX8mbxn1gUMRZERESNZYnNVkwtoJkfJj05UgJAv8k9ZMc+bRVWZ9nYv+EoRx+RYnEKG+llw9LNorqsxqi/qapRY80Sw6dUzXhxgvT09bCqOAkHgbkLpxn8FWDrij0i/6pxpwxKnUTMO3HQaqxrWpHSRiBVFFXxRvGfWBQzFkRERMZwa7MVZY3sHXHPIHTs01bOeGGCosql1egQsyjuTXOPGnPzdA1mSyFz4Qgk0ktVaTU2frLFqL+56ZvtKMktM+hvO/ZpK/tN7mGVsWrRsSlG3jPQoCeHRq1B7OJ4o04Z3Ls2DVfPXLe6fS2Ul0DiqBvGgoiIyLhubbaySVFlcnRywD++fhBeAZ6KKteOX/ch53L+W+Y+rqun63a2FDIXF66BRPo6lHBcZBzNMspv3biUhx0rDxiU1HByccLcBda91efE+aMM3qb+0pFMo00ZLC+sRMIXW60yUo4Km8JWWcp1fxgLIiIi4zPHZivsBzZO8c1SbPp2h0X63E7OThFsJWQuzq5OZjsWE0g2TkqJ2MXxkzVqbeN+RycR+06cwTs1jX1oqAxpHWjVsXJ1d8Hs16YYPI5ow9LNorq88VMG132QhNqqOqvsNAihrPbh6s7tU/83Fh6MBRERkTHFvpvQUaPWMBBWas2SRKjr6i1ybFWN6k3WACkRE0gKkJdVmLxtxZ5G/ca+dUeQZeCUquCwwA7jHraNrT4jh3VC1MguBiWRqkqrEfdpSqOOf3bvRRzflm6do48UNn0NALwDvHiD+J0PY0FERGRUBdeKMlKW72YgrNCJbelI33vRYn3uumrVW6wFMhepM98aX0wgKUTK8l2i4FqxQX9bUVSF+C9SDL7Bzn196iUnMw6ba6xZr06Bm4dhOyMcjDsmrhy/ZtDfqmvrsfq9RKsd46PTaBXXLrwVNo+/UbFowgQSERGRsZlisxVqnLoqFdZ9mGzRPnddtYoVQWajNeN7HBNIClHfiIWe13+UjNpKw6ZU9Z3UXYb3a2dTsfIP8cHkp0cblKaVUiJmcdxT2vo7b6TJ32xHcU6p1cZFU69V3MOOI5D+Px8mkIiIiIzffzLBZivUOInLtqGsoMKi56BiAonMyJxTNZlAUpCLaVfE4eQ7W+j5/IEMHN1y2qAMvYePO2a8ZJtbfQ6b2x8tOzc7Y8jf5l4p+Dr1l3139Dc3L+Vh58r9Vr/CUHVZjaLahHeAp+LWdTI4FkwgERERmYQxN1uhxrl29ib2rD5s8d6fVquz2PpLZH+yTl8327GYQFKYDR9vFvomAepVGqx+L8HgG+y058ZJWx3h4eDogHkLp0U4OBhW/C3f7xRFN0r0+m+lTiLmnThoNTqrj4vSEkiOzo5w93a3+/uCs6sT3L3ceIMkIiIyVR/cSJutkOF0WomYRXHpOp119Lk5ColMrV6lwaH449jxm/kGKjgx7MpSVVqNjZ9uwb1vzrjtf7vl+50ovF5i0HHadg+TA2f0tulYhXVtjiGz+8vdsQfvuMGp6+qx+r1EPL3sgdv+t3vXphm8QLnZr58y5XV8fJp4TaqpqE225/uCT6A3b45EREQm7oPHfZqCe96YzmBYyO7Yg7h+PifSWs6nrlqlqBHg2edysP6jZFxNvyG0Clw71RaZc/Hs/+AIJAU6FH9cXD52tcH/Ji+zEKk/7zUoqeHo5Ih5C6MhFDA3aOo/xsA3yMegvz23/5I4ltLwLLjywkokfLHVZgKlxC9nbaJaJdn7PaFd9zCuzEBERGRijdlshRqnLL8CSV+lWlWf29LrMBk7vp8/sVxcPn5VaNQaSJ3k/6zgf5bABJICSSkRsyhusuZvFnqWEohZHAdNvWGZ41H3DZLN2ocoIlZuXq6Y9cokg1vf+g+TRUMLkK/7MBm1VXU2E4+q0mrFtYcuAzvY/T2hy6COvDESERGZow9u4GYr1Dhr30+yus1g8rIKFRPftOSTBm+6RMrCBJJC5WUVJm9bsecv/3+H4o/h8rGrBmXomzT3x4QnRioqVj3GRKDr4HCDkkjlRZVI+HLbX/7/zu67hONbz9jUMC0ljkDq1K89HBzs91bn4CCYRCMiIjITQzZbocY5s/sCTu44a3V97rysAsXE2JY+iJOJ3y0YAuVK+WGXKLhW/F//rqq0Bhs/3WLwDXbOa1Oli5uz4mI1519TYGi59q49LK6eufFf/05dW4/V7ybY3By/qlLlJZA8fN0RFtHcbqdwhUW0kJ5+HrwhEhERmcmdbLZCjaOqVWPNkkSr7HPnZypnBFLzDk15sREAJpAUrV6tQezieOAPr84bP9ls8E5bPcZEyK5DlDkV5veRVQYlGaROImZRXLJO+/93fNj07XYU55TaXBwKrhUpsn47D7TfKVycvkZE9kQ4ik6MAlnafzZbIdPb9M0OlOSWWeW55WUVCqXEuVWX5rzYCAATSIp3Me2KSEs+CQDIOJqFw4nHDbqRuXm5YdY/Jyk6VqPuG4xm7UPeMORvb1zMnbxz1UEAwM1LeWbdStGYbmbkCSXWrT1P4eo6OJw3QiKyG84uziMZBbIG+my2Qo3st17Kw86V1tvnLisot7p1mQwV1KoJ3L3deNERE0j2YP3Hm0R5YSViF8dPlgZO5Jn69BjpG+yj6Dg5Ojlg3sJpbxq6u1zy16miJKcMMYvioNXobDIGVaXVqCiqVFzdhnVtgaCWTVzsre03bRM0qVXnZrwJEpHdcHZzYhDIevrgt9lshQz3+wwAq+5zSwnkK2QhbSGAVp2bc1dfYgLJHlSVVuODe74SeVmFyYa9fDevGzKnn13Eqm33Vhg4o7dBN0dVjRofP/ityDp93aZH8dzMyFPejc5RYMLjI1T21vYnzR+VJBwEiIjshbOrM4NAVqOhzVaocfatPwJb6HPnXMlXTMw5jY0AJpDsRllBhYEv3g6Yt3Caq4MdvYROe3YcvAO8zBpnq3rQZeQrsl77TIxCSFhghL1cxy3CQ5N6jLGb4hIRAQBcXDkCiazLX222Qo1TUVSF+M9TbOLl5NKRLMXEPawrE0jEBBLdxrC5/WVLO5sC4+HrjhkvTbDbIZpKHIEE3EqGTnhipN0sRjD5qdGTDJ2OSURkq7wM/ABEZCp/tdkKNc76j5JhK1MDLx6+LKCQt4oOvdtwlCcxgUR/zz/EF5OfGm2XZe87sTvC+7WzyyTSzYy8HUotW+/x3dC0bfDdSq/D1pEtZeRQbkRERPYnINSPQSCr88fNVqhxzh+8jKNbTtvMF7LywkrFTGPz8vdE/6k9uQ6SnWMCif7WrFcnSzdPV/ssvADmvh4NZxf7Gwqfl1k4SqdR5lcy4SAw8YmRK5Veh1OeHg1w8BER2SEmkMhaJX+dKkrzyhmIRqhXabD63QSbezm5cOiyYupg1H2D4MD1Ne0aE0j0lyKHdZJRI7vYdQyCw5pg7CPD7C7LrlFrkH0+R7Hl6zU2Ej3HRCi2XofM7ic79W/PmxgR2SUmkMhaqWrUWLMkkYFohC3f70Th9WK1rZ23khJIQa2aIGpkF45CsmNMINH/4erugtmvTWEgAIx9aChCWgf2sbdyn9t/SbmFE8C9b81Esw4hS5RWtPY9W8tZ/5zEhktEd0wpbwPN2ofAwZHdW7JOp3edF6d2nmcgDJCXWYjUn/fa5NCXy8euCk29VjF1MfqBoXZ7HXr5eSC0bfCDbl5udhsDPmHp/5j45CjJL3i3OLk4Ye6C6DR7mw50VskJJACuHi54fOm9r3r4uCumTP5NffHoR3fD0dmRDZeI7lh9Xb0iyuHm6YoW4aF5rFGyVmvfTxSqGjUDcQekBGIWx8NWkzCqWjUyT15TTH20jmyBDr3b2NUopLCIFvLFFY/L93cukAs3PLfiw90L5ZOf3SfDurawu9XxmUCi/9K8Y9MfR94zkIH4g4592qLf5B52dZO8dvaGqCqrUXQZg1oG4KElc6QS5nE7uzrj8aX3Su8ATzZYIjJIXbVKMWVp36t1CGuUrFVpXjmSvkplIO7AoYRjuHwsy6Y7bEe3nFZUndz75gx4eLvbxfUXNaKLfPHHx9CuR9j/rjHq4CgQOawTXvltvpj/xf12lUhiAon+l3AQmLdw2kMOTrws/mzGCxPg6ethN+WVOonzBzIUX84uAztg6jNjbTo5KITAPW9Ml626NGNDJSKDqWqUk0DqMqADK5Ss2q6Yg+LGhVwGQg9VpTXY+MkWm//adyzljFArZKQnAAS2CMD9i+6SQih7mkbvCVHykQ/nwenvNlYSQMSQcLtKJDFTQP9r8My+sk23lgzEX/AK8MS058fb1SikcwqfxvYfYx4airmvR0tHJ9ub+uXq4YJHP7pb9pkYxUZKRI1SV61WzDOuU//2CGrVxI+1StZKp9UhZlEcpI5rEd/Oxk82o1oBo+LrqupwIjVdUXUTOawTxil4w6GB03vLBxfPgqM+gyvsKJHEBBIBAHwCvRH97FgGogEDpvVCux6t7eZJf/5ghrCXjs2Q2X3xzDcPSS8/25kC1qS5P176+QnZfVQXNk4iajRVjUoxu2cIB4Fhc/qXslbJml1NvyH2rD3MQDQg42gWDiceV8wQl4NxxxRXR5Pmj0anfu0V98Iw/O4B8u5/T4e406Uu7CCRxAQSAQAmPjFSunu7MRAN3Q8EMPPliXZT3sqSamSfz7Gb8nbo3QavrJwvm3douswGzlW+8tt82bxDUzZMIjKKumpVspLKM3B6bwS1bOLCmiVrlvjFNlFeWMlA/AVNvRaxi+MnSwWlJi4fuyqKrpcoK5ngKPDQktkI69q8ThnlccBdL0+Ss16ZjEbNzlNwIokJJAKAW0MqOYr29nHalm5X5T2Wctquyvv7qJ6neoyJsMrWIITA0Dn95TPfPAwvfy6YTUTGo7RdoVw9XPDQe7NVxpie7OXniVH3D5bdhndmT4mMqraqDus+TGYg/sK2FXuQl1WoqOBIKXEw4bji6srL3xPPL3/M1Vr7z/ry8HHH08sekCPuNeKGUgpMJDGBRACAi4eviLRNJxmIBtzMyMOO3/YJeyrz4YTjQqPW2FU9u3q44NEP5+G57x+RbaNaWc2DsPPADvKVlfPlnH9N0W8uNhHRHVDVqBT3ISksogXueWO6/NvFT/V4Hox9eJh8M/FFOePFCXji03sR3q8dk0hkVMe3nhH2su6kvgqzi5GyfJci+9yHE44LnVZ5y+O4uDnjkQ/mYvxjIyRssOZC2wXPf2XlfNmpf3vTHEBBiSS+hdD/2vDxJlFdXstA/AWpk4h5Jx5ajc6uyl1VVoOT28/ZZZ137NMWL/38BJ764n7ZsnOzM5Y6j3bdw+Tzyx+V//jqQbTq0pyNkYhMQqeTUNepFVeuflN64IXlj8kmzfz1/puglk1cop8bJxdtfkVGPzsWf5zi32tcN14sZHSr301U1A5djet0A7HvJqBepcwPmKX55Tiy6ZQiyyaEwJSnR+PBxbOls6uzTZyzg6MDRt8/WL668qmvglo2MUOQbD+R5ASi31WWVCPu0y24543pDMaf7Ft3BFmns4Vdln19GnpPsN8Oc9ch4egyODzi5PazMmX5rvTr53MizfEADotoISc8PgIRQ8LZAInILKrLauHirrxlg1pHtsCbiS/Ks/su4VDCceReye9bml9xRF2rhoODgG+wD0Lbhch23cPQZVBHtOrcDH/3BT1yaCcIISAlByKR8RTdLMHm73ZyQxsARzafwoVDlxXd59783U7XPhOjVA6OyhzL0WdiFNp1D5Nxn6fgeMoZYa33y9B2Ic/d++aMT1tHtjD/wX9PJEUMDhfp+y7KTd/skNfO3rCJC4IJJPovB+OOiX5Tesj2PVszGL+rKKpE/Bcpwl7Lf/lYlsi/WiRDWgfa7TUgBNBjdFf0GN01oiy/Qp7bfwln91/CxcNXRG2VcdYMdPN0Rad+7WXXIR3RdVA4fIO92fiIyKzysgrgH+qryLI5ODogclgnRA7rBABpAKCuq4ezq/MdLZTqE+iF1pEtZNbp64JXDBnT9l/2ib6TusvQdsF2G4Oailps+HiT4ttW4fVidVrSSfSP7qnYMgY088PDS+ZgxN0D5fqPNlnVh3jfIG+MfmCIHDqnP5ycHS17MjaYSGICif6LlBIxi+Lv+dfqf6y0eIOyEus+TEZtZZ0dXxPA/vVHMOOlCbwYAPiF+GDgjN4YOKM3tBqdzDqVjbP7LyHncj4qi6tkZUmVQ2VJ1d8OvXZ0coBXgBd8mnid8WniFdG0TTC6Du6I9j1bw5FtjogsKDezAJ0HdrCb8rq4GTbFotvwzsg6fZ0XDBmVVqNFzKI4vPDjYxDCPvOT8Z9vRUVxlV2UdfP3O0WfSd2l0te1bNOtJV7++Qkc23pG7lp1AJmnLJdICgj1w5gHh8oB03rB2dXK0iA2lEhiAon+j7zMglWpP+1ZOf6xEXYfi7P7LuFYyhm7/8p4OPG4mPrMGIMXIlUqRycHtO/VGu17tf7D7f/WMrR1VSpUlFShsrgKmnoNvG8ljeDp6wHhwA/XRGR9cq8UMAh6iBzeGfGfb2UgyOiunLgmDm48JgfO6G13Zc86lY3964/YTQep6EYJ0pJOYMC0XsovrAB6jYtEr3GRKMwulmnJJ5GWdFIU3Swx+aG9/D0RNbKL7Dk6Ah37tIWDtSfsbCCRxLdB+ktbftgleo3rJoNaNbHbGKjr6rH6vQS+6ePWYtrHt6aj7+TuDIae3Lxc4eblimA7bkNEZFtyr+QzCHoIbRuMoFZN/Aqzi8sYDTK2uM9SRLfhnaVXgKfdlFmr0SFmUfxX9ra22Jbvd4m+k3tIe9pdN6hVE0yaPwoTnxwlM09ew6UjmbiWfgPXzt4QjR59JoDA5gFo2bmZbNW5Odp0a4l2PcJgk2tNWXEiiQkk+kv1Kg1iF8fjmW8eBuw0hbLp2x0ovlnKi+F3m7/bEdJrfLd8biFPRKRMuZkFAhIS/HRyW92Gdy7d/ss+RoqMrrq8BuuXbsYDi+6ymzLv+G0/bmbkPW1vdV10swT71x/B0Dn97O46FwJo1yMM7XqE/edfyZLcMmSfu4myggrUlNeiuqIGNeW1qKtWwdHJEU4ujnBydoKjsyOcXZ3g7e8Jn0Bv+AZ5wyfQGwGhfvDwcVdYoP5/Iunk9rNy9XsJwtLTPJlAor914fAVkbbppOw7qbvdlf1mRh52/LqfHcM/KMguLjgYfwyDZ/ZhMIiIFKiuSoXS/HL4N/VlMG6j2/DO2P7LPgaCTCIt6YQYMLWn7Ni3reLLWpJThk3f7rDbPnfCl1tF1Mgu0jeIm6cEhPohINSPN4C/IoDuo7sitH2I/PC+r4Ul1+flUAJq0IaPN4nq8lq7KrPUScS8Ew+tRssL4E82f7tD/N3i0EREZPu4DpJ+2kaFwcvPk4Egk4ldHB+pUSu/z7V6SQLUtWq7refayjqsfT+RFzzpJaR1ICY+MdKicz2ZQKIGVZZUI+7TLXZV5n3rj1jVVpPWpKygArtjDzEQREQKxXWQ9OxAOwpEDA2XjASZSv61ovStP+5RdBlPpp5F+p6Ldt/nPpF6VpzedZ4XPemlz8Qoyz7/WAV0OwfjjonLx6/aRVkriioR/3kKk0cN2PrjblFbVcdAEBEpEEcg6a/b8M4MAplUyo+7RcG1IkWWra5ahbUfJLHP/bs17yWKumoVA0G35R3gBRd3F4sdnwkkui0pJWIWxd+jqVf+lK51HybDknNKbUF1eQ22/8x1H4iIlOjy8auujIJ+Og1oD2dXZwaCTEaj1iB2cQKgwLFuicu2oayggpX8u9L8ciR8sZWBoNtS1ahRX1dvseMzgUR6ycssWJX6015Fl/Hc/ks4lnKGX0L0sGPlflFRVMlAEBEpTOH1YvXNS3kMhB5c3V0Q3q8dp7GRSV1MuyLSkk8qqkzZ525iT+xh9rn/ZM+awyLzZDYDQQ06s/sCpLTco4cJJNLblh92isLsYkWWTV1Xj9XvJvBBpidVjRoxi+IZCCIiBTqRepZB0BOnsZE5bFi6SdQoZFMbnVYiZlF8vk6nY8X+idRJ/PharKgqrWYw6C/VVtUhadk2i76zMoFEeqtXKXcY7eZvd6DoZikr+Q6c3nVeHE48wUAQESnMye1nn2cU9BM5tBOE4PcnMq3KkmrEfZaiiLLsWX0I2eduNmWt/rXSvHL8+Npq6LQc3Ej/Teokfl6wDoU3Six6Hkwg0R25cPiySNt0UlFlysnIx/Zf97P3Z4B1HyQLzl8nIlKW3Cv5n+VfLWIg9OAT6IXWkS34pkcmd2DjUXHlxDWbLkNZfgUSLTx6whZcPHxFJC7bxkDQf9n83U6c2X3e4u2HCSS6Yxs+Vs4wWqmTWLUoDlqNlhVrgJrKWqx6e6MiR6UREdmzk5zGpjdOYyOz9FmlROzi+Ddtuc+69oMkcKcx/WxbsUec3nmegSAAt9Y92vTtDqtIvjKBRHessqQaGz/dooiy7Ft/BFmnsvklpBHO7rskDsQdZSCIiBTk5Pb0S4yCfiKZQCIzybmc/9b2X/bb5Lmn77mIk9vPss+tJyklfvmfdaJAoevPkv7yrxbh5wVrhSUXzv4jJpDIIAfjjonLx6/adBkqiqoQ/3kKH2RGsP7jTaIkt4yBICJSiOzzOeHFXBtQL6FtgxHUqokfI0HmsPm7HcLW2qa6Vo3VS7hZzZ2qrarD9y+ufLO2so7BsFN11Sp89+LKe2qrrOcaYAKJDCKlROyi+Ie09bY7jHbdh8ngDdlIN7cqFX56fQ00ak4FJCJSipM7OI1NX92Gd2a2jcxCXVeP1e8l2NQ5b/p2B0pyylh5Bsi5nP/WV8/8AnWtmsGwu/dt4Jf/WYe8zIJV1nReTCCRwXIzC37a9tNemzz3c/sv4VjKaX4JMaIrJ66JlVwPiYhIMQ4lHH9f6nhT1wfXQSJzOrvvkji+Nd0mzvVmRh52/MbNahoj8+Q18e0LK6FRaxgMO5Lyw06c2nHO6toOE0jUKFt+2CkKbWxurrquHqvfTeSDzATSkk6ILT/sYiCIiBQgJyP/tbTkkwyEHtpGhcHLz4OBILNZ92GSqK2y7gWppU4iZlE8tBodK6yRLhy6LJa/GstY2olTO84h6evtVvm+ygQSNUq9SoPYdxNsatTJ5m93oOhmCSvPRJK+ShXHt55hIIiIFCBxWaqoV/Gr92071I4CEUM7cbgWmU15YSUSv9xq1ee4fwM3qzGm0zvPi1//vQ4cGapsx7acxvJXYoW11jMTSNRoFw5dFkc2nbSJc83JyMf2XzmM1pRu7RqxXlxNv8FgEBHZuNK8MuyKOchA6IHT2Mjc9q45LK5ZaX+rorgK8Z9vZZ/byI5sOiVi302AZA5JkfZvOIqfXl8jtBrrXVeWCSQyivUfbxY15bVWfY63htHGwZobpFLUq+rx7fO/iZLccgaDiMjGbV2+W1Rb+TPeGnQa0B7Ork4MBJmN7tYUsTSd1vqmNW34aBNqKnjfMIV969LELwvXQlPPdxol2fHrfsS8Eyd0Vj7CjAkkMorKkips/HSLdd9s1x9BJofRmk1FUSWWPf3TPeUFFQwGEZENq6msRQrXt7stV3cXhPdrz3EBZFbXL+T0s7ZRghcOXsaRzafY5zahtOSTYtlTP3FHaYVI/no71n+8SUgbGFrGBBIZzcG4Y+LK8WtWeW4VRVWI/zyFDzIzy8ssWLX04e9F0U3ubmwppXnl+PyJHxkIImqU3asPiWLey2+L09jIEpK+2i5K86xj1He9SoPY9xL8WSumd+lIpvj4wW+fKsktYzBslJTA+o82YdO3O2zmPZUJJDJiA5CIWRT3kNYKh1Ou+zCZGXoLKbpRgk8e+k7kZRYwGGZWkluOTx/9QWSfu8nkKRE1ikatQeKyVAbiNiKHdoIQvOWSealqVFj7fpJVnEvKD7tQmF1cxloxj9wrBV9/dN834vr5HAbD1t6ddRKr3t6IHb/Z1vq8TCCRcW9imQU/bft5r1Wd07n9GTiWcpq9OQsqK6jAJ4/8ILL5cDObktwyfPboD6LoBnccJCLjOLr5lNUu2GstfAK90DqyBaexkdmd2nlOnN513qLnkJdViG0/7WGf28zKiyrxySPfi/Q9FxkMG1FXpcLyV2JxYONRm2svTCCR0W35fpcovF5sFeeirqvH6ncT+CCzAlWl1fj8seXiyolrDIaJleSU4dNHfxBFN5k8IiLjkVLiuxdXcoOE2+A0NrKUtUuShKpGbaEbBBC7OJ4LO1uIqkaNb577VWz8ZAu0rAOrduXENbw75wtxIjXdJt9RmUAio6tX1SN2cQJgBd/fNn+7A3yJth61VXX4cv4Ki38hU7LczAJ8+ugPXKuEiEyirKACXz3900PcXenvRTKBRBZSkleG5G+2W+TYhxKPI+NoFj/aWpCUEqk/7xUfPfBtfsG1IgbEymg1OiQuS7X5fjoTSGQSFw5dFkc2n7LoOeRk5GP7r/v5ILMy6rp6fPfCSrFh6WZoNToGxIhO7zqPj+77RhTnMHlERKaTm1nw0zfP/YZ6lYbB+AuhbYMR1KqJHyNBlrBz5QFx42KuWY9ZXVaDjUu3sM9tJbLP3Wy6ZN4ycTDuGINhJQquFePjB76VW77fKXRa237/YQKJTGb9R5tETbllvlBKnUTMojhoNRzCaY2klNj+yz7xycPfoSSnjAFpdDyBzd/txHcvrBR11SoGhIhM7sqJq+Kn19dA6rjcz1/pNrwzM/lkETqtDjGL4s3aNjd+sgVVZdUMvhVR1ajx25sbxPJXYrmRkEU76cD+9UewZO6X4trZG4rIvTCBRCZTWVKFuM+2WOTY+zccQeapbH4JsXJZp6+L9+Z+ySltjewgLP/nKiR9lSqk5IscEZnPye1nxdoPkhiIv8B1kMiSrp65LvauSzPLsS4fu4pDCcfZ57ZSx7eeEYtnfS6Ob023iuVF7ElVaTW+feE3rHonTqhq1YopFxNIZFIHNh4z+6LJFUVViPsshQ8yG1FTUYtvX/hNrP9oExf9u0PXz+fgo/u/efNE6lle70RkEbtjD4ltK/YwEH/SNioMXn4eDARZTMIXW0VFUaVJj6Gp1yJmcfw9/IBl3UrzyrH8lRjx2ePLcTMjjwExMY1Kg50rD2DRzM/E6V3nFddHZwKJTEpKiZhFcU+ZMzGw7qNkDtW0uQsF2PHbfvHh/d+kZ53KZjxu92BSa5DwxVZ8eO/XIudy/luMCBFZUvznW0Va0kkG4o8dbEeBiKGd+FZNFlNbWYd1H24y6TFSf9qLvMyCVYy2bbh0JFMsmbtMrFmSCEstM6JkWo0O+9YdwZtTl4p1HyaLyhJlTutkAolMLvdKwdfbft5rlmOd25+BY1tOczSGjbp+Pify4we/Ez8vWIuyggoG5C9kncrGe3O+nJyyfLfQarkIORFZnpQSv/x7nVj3QTLUtfUMyO86DWjPIJBFHUs5Lc4dyDDJbxdeL8GWH3axz21jdFoddsceEm9FLxV716ZBp2Weu/ExlTiceAJvT/tExCyKE6X55YouLxNIZBZbvt8lCq+XmPQY6rp6rH4vgQ8yBbyIpCWfFG9HfyJSftjFXX5+V1etwvqPNmHpQ9+JvKzCZEaEiKzq3q2T2LnqgHh39heuGceyGBAAJTe5jjZZ3up3E0R9Xb0pfhf1KiaMbVVVWQ1iF8eLd2Z82nH/hqPQqNnfNuS5d3zrGSy+67PJv/zPOlF0o8Quys0EEplFvaoesYvjTbp42+bvdsJeGq49UNWqkfDlNrFoxmfi5PZzdtx2NNj+yz68MfljseO3/UJnwK4q9SqNzS+cyEQikW0ovF6s/uzR5WLNkkSoatR2GYOim6WIXRyPpK+3G+mjlgJGCHCQg+Wuxxsl2Pz9LqP+5tHNp3H+YAY/2ipAwbWijFVvbxT/nviR2LZiD2qruAzI7WjUWpzYlo735i5bufyVWLv7sOvES4DM5cKhy+LI5lOyz8Qoo/92zuV8bP9lHx9kiuyIl+D7l1aKtt3D5Mh7ByJqRBc4OCo/962t1+LAxmPY8sNO0djpfBq1BjmX89GsQ4jNxiP73E3Tv98oZBFQJW+rrpSyKbmO/tOWdsceEul7L+LeN2bIjn3b2sXzKutUNnbGHMSJbelCZ8QpxhVFVTYfm4riSpDlpP6yV/SZGCVD2wU3+rdqK+uw/qNk9rkVpryoEnGfpYiU5bsxeFZfOeLugfAN8mZg/vfBBmSeuoa0pJM4tu2MsOc1pJhAIrNa92GyCO/XTvo08TLei7ZGh9/e3ACthjt4KVnmyWsi8+Q1BIT6Yejs/nLQjN7w8HVXXDk19Voc3XwKm77dIYqNOP1h07c78OhH82wyJjqtDlt+2GXy4xRmFwttvVY6Ojva9DWUl1WwQqn3gdzMApsvQ2VJFarLqmEPim+W4vMnfhSD7+orpz0/Dm6eroorY121Cse3nsG+dUfktbM3TPJ1Y+/aw4gYEg7Y6Cu7lBJ71x5mR8aCtPVaxC6Ox/PLH4No5HUU//lWVBRXMagKVVtVh20r9oidKw+g+8guss/EKHQe0AG23jcyVMG1YhzZdBJpyScFZ7rcIuZ3eZJRILPqOrijfPLz++HgYJyeUMIX25CynIv42RsXN2f0ndRDDr97AIzxRc3S8q8WYf+GIziceEJUlZrm5XLo7H5y2vPj4erhYjNxqS6rQcyieJxITTdLGx95zyA546UJEA62eUvZ8dt+rP9ok2Lvh0IIPPLBXNljTIRNnr+mXouf/rXGbNezNQkI9UP0s+Nkt+Gd4eLubNNlkTqJy8eu4mDCcZxMTReqWtNP1es9vpuc8MRIBLUIQKMzAOaKk5QovF6MTV9vx/Ft6eynWYF73pguB07vbfDfZ53KxscPfSeUPoqS/punnwd6jomUfSZEoW2PVhBC2c25qrQGx7aeRlrSSVw9c533rj/3xZhAIksYMqufnPv61EZ/Tdu/4ShWvb2RDduu72JAeJ92svvorogc2gn+TX1t5tTrVRqc2JaO/RuO4PKJq8Ica0R4+Lijfc/W8tboLStuOlKisqQKl49dNcvL2R+FtAka3bpri222NFVSSomcjPyr2edvtrGHZt++Z2sZ2CLApjqxmnotLh+/Kkrzyuz6lu3q7oKIoZ1kz7GR6Dq4I5xdbWMwvE6jQ8axLJxIPYtTO84KjsAgW+Tm6YrXYp6WQa2a3PHf1lWpsGTeMtfC68VqRtJ+BYT6ofeEKNljdARadgq12Q9uf1RVWo0rJ679/r+ruH4hR2g13On4b1+9mEAiS+k3pYe8+9/T4WTgkMjUn/Yi7rMUoZR1S8g4WnQMXRsxNPyuyKGdEBbRwuoebJUl1bhw6DLOHchA+p4LoqailpVGRHb7Mhs5rLPsNS4SnQd0gJOLdU2RKMktw8XDV3Dh8BWcP5ghqstqWGlk8wJbBOD5Hx6Vd/LBra5ahW+e/RUZx7L40Zb+l4e3O9r1DJMderdFh15t0CI8FA6O1n+JFF0vweXfk0VXTlwbXHCtcD9fJ/XHBBJZ9mU/PDTp3jdnTGrZuZnef1OWX4HYd+NxZvcFPsSoQd4BXug6JFx2GdgBLcJDEdSyidkfbFqNDlmnsnHuQAbOH8i4ev1CThsmPYmI/pu7txuiRnSRPcdGolO/dmZfb0OnlcjPKkD2+Rxknb6Oi4evtCzILrrBmiEl8mnihXvfmim7Du542//2+oVc/LJw7Zs5l/PfYuTodvfxdj1ay/8kk4LDmsA/xNciH3N1Womy/HIU3yxF0c0SFOeUIi+rEJknr4nyQi7q3xhMIJHlL0IHgR6jusqhc/ujfY/Wf3uTycnIx/4NR7B/w1FRr6pn4OiOObs6oWmb4MPNOoT0bdY+BM3aN0Wz9iHwC/Zp9GwuqZMozilDXmYBcq8UIDczH3mZBarczEI3dS1HexMR6cvT1x1tu7eWvkHe8A3yhk+gN3wD////7RPgBQcnw6aYauq1KM0tQ3FOGYpzSpGTkYfsczdx41Ke4L2a7E2nfu3k4Fl90bl/B7h5/f9F7jVqDTKOXcXB+GNG31WQ7K3v7YygVk2WBrdq8kJwWCCCwwIR3KoJPH3d4erhClcPF7h6uMLxNvd0KYF6VT3UtfVQ16mhrvv//3d5QQWKbpai+GYpim+WoOhmqSjNK+cGS6Z6d2cCiayJTxMvtOnWSoa0DoSnnwfqqlQoulmCq2eui8LrXPmeTMPd2w3e/p7Bbl5up929XEPcvNzg5ukGdy9XuHnd+qeTixNUNWrUVdWhrlqFumoVaqtUqKuuQ01F7YrC7OKH1XVMbBIRmbzz6iDg5e8J30DvJJ9A70m+QbcSTN4BXtBqtFDVqqGurf/9n2qoatWoKKpEcU6ZKC+sABcAJvpTmxIC/k194e7t9qO6Vv1wSW4ZuAYMmZOzq9MfE0pLdRrtdnVdffJ/EkX1qnpwBL+V3C+YQCIiIiIiIiIiooY4MARERERERERERNQQJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJqEBNIRERERERERETUICaQiIiIiIiIiIioQUwgERERERERERFRg5hAIiIiIiIiIiKiBjGBREREREREREREDWICiYiIiIiIiIiIGsQEEhERERERERERNYgJJCIiIiIiIiIiahATSERERERERERE1CAmkIiIiIiIiIiIqEFMIBERERERERERUYOYQCIiIiIiIiIiogYxgURERERERERERA1iAomIiIiIiIiIiBrEBBIRERERERERETWICSQiIiIiIiIiImoQE0hERERERERERNQgJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJq0P8Dtwh/n4IOYogAAAAASUVORK5CYII=" alt="Vantive">
+  <div class="page-hdr-logo">Techwiki · Schedules</div>
+  <h1>Schedules 메뉴 사용 가이드</h1>
+  <p>휴가를 등록하면 거래처가 대체 담당자에게 바로 연결되고, 작업 일정을 올리면 우리 팀 전체가 같은 캘린더를 봅니다.<br>TS부서 현장 담당자용 안내서입니다.</p>
+  <div class="guide-badge">Annual Leave &nbsp;·&nbsp; Work Schedules</div>
+</div>
+
+<!-- ══════════ TOC ══════════ -->
+<nav class="toc">
+  <a class="toc-item" href="#s1"><span class="toc-num">1</span>메뉴 지도</a>
+  <a class="toc-item" href="#s2"><span class="toc-num">2</span>휴가 전체 흐름</a>
+  <a class="toc-item" href="#s3"><span class="toc-num">3</span>휴가 단계별 사용법</a>
+  <a class="toc-item" href="#s4"><span class="toc-num">4</span>작업 일정</a>
+  <a class="toc-item" href="#s5"><span class="toc-num">5</span>두 기능 비교</a>
+  <a class="toc-item" href="#s6"><span class="toc-num">6</span>캘린더 화면 보기</a>
+  <a class="toc-item" href="#s7"><span class="toc-num">7</span>자주 묻는 질문</a>
+  <a class="toc-item" href="#s8"><span class="toc-num">8</span>개인정보·주의</a>
+</nav>
+
+<div class="content">
+
+<!-- ══════════ 1. 메뉴 지도 ══════════ -->
+<section class="section" id="s1">
+  <div class="sec-label"><span class="sec-num">1</span>Overview</div>
+  <h2>Schedules 메뉴에는 무엇이 있나요</h2>
+  <p class="desc">
+    Techwiki 왼쪽 메뉴의 <strong>Schedules</strong> 를 열면 두 묶음, 총 8개 항목이 나옵니다.
+    왼쪽은 <strong>휴가</strong>, 오른쪽은 <strong>작업 일정</strong>입니다.
+    각 묶음의 첫 항목이 &ldquo;등록&rdquo;, 나머지 3개가 <strong>지역별 캘린더</strong>입니다.
+  </p>
+
+  <div class="frame">
+    <div class="frame-title">Techwiki 좌측 메뉴 — Schedules</div>
+    <div class="frame-body">
+      <div class="tree">
+        <div class="tree-root">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Schedules
+        </div>
+
+        <div class="tree-branches">
+          <!-- Annual Leave -->
+          <div class="tree-group">
+            <div class="tg-head"><span>Annual Leave · 휴가</span><span class="cnt">4개 항목</span></div>
+            <div class="tg-purpose">내가 자리를 비우는 동안 거래처가 <b>대체 담당자</b>에게 연결되도록 하고, 팀이 서로의 휴가를 볼 수 있게 합니다.</div>
+            <ul class="tg-items">
+              <li><b>휴가 등록 · 대체 담당자 QR<span class="pin reg">등록</span></b><span>휴가 정보를 넣으면 QR·링크가 만들어지는 별도 앱이 열립니다.</span></li>
+              <li><b>서울 휴가 캘린더<span class="pin cal">보기</span></b><span>서울 지역의 휴가만 월간 캘린더로 표시합니다.</span></li>
+              <li><b>대전·광주 휴가 캘린더<span class="pin cal">보기</span></b><span>대전·광주 지역 휴가만 표시합니다.</span></li>
+              <li><b>부산·대구 휴가 캘린더<span class="pin cal">보기</span></b><span>부산·대구 지역 휴가만 표시합니다.</span></li>
+            </ul>
+          </div>
+
+          <!-- Work Schedules -->
+          <div class="tree-group alt">
+            <div class="tg-head"><span>Work Schedules · 작업 일정</span><span class="cnt">4개 항목</span></div>
+            <div class="tg-purpose">누가 언제 어느 거래처에서 무슨 작업을 하는지 팀 전체가 한 화면에서 확인합니다.</div>
+            <ul class="tg-items">
+              <li><b>작업 일정 등록<span class="pin reg">등록</span></b><span>담당자·거래처·작업 내용·지역·기간을 입력하는 폼입니다.</span></li>
+              <li><b>서울 작업 일정<span class="pin cal">보기</span></b><span>서울 지역 작업 일정을 월간 캘린더로 표시합니다.</span></li>
+              <li><b>대전·광주 작업 일정<span class="pin cal">보기</span></b><span>대전·광주 지역 작업 일정을 표시합니다.</span></li>
+              <li><b>부산·대구 작업 일정<span class="pin cal">보기</span></b><span>부산·대구 지역 작업 일정을 표시합니다.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box info">
+    <span class="tip-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+    <p><strong>지역은 세 가지입니다 — 서울 / 대전·광주 / 부산·대구.</strong> 등록할 때 고른 지역의 캘린더에만 표시됩니다. 서울로 등록하면 부산·대구 캘린더에는 나오지 않습니다.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 2. 휴가 전체 흐름 ══════════ -->
+<section class="section" id="s2">
+  <div class="sec-label"><span class="sec-num">2</span>Annual Leave Flow</div>
+  <h2>휴가 등록 한 번으로 일어나는 일</h2>
+  <p class="desc">
+    휴가 정보를 한 번 입력하면 아래 다섯 가지가 이어집니다.
+    직접 하는 일은 <strong>①등록</strong>과 <strong>③문자 보내기</strong> 두 가지뿐이고, 나머지는 자동입니다.
+  </p>
+
+  <div class="frame">
+    <div class="frame-title">Annual Leave 전체 흐름</div>
+    <div class="frame-body">
+      <div class="flow">
+        <div class="flow-node">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 1</div>
+            <div class="fn-title">휴가 등록</div>
+            <div class="fn-desc">이름·전화번호·지역·대체자·기간 입력</div>
+            <span class="fn-who">내가 함</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+
+        <div class="flow-node">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="21" y2="21"/><line x1="21" y1="14" x2="14" y2="21"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 2</div>
+            <div class="fn-title">QR·링크 자동 생성</div>
+            <div class="fn-desc">등록하자마자 QR 코드와 연결 링크가 나옵니다</div>
+            <span class="fn-who auto">자동</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+
+        <div class="flow-node">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 3</div>
+            <div class="fn-title">거래처에 문자 발송</div>
+            <div class="fn-desc">번호를 넣고 문자 앱을 열면 안내문이 채워집니다</div>
+            <span class="fn-who">내가 함</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+
+        <div class="flow-node">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 4</div>
+            <div class="fn-title">거래처가 대체자에 연결</div>
+            <div class="fn-desc">휴가 기간이면 대체 담당자, 아니면 원 담당자가 보입니다</div>
+            <span class="fn-who partner">거래처</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+
+        <div class="flow-node pine">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 5</div>
+            <div class="fn-title">지역 캘린더 반영</div>
+            <div class="fn-desc">고른 지역의 휴가 캘린더에 기간 바가 나타납니다</div>
+            <span class="fn-who auto">자동</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box success">
+    <span class="tip-ico"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+    <p><strong>QR은 &ldquo;날짜를 아는&rdquo; 링크입니다.</strong> 같은 QR이라도 휴가 기간 안에 열면 대체 담당자가, 휴가가 끝난 뒤에 열면 원래 담당자가 표시됩니다. 휴가마다 QR을 다시 붙이러 다닐 필요가 없습니다.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 3. 휴가 단계별 ══════════ -->
+<section class="section" id="s3">
+  <div class="sec-label"><span class="sec-num">3</span>Annual Leave · How to</div>
+  <h2>휴가 등록, 화면대로 따라 하기</h2>
+  <p class="desc">
+    메뉴에서 <strong>휴가 등록 · 대체 담당자 QR</strong> 을 누르면 등록 화면이 바로 열립니다.
+    <strong>로그인은 필요 없습니다.</strong>
+  </p>
+
+  <div class="sub-h">
+    <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+    3-1. 등록 화면 입력 항목
+  </div>
+
+  <div class="frame">
+    <div class="frame-title">휴가 등록 화면</div>
+    <div class="frame-body">
+      <div class="anno-row">
+        <div class="anno-ui">
+          <div class="ui-app">
+            <div class="ui-app-hdr">
+              <span class="badge">휴가 대체 연락처 등록</span>
+              <h4>대체 연락처 등록</h4>
+              <div class="sub">VACATION SUBSTITUTE CONTACT</div>
+            </div>
+            <div class="ui-app-body">
+              <div class="ui-sec-t">담당자 정보</div>
+              <div class="mark-host">
+                <div class="ui-f"><label>담당자 이름</label><div class="ui-inp filled">류국환</div></div>
+                <div class="ui-f"><label>담당자 전화번호</label><div class="ui-inp filled">010-1234-5678</div></div>
+                <span class="anno-mark" aria-hidden="true">A</span>
+              </div>
+              <div class="ui-f mark-host"><label>지역</label><div class="ui-inp sel filled">서울</div><span class="anno-mark" aria-hidden="true">B</span></div>
+              <div class="ui-hr"></div>
+              <div class="ui-sec-t">대체 담당자 정보</div>
+              <div class="ui-toggle mark-host"><div>리스트에서 선택</div><div class="on">직접 입력</div><span class="anno-mark" aria-hidden="true">C</span></div>
+              <div class="ui-f"><label>대체 담당자 이름</label><div class="ui-inp filled">김철수</div></div>
+              <div class="ui-f"><label>대체 담당자 전화번호</label><div class="ui-inp filled">010-9876-5432</div></div>
+              <div class="ui-hr"></div>
+              <div class="ui-sec-t">휴가 기간</div>
+              <div class="ui-row2 mark-host">
+                <div class="ui-f"><div class="ui-inp filled">2026-08-03</div></div>
+                <span class="tilde">~</span>
+                <div class="ui-f"><div class="ui-inp filled">2026-08-07</div></div>
+                <span class="anno-mark" aria-hidden="true">D</span>
+              </div>
+              <div class="ui-btn mark-host">QR 코드 생성<span class="anno-mark" aria-hidden="true">E</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="anno-divider"></div>
+        <div class="anno-list">
+          <div class="anno-item">
+            <span class="anno-dot d-a">A</span>
+            <div><strong>담당자 이름 · 전화번호</strong><span>휴가를 가는 본인입니다. 둘 다 필수이며, 이 번호는 <b>휴가가 아닌 기간</b>에 QR을 연 거래처에게 보입니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-b">B</span>
+            <div><strong>지역 (필수)</strong><span>서울 / 대전·광주 / 부산·대구 중 하나. 여기서 고른 지역의 휴가 캘린더에만 표시됩니다. 처음에는 비어 있으니 반드시 골라 주세요.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-c">C</span>
+            <div><strong>대체 담당자 — 두 가지 방법</strong><span><b>리스트에서 선택</b>은 미리 등록해 둔 대체자 명단에서 고르는 방식으로, 지역을 먼저 고르면 그 지역 사람만 보입니다. <b>직접 입력</b>은 이름·전화번호를 그때 적는 방식이며 화면을 열면 이쪽이 기본입니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-d">D</span>
+            <div><strong>휴가 기간</strong><span>시작일과 종료일. 기본값은 오늘이고, 하루짜리 휴가는 두 날짜를 같게 두면 됩니다. 종료일을 시작일보다 앞으로 두면 등록되지 않습니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-e">E</span>
+            <div><strong>QR 코드 생성</strong><span>이 버튼을 누르면 저장과 동시에 QR·링크가 만들어지고, 같은 내용이 지역 휴가 캘린더에도 올라갑니다.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box warn">
+    <span class="tip-ico"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+    <p><strong>이름 · 전화번호 · 지역 중 하나라도 비어 있으면 등록되지 않습니다.</strong> 화면 아래에 어떤 항목이 빠졌는지 빨간 글씨로 알려 줍니다.</p>
+  </div>
+
+  <div class="sub-h">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    3-2. 등록하고 나면 — 세 가지를 할 수 있습니다
+  </div>
+
+  <div class="frame">
+    <div class="frame-title">등록 완료 화면</div>
+    <div class="frame-body">
+      <div class="anno-row">
+        <div class="anno-ui">
+          <div class="ui-app">
+            <div class="ui-app-hdr">
+              <span class="badge">QR 생성 완료</span>
+              <h4>대체 연락처 QR</h4>
+              <div class="sub">VACATION CONTACT QR</div>
+            </div>
+            <div class="ui-app-body">
+              <div class="mark-host">
+                <div class="ui-qr"></div>
+                <div style="text-align:center;font-size:0.75rem;font-weight:700;color:var(--text);">a1b2c3 · 류국환님</div>
+                <div style="text-align:center;font-size:0.6875rem;color:var(--text-secondary);margin:3px 0 10px;">휴가 2026-08-03 ~ 2026-08-07</div>
+                <div class="ui-link">https://vantive-annual-leave.web.app/contact/a1b2c3</div>
+                <div class="ui-btn">QR 코드 PNG 다운로드</div>
+                <div style="display:flex;gap:8px;">
+                  <div class="ui-btn ghost" style="flex:1;">링크 복사</div>
+                  <div class="ui-btn ghost" style="flex:1;">미리보기</div>
+                </div>
+                <span class="anno-mark" aria-hidden="true">1</span>
+              </div>
+              <div class="ui-hr"></div>
+              <div class="ui-sec-t">고객 문자 발송</div>
+              <div class="ui-inp mark-host" style="min-height:44px;">010-1234-5678, 010-9876-5432<span class="anno-mark" aria-hidden="true">2</span></div>
+              <div class="ui-btn">문자 앱 열기</div>
+              <div class="ui-note mark-host">문자 앱이 안내문과 링크로 채워져 열립니다.<br>발송 버튼은 직접 눌러 주세요.<span class="anno-mark" aria-hidden="true">4</span></div>
+              <div class="ui-hr"></div>
+              <div class="mark-host" style="display:flex;gap:8px;">
+                <div class="ui-btn ghost" style="flex:1;font-size:0.6875rem;">내 캘린더에 추가 (.ics)</div>
+                <div class="ui-btn ghost" style="flex:1;font-size:0.6875rem;">Google 캘린더에 추가</div>
+                <span class="anno-mark" aria-hidden="true">3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="anno-divider"></div>
+        <div class="anno-list">
+          <div class="anno-item">
+            <span class="anno-dot d-a">1</span>
+            <div><strong>QR 코드 · 링크 배포</strong><span><b>PNG 다운로드</b>로 QR 이미지를 받아 장비나 게시판에 붙이거나, <b>링크 복사</b>로 카카오톡·메일에 그대로 붙여 넣습니다. <b>미리보기</b>를 누르면 거래처가 볼 화면을 그대로 확인할 수 있습니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-b">2</span>
+            <div><strong>고객 문자 발송</strong><span>수신자 번호를 <b>쉼표나 줄바꿈</b>으로 구분해 넣고 <b>문자 앱 열기</b>를 누르면, 휴대폰 문자 앱이 안내 문구와 링크까지 채워진 상태로 열립니다. <b>자동으로 발송되지는 않으므로</b> 마지막 발송 버튼은 직접 눌러야 합니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-c">3</span>
+            <div><strong>내 캘린더에 저장</strong><span><b>.ics</b> 파일을 받으면 아이폰·아웃룩 캘린더에 넣을 수 있고, <b>Google 캘린더에 추가</b>는 구글 캘린더 등록 화면을 바로 엽니다. 이때 저장되는 일정에는 전화번호가 들어가지 않습니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-d">4</span>
+            <div><strong>문자로 나가는 내용</strong><span>&ldquo;[Vantive] OOO님 휴가 안내 (기간) / 휴가 기간 중에는 대체 담당자 OOO님이 응대합니다. / 연락처 확인: 링크&rdquo; 형태로 자동 작성됩니다. 보내기 전에 수정할 수 있습니다.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-h">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    3-3. 거래처는 무엇을 보게 되나요
+  </div>
+
+  <div class="frame">
+    <div class="frame-title">거래처가 QR을 스캔하거나 링크를 눌렀을 때</div>
+    <div class="frame-body">
+      <div class="anno-row">
+        <div class="anno-ui">
+          <div class="ui-app">
+            <div class="ui-app-hdr">
+              <span class="badge">휴가 중 · 대체 담당자 안내</span>
+              <h4>연락처 안내</h4>
+              <div class="sub">CONTACT INFORMATION</div>
+            </div>
+            <div class="ui-app-body">
+              <div class="ui-alert mark-host">
+                <b>현재 류국환님은 휴가 중입니다</b>
+                <span>휴가 기간 2026-08-03 ~ 2026-08-07</span>
+                <span class="anno-mark" aria-hidden="true">A</span>
+              </div>
+              <div class="ui-person">
+                <div class="role">휴가 대체 담당자</div>
+                <div class="nm">김철수</div>
+                <div class="ph">010-9876-5432</div>
+                <div class="cap">휴가 기간 동안 위 대체 담당자가 응대합니다.</div>
+              </div>
+              <div class="ui-btn mark-host">김철수님에게 전화하기<span class="anno-mark" aria-hidden="true">C</span></div>
+              <div class="mark-host">
+                <div class="ui-btn kakao">카카오톡으로 공유</div>
+                <div style="display:flex;gap:8px;">
+                  <div class="ui-btn ghost" style="flex:1;font-size:0.6875rem;">내 캘린더에 추가 (.ics)</div>
+                  <div class="ui-btn ghost" style="flex:1;font-size:0.6875rem;">Google 캘린더에 추가</div>
+                </div>
+                <span class="anno-mark" aria-hidden="true">D</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="anno-divider"></div>
+        <div class="anno-list">
+          <div class="anno-item">
+            <span class="anno-dot d-a">A</span>
+            <div><strong>휴가 기간 중에 열면</strong><span>맨 위에 &ldquo;현재 OOO님은 휴가 중입니다&rdquo; 안내가 뜨고, 아래에는 <b>대체 담당자</b>의 이름과 전화번호가 표시됩니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-b">B</span>
+            <div><strong>휴가 기간이 아닐 때 열면</strong><span>휴가 안내 없이 <b>원래 담당자</b>의 이름과 번호가 그대로 보입니다. 휴가가 끝난 뒤에도 같은 QR을 계속 쓸 수 있는 이유입니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-c">C</span>
+            <div><strong>바로 전화 걸기</strong><span>번호를 누르거나 전화 버튼을 누르면 휴대폰 통화 화면으로 바로 넘어갑니다. 번호를 받아 적을 필요가 없습니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-d">D</span>
+            <div><strong>공유 · 캘린더 저장</strong><span>거래처도 이 링크를 카카오톡으로 공유하거나, 휴가 기간을 자기 캘린더에 저장해 둘 수 있습니다.</span></div>
+          </div>
+          <div class="anno-item">
+            <span class="anno-dot d-e">E</span>
+            <div><strong>삭제된 QR을 열면</strong><span>&ldquo;연락처를 찾을 수 없습니다&rdquo; 안내가 나옵니다. 관리자가 연락처를 지우면 그 QR은 더 이상 동작하지 않습니다.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 4. 작업 일정 ══════════ -->
+<section class="section" id="s4">
+  <div class="sec-label"><span class="sec-num">4</span>Work Schedules</div>
+  <h2>작업 일정 등록과 수정</h2>
+  <p class="desc">
+    작업 일정은 훨씬 단순합니다. <strong>등록 → 캘린더에 표시 → 필요하면 캘린더에서 바로 수정·삭제</strong>, 세 단계뿐입니다.
+    로그인도, 관리자 승인도 없습니다.
+  </p>
+
+  <div class="frame">
+    <div class="frame-title">Work Schedules 전체 흐름</div>
+    <div class="frame-body">
+      <div class="flow">
+        <div class="flow-node pine">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 1</div>
+            <div class="fn-title">작업 일정 등록</div>
+            <div class="fn-desc">담당자 · 거래처 · 작업 내용 · 지역 · 기간</div>
+            <span class="fn-who">누구나</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+
+        <div class="flow-node pine">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 2</div>
+            <div class="fn-title">지역 캘린더에 표시</div>
+            <div class="fn-desc">고른 지역의 작업 일정 캘린더에 기간 바로 나타납니다</div>
+            <span class="fn-who auto">자동</span>
+          </div>
+        </div>
+        <div class="flow-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+
+        <div class="flow-node pine">
+          <div class="fn-ico"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+          <div class="fn-body">
+            <div class="fn-step">Step 3</div>
+            <div class="fn-title">바를 눌러 수정·삭제</div>
+            <div class="fn-desc">캘린더에서 일정 바를 클릭하면 수정 창이 열립니다</div>
+            <span class="fn-who">누구나</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step pine">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>메뉴 &gt; Work Schedules &gt; 작업 일정 등록</h3>
+        <p><b>담당자</b> · <b>거래처/병원명</b> · <b>작업 내용</b>(예: 정기 점검, 소모품 교체) · <b>지역</b> · <b>시작일 ~ 종료일</b> 을 입력하고 [작업 일정 등록] 을 누릅니다. 다섯 항목 모두 필수입니다.</p>
+        <div class="step-tip">하루짜리 작업이면 시작일과 종료일을 같게 두세요. 지역은 처음에 &ldquo;서울&rdquo;로 되어 있으니 확인하고 바꾸세요.</div>
+      </div>
+    </div>
+    <div class="step pine">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>등록되면 캘린더 링크가 바로 뜹니다</h3>
+        <p>&ldquo;등록되었습니다&rdquo; 화면에 방금 넣은 내용이 한 줄로 요약되고, <b>해당 지역 작업 일정 캘린더 보기 →</b> 링크와 <b>작업 일정 추가 등록</b> 링크가 나옵니다. 여러 건을 연달아 등록할 때 유용합니다.</p>
+      </div>
+    </div>
+    <div class="step pine">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>캘린더에서 바를 누르면 수정 창</h3>
+        <p>작업 일정 캘린더에서 기간 바를 클릭하면 <b>작업 일정 수정</b> 창이 열립니다. 담당자·거래처·작업 내용·지역·기간을 모두 고칠 수 있고, 왼쪽 아래 <b>삭제</b> 버튼으로 지울 수도 있습니다. 삭제 전에는 한 번 더 확인 창이 뜹니다.</p>
+        <div class="step-tip">지역을 바꿔 저장하면 그 일정은 원래 지역 캘린더에서 사라지고 새 지역 캘린더로 옮겨집니다.</div>
+      </div>
+    </div>
+    <div class="step pine">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>캘린더 화면에서 바로 등록도 가능</h3>
+        <p>작업 일정 캘린더 오른쪽 위의 <b>＋ 작업 일정 등록</b> 버튼을 누르면 등록 화면으로 바로 넘어갑니다. 달 이동은 <b>‹ / 오늘 / ›</b> 버튼을 쓰세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box warn">
+    <span class="tip-ico"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+    <p><strong>작업 일정은 누구나 수정하고 삭제할 수 있습니다.</strong> 본인 확인 절차가 없으므로, 남의 일정을 고치기 전에는 담당자에게 먼저 확인해 주세요.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 5. 비교표 ══════════ -->
+<section class="section" id="s5">
+  <div class="sec-label"><span class="sec-num">5</span>Compare</div>
+  <h2>두 기능은 무엇이 다른가요</h2>
+  <p class="desc">가장 크게 다른 점은 <strong>거래처에게 보이느냐</strong>와 <strong>누가 지울 수 있느냐</strong> 두 가지입니다.</p>
+
+  <div class="cmp-wrap">
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th style="width:22%">구분</th>
+          <th class="c-al" style="width:39%">Annual Leave · 휴가</th>
+          <th class="c-ws" style="width:39%">Work Schedules · 작업 일정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>목적</th>
+          <td>내가 자리를 비울 때 거래처를 대체 담당자에게 연결하고, 팀의 휴가를 공유</td>
+          <td>누가 언제 어디서 무슨 작업을 하는지 팀 내부에서 공유</td>
+        </tr>
+        <tr>
+          <th>등록하는 곳</th>
+          <td>별도 앱 (Schedules &gt; 휴가 등록 · 대체 담당자 QR)</td>
+          <td>Techwiki 안 (Schedules &gt; 작업 일정 등록)</td>
+        </tr>
+        <tr>
+          <th>누가 등록</th>
+          <td><span class="tag ok">누구나</span><br>휴가 가는 본인이 직접 등록</td>
+          <td><span class="tag ok">누구나</span><br>본인 또는 팀원이 대신 등록 가능</td>
+        </tr>
+        <tr>
+          <th>로그인 필요?</th>
+          <td><span class="tag no">등록은 불필요</span><br>단, 관리자 화면(대체자 명단·휴가 삭제)은 구글 로그인 필요</td>
+          <td><span class="tag no">전혀 불필요</span><br>등록·수정·삭제 모두 로그인 없음</td>
+        </tr>
+        <tr>
+          <th>수정 · 삭제 권한</th>
+          <td><span class="tag warn">관리자만</span><br>잘못 등록했으면 관리자에게 삭제를 요청해야 합니다</td>
+          <td><span class="tag ok">누구나</span><br>캘린더에서 바를 눌러 바로 수정·삭제</td>
+        </tr>
+        <tr>
+          <th>거래처에 보이나요</th>
+          <td><span class="tag warn">보입니다</span><br>QR·링크를 연 거래처에게 담당자 또는 대체자의 이름·전화번호가 표시됩니다</td>
+          <td><span class="tag ok">안 보입니다</span><br>사내 캘린더에서만 확인하는 정보입니다</td>
+        </tr>
+        <tr>
+          <th>캘린더 바 내용</th>
+          <td>휴가자 → 대체 담당자<br><span style="color:var(--text3);font-size:11.5px;">예: 류국환 → 김철수</span></td>
+          <td>담당자 · 거래처 · 작업 내용<br><span style="color:var(--text3);font-size:11.5px;">예: 류국환 · 밴티브병원 · 정기 점검</span></td>
+        </tr>
+        <tr>
+          <th>바를 클릭하면</th>
+          <td>아무 일도 일어나지 않습니다 (보기 전용)</td>
+          <td>수정·삭제 창이 열립니다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 6. 캘린더 목업 ══════════ -->
+<section class="section" id="s6">
+  <div class="sec-label"><span class="sec-num">6</span>Screen</div>
+  <h2>캘린더에서는 이렇게 보입니다</h2>
+  <p class="desc">
+    등록한 기간이 <strong>가로 막대</strong>로 표시됩니다. 여러 건이 겹치면 위아래로 층이 쌓이고,
+    막대가 주를 넘어가면 다음 줄로 이어집니다. 오늘 날짜는 동그라미로 표시됩니다.
+  </p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <h3>휴가 캘린더</h3>
+      <p>막대에 <b>휴가자 → 대체 담당자</b> 가 적힙니다. 막대 위에 마우스를 올리면 지역과 정확한 기간이 뜹니다. 클릭해도 아무 일도 일어나지 않습니다.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-ico pine"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+      <h3>작업 일정 캘린더</h3>
+      <p>막대에 <b>담당자 · 거래처 · 작업 내용</b> 이 적힙니다. 막대를 클릭하면 수정 창이 열립니다.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-ico amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+      <h3>비어 있을 때</h3>
+      <p>&ldquo;이번 달 등록된 휴가가 없습니다&rdquo; 또는 &ldquo;이번 달 등록된 작업 일정이 없습니다&rdquo; 문구가 나옵니다. 고장이 아닙니다.</p>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-title">휴가 캘린더 — 서울</div>
+    <div class="frame-body tight">
+      <div class="mini-cal">
+        <div class="mc-topbar"><span class="t">Annual Leave Calendar</span><span class="r">서울</span></div>
+        <div class="mc-month">
+          <span class="m">2026년 8월</span>
+          <span class="nav"><i>‹</i><i class="wide">오늘</i><i>›</i></span>
+        </div>
+        <div class="mc-head"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+
+        <div class="mc-week" style="min-height:76px;">
+          <div class="mc-days">
+            <div class="mc-day sun"><div class="n">26</div></div>
+            <div class="mc-day"><div class="n">27</div></div>
+            <div class="mc-day"><div class="n">28</div></div>
+            <div class="mc-day"><div class="n">29</div></div>
+            <div class="mc-day"><div class="n">30</div></div>
+            <div class="mc-day"><div class="n">31</div></div>
+            <div class="mc-day sat"><div class="n">1</div></div>
+          </div>
+          <div class="mc-bars"></div>
+        </div>
+
+        <div class="mc-week" style="min-height:96px;">
+          <div class="mc-days">
+            <div class="mc-day sun"><div class="n">2</div></div>
+            <div class="mc-day today"><div class="n">3</div></div>
+            <div class="mc-day"><div class="n">4</div></div>
+            <div class="mc-day"><div class="n">5</div></div>
+            <div class="mc-day"><div class="n">6</div></div>
+            <div class="mc-day"><div class="n">7</div></div>
+            <div class="mc-day sat"><div class="n">8</div></div>
+          </div>
+          <div class="mc-bars">
+            <div class="mc-bar" style="left:14.28%;width:calc(71.42% - 6px);margin-left:3px;background:#72256B;top:0;">류국환<span class="sep">→</span>김철수</div>
+            <div class="mc-bar" style="left:42.85%;width:calc(28.57% - 6px);margin-left:3px;background:#105742;top:22px;">박영희<span class="sep">→</span>이민수</div>
+          </div>
+        </div>
+
+        <div class="mc-week" style="min-height:76px;">
+          <div class="mc-days">
+            <div class="mc-day sun"><div class="n">9</div></div>
+            <div class="mc-day"><div class="n">10</div></div>
+            <div class="mc-day"><div class="n">11</div></div>
+            <div class="mc-day"><div class="n">12</div></div>
+            <div class="mc-day"><div class="n">13</div></div>
+            <div class="mc-day"><div class="n">14</div></div>
+            <div class="mc-day sat"><div class="n">15</div></div>
+          </div>
+          <div class="mc-bars">
+            <div class="mc-bar" style="left:0;width:calc(42.85% - 3px);background:#8B3080;border-top-left-radius:0;border-bottom-left-radius:0;top:0;">최지훈<span class="sep">→</span>류국환</div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-legend"><span class="chip"></span> 휴가 기간 바: 휴가자 → 대체 담당자 &nbsp;·&nbsp; 왼쪽 끝이 각진 막대는 지난주부터 이어지는 휴가입니다</div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-title">작업 일정 캘린더 — 서울</div>
+    <div class="frame-body tight">
+      <div class="mini-cal">
+        <div class="mc-topbar"><span class="t">작업 일정 캘린더</span><span class="r">서울</span></div>
+        <div class="mc-month">
+          <span class="m">2026년 8월</span>
+          <span class="nav"><i>‹</i><i class="wide">오늘</i><i>›</i><i class="wide" style="background:var(--plum);color:var(--cream);border-color:var(--plum);">＋ 등록</i></span>
+        </div>
+        <div class="mc-head"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+
+        <div class="mc-week" style="min-height:96px;">
+          <div class="mc-days">
+            <div class="mc-day sun"><div class="n">2</div></div>
+            <div class="mc-day today"><div class="n">3</div></div>
+            <div class="mc-day"><div class="n">4</div></div>
+            <div class="mc-day"><div class="n">5</div></div>
+            <div class="mc-day"><div class="n">6</div></div>
+            <div class="mc-day"><div class="n">7</div></div>
+            <div class="mc-day sat"><div class="n">8</div></div>
+          </div>
+          <div class="mc-bars">
+            <div class="mc-bar" style="left:14.28%;width:calc(28.57% - 6px);margin-left:3px;background:#72256B;top:0;">류국환<span class="sep">·</span>밴티브병원<span class="sep">·</span>정기 점검</div>
+            <div class="mc-bar" style="left:57.14%;width:calc(28.57% - 6px);margin-left:3px;background:#105742;top:22px;">김철수<span class="sep">·</span>서울병원<span class="sep">·</span>소모품 교체</div>
+          </div>
+        </div>
+
+        <div class="mc-week" style="min-height:76px;">
+          <div class="mc-days">
+            <div class="mc-day sun"><div class="n">9</div></div>
+            <div class="mc-day"><div class="n">10</div></div>
+            <div class="mc-day"><div class="n">11</div></div>
+            <div class="mc-day"><div class="n">12</div></div>
+            <div class="mc-day"><div class="n">13</div></div>
+            <div class="mc-day"><div class="n">14</div></div>
+            <div class="mc-day sat"><div class="n">15</div></div>
+          </div>
+          <div class="mc-bars">
+            <div class="mc-bar" style="left:28.57%;width:calc(42.85% - 6px);margin-left:3px;background:#8B3080;top:0;">박영희<span class="sep">·</span>한강병원<span class="sep">·</span>설치 지원</div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-legend"><span class="chip"></span> 작업 일정 바를 눌러 수정하거나 삭제할 수 있습니다 (로그인 없음)</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 7. FAQ ══════════ -->
+<section class="section" id="s7">
+  <div class="sec-label"><span class="sec-num">7</span>FAQ</div>
+  <h2>자주 묻는 질문</h2>
+
+  <div class="faq">
+    <div class="faq-item">
+      <div class="faq-q"><span class="qm">Q</span>제 전화번호가 캘린더에 남거나 아무나 볼 수 있나요?</div>
+      <div class="faq-a">
+        <strong>휴가 캘린더와 작업 일정 캘린더에는 전화번호가 아예 저장되지 않습니다.</strong>
+        캘린더에는 이름·기간(그리고 작업 일정의 경우 거래처·작업 내용)만 들어갑니다.
+        전화번호는 <strong>QR 코드나 링크를 연 사람에게만</strong> 보이며, 거기서는 이름과 함께 번호가 표시되고 눌러서 바로 전화를 걸 수 있습니다.
+        즉 QR을 준 거래처만 번호를 보게 되므로, QR·링크를 누구에게 보낼지는 신중히 정하세요.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="qm">Q</span>휴가를 잘못 등록했어요. 제가 지울 수 있나요?</div>
+      <div class="faq-a">
+        <strong>본인은 지울 수 없습니다.</strong> 휴가 기록의 수정·삭제는 관리자만 할 수 있습니다.
+        관리자는 앱의 관리 화면(구글 로그인)에서 <b>휴가 캘린더</b> 탭을 열어 해당 건을 삭제하면 되고,
+        삭제하는 즉시 Techwiki 캘린더에서도 사라집니다.
+        관리자가 <b>연락처</b> 자체를 삭제하면 그 연락처에 연결된 휴가도 함께 지워지고, 배포한 QR도 더 이상 동작하지 않습니다.
+        따라서 잘못 등록했다면 관리자에게 삭제를 요청한 뒤 다시 등록하세요.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="qm">Q</span>등록했는데 캘린더에 안 보여요.</div>
+      <div class="faq-a">
+        순서대로 확인해 보세요.
+        ① <strong>지역이 맞는지</strong> — 대전·광주로 등록했다면 서울 캘린더에는 나오지 않습니다.
+        ② <strong>달이 맞는지</strong> — 다음 달 휴가라면 <b>›</b> 버튼으로 달을 넘겨야 보입니다.
+        ③ <strong>새로고침</strong> — 캘린더는 한 번 불러온 자료를 잠시 기억해 두므로, 방금 등록한 건은 페이지를 새로고침하면 나타납니다.
+        ④ 그래도 안 보이고 화면 위에 &ldquo;불러오지 못했습니다&rdquo; 같은 안내가 떠 있다면 네트워크 문제이니 잠시 후 다시 열어 보세요.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="qm">Q</span>지역을 잘못 골랐습니다.</div>
+      <div class="faq-a">
+        <strong>작업 일정</strong>은 간단합니다. 원래 지역 캘린더에서 그 막대를 눌러 수정 창을 열고 <b>지역</b>만 바꿔 저장하면 새 지역 캘린더로 옮겨집니다.<br>
+        <strong>휴가</strong>는 본인이 고칠 수 없습니다. 관리자에게 삭제를 요청한 뒤 올바른 지역으로 다시 등록해 주세요.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="qm">Q</span>문자 앱 열기를 눌렀는데 자동으로 발송되나요?</div>
+      <div class="faq-a">
+        <strong>아니요.</strong> 휴대폰의 기본 문자 앱이 수신자 번호와 안내 문구, 링크까지 채워진 상태로 <strong>열리기만</strong> 합니다.
+        내용을 확인하고 직접 발송 버튼을 눌러야 실제로 나갑니다. 보내기 전에 문구를 고쳐도 됩니다.
+        수신자가 여러 명이면 번호를 <b>쉼표(,)나 줄바꿈</b>으로 구분해 넣으세요.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="qm">Q</span>대체 담당자를 매번 손으로 입력해야 하나요?</div>
+      <div class="faq-a">
+        자주 쓰는 대체자는 관리자가 <b>대체자 리스트</b>에 이름·전화번호·지역과 함께 미리 등록해 둘 수 있습니다.
+        그러면 휴가 등록 화면에서 <b>리스트에서 선택</b> 탭으로 바꿔 이름만 고르면 번호가 자동으로 채워집니다.
+        지역을 먼저 고르면 그 지역 대체자만 보여 찾기 쉽습니다. 명단이 비어 있으면 안내 문구가 뜨니, 그때는 <b>직접 입력</b>을 쓰세요.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══════════ 8. 개인정보 · 주의 ══════════ -->
+<section class="section" id="s8">
+  <div class="sec-label"><span class="sec-num">8</span>Privacy &amp; Care</div>
+  <h2>개인정보와 주의할 점</h2>
+  <p class="desc">두 기능 모두 사내에서 열리는 화면이지만, 휴가 QR만은 <strong>거래처가 보는 정보</strong>라는 점을 기억해 주세요.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-ico pine"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h3>캘린더에는 번호가 없습니다</h3>
+      <p>휴가 캘린더·작업 일정 캘린더에 저장되는 항목에는 <b>전화번호가 포함되지 않습니다</b>. 캘린더만 봐서는 누구의 번호도 알 수 없습니다.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-ico amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <h3>QR·링크는 번호를 보여 줍니다</h3>
+      <p>QR을 스캔하거나 링크를 연 사람에게는 담당자(또는 대체자)의 <b>이름과 전화번호</b>가 표시됩니다. 필요한 거래처에만 배포하세요.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-ico amber"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+      <h3>작업 일정은 누구나 고칩니다</h3>
+      <p>로그인이 없어 <b>남의 일정도 수정·삭제할 수 있습니다</b>. 실수로 지우면 되돌릴 수 없으니, 남의 일정은 확인 후에 손대 주세요.</p>
+    </div>
+    <div class="info-card">
+      <div class="info-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <h3>대체자에게 미리 알리기</h3>
+      <p>대체 담당자로 지정하면 그 사람의 번호가 거래처에 노출됩니다. 등록 전에 <b>본인에게 먼저 양해를 구해</b> 주세요.</p>
+    </div>
+  </div>
+
+  <div class="tip-box info">
+    <span class="tip-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+    <p><strong>휴가 등록은 취소가 어렵습니다.</strong> 등록 버튼을 누르기 전에 이름·지역·기간·대체자를 한 번 더 확인해 주세요. 등록 후 수정·삭제는 관리자만 할 수 있습니다.</p>
+  </div>
+
+  <div class="tip-box success">
+    <span class="tip-ico"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+    <p><strong>정리하면 — 휴가는 &ldquo;거래처까지 이어지는&rdquo; 정보, 작업 일정은 &ldquo;우리끼리 보는&rdquo; 정보입니다.</strong> 이 차이만 기억하면 두 메뉴를 헷갈릴 일이 없습니다.</p>
+  </div>
+</section>
+
+</div>
+
+<div class="foot">
+  Vantive Techwiki · Schedules 사용 가이드<br>
+  문의: TS부서 Techwiki 담당자
+</div>
+
+</body>
+</html>
