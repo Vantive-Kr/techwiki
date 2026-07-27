@@ -586,40 +586,6 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
   table.cmp th, table.cmp td { padding:0.7rem 0.85rem; }
 }
 
-/* ── DARK (opt-in via OS preference only; light is the Techwiki default) ── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:#150A14;
-    --surface:#1F0F1D;
-    --surface-hover:#2C182A;
-    --border:rgba(205,223,215,0.16);
-    --border-strong:rgba(205,223,215,0.28);
-    --text:#F3EFE4;
-    --text-secondary:#C9B4C6;
-    --text-muted:#A594A3;
-    --accent:#C77BBD;
-    --accent-secondary:#8FC49E;
-    --positive:#7FC49A;
-    --negative:#E08A8A;
-    --warning:#D9AE55;
-    --info:#7FC0CE;
-    --accent-tint:rgba(199,123,189,0.16);
-    --accent-tint-strong:rgba(199,123,189,0.24);
-    --positive-tint:rgba(127,196,154,0.16);
-    --warning-tint:rgba(217,174,85,0.16);
-    --negative-tint:rgba(224,138,138,0.16);
-    --info-tint:rgba(127,192,206,0.16);
-    --cream-mid:#2C182A;
-    --euca:#8FC49E;
-    --shadow:0 2px 14px rgba(0,0,0,0.4);
-    --shadow-lift:0 4px 20px rgba(0,0,0,0.5);
-  }
-  .ui-inp.filled, .ui-toggle div.on, .mc-month .nav i { background:var(--surface-hover); }
-  .ui-btn { color:#1B1219; }
-  .ui-btn.ghost { background:var(--surface); color:var(--accent); }
-  .mc-bar { color:#FFFFFF; }
-  .anno-mark { box-shadow:0 0 0 2px var(--surface), 0 1px 5px rgba(0,0,0,0.5); }
-}
 
 @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
 
@@ -824,7 +790,7 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
             <div class="ui-app-body">
               <div class="ui-sec-t">담당자 정보</div>
               <div class="mark-host">
-                <div class="ui-f"><label>담당자 이름</label><div class="ui-inp filled">류국환</div></div>
+                <div class="ui-f"><label>담당자 이름</label><div class="ui-inp filled">홍길동</div></div>
                 <div class="ui-f"><label>담당자 전화번호</label><div class="ui-inp filled">010-1234-5678</div></div>
                 <span class="anno-mark" aria-hidden="true">A</span>
               </div>
@@ -897,7 +863,7 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
             <div class="ui-app-body">
               <div class="mark-host">
                 <div class="ui-qr"></div>
-                <div style="text-align:center;font-size:0.75rem;font-weight:700;color:var(--text);">a1b2c3 · 류국환님</div>
+                <div style="text-align:center;font-size:0.75rem;font-weight:700;color:var(--text);">a1b2c3 · 홍길동님</div>
                 <div style="text-align:center;font-size:0.6875rem;color:var(--text-secondary);margin:3px 0 10px;">휴가 2026-08-03 ~ 2026-08-07</div>
                 <div class="ui-link">https://vantive-annual-leave.web.app/contact/a1b2c3</div>
                 <div class="ui-btn">QR 코드 PNG 다운로드</div>
@@ -962,7 +928,7 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
             </div>
             <div class="ui-app-body">
               <div class="ui-alert mark-host">
-                <b>현재 류국환님은 휴가 중입니다</b>
+                <b>현재 홍길동님은 휴가 중입니다</b>
                 <span>휴가 기간 2026-08-03 ~ 2026-08-07</span>
                 <span class="anno-mark" aria-hidden="true">A</span>
               </div>
@@ -1151,8 +1117,8 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
         </tr>
         <tr>
           <th>캘린더 바 내용</th>
-          <td>휴가자 → 대체 담당자<br><span style="color:var(--text3);font-size:11.5px;">예: 류국환 → 김철수</span></td>
-          <td>담당자 · 거래처 · 작업 내용<br><span style="color:var(--text3);font-size:11.5px;">예: 류국환 · 밴티브병원 · 정기 점검</span></td>
+          <td>휴가자 → 대체 담당자<br><span style="color:var(--text3);font-size:11.5px;">예: 홍길동 → 김철수</span></td>
+          <td>담당자 · 거래처 · 작업 내용<br><span style="color:var(--text3);font-size:11.5px;">예: 홍길동 · 밴티브병원 · 정기 점검</span></td>
         </tr>
         <tr>
           <th>바를 클릭하면</th>
@@ -1228,7 +1194,7 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
             <div class="mc-day sat"><div class="n">8</div></div>
           </div>
           <div class="mc-bars">
-            <div class="mc-bar" style="left:14.28%;width:calc(71.42% - 6px);margin-left:3px;background:#72256B;top:0;">류국환<span class="sep">→</span>김철수</div>
+            <div class="mc-bar" style="left:14.28%;width:calc(71.42% - 6px);margin-left:3px;background:#72256B;top:0;">홍길동<span class="sep">→</span>김철수</div>
             <div class="mc-bar" style="left:42.85%;width:calc(28.57% - 6px);margin-left:3px;background:#105742;top:22px;">박영희<span class="sep">→</span>이민수</div>
           </div>
         </div>
@@ -1244,7 +1210,7 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
             <div class="mc-day sat"><div class="n">15</div></div>
           </div>
           <div class="mc-bars">
-            <div class="mc-bar" style="left:0;width:calc(42.85% - 3px);background:#8B3080;border-top-left-radius:0;border-bottom-left-radius:0;top:0;">최지훈<span class="sep">→</span>류국환</div>
+            <div class="mc-bar" style="left:0;width:calc(42.85% - 3px);background:#8B3080;border-top-left-radius:0;border-bottom-left-radius:0;top:0;">최지훈<span class="sep">→</span>홍길동</div>
           </div>
         </div>
       </div>
@@ -1274,7 +1240,7 @@ table.cmp tr:last-child th, table.cmp tr:last-child td { border-bottom:none; }
             <div class="mc-day sat"><div class="n">8</div></div>
           </div>
           <div class="mc-bars">
-            <div class="mc-bar" style="left:14.28%;width:calc(28.57% - 6px);margin-left:3px;background:#72256B;top:0;">류국환<span class="sep">·</span>밴티브병원<span class="sep">·</span>정기 점검</div>
+            <div class="mc-bar" style="left:14.28%;width:calc(28.57% - 6px);margin-left:3px;background:#72256B;top:0;">홍길동<span class="sep">·</span>밴티브병원<span class="sep">·</span>정기 점검</div>
             <div class="mc-bar" style="left:57.14%;width:calc(28.57% - 6px);margin-left:3px;background:#105742;top:22px;">김철수<span class="sep">·</span>서울병원<span class="sep">·</span>소모품 교체</div>
           </div>
         </div>
