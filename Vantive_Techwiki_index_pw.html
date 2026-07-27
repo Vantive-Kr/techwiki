@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Vantive TS Techwiki</title>
+  <!-- PWA (Phase C) -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#72256B">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Techwiki">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@900&display=swap" rel="stylesheet">
   <style>
     /* ── Variables ───────────────────────────────── */
@@ -329,29 +337,29 @@
       display: flex; flex-wrap: nowrap;         /* 항상 한 줄 (두 줄 방지) */
       justify-content: safe center; align-items: center;
       gap: 2px;
-      padding: 18px 0 14px;
+      padding: 18px 6px 14px;                    /* 좌우 여백: 끝 항목 호버 pill 잘림 방지 */
       border-bottom: 1.5px solid rgba(114,37,107,0.12);
       overflow-x: auto;                         /* 좁은 창에서도 줄바꿈 대신 한 줄 유지 */
       scrollbar-width: none;                    /* 스크롤바 숨김 (Firefox) */
     }
     .welcome-topnav::-webkit-scrollbar { display: none; }  /* 스크롤바 숨김 (WebKit) */
     .topnav-item {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 11px 10px; flex: 0 0 auto;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 9px; flex: 0 0 auto;
       border: none; background: transparent; cursor: pointer;
       border-radius: 999px;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      font-size: 14px; font-weight: 700;
+      font-size: 12.6px; font-weight: 700;   /* 기존 14px에서 ~10% 축소 (Annual Leave 추가로 한 줄에 다 표시) */
       color: var(--plum); letter-spacing: -0.2px;
       white-space: nowrap;
       transition: background var(--transition), color var(--transition);
     }
     .topnav-item .tn-icon {
-      width: 20px; height: 20px; flex-shrink: 0;
+      width: 18px; height: 18px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .topnav-item .tn-icon svg {
-      width: 20px; height: 20px;
+      width: 18px; height: 18px;
       stroke: var(--plum); stroke-width: 2.2;
       transition: stroke var(--transition);
     }
@@ -1001,7 +1009,7 @@
 
       <!-- Brand banner: Champion of Positive Change -->
       <div class="welcome-brand-banner">
-        <img src="vantive_image02.png"
+        <img src="vantive_image01.png"
              alt="Vantive — Champion of Positive Change">
       </div>
     </div>
@@ -1131,6 +1139,14 @@ window.closeNotice = function() {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <path d="M9 12l2 2 4-4"/>
             </svg>`,
+    annualleave: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+              <path d="M9 15.5l2 2 4-4"/>
+            </svg>`,
   };
 
   /* ── Data ────────────────────────────────────── */
@@ -1186,14 +1202,24 @@ window.closeNotice = function() {
       id: 'serviceplan', label: 'Service Plan', icon: SVG.serviceplan,
       desc: '서비스 플랜 및 파트너 프로그램',
       items: [
-        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB1.pdf' },
-        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB1.pdf' },
+        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
+        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'Prismaflex Technical Services Partner Advantage (KOR)', file: 'Prismaflex_TSPA_Brochure_KOR_RevC.pdf' },
         { label: 'PrisMax Technical Services Partner Advantage (KOR)',    file: 'PrisMax_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'WRO300 Technical Services Partner Advantage (KOR)',     file: 'WRO300_TSPA_Brochure_KOR_RevC.pdf' },
         { label: 'CWP 임대 Service Partner Advantage (KOR)',              file: 'CWP_Rental_SPA_KOR_RevF.pdf' },
         { label: 'CWP 판매 Only Service Partner Advantage (KOR)',         file: 'CWP_Sales_Only_SPA_KOR_RevC.pdf' },
         { label: 'CWP 판매+HD Service Partner Advantage (KOR)',           file: 'CWP_Sales_HD_SPA_KOR_RevF.pdf' },
+      ]
+    },
+    {
+      id: 'annualleave', label: 'Annual Leave', icon: SVG.annualleave,
+      desc: '휴가 등록(대체 담당자 QR 연결)과 지역별 휴가 캘린더를 확인하세요.',
+      items: [
+        { label: '휴가 등록 · 대체 담당자 QR', file: 'https://vantive-annual-leave.web.app' },
+        { label: '서울 휴가 캘린더',           file: 'annual_leave_calendar.html?r=seoul' },
+        { label: '대전·광주 휴가 캘린더',      file: 'annual_leave_calendar.html?r=djgj' },
+        { label: '부산·대구 휴가 캘린더',      file: 'annual_leave_calendar.html?r=bsdg' },
       ]
     }
   ];
@@ -1888,6 +1914,18 @@ window.closeNotice = function() {
     };
   })();
 
+</script>
+<script>
+  /* ── PWA: Service Worker 등록 (Phase C) ──
+   * 상대경로 './sw.js' → GitHub Pages 프로젝트 페이지(/techwiki/ 하위)에서도
+   * scope가 올바르게 잡힌다. 미지원 브라우저에서는 아무 것도 하지 않음. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js')
+        .then(function (reg) { console.log('[PWA] SW registered, scope:', reg.scope); })
+        .catch(function (err) { console.warn('[PWA] SW registration failed:', err); });
+    });
+  }
 </script>
 </body>
 </html>
