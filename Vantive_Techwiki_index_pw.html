@@ -233,7 +233,15 @@
       overflow: hidden;
       max-height: 0; transition: max-height .22s ease;
     }
-    .nav-group-items.open { max-height: 400px; }
+    .nav-group-items.open { max-height: 560px; }
+
+    /* Sub-group heading inside an accordion panel (e.g. Annual Leave / Work Schedules) */
+    .nav-group-subhead {
+      padding: 8px 8px 3px 18px;
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: rgba(255,250,235,0.42);
+    }
 
     /* Item link */
     .nav-item {
@@ -563,6 +571,13 @@
       stroke-linecap: round; stroke-linejoin: round;
     }
     .we-item:hover .we-arrow svg { stroke: var(--plum); }
+    /* Sub-group heading inside the top-nav expand panel */
+    .we-subhead {
+      padding: 16px 4px 5px;
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--plum);
+    }
+    .we-subhead:first-child { padding-top: 2px; }
     @media (max-width: 760px) {
       .welcome-expand-layout { flex-direction: column; gap: 18px; }
       .welcome-expand-left { flex: none; max-width: none; }
@@ -1009,7 +1024,7 @@
 
       <!-- Brand banner: Champion of Positive Change -->
       <div class="welcome-brand-banner">
-        <img src="vantive_image02.png"
+        <img src="vantive_image01.png"
              alt="Vantive — Champion of Positive Change">
       </div>
     </div>
@@ -1213,13 +1228,17 @@ window.closeNotice = function() {
       ]
     },
     {
-      id: 'annualleave', label: 'Annual Leave', icon: SVG.annualleave,
-      desc: '휴가 등록(대체 담당자 QR 연결)과 지역별 휴가 캘린더를 확인하세요.',
+      id: 'schedules', label: 'Schedules', icon: SVG.annualleave,
+      desc: '휴가 등록·지역별 휴가 캘린더와 작업 일정 등록·조회를 확인하세요.',
       items: [
-        { label: '휴가 등록 · 대체 담당자 QR', file: 'https://vantive-annual-leave.web.app' },
-        { label: '서울 휴가 캘린더',           file: 'annual_leave_calendar.html?r=seoul' },
-        { label: '대전·광주 휴가 캘린더',      file: 'annual_leave_calendar.html?r=djgj' },
-        { label: '부산·대구 휴가 캘린더',      file: 'annual_leave_calendar.html?r=bsdg' },
+        { group: 'Annual Leave',   label: '휴가 등록 · 대체 담당자 QR', file: 'https://vantive-annual-leave.web.app' },
+        { group: 'Annual Leave',   label: '서울 휴가 캘린더',           file: 'annual_leave_calendar.html?r=seoul' },
+        { group: 'Annual Leave',   label: '대전·광주 휴가 캘린더',      file: 'annual_leave_calendar.html?r=djgj' },
+        { group: 'Annual Leave',   label: '부산·대구 휴가 캘린더',      file: 'annual_leave_calendar.html?r=bsdg' },
+        { group: 'Work Schedules', label: '작업 일정 등록',             file: 'work_schedule_register.html' },
+        { group: 'Work Schedules', label: '서울 작업 일정',             file: 'work_schedule_calendar.html?r=seoul' },
+        { group: 'Work Schedules', label: '대전·광주 작업 일정',        file: 'work_schedule_calendar.html?r=djgj' },
+        { group: 'Work Schedules', label: '부산·대구 작업 일정',        file: 'work_schedule_calendar.html?r=bsdg' },
       ]
     }
   ];
@@ -1276,7 +1295,15 @@ window.closeNotice = function() {
     const items = document.createElement('div');
     items.className = 'nav-group-items open';
 
+    let ngCurGroup = null;
     cat.items.forEach(item => {
+      if (item.group && item.group !== ngCurGroup) {
+        ngCurGroup = item.group;
+        const gh = document.createElement('div');
+        gh.className = 'nav-group-subhead';
+        gh.textContent = item.group;
+        items.appendChild(gh);
+      }
       const btn = document.createElement('button');
       btn.className = 'nav-item';
       btn.innerHTML = `<span class="ni-dot"></span>${item.label}`;
@@ -1324,7 +1351,15 @@ window.closeNotice = function() {
     wcExpandTitle.textContent = cat.label;
     wcExpandDesc.textContent  = cat.desc || '';
     wcExpandGrid.innerHTML = '';
+    let weCurGroup = null;
     cat.items.forEach(item => {
+      if (item.group && item.group !== weCurGroup) {
+        weCurGroup = item.group;
+        const gh = document.createElement('div');
+        gh.className = 'we-subhead';
+        gh.textContent = item.group;
+        wcExpandGrid.appendChild(gh);
+      }
       const row = document.createElement('div');
       row.className = 'we-item';
       row.innerHTML = `
