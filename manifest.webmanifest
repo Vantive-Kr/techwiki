@@ -1,0 +1,32 @@
+{
+  "name": "Vantive Techwiki",
+  "short_name": "Techwiki",
+  "description": "Vantive TS Techwiki - 기술 문서 및 휴가 캘린더",
+  "lang": "ko",
+  "start_url": "./Vantive_Techwiki_index_pw.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#72256B",
+  "background_color": "#FFFAEB",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

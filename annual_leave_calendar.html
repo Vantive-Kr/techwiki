@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Leave Calendar · Vantive</title>
+<style>
+:root {
+  --plum:        #72256B;
+  --plum-d:      #5C1B56;
+  --plum-light:  rgba(114,37,107,0.09);
+  --plum-mid:    rgba(114,37,107,0.20);
+  --cream:       #FFFAEB;
+  --cream-mid:   #F5EDD8;
+  --pine:        #105742;
+  --pine-light:  rgba(16,87,66,0.10);
+  --euca:        #6CA07A;
+  --euca-light:  rgba(108,160,122,0.12);
+  --sage:        #CDDFD7;
+  --sage-bg:     #E8F3F0;
+  --white:       #FFFFFF;
+  --text:        #1C1C1E;
+  --text2:       #52525B;
+  --text3:       #A1A1AA;
+  --border:      rgba(0,0,0,0.07);
+  --border-p:    rgba(114,37,107,0.14);
+  --shadow:      0 2px 14px rgba(0,0,0,0.06);
+  --shadow-md:   0 6px 24px rgba(0,0,0,0.10);
+  --r:    14px;
+  --r-sm:  9px;
+  --r-xs:  5px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(150deg, var(--plum-d) 0%, var(--plum) 60%, #8B3080 100%);
+  padding: 18px 18px 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-inner {
+  max-width: 980px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.h-title { display:flex; flex-direction:column; gap:3px; }
+.h-title h1 { color: var(--cream); font-size: 18px; font-weight: 700; letter-spacing: -.2px; }
+.h-title .sub { color: rgba(255,250,235,0.65); font-size: 11.5px; font-weight: 500; }
+.h-region {
+  color: var(--cream); background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 5px 14px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700; letter-spacing: .2px;
+}
+
+/* ── Region tabs (no ?r param) ── */
+.tabs {
+  display: flex; gap: 8px;
+}
+.tab {
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,250,235,0.8);
+  padding: 6px 13px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.tab.active {
+  background: var(--cream); color: var(--plum);
+  border-color: var(--cream);
+}
+
+/* ── MAIN ── */
+.wrap { max-width: 980px; margin: 0 auto; padding: 18px 14px 40px; }
+
+/* Month nav */
+.month-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; gap: 10px;
+}
+.mn-title { font-size: 19px; font-weight: 800; color: var(--plum); letter-spacing: -.3px; }
+.mn-btns { display: flex; gap: 7px; }
+.mn-btn {
+  width: 34px; height: 34px; border-radius: var(--r-sm);
+  border: 1px solid var(--border-p); background: var(--white);
+  color: var(--plum); cursor: pointer; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow); transition: background .15s;
+}
+.mn-btn.today-btn { width: auto; padding: 0 13px; font-size: 12.5px; }
+.mn-btn:hover { background: var(--plum-light); }
+
+/* Status / notice */
+.notice {
+  display: none;
+  background: var(--white); border: 1px solid var(--border-p);
+  border-left: 4px solid var(--plum);
+  border-radius: var(--r-sm); padding: 11px 14px;
+  font-size: 13px; color: var(--text2); margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.notice.show { display: block; }
+
+/* ── Calendar ── */
+.calendar {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow);
+}
+.cal-head {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  background: var(--cream-mid); border-bottom: 1px solid var(--border);
+}
+.cal-head div {
+  text-align: center; padding: 9px 0;
+  font-size: 11.5px; font-weight: 700; color: var(--text2); letter-spacing: .4px;
+}
+.cal-head div:first-child { color: #C0392B; }
+.cal-head div:last-child  { color: var(--pine); }
+
+.week { position: relative; border-bottom: 1px solid var(--border); }
+.week:last-child { border-bottom: none; }
+.wk-days { display: grid; grid-template-columns: repeat(7, 1fr); height: 100%; }
+.day {
+  border-right: 1px solid var(--border);
+  padding: 6px 0 4px; min-height: 100%;
+}
+.day:last-child { border-right: none; }
+.day.other { background: rgba(0,0,0,0.018); }
+.day-num {
+  width: 24px; height: 24px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 600; color: var(--text);
+  border-radius: 50%;
+}
+.day.other .day-num { color: var(--text3); }
+.day.sun .day-num { color: #C0392B; }
+.day.sat .day-num { color: var(--pine); }
+.day.other.sun .day-num, .day.other.sat .day-num { opacity: .45; }
+.day.today .day-num { background: var(--plum); color: var(--cream); font-weight: 700; }
+
+.wk-bars { position: absolute; left: 0; right: 0; top: 34px; bottom: 0; pointer-events: none; }
+.bar {
+  position: absolute; height: 20px;
+  display: flex; align-items: center;
+  padding: 0 7px; font-size: 11px; font-weight: 600;
+  color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: auto;
+}
+.bar .arrow { opacity: .75; margin: 0 3px; font-weight: 400; }
+.bar.rl { border-top-left-radius: 5px; border-bottom-left-radius: 5px; margin-left: 3px; }
+.bar.rr { border-top-right-radius: 5px; border-bottom-right-radius: 5px; margin-right: 3px; }
+
+.empty-msg {
+  text-align: center; font-size: 12.5px; color: var(--text3);
+  padding: 13px 0 15px;
+}
+
+/* Legend */
+.legend {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 12px; font-size: 11.5px; color: var(--text3);
+}
+.legend .chip {
+  display: inline-block; width: 22px; height: 10px;
+  border-radius: 3px; background: var(--plum);
+}
+
+@media (max-width: 520px) {
+  .h-title h1 { font-size: 16px; }
+  .mn-title { font-size: 16.5px; }
+  .bar { font-size: 10px; padding: 0 4px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="h-title">
+      <h1>Annual Leave Calendar</h1>
+      <div class="sub">휴가자 → 대체 담당자 · Vantive Techwiki</div>
+    </div>
+    <div id="region-slot"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="month-nav">
+    <div class="mn-title" id="month-title">—</div>
+    <div class="mn-btns">
+      <button class="mn-btn" id="btn-prev" title="이전 달" aria-label="이전 달">‹</button>
+      <button class="mn-btn today-btn" id="btn-today">오늘</button>
+      <button class="mn-btn" id="btn-next" title="다음 달" aria-label="다음 달">›</button>
+    </div>
+  </div>
+
+  <div class="notice" id="notice"></div>
+
+  <div class="calendar">
+    <div class="cal-head">
+      <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+    </div>
+    <div id="cal-body"></div>
+    <div class="empty-msg" id="empty-msg" style="display:none">이번 달 등록된 휴가가 없습니다.</div>
+  </div>
+
+  <div class="legend"><span class="chip"></span> 휴가 기간 바: 휴가자 → 대체 담당자</div>
+</main>
+
+<!-- Firebase compat SDK (vacation-qr 프로젝트 전용 — 의견게시판 config 아님) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+'use strict';
+
+/* ── Config: vacation-qr Firebase 프로젝트 (vacation-qr/.env 값 하드코딩) ── */
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyDpMjh7trMGz6D-W9If2YCgPHXNzgBVl6k',
+  authDomain:        'vantive-annual-leave.firebaseapp.com',
+  projectId:         'vantive-annual-leave',
+  storageBucket:     'vantive-annual-leave.firebasestorage.app',
+  messagingSenderId: '1050871221334',
+  appId:             '1:1050871221334:web:8e1d96cc64d5011d997ff7',
+};
+
+const REGIONS = { seoul: '서울', djgj: '대전·광주', bsdg: '부산·대구' };
+const BAR_COLORS = ['#72256B', '#105742', '#8B3080', '#407968', '#6CA07A', '#5C1B56'];
+
+/* ── Region: ?r= 쿼리 우선(#해시 폴백). index 로더가 '?v=타임스탬프'를 덧붙이므로
+     URLSearchParams 대신 관용 정규식으로 파싱한다. ── */
+function parseRegion() {
+  const m = (location.search + location.hash).match(/[?#&]r=(seoul|djgj|bsdg)\b/);
+  if (m) return m[1];
+  const h = location.hash.match(/#(seoul|djgj|bsdg)\b/);
+  return h ? h[1] : null;
+}
+
+/* ── State ── */
+const fixedRegion = parseRegion();          // 메뉴에서 지역 고정 진입
+let region  = fixedRegion || 'seoul';       // 탭 모드 기본: 서울
+let viewY, viewM;                            // 표시 중인 연/월
+const leavesCache = {};                      // region → leaves[] (문서 배열)
+let dbAvailable = false;
+let db = null;
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const dstr = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+
+/* ── Header: 고정 지역 배지 또는 지역 탭 ── */
+(function initRegionUI() {
+  const slot = $('region-slot');
+  if (fixedRegion) {
+    const b = document.createElement('div');
+    b.className = 'h-region';
+    b.textContent = REGIONS[fixedRegion];
+    slot.appendChild(b);
+  } else {
+    const tabs = document.createElement('div');
+    tabs.className = 'tabs';
+    Object.keys(REGIONS).forEach(code => {
+      const t = document.createElement('button');
+      t.type = 'button';
+      t.className = 'tab' + (code === region ? ' active' : '');
+      t.textContent = REGIONS[code];
+      t.addEventListener('click', () => {
+        if (region === code) return;
+        region = code;
+        tabs.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.textContent === REGIONS[code]));
+        render();
+      });
+      tabs.appendChild(t);
+    });
+    slot.appendChild(tabs);
+  }
+})();
+
+/* 해시로 지역이 바뀌면 (iframe이 리로드하지 않는 경우 대비) 반영 */
+window.addEventListener('hashchange', () => {
+  const r = parseRegion();
+  if (r && r !== region) { region = r; render(); }
+});
+
+/* ── Firebase init (실패해도 캘린더는 그린다) ── */
+(function initFirebase() {
+  try {
+    if (typeof firebase === 'undefined') throw new Error('SDK not loaded');
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    dbAvailable = true;
+  } catch (e) {
+    dbAvailable = false;
+  }
+})();
+
+function showNotice(msg) {
+  const n = $('notice');
+  n.textContent = msg;
+  n.classList.add('show');
+  $('empty-msg').style.display = 'none';   // 오류 안내와 '휴가 없음' 문구 동시 노출 방지
+}
+function hideNotice() { $('notice').classList.remove('show'); }
+
+/* ── leaves 조회: region 일치 문서 전체 → 캐시 → 월별 필터는 클라이언트에서 ── */
+function fetchLeaves(r) {
+  if (leavesCache[r]) return Promise.resolve(leavesCache[r]);
+  if (!dbAvailable) return Promise.reject(new Error('no-db'));
+  return db.collection('leaves').where('region', '==', r).get()
+    .then(snap => {
+      const rows = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d && typeof d.startDate === 'string' && typeof d.endDate === 'string') rows.push(d);
+      });
+      leavesCache[r] = rows;
+      return rows;
+    });
+}
+
+/* ── 전역 레인 배정 (겹치는 휴가는 다른 레인) ── */
+function assignLanes(leaves) {
+  const sorted = leaves.slice().sort((a, b) =>
+    a.startDate < b.startDate ? -1 : a.startDate > b.startDate ? 1 :
+    (a.endDate < b.endDate ? -1 : 1));
+  const laneEnds = [];   // lane index → 마지막 endDate
+  sorted.forEach(lv => {
+    let lane = laneEnds.findIndex(end => end < lv.startDate);
+    if (lane === -1) { lane = laneEnds.length; laneEnds.push(lv.endDate); }
+    else laneEnds[lane] = lv.endDate;
+    lv._lane = lane;
+  });
+  return sorted;
+}
+
+/* ── 렌더 ── */
+const LANE_H = 24, BARS_TOP = 34, WEEK_PAD = 6;
+
+function render() {
+  $('month-title').textContent = viewY + '년 ' + (viewM + 1) + '월' +
+    (fixedRegion ? '' : ' · ' + REGIONS[region]);
+
+  const first = new Date(viewY, viewM, 1);
+  const gridStart = new Date(viewY, viewM, 1 - first.getDay());   // 주 시작(일요일)
+  const monthStart = dstr(new Date(viewY, viewM, 1));
+  const monthEnd   = dstr(new Date(viewY, viewM + 1, 0));
+  const todayStr   = dstr(new Date());
+
+  // 42칸(6주) 중 실제 필요한 주 수 계산
+  const lastDay = new Date(viewY, viewM + 1, 0);
+  const weeks = Math.ceil((first.getDay() + lastDay.getDate()) / 7);
+
+  const body = $('cal-body');
+
+  // 데이터 (실패/미로딩 시 빈 배열로 캘린더는 유지)
+  const draw = (leaves) => {
+    body.innerHTML = '';
+    const monthLeaves = assignLanes(
+      leaves.filter(lv => lv.startDate <= monthEnd && lv.endDate >= monthStart));
+
+    $('empty-msg').style.display =
+      (dbAvailable && monthLeaves.length === 0) ? 'block' : 'none';
+
+    for (let w = 0; w < weeks; w++) {
+      const wkStart = new Date(gridStart); wkStart.setDate(gridStart.getDate() + w * 7);
+      const wkEnd   = new Date(wkStart);   wkEnd.setDate(wkStart.getDate() + 6);
+      const wkStartStr = dstr(wkStart), wkEndStr = dstr(wkEnd);
+
+      // 이번 주에 걸치는 바 세그먼트
+      const segs = monthLeaves.filter(lv => lv.startDate <= wkEndStr && lv.endDate >= wkStartStr);
+      const maxLane = segs.reduce((m, lv) => Math.max(m, lv._lane), -1);
+      const weekH = BARS_TOP + (maxLane + 1) * LANE_H + WEEK_PAD;
+
+      const week = document.createElement('div');
+      week.className = 'week';
+      week.style.minHeight = Math.max(weekH, 74) + 'px';
+
+      const daysEl = document.createElement('div');
+      daysEl.className = 'wk-days';
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(wkStart); d.setDate(wkStart.getDate() + i);
+        const ds = dstr(d);
+        const cell = document.createElement('div');
+        cell.className = 'day' +
+          (d.getMonth() !== viewM ? ' other' : '') +
+          (i === 0 ? ' sun' : i === 6 ? ' sat' : '') +
+          (ds === todayStr ? ' today' : '');
+        cell.innerHTML = '<div class="day-num">' + d.getDate() + '</div>';
+        daysEl.appendChild(cell);
+      }
+      week.appendChild(daysEl);
+
+      const barsEl = document.createElement('div');
+      barsEl.className = 'wk-bars';
+      segs.forEach(lv => {
+        const s = lv.startDate > wkStartStr ? lv.startDate : wkStartStr;
+        const e = lv.endDate   < wkEndStr   ? lv.endDate   : wkEndStr;
+        const sIdx = Math.round((new Date(s + 'T00:00:00') - wkStart) / 86400000);
+        const eIdx = Math.round((new Date(e + 'T00:00:00') - wkStart) / 86400000);
+        const bar = document.createElement('div');
+        bar.className = 'bar' +
+          (lv.startDate >= wkStartStr ? ' rl' : '') +
+          (lv.endDate   <= wkEndStr   ? ' rr' : '');
+        bar.style.left  = (sIdx / 7 * 100) + '%';
+        bar.style.width = 'calc(' + ((eIdx - sIdx + 1) / 7 * 100) + '% - ' +
+          ((lv.startDate >= wkStartStr ? 3 : 0) + (lv.endDate <= wkEndStr ? 3 : 0)) + 'px)';
+        bar.style.top   = (lv._lane * LANE_H) + 'px';
+        bar.style.background = BAR_COLORS[lv._lane % BAR_COLORS.length];
+        const emp = lv.empName || '?', sub = lv.subName || '?';
+        bar.innerHTML = escapeHtml(emp) + '<span class="arrow">→</span>' + escapeHtml(sub);
+        bar.title = REGIONS[lv.region] + ' | ' + emp + ' 휴가 (' + lv.startDate + ' ~ ' + lv.endDate + ') → 대체: ' + sub;
+        barsEl.appendChild(bar);
+      });
+      week.appendChild(barsEl);
+      body.appendChild(week);
+    }
+  };
+
+  if (!dbAvailable) {
+    draw([]);
+    showNotice('휴가 데이터에 연결할 수 없습니다. 네트워크 연결을 확인해 주세요. (캘린더는 빈 상태로 표시됩니다)');
+    return;
+  }
+
+  hideNotice();
+  draw(leavesCache[region] || []);   // 캐시 우선 즉시 표시
+  fetchLeaves(region)
+    .then(rows => { hideNotice(); draw(rows); })
+    .catch(err => {
+      draw(leavesCache[region] || []);
+      showNotice(err && err.code === 'permission-denied'
+        ? '휴가 데이터 접근 권한이 아직 설정되지 않았습니다. (관리자: vacation-qr firestore.rules 배포 필요)'
+        : '휴가 데이터를 불러오지 못했습니다. 네트워크 상태를 확인한 뒤 새로고침해 주세요.');
+    });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ── Month nav ── */
+function setMonth(y, m) {
+  const d = new Date(y, m, 1);
+  viewY = d.getFullYear(); viewM = d.getMonth();
+  render();
+}
+$('btn-prev').addEventListener('click', () => setMonth(viewY, viewM - 1));
+$('btn-next').addEventListener('click', () => setMonth(viewY, viewM + 1));
+$('btn-today').addEventListener('click', () => {
+  const t = new Date(); setMonth(t.getFullYear(), t.getMonth());
+});
+
+/* ── Start ── */
+(function start() {
+  const t = new Date();
+  setMonth(t.getFullYear(), t.getMonth());
+})();
+</script>
+</body>
+</html>
