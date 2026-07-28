@@ -114,6 +114,11 @@ body {
 }
 .done .lnk:hover { background: var(--plum-mid); }
 .done .lnk.ghost { background: var(--white); color: var(--text2); font-weight: 600; }
+/* 내 캘린더 저장 (휴가 등록 완료 화면과 동일한 구성) */
+.done .cal-row { display: flex; gap: 8px; }
+.done .cal-row .lnk { flex: 1; text-align: center; }
+.done .cal-hint { margin: -2px 0 2px; font-size: 12px; color: var(--text2); line-height: 1.5; }
+@media (max-width: 420px) { .done .cal-row { flex-direction: column; } }
 </style>
 </head>
 <body>
@@ -180,6 +185,11 @@ body {
     <p id="done-msg"></p>
     <div class="links">
       <a class="lnk" id="done-cal" href="#">해당 지역 작업 일정 캘린더 보기 →</a>
+      <div class="cal-row">
+        <a class="lnk" id="done-ics" href="#" download>내 캘린더에 추가 (.ics)</a>
+        <a class="lnk" id="done-gcal" href="#" target="_blank" rel="noopener">Google 캘린더에 추가</a>
+      </div>
+      <p class="cal-hint">내 휴대폰·아웃룩 캘린더에 이 작업 일정을 종일 일정으로 저장합니다.</p>
       <a class="lnk ghost" id="done-again" href="#">작업 일정 추가 등록</a>
     </div>
   </div>
@@ -280,12 +290,17 @@ $('btn-save').addEventListener('click', () => {
   };
 
   db.collection('work_schedules').add(payload)
-    .then(() => {
+    .then((ref) => {
       $('form-card').style.display = 'none';
       $('done-msg').textContent =
         REGIONS[region] + ' · ' + workerName + ' · ' + place +
         ' (' + startDate + (startDate === endDate ? '' : ' ~ ' + endDate) + ')';
       $('done-cal').setAttribute('href', 'work_schedule_calendar.html?r=' + region);
+      setupCalendarLinks({
+        uid: (ref && ref.id ? ref.id : String(Date.now())) + '@vantive-techwiki',
+        workerName: workerName, place: place, content: content,
+        region: region, startDate: startDate, endDate: endDate,
+      });
       $('done-card').classList.add('show');
       window.scrollTo(0, 0);
     })
@@ -297,6 +312,75 @@ $('btn-save').addEventListener('click', () => {
         : '등록에 실패했습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.');
     });
 });
+
+/* ── 내 캘린더에 저장 (.ics + Google) ──────────────
+ * 휴가 등록 앱(vacation-qr/src/lib/ics.js)과 동일 규약:
+ * 종일 이벤트이며 ICS의 DTEND는 exclusive이므로 항상 종료일+1일을 쓴다.
+ * 날짜 연산은 UTC 기준으로만 해 타임존 영향을 배제한다. */
+function addOneDay(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+function toBasicDate(dateStr) { return dateStr.split('-').join(''); }
+function escapeIcsText(text) {
+  return String(text)
+    .split('\\').join('\\\\')
+    .split(';').join('\\;')
+    .split(',').join('\\,')
+    .split('\n').join('\\n');
+}
+function buildIcs(o) {
+  const dtstamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Vantive//Techwiki Work Schedule//KO',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'UID:' + o.uid,
+    'DTSTAMP:' + dtstamp,
+    'DTSTART;VALUE=DATE:' + toBasicDate(o.startDate),
+    'DTEND;VALUE=DATE:' + toBasicDate(addOneDay(o.endDate)),
+    'SUMMARY:' + escapeIcsText(o.title),
+    'DESCRIPTION:' + escapeIcsText(o.description),
+    'LOCATION:' + escapeIcsText(o.location),
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+}
+let icsObjectUrl = null;
+function setupCalendarLinks(s) {
+  const title = '[작업] ' + s.place + ' · ' + s.content;
+  const description =
+    '담당자: ' + s.workerName + '\n' +
+    '거래처: ' + s.place + '\n' +
+    '작업 내용: ' + s.content + '\n' +
+    '지역: ' + REGIONS[s.region] + '\n' +
+    'Vantive Techwiki 작업 일정';
+
+  // .ics 다운로드 (Blob URL — 이전 URL은 해제해 누수 방지)
+  const ics = buildIcs({
+    uid: s.uid, title: title, description: description,
+    location: s.place, startDate: s.startDate, endDate: s.endDate,
+  });
+  if (icsObjectUrl) URL.revokeObjectURL(icsObjectUrl);
+  icsObjectUrl = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
+  const a = $('done-ics');
+  a.setAttribute('href', icsObjectUrl);
+  a.setAttribute('download', 'vantive-work-' + toBasicDate(s.startDate) + '.ics');
+
+  // Google 캘린더 (dates: YYYYMMDD/YYYYMMDD+1 — 종일, 종료 exclusive)
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title,
+    details: description,
+    location: s.place,
+    dates: toBasicDate(s.startDate) + '/' + toBasicDate(addOneDay(s.endDate)),
+  });
+  $('done-gcal').setAttribute('href',
+    'https://calendar.google.com/calendar/render?' + params.toString());
+}
 
 $('done-again').addEventListener('click', (e) => {
   e.preventDefault();
