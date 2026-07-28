@@ -243,7 +243,12 @@
       max-height: 0; overflow: hidden;
       transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
     }
-    .fn-card.open .fn-detail { max-height: 900px; border-top: 1px solid var(--border); }
+    /* 고정 max-height는 내용이 길어지면 잘린다(회수율 표가 들어간 절수 기능 카드).
+       넉넉한 폴백 + 지원 브라우저에서는 내용 높이에 맞춤. */
+    .fn-card.open .fn-detail { max-height: 4000px; border-top: 1px solid var(--border); }
+    @supports (interpolate-size: allow-keywords) {
+      .fn-card.open .fn-detail { max-height: max-content; }
+    }
     .fn-detail-in {
       padding: 16px 18px 18px;
       background: linear-gradient(to bottom, var(--surface-hover), var(--surface));
@@ -254,17 +259,21 @@
     .detail-text { font-size: 13px; line-height: 1.75; color: var(--text-secondary); }
     .detail-text strong { color: var(--text); font-weight: 600; }
     .step-list { display: flex; flex-direction: column; gap: 6px; }
+    /* flex로 두면 <strong> 하나하나가 개별 flex 아이템이 되어 gap이 끼어들고
+       ("…가 [ ]STANDBY 모드[ ]인지 확인") 문장이 열처럼 쪼개진다.
+       번호 배지를 매달아 두고 인라인 내용은 한 문단으로 흐르게 한다. */
     .step-row {
-      display: flex; gap: 10px; align-items: flex-start;
+      display: block; position: relative; padding-left: 32px; min-height: 22px;
       font-size: 12.5px; line-height: 1.6; color: var(--text-secondary);
     }
     /* 정본 .step-num — 원형 대신 8px 라운드 사각 + accent 틴트 */
     .step-num {
-      flex-shrink: 0; width: 22px; height: 22px; border-radius: 8px;
+      position: absolute; left: 0; top: 1px;
+      width: 22px; height: 22px; border-radius: 8px;
       background: var(--v-plum-bg); color: var(--v-plum);
       font-size: 11px; font-weight: 800; font-family: 'Inter', sans-serif;
       line-height: 1;
-      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     html.theme-dark .step-num { background: rgba(176,122,172,0.15); color: #C095BC; }
@@ -328,6 +337,43 @@
     html.theme-dark .phase-intake { background: rgba(176,122,172,0.12); color: #C095BC; }
     html.theme-dark .phase-dwell  { background: rgba(94,168,143,0.12);  color: #5EA88F; }
     html.theme-dark .phase-rinse  { background: rgba(122,159,212,0.12); color: #7A9FD4; }
+
+    /* ── 데이터 표 (회수율) ─────────────────────────────────── */
+    .tbl-wrap {
+      overflow-x: auto; border: 1px solid var(--border);
+      border-radius: var(--r-sm); background: var(--surface); margin-top: 10px;
+    }
+    table.dt { width: 100%; border-collapse: collapse; min-width: 30rem; }
+    table.dt th, table.dt td {
+      padding: 6px 9px; text-align: center; font-size: 11.5px;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    }
+    table.dt thead th {
+      background: var(--surface-hover); font-size: 10px; font-weight: 700;
+      color: var(--text-secondary); letter-spacing: 0.03em; line-height: 1.35;
+    }
+    table.dt thead th.grp { border-left: 1px solid var(--border); color: var(--v-plum); }
+    html.theme-dark table.dt thead th.grp { color: #C095BC; }
+    table.dt tbody th { font-weight: 700; color: var(--text); background: var(--surface-hover); }
+    table.dt tbody td { color: var(--text-secondary); }
+    table.dt tbody td.rr { font-weight: 700; color: var(--text); }
+    table.dt tr:last-child th, table.dt tr:last-child td { border-bottom: none; }
+    /* 회수율 50% 초과 구간 — 원문 표의 음영 영역 */
+    table.dt td.over {
+      background: var(--v-danger-bg); color: var(--v-danger); font-weight: 700;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    html.theme-dark table.dt td.over { color: #D07070; }
+    .tbl-legend {
+      display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+      margin-top: 8px; font-size: 11px; color: var(--text-secondary); line-height: 1.55;
+    }
+    .tbl-legend i {
+      width: 18px; height: 10px; border-radius: 3px; background: var(--v-danger-bg);
+      border: 1px solid var(--v-danger); flex-shrink: 0; display: inline-block;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
 
     /* ── 애니메이션 ─────────────────────────────────────────── */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -624,7 +670,11 @@
               </div>
             </div>
             <div class="detail-section">
-              <div class="detail-lbl">진행 확인</div>
+              <div class="detail-lbl">접촉 시간 규칙</div>
+                <div class="warn-box"><p><strong>설정된 접촉 시간에 도달하면 흡입 단계와 드웰 단계의 완료 여부와 관계없이 자동으로 헹굼이 실행됩니다.</strong> 소독 화학물질에 과도하게 노출되는 것을 막기 위한 동작입니다.</p></div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-lbl">진행 확인</div>
               <div class="note-box"><p>화학 소독/세척 진행 중에는 <strong>DIS 버튼이 지속 점등</strong>됩니다. 접촉 시간(Contact time)은 흡입 단계 시작 시점부터 측정됩니다.</p></div>
             </div>
             <div class="detail-section">
@@ -671,6 +721,25 @@
                 <strong>404 RINSE REQUIRED</strong>: 설정량 미달 흡입 후 완드 제거 시 → 완드 재삽입 후 DIS 눌러 재시작<br>
                 <strong>406 INSUFFICIENT INTAKE</strong>: 설정 한도 미달 시 → 완드 제거 후 재삽입하여 재시작
               </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-lbl">흡입 종료 시퀀스 — 완드 제거 후 3분간 순환</div>
+              <div class="step-list">
+                <div class="step-row"><span class="step-num">1</span>완드 제거 요청 후 <strong>최소 10초</strong>가 지나고 완드가 제거되면, 탱크가 <strong>고수위(LH)</strong>까지 채워짐</div>
+                <div class="step-row"><span class="step-num">2</span><strong>BYVA 닫힘, REVA 비활성</strong> → RO 펌프가 RO 모듈로 순환 시작</div>
+                <div class="step-row"><span class="step-num">3</span>화학 흡입 펌프가 화학 흡입부를 순환시키고 <strong>OFVA 열림</strong></div>
+                <div class="step-row"><span class="step-num">4</span>유로 순환을 <strong>3분간</strong> 지속 → 이후 RO 펌프 감속, BYVA·REVA 열려 배수, <strong>LL 미만</strong>에서 밸브·펌프 정지</div>
+              </div>
+              <div class="note-box"><p><strong>BYVA가 비활성화되면 WRO 300 H가 가압 상태가 되어 제품수 루프(product water loop)까지 소독</strong>할 수 있게 됩니다.</p></div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-lbl">프로토콜 목록 표시 규칙</div>
+              <div class="detail-text">완드를 연결하고 하향 화살표를 눌렀을 때 <strong>가장 먼저 표시되는 프로토콜은 S138</strong>로 정의되며 <strong>GXP에서만</strong> 변경할 수 있습니다. 해당 프로토콜이 <strong>비표시(invisible)</strong>로 설정되어 있으면, 목록을 넘길 때 <strong>맨 처음 한 번만</strong> 표시됩니다.</div>
+              <div class="detail-text" style="margin-top:6px;">프로토콜은 <strong>10개 × 변수 11개</strong>를 사전 설정할 수 있고, 기본 선택 가능한 것은 <strong>1번(화학 소독-DIALOX) · 2번(산성 세척) · 7번(보존)</strong>입니다. 보존+동결방지, 중앙 화학 소독, 알칼리 세척 프로토콜이 활성화되어 있으면 이들도 CHEM SELECT 메뉴에서 선택할 수 있습니다.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-lbl">화학 흡입 펌프 용량</div>
+              <div class="detail-text">화학 흡입 펌프는 설정된 양의 소독액이 탱크에 유입될 때까지 운전합니다. 용량은 <strong>60 ~ 180 ml/min</strong> 범위에서 설정할 수 있으며, <strong>S151 · GXP 소프트웨어에서만</strong> 변경 가능합니다.</div>
             </div>
             <div class="detail-section">
               <div class="detail-lbl">CHEM FLAG 동작</div>
@@ -751,6 +820,7 @@
                 <div class="step-row"><span class="step-num">1</span>DIS 버튼을 눌러 DIS 깜빡임 확인 (일시정지 상태)</div>
                 <div class="step-row"><span class="step-num">2</span>드웰 시간 도달 시 자동으로 헹굼 단계로 전환</div>
                 <div class="step-row"><span class="step-num">3</span>재개하려면 DIS 버튼을 다시 눌러 지속 점등 확인</div>
+                <div class="step-row"><span class="step-num">4</span>일시정지 중에는 <strong>모든 유량이 정지</strong>합니다. 프로그램은 그때까지 투입된 소독제 양을 <strong>시간을 기준으로 계산해 기억</strong>합니다</div>
               </div>
             </div>
             <div class="detail-section">
@@ -798,7 +868,7 @@
               <div class="detail-lbl">헹굼 단계 (Rinse) — 3단계 반복</div>
               <div class="step-list">
                 <div class="step-row"><span class="step-num">1</span>BYVA·REVA 열림 → RO 펌프 저속 시작 → 탱크 레벨 LL 이하 시 정지 → INVA 열어 LH까지 채움 (7회 반복)</div>
-                <div class="step-row"><span class="step-num">2</span>RO 펌프 2분 순환 (OFVA 열림, REVA 5초 열림)</div>
+                <div class="step-row"><span class="step-num">2</span>RO 펌프가 <strong>2분간</strong> 순환 — OFVA 열림, REVA는 배수로 열린 뒤 <strong>5초간 탱크 방향</strong>으로 열림. 화학 흡입 펌프도 함께 운전</div>
                 <div class="step-row"><span class="step-num">3</span>WRO 300 H 1분 정지</div>
               </div>
               <div class="note-box" style="margin-top:8px"><p>헹굼 마지막 5분간 전도율(C2) 확인. 통지 한계 미만이면 헹굼 완료. 초과 시 최대 30분 연장. 30분 후에도 초과 시 <strong>403 HIGH CONDUCTIVITY RINSE</strong> 알람.</p></div>
@@ -941,7 +1011,7 @@
           </div>
           <div class="fn-info">
             <div class="fn-name">동결 방지 보존 (글리세롤)<span class="fn-name-en">Preservation with Freeze Protection (Glycerol)</span></div>
-            <div class="fn-brief">1주 이상 미사용 시 수원 분리 전 실시하는 동결 방지 보존</div>
+            <div class="fn-brief">1주 이상 미사용 시 수원 분리 전 실시하는 동결 방지 보존 — 흡입 후 드웰이 없어 접촉 시간은 적용되지 않음</div>
           </div>
           <div class="fn-expand" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
@@ -965,7 +1035,8 @@
             </div>
             <div class="detail-section">
               <div class="detail-lbl">중요</div>
-              <div class="note-box"><p>동결 방지 보존액은 <strong>급수 입구(Feed water inlet)</strong>로 유입됩니다. 소독 완드는 CHEM SELECT 시작용으로만 연결합니다. 소독 완드를 통해 보존액이 흡입되지 않습니다.</p></div>
+              <div class="note-box"><p>동결 방지 보존액은 <strong>급수 입구(Feed water inlet)</strong>로 유입됩니다. 소독 완드는 CHEM SELECT 시작용으로만 연결합니다. 소독 완드를 통해 보존액이 흡입되지 않습니다.<br><br>
+                <strong>WRO 300 H는 급수 입구에 흡입 압력을 만들어내지 못합니다.</strong> 따라서 외부에서 양압을 만들어 주어야 하며, <strong>보존액 용기를 WRO 300 H보다 높은 위치에 두는 것</strong>으로 해결합니다. 화학 흡입 펌프는 동결 방지 보존액에 필요한 유량을 낼 수 없어 사용하지 않습니다.</p></div>
             </div>
             <div class="detail-section">
               <div class="detail-lbl">경고</div>
@@ -1064,6 +1135,17 @@
               <div class="detail-lbl">점검 구성요소</div>
               <div class="detail-text">온도 센서 · 유량 스위치 및 센서 (안전 릴레이 포함) · 제어 릴레이 · Warm Acid Clean</div>
             </div>
+            <div class="detail-section">
+              <div class="detail-lbl">유량 · 릴레이 시험 알람 맵</div>
+              <div class="step-list">
+                <div class="step-row"><span class="step-num">1</span>RO 펌프로 두 히터 로드에 유량 발생 → 유량 스위치·센서가 <strong>20초간 연속 유량</strong>을 표시해야 함 (관찰 5분). 두 신호 중 하나라도 불안정하면 <strong>103:8</strong></div>
+                <div class="step-row"><span class="step-num">2</span>유량이 없을 때 히터에 주전원이 연결되지 않았는지 확인 → 아니면 <strong>103:9</strong></div>
+                <div class="step-row"><span class="step-num">3</span>제어 릴레이 ON 후 히터 로드에 주전원이 존재하는지 확인 → 아니면 <strong>103:19</strong></div>
+                <div class="step-row"><span class="step-num">4</span>RO 펌프 정지 후 히터 로드가 주전원에서 분리되었는지 확인 → 아니면 <strong>103:7</strong>. 유량 스위치·센서가 여전히 유량을 표시하면 <strong>103:6</strong></div>
+              </div>
+              <div class="note-box"><p>온도 센서 시험 기준: 단선 시 측정 온도가 <strong>105°C 미만</strong>이어야 하고(아니면 103:15/16/17), 단락 시 신호 입력이 <strong>3°C 초과</strong>여야 합니다. A/D 계통이 <strong>95°C까지 측정 가능</strong>한지는 고정 저항으로 확인하며 실패 시 103:10 또는 103:11 — 이 시험은 제어 루프의 온도 피드백에 쓰이는 <strong>두 개의 센서에만</strong> 수행됩니다.</p></div>
+              <div class="warn-box"><p><strong>과열 방지(over heat protection) 기능은 소프트웨어보다 우선순위가 높습니다.</strong> 물 유량이 부족하면 WRO 300 H가 어떤 경우에도 히터 로드를 켤 수 없게 하는 안전 장치입니다.</p></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1089,7 +1171,7 @@
             <div class="detail-section">
               <div class="detail-lbl">가열 및 순환</div>
               <div class="detail-text">
-                BYVA·OFVA 열려 압력 감소 → 히터 A(거부수 라인) 활성화 → 제품수 유량 200 ml/min 이상 시 히터 B 활성화.<br>
+                BYVA·OFVA 열려 압력 감소 → 히터 A(거부수 라인) 활성화 → 제품수 유량 200 ml/min 이상 시 히터 B 활성화.<br><strong>수온이 45°C를 넘으면 멤브레인 사양상 압력이 3 bar를 초과해서는 안 됩니다</strong> — BYVA·OFVA를 여는 것은 이 압력을 낮추기 위한 조치입니다.<br>
                 화학 흡입 펌프가 화학 흡입부 뜨거운 물 순환.<br>
                 기본 설정 온도: <strong>92°C (S30)</strong>. 제품수 루프는 부스트 가능.
               </div>
@@ -1099,13 +1181,13 @@
               <div class="detail-text">
                 ① 거부수 온도가 히터 A 설정 온도 도달 확인<br>
                 ② 환류 온도가 제품수 루프 환류 설정 온도(S225) 도달 확인<br>
-                두 확인 모두 OK 시 열 소독 온도 달성. 60분 이내 달성 실패 시 <strong>ERROR 103:21</strong>.
+                두 확인 모두 OK 시 열 소독 온도 달성. 온도가 오르면 탱크 수위도 함께 상승하며, 고수위(LH)에 닿으면 REVA가 몇 초간 배수합니다. 제품수 유량도 온도에 따라 증가해 <strong>제품수 루프에서 약 1 L/min</strong>까지 올라갑니다. 60분 이내 달성 실패 시 <strong>ERROR 103:21</strong>.
               </div>
             </div>
             <div class="detail-section">
               <div class="detail-lbl">활성 냉각 (Active Cooldown)</div>
               <div class="detail-text">
-                기본 설정: 온도 <strong>40°C 미만</strong>까지 냉각 후 STANDBY 진입.<br>
+                기본 설정(<strong>S142</strong>): 온도 <strong>40°C 미만</strong>까지 냉각 후 STANDBY 진입. 활성 냉각을 하지 않으면 내부 수온이 <strong>수 시간 동안 높게 유지</strong>됩니다.<br>
                 냉각 트리거: 열 소독 유지 시간 만료 / 운영자 중단 / 전원 장애
               </div>
               <div class="note-box" style="margin-top:8px"><p>냉각 중 RO 펌프 순환, REVA 3초 열림 → INVA 열어 LH까지 채움. 20초 후 온도 확인. 40°C 미만 시 STANDBY.</p></div>
@@ -1217,9 +1299,44 @@
     <div class="cat-bar">
       <span class="cat-dot" style="background:#1E4EA8"></span>
       <span class="cat-name">추가 기능<span class="cat-name-en">Extra Functions · 2.6</span></span>
-      <span class="cat-count">3개 항목</span>
+      <span class="cat-count">4개 항목</span>
     </div>
     <div class="card-grid">
+
+      <!-- 카드 0: DAYS SINCE LAST -->
+      <div class="fn-card reveal" onclick="toggleCard(this)">
+        <div class="fn-card-head">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="fn-info">
+            <div class="fn-name">마지막 실행 후 경과일<span class="fn-name-en">Days Since Last</span></div>
+            <div class="fn-brief">열 소독 · 화학 소독 · 산성 세척 · 알칼리 세척의 마지막 실행 후 경과일을 조회</div>
+          </div>
+          <div class="fn-expand" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="fn-footer">
+          <span class="tag tag-note">S153~S156</span>
+          <span class="tag tag-auto">프리셋 활성화 필요</span>
+        </div>
+        <div class="fn-detail">
+          <div class="fn-detail-in">
+            <div class="detail-section">
+              <div class="detail-lbl">기능</div>
+              <div class="detail-text">
+                운영자가 <strong>DAYS SINCE LAST</strong>를 조회해 각 위생 공정을 마지막으로 수행한 뒤 며칠이 지났는지 확인할 수 있습니다. 대상은 <strong>열 소독 / 화학 소독 / 산성 세척 / 알칼리 세척</strong> 네 가지입니다.
+              </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-lbl">활성화</div>
+              <div class="detail-text">이 기능은 <strong>프리셋에서 활성화</strong>해야 표시됩니다 (S153, S154, S155, S156).</div>
+              <div class="note-box"><p>소독 주기를 관리할 때 <strong>리마인더</strong>가 &ldquo;해야 할 시점&rdquo;을 알려준다면, DAYS SINCE LAST는 <strong>&ldquo;마지막으로 언제 했는지&rdquo;</strong>를 확인하는 용도입니다. 두 기능을 함께 쓰면 주기 관리가 쉬워집니다.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 카드 1: 절수 기능 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
@@ -1234,37 +1351,81 @@
           <div class="fn-expand" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
         <div class="fn-footer">
-          <span class="tag tag-note">S29 설정</span>
+          <span class="tag tag-note">S184 활성화</span>
+          <span class="tag tag-note">S29 절수 계수</span>
           <span class="tag tag-auto">20초 주기</span>
-          <span class="tag tag-caution">RO 수명 단축</span>
+          <span class="tag tag-caution">RO 수명 영향</span>
         </div>
         <div class="fn-detail">
           <div class="fn-detail-in">
             <div class="detail-section">
               <div class="detail-lbl">기능 원리</div>
               <div class="detail-text">
-                절수 기능은 거부수(reject water)를 폐기하는 대신 <strong>REVA(순환 밸브)를 통해 WRO 급수 입구로 재순환</strong>시켜 급수 소비를 줄입니다.<br>
-                <strong>절수 계수 S29</strong>로 REVA가 열리는 횟수를 제어하며, 20초 주기로 동작합니다.
+                RUN 모드에서 WRO 300 H의 배수 유량은 약 <strong>1.3 L/min</strong>입니다. 물이 부족하거나 비싼 환경에서는 절수 기능으로 소비를 줄일 수 있습니다.<br>
+                <strong>3방향 거부수 밸브(REVA)</strong>가 거부수의 일부를 <strong>급수 탱크로 재순환</strong>시키는 방식입니다.
               </div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-lbl">절수 계수 (S29) — 백분율입니다</div>
+              <div class="detail-text">
+                절수 계수는 <strong>물이 재순환되는 시간의 비율(%)</strong>이며, 사이클 시간은 <strong>20초</strong>입니다.
+              </div>
+              <div class="formula-box">
+                <div class="formula-row">예) S29 = <span>5%</span> → 20초 중 <span>1초</span>는 탱크로, <span>19초</span>는 배수</div>
+                <div class="formula-row">계수가 <span>높을수록</span> 절수량↑ · 회수율↑ · RO 모듈 부담↑</div>
+              </div>
+              <div class="note-box" style="margin-top:8px"><p>기능 활성화는 <strong>S184</strong>(Internal Service 또는 GXP), 절수 계수 <strong>S29</strong>는 <strong>GXP 소프트웨어에서만</strong> 변경할 수 있습니다.</p></div>
             </div>
             <div class="detail-section">
               <div class="detail-lbl">동작 조건</div>
               <div class="detail-text">
-                RUN 모드 시작 후 <strong>처음 2분 동안은 비활성</strong>화됩니다 (시스템 안정화 대기). 이후 S29 설정값에 따라 자동 작동합니다.
+                RUN 모드 시작 후 <strong>처음 2분 동안은 비활성</strong>화됩니다.
               </div>
-              <div class="note-box" style="margin-top:8px"><p>절수 기능은 RUN 모드에서만 작동하며, 소독 모드 중에는 동작하지 않습니다.</p></div>
+              <div class="note-box" style="margin-top:8px"><p>절수 기능은 WRO 300 H 내부의 <strong>유량 조건 자체는 바꾸지 않으며</strong>, 배수로 보내는 물의 양만 달라집니다. 다만 절수 계수를 높이면 <strong>모듈 급수의 전도도가 상승</strong>하고, 그 결과 <strong>제품수 전도도도 함께 올라갑니다.</strong></p></div>
             </div>
+
             <div class="detail-section">
-              <div class="detail-lbl">회수율 (Recovery Ratio)</div>
-              <div class="formula-box">
-                <div class="formula-row">S29 = 0 → 절수 비활성 (표준 동작)</div>
-                <div class="formula-row">S29 = 1~9 → <span>낮을수록 절수 효과↑, RO 수명↓</span></div>
-                <div class="formula-row">높은 S29 값 → 더 많은 거부수 배출, RO 수명 보호</div>
+              <div class="detail-lbl">회수율 표 — 절수 계수 × 투석액 유량</div>
+              <div class="detail-text">회수율 = 급수 중 제품수로 전환되는 비율. 아래는 각 조건에서 얻어지는 값입니다.</div>
+              <div class="tbl-wrap">
+                <table class="dt">
+                  <thead>
+                    <tr>
+                      <th rowspan="2">절수<br>계수 %</th>
+                      <th rowspan="2">배수<br>L/min</th>
+                      <th colspan="2">절약되는 물</th>
+                      <th class="grp" colspan="2">투석액 0.3 L/min</th>
+                      <th class="grp" colspan="2">투석액 0.5 L/min</th>
+                      <th class="grp" colspan="2">투석액 0.7 L/min</th>
+                    </tr>
+                    <tr>
+                      <th>L/min</th><th>5시간<br>L</th>
+                      <th class="grp">총소비 L</th><th>회수율 %</th>
+                      <th class="grp">총소비 L</th><th>회수율 %</th>
+                      <th class="grp">총소비 L</th><th>회수율 %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><th>0</th><td>1.3</td><td>&ndash;</td><td>&ndash;</td><td>480</td><td class="rr">19</td><td>540</td><td class="rr">28</td><td>600</td><td class="rr">35</td></tr>
+                    <tr><th>10</th><td>1.17</td><td>0.13</td><td>39</td><td>441</td><td class="rr">20</td><td>501</td><td class="rr">30</td><td>561</td><td class="rr">37</td></tr>
+                    <tr><th>20</th><td>1.04</td><td>0.26</td><td>78</td><td>402</td><td class="rr">22</td><td>462</td><td class="rr">33</td><td>522</td><td class="rr">40</td></tr>
+                    <tr><th>30</th><td>0.91</td><td>0.39</td><td>117</td><td>363</td><td class="rr">25</td><td>423</td><td class="rr">35</td><td>483</td><td class="rr">43</td></tr>
+                    <tr><th>40</th><td>0.78</td><td>0.52</td><td>156</td><td>324</td><td class="rr">28</td><td>384</td><td class="rr">39</td><td>444</td><td class="rr">47</td></tr>
+                    <tr><th>50</th><td>0.65</td><td>0.65</td><td>195</td><td>285</td><td class="rr">32</td><td>345</td><td class="rr">43</td><td class="over">405</td><td class="over">52</td></tr>
+                    <tr><th>60</th><td>0.52</td><td>0.78</td><td>234</td><td>246</td><td class="rr">37</td><td>306</td><td class="rr">49</td><td class="over">366</td><td class="over">57</td></tr>
+                    <tr><th>70</th><td>0.39</td><td>0.91</td><td>273</td><td>207</td><td class="rr">43</td><td class="over">267</td><td class="over">56</td><td class="over">327</td><td class="over">64</td></tr>
+                    <tr><th>80</th><td>0.26</td><td>1.04</td><td>312</td><td class="over">168</td><td class="over">54</td><td class="over">228</td><td class="over">66</td><td class="over">288</td><td class="over">73</td></tr>
+                  </tbody>
+                </table>
               </div>
+              <div class="tbl-legend"><i></i><span>회수율 <strong>50% 초과</strong> 구간 (원문 표의 음영 영역)</span></div>
+              <div class="caution-box" style="margin-top:8px"><p><strong>회수율 50%를 넘는 구간은 연수 처리된 비오염(non-fouling) 급수를 사용할 때만 진입해야 합니다.</strong></p></div>
+              <div class="note-box" style="margin-top:8px"><p><strong>계산 예시:</strong> 절수 40%에서 배수는 0.78 L/min으로 줄어듭니다. 5시간 치료 기준으로 <strong>156 L</strong>를 덜 쓰는 셈입니다 (0.52 L/min × 60분 × 5).</p></div>
             </div>
+
             <div class="detail-section">
               <div class="detail-lbl">주의</div>
-              <div class="caution-box"><p>절수 기능을 사용하면 거부수 미네랄 농도가 증가하여 <strong>RO 모듈 수명이 단축</strong>될 수 있습니다. 병원 수질 조건에 따라 적절한 S29 값을 설정하세요.</p></div>
+              <div class="caution-box"><p>절수 계수를 높이면 <strong>RO 모듈의 기대 수명과 성능에 영향을 줄 수 있습니다.</strong> 병원 수질 조건에 맞는 값을 설정하십시오.</p></div>
             </div>
           </div>
         </div>
@@ -1348,7 +1509,7 @@
             <div class="detail-section">
               <div class="detail-lbl">타임 채널 기능</div>
               <div class="detail-text">
-                타임 채널은 3개의 프로그래밍 가능한 시간 기반 채널을 제공합니다. 각 채널에 다음 동작 중 하나를 할당할 수 있습니다:
+                타임 채널 프리셋은 <strong>Internal Service 모드에서 설정</strong>하는 것이 원칙이며, <strong>GXP 소프트웨어를 사용하면 한 WRO 300 H의 프리셋을 다른 유닛으로 복사</strong>할 수 있습니다. 타임 채널은 3개의 프로그래밍 가능한 시간 기반 채널을 제공합니다. 각 채널에 다음 동작 중 하나를 할당할 수 있습니다:
               </div>
               <div class="step-list" style="margin-top:8px">
                 <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.10);color:#1E4EA8">A</span><strong>자동 열 소독 시작</strong> — 예약된 시각에 자동으로 열 소독 개시</div>

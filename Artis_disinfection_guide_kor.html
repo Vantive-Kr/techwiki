@@ -308,8 +308,13 @@
       max-height: 0; overflow: hidden;
       transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
     }
+    /* 고정 max-height는 내용이 길어지거나 화면이 좁아지면 잘린다.
+       넉넉한 폴백 + 지원 브라우저에서는 내용 높이에 맞춤. */
     .info-card.open .info-detail {
-      max-height: 900px; border-top: 1px solid var(--border);
+      max-height: 4000px; border-top: 1px solid var(--border);
+    }
+    @supports (interpolate-size: allow-keywords) {
+      .info-card.open .info-detail { max-height: max-content; }
     }
     .info-detail-in {
       padding: 16px 18px 18px;
@@ -323,13 +328,17 @@
     }
     .detail-text { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
     .phase-list { display: flex; flex-direction: column; gap: 5px; }
+    /* flex로 두면 <strong> 하나하나가 개별 flex 아이템이 되어
+       텍스트가 여러 줄에 걸쳐 열처럼 쪼개진다. 매달린 불릿(hanging bullet)
+       방식으로 두어 인라인 내용이 한 문단으로 흐르게 한다. */
     .phase-row {
-      display: flex; gap: 8px; align-items: flex-start;
+      display: block; position: relative; padding-left: 13px;
       font-size: 12.5px; line-height: 1.55; color: var(--text-secondary);
     }
     .phase-row::before {
-      content: ''; flex-shrink: 0; width: 5px; height: 5px;
-      border-radius: 50%; background: var(--border-strong); margin-top: 7px;
+      content: ''; position: absolute; left: 0; top: 7px;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border-strong);
     }
     /* 정본 .tip-box 어휘 — 틴트 배경 대신 surface + 3px 좌측 컬러 보더 */
     .note-box {
@@ -360,17 +369,224 @@
     .ov-card h4 { margin-bottom: 8px; }
     .ov-card p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; }
 
-    /* ── 플로우차트 (Mermaid) ─────────────────────────────── */
+    /* ── 공정 시퀀스 맵 ────────────────────────────────────
+       정본 .frame / .flow-node 어휘. 4개 소독 공정이 공유하는
+       골격과 공정별 차이를 한 화면에서 비교한다.
+       ───────────────────────────────────────────────────── */
     .flowchart-wrap {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 24px; box-shadow: var(--shadow-sm);
-      margin-bottom: 32px; overflow-x: auto;
+      border-radius: var(--r); box-shadow: var(--shadow-sm);
+      margin-bottom: 32px; overflow: hidden;
     }
+    /* 정본 .frame-title — 좌측 accent 대시 */
     .flowchart-title {
-      font-size: 13px; font-weight: 700; color: var(--text-secondary);
-      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px;
+      background: var(--surface-hover); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--text-secondary);
+      letter-spacing: 0.04em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     }
-    .mermaid { font-family: 'Noto Sans KR', 'Inter', sans-serif; }
+    .flowchart-title::before {
+      content: ''; width: 16px; height: 1.5px; background: var(--accent);
+      border-radius: 1px; flex-shrink: 0;
+    }
+    .flowchart-title .fc-note {
+      margin-left: auto; font-size: 11px; font-weight: 500;
+      color: var(--text-tertiary); letter-spacing: 0; text-transform: none;
+    }
+    .flowchart-body { padding: 18px; overflow-x: auto; }
+
+    /* 공통 골격 띠 */
+    .seq-skeleton {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      padding: 10px 12px; margin-bottom: 14px;
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+    }
+    .seq-skeleton .sk-lbl {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); margin-right: 4px;
+    }
+    .seq-skeleton .sk-step { font-size: 12px; font-weight: 600; color: var(--text); }
+    .seq-skeleton .sk-arw { font-size: 11px; color: var(--text-tertiary); }
+
+    /* 공정 레인 — 색은 클래스로 지정한다(인라인 --c 로 두면 다크 테마에서
+       덮어쓸 수 없어 어두운 배경 위에 원색이 그대로 남는다) */
+    .lane-rinse { --c:#1E4EA8; --c-bg:rgba(30,78,168,0.10); }
+    .lane-chem  { --c:#8A5A12; --c-bg:rgba(176,125,46,0.16); }
+    .lane-heat  { --c:#9A2F38; --c-bg:rgba(174,64,72,0.12); }
+    .lane-cc    { --c:#105742; --c-bg:rgba(16,87,66,0.12); }
+    /* 다크: 파일 내 기존 .tag-* 다크 대응색과 동일 계열 */
+    html.theme-dark .lane-rinse { --c:#8BBCE8; --c-bg:rgba(139,188,232,0.14); }
+    html.theme-dark .lane-chem  { --c:#D4974A; --c-bg:rgba(212,151,74,0.14); }
+    html.theme-dark .lane-heat  { --c:#D07070; --c-bg:rgba(208,112,112,0.14); }
+    html.theme-dark .lane-cc    { --c:#5EA88F; --c-bg:rgba(94,168,143,0.14); }
+
+    .seq { display: flex; flex-direction: column; gap: 10px; min-width: 640px; }
+    .seq-lane {
+      display: grid; grid-template-columns: 8.5rem 1fr; gap: 12px; align-items: start;
+    }
+    .lane-head { padding-top: 2px; }
+    .lane-name {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3;
+    }
+    .lane-chip {
+      width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; background: var(--c);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .lane-en {
+      display: block; font-size: 10.5px; font-style: italic; font-weight: 400;
+      color: var(--text-tertiary); letter-spacing: 0.02em; margin: 1px 0 0 17px;
+    }
+    .lane-meta { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 0 17px; }
+    .lane-meta span {
+      font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+      background: var(--c-bg); color: var(--c);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+
+    /* 단계 세그먼트 */
+    .lane-track { display: flex; align-items: stretch; gap: 5px; }
+    .seg {
+      flex: 1 1 0; min-width: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-top: 3px solid var(--c); border-radius: var(--r-sm);
+      padding: 8px 10px 9px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    /* 핵심 구간 — 측면/하단 보더만 지우고 상단 컬러 바는 유지 */
+    .seg.key { background: var(--c-bg); border-color: transparent; border-top-color: var(--c); }
+    .seg-ph {
+      font-size: 9.5px; font-weight: 800; letter-spacing: 0.05em;
+      font-family: 'Inter', sans-serif; color: var(--c); margin-bottom: 3px;
+    }
+    .seg-t { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; }
+    .seg-d { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-top: 2px; }
+    .seq-legend {
+      display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+      margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+      font-size: 11.5px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .seq-legend .lg-key {
+      display: inline-block; width: 20px; height: 10px; border-radius: 3px;
+      background: var(--v-plum-bg); border-top: 2px solid var(--accent); flex-shrink: 0;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+
+    /* ── 온도대 차트 (Tab 4.1 세균 분류 vs 소독 온도) ── */
+    .temp-chart { position: relative; padding-top: 4px; }
+    .temp-row { display: grid; grid-template-columns: 6.5rem 1fr; gap: 10px; align-items: center; margin-bottom: 9px; }
+    .temp-name { font-size: 12px; font-weight: 700; color: var(--c); line-height: 1.25; }
+    .temp-name small { display: block; font-size: 10px; font-weight: 500; color: var(--text-secondary); font-style: italic; }
+    .temp-track { position: relative; height: 26px; background: var(--surface-hover); border-radius: var(--r-xs); }
+    .temp-span {
+      position: absolute; top: 0; bottom: 0; background: var(--c-bg);
+      border-left: 2px solid var(--c); border-right: 2px solid var(--c); border-radius: 2px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .temp-opt {
+      position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--c);
+      border-radius: 2px; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .temp-psy { --c: var(--v-blue); --c-bg: var(--v-blue-bg); }
+    .temp-mes { --c: var(--v-amber); --c-bg: var(--v-amber-bg); }
+    .temp-the { --c: var(--v-danger); --c-bg: var(--v-danger-bg); }
+    /* 다크: 파일 내 기존 .tag-* 다크 대응색과 동일 계열
+       (원색을 그대로 두면 어두운 배경에서 2:1대로 떨어진다) */
+    html.theme-dark .temp-psy { --c:#7A9FD4; --c-bg:rgba(122,159,212,0.16); }
+    html.theme-dark .temp-mes { --c:#D4974A; --c-bg:rgba(212,151,74,0.16); }
+    html.theme-dark .temp-the { --c:#D07070; --c-bg:rgba(208,112,112,0.16); }
+    /* 소독 온도 마커 */
+    .mk-amber  { --m: var(--v-amber); }
+    .mk-pine   { --m: var(--v-pine); }
+    .mk-danger { --m: var(--v-danger); }
+    html.theme-dark .mk-amber  { --m:#D4974A; }
+    html.theme-dark .mk-pine   { --m:#5EA88F; }
+    html.theme-dark .mk-danger { --m:#D07070; }
+    .temp-marks { display: grid; grid-template-columns: 6.5rem 1fr; gap: 10px; margin-top: 2px; }
+    .temp-marklane { position: relative; height: 48px; }
+    .temp-mark {
+      position: absolute; top: 0; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .temp-mark i { display: block; width: 2px; height: 10px; background: var(--m); border-radius: 1px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    /* 라벨이 서로 겹치는 근접 마커는 눈금을 늘려 아래 줄로 내린다 */
+    .temp-mark.stagger i { height: 26px; }
+    /* 축 오른쪽 끝 마커는 라벨이 잘리지 않도록 왼쪽으로 정렬 */
+    .temp-mark.end { transform: translateX(-88%); }
+    .temp-mark span {
+      font-size: 9.5px; font-weight: 700; color: var(--m); white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+    .temp-axis {
+      display: grid; grid-template-columns: 6.5rem 1fr; gap: 10px;
+      font-size: 10px; color: var(--text-tertiary); font-family: 'Inter', sans-serif;
+    }
+    .temp-axis .ticks { display: flex; justify-content: space-between; }
+
+    /* ── 크기 스케일 (로그) ── */
+    .size-row { display: grid; grid-template-columns: 5.5rem 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .size-name { font-size: 12px; font-weight: 700; color: var(--c); }
+    .size-track { position: relative; height: 22px; background: var(--surface-hover); border-radius: var(--r-xs); }
+    .size-span {
+      position: absolute; top: 0; bottom: 0; background: var(--c-bg);
+      border: 1px solid var(--c); border-radius: var(--r-xs);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--c);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .size-axis { display: grid; grid-template-columns: 5.5rem 1fr; gap: 10px; font-size: 10px; color: var(--text-tertiary); }
+    .sz-virus { --c: var(--v-teal); --c-bg: var(--v-teal-bg); }
+    .sz-bact  { --c: var(--v-plum); --c-bg: var(--v-plum-bg); }
+    html.theme-dark .sz-virus { --c:#5ECACE; --c-bg:rgba(94,202,206,0.16); }
+    html.theme-dark .sz-bact  { --c:#C095BC; --c-bg:rgba(192,149,188,0.16); }
+    .size-axis .ticks { display: flex; justify-content: space-between; font-family: 'Inter', sans-serif; }
+
+    /* ── 소독 주기 3패턴 ── */
+    .freq-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .freq-card {
+      border: 1px solid var(--border); border-top: 3px solid var(--c);
+      border-radius: var(--r-sm); padding: 12px; background: var(--surface);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .freq-card.good { --c: var(--v-pine); }
+    .freq-card.warn { --c: var(--v-amber); }
+    .freq-card.bad  { --c: var(--v-danger); }
+    html.theme-dark .freq-card.good { --c:#5EA88F; }
+    html.theme-dark .freq-card.warn { --c:#D4974A; }
+    html.theme-dark .freq-card.bad  { --c:#D07070; }
+    .freq-title { font-size: 12px; font-weight: 700; color: var(--c); margin-bottom: 2px; }
+    .freq-en { font-size: 10px; font-style: italic; color: var(--text-tertiary); margin-bottom: 8px; }
+    .freq-card svg { width: 100%; height: 52px; display: block; }
+    .freq-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.55; margin-top: 8px; }
+    @media (max-width: 640px) { .freq-grid { grid-template-columns: 1fr; } }
+
+    /* ── 바이오필름 침투 감소 ── */
+    .bio-wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .bio-step { flex: 1 1 8rem; min-width: 0; text-align: center; }
+    .bio-bar {
+      height: 34px; border-radius: var(--r-xs); display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; font-family: 'Inter', sans-serif; color: #fff;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .bio-bar.full { background: var(--v-pine); }
+    .bio-bar.left { background: var(--v-danger); }
+    html.theme-dark .bio-bar.full { background:#2F6B58; }
+    html.theme-dark .bio-bar.left { background:#8E3B42; }
+    /* 해치는 배경으로만 두고, 라벨은 solid 칩 위에 올려 가독성 확보 */
+    .bio-bar.film {
+      background: repeating-linear-gradient(45deg, rgba(122,100,120,0.32) 0 5px, transparent 5px 10px), var(--surface-2);
+      color: var(--text); border: 1px solid var(--border);
+    }
+    .bio-bar.film span {
+      background: var(--surface); border-radius: 20px; padding: 2px 10px;
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    html.theme-dark .bio-bar.film { background: repeating-linear-gradient(45deg, rgba(205,223,215,0.18) 0 5px, transparent 5px 10px), var(--surface-2); }
+    .bio-bar.left { background: var(--v-danger); }
+    .bio-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+    .bio-arrow { flex: 0 0 auto; color: var(--text-tertiary); font-size: 15px; }
 
     /* ── 애니메이션 ────────────────────────────────────────── */
     @keyframes fadeInUp {
@@ -427,6 +643,17 @@
       body { background: white !important; color: black !important; }
       .viz-menu, .filter-bar { display: none !important; }
       .info-detail { max-height: none !important; }
+      /* 시퀀스 맵은 화면에서 가로 스크롤이지만 인쇄면에는 스크롤이 없다 —
+         min-width를 풀고 축소해 A4 폭 안에 전부 들어오게 한다 */
+      .flowchart-wrap { break-inside: avoid; box-shadow: none; }
+      .flowchart-body { overflow: visible; padding: 12px; }
+      .seq { min-width: 0; }
+      .seq-lane { grid-template-columns: 6.5rem 1fr; gap: 8px; }
+      .lane-track { gap: 3px; }
+      .seg { padding: 5px 6px 6px; }
+      .seg-ph { font-size: 8px; }
+      .seg-t { font-size: 10px; }
+      .seg-d { font-size: 9px; }
       .info-card { break-inside: avoid; }
       * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
     }
@@ -435,6 +662,9 @@
     @media (max-width: 768px) {
       h1 { font-size: 2.4rem; }
       .overview-grid { grid-template-columns: 1fr; }
+      /* 시퀀스 맵은 가로 스크롤로 유지 — 세로로 접으면 순서가 읽히지 않는다 */
+      .flowchart-body { padding: 14px; }
+      .seq-lane { grid-template-columns: 7rem 1fr; gap: 10px; }
       .hero { padding: 76px 20px 48px; }
       .card-grid { grid-template-columns: 1fr; }
       .stat-item { padding: 14px 20px; }
@@ -465,7 +695,6 @@
       .hero-logo { height: 22px; }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
   <a href="#main-content" style="position:absolute;left:-9999px;top:auto;overflow:hidden;z-index:10000;">본문으로 바로가기</a>
@@ -525,6 +754,12 @@
     <div class="filter-bar" role="navigation" aria-label="카테고리 필터">
       <div class="filter-inner" id="filterBar">
         <button class="filter-btn active" data-cat="all" onclick="filterCat('all', this)">전체 항목</button>
+        <button class="filter-btn" data-cat="micro" onclick="filterCat('micro', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#0B5563"></span>미생물학 배경</span><span class="filter-en">Microbiology</span>
+        </button>
+        <button class="filter-btn" data-cat="principle" onclick="filterCat('principle', this)">
+          <span class="filter-btn-row"><span class="filter-dot" style="background:#58184F"></span>소독 원칙</span><span class="filter-en">Disinfection Principles</span>
+        </button>
         <button class="filter-btn" data-cat="rinse" onclick="filterCat('rinse', this)">
           <span class="filter-btn-row"><span class="filter-dot" style="background:#1E4EA8"></span>린스 공정</span><span class="filter-en">Rinse Process</span>
         </button>
@@ -574,6 +809,628 @@
             <p>공기 유입, 튜브 꺾임, 내부 누수, 전도도 셀 드리프트 등 4가지 장애 유형이 기계의 예상치 못한 알람 또는 펌프 오류를 유발할 수 있습니다.</p>
           </div>
         </div>
+        <!-- ── 공정 시퀀스 맵 ───────────────────────────── -->
+        <div class="flowchart-wrap reveal">
+          <div class="flowchart-title">
+            4개 소독 공정 시퀀스 비교
+            <span class="fc-note">단계 순서 맵 · 폭은 소요 시간에 비례하지 않음</span>
+          </div>
+          <div class="flowchart-body">
+
+            <div class="seq-skeleton">
+              <span class="sk-lbl">공통 골격</span>
+              <span class="sk-step">회로 충전</span><span class="sk-arw">→</span>
+              <span class="sk-step">라인별 플러싱</span><span class="sk-arw">→</span>
+              <span class="sk-step">분배 · 가열</span><span class="sk-arw">→</span>
+              <span class="sk-step">소독 · 접촉</span><span class="sk-arw">→</span>
+              <span class="sk-step">린스 · 냉각 · 종료</span>
+            </div>
+
+            <div class="seq">
+
+              <!-- 린스 -->
+              <div class="seq-lane lane-rinse">
+                <div class="lane-head">
+                  <div class="lane-name"><span class="lane-chip"></span>린스</div>
+                  <span class="lane-en">Rinse</span>
+                  <div class="lane-meta"><span>21단계</span><span>소독제 잔류물 제거</span></div>
+                </div>
+                <div class="lane-track">
+                  <div class="seg"><div class="seg-ph">PHASE 0</div><div class="seg-t">시작</div></div>
+                  <div class="seg"><div class="seg-ph">FILL-UP</div><div class="seg-t">회로 충전</div></div>
+                  <div class="seg key"><div class="seg-ph">PHASE 5~21</div><div class="seg-t">라인별 린스</div><div class="seg-d">플러싱 → 혼합 회로 → 바이패스 · UF → 메인 플로우</div></div>
+                  <div class="seg"><div class="seg-ph">DRAINING</div><div class="seg-t">배수</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 26~29</div><div class="seg-t">종료</div></div>
+                </div>
+              </div>
+
+              <!-- 화학적 소독 -->
+              <div class="seq-lane lane-chem">
+                <div class="lane-head">
+                  <div class="lane-name"><span class="lane-chip"></span>화학적 소독</div>
+                  <span class="lane-en">Chemical</span>
+                  <div class="lane-meta"><span>35°C</span><span>약 4.5L</span></div>
+                </div>
+                <div class="lane-track">
+                  <div class="seg"><div class="seg-ph">PHASE 0</div><div class="seg-t">시작 · 충전</div><div class="seg-d">Fill_up</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 5~18</div><div class="seg-t">소독제 분배</div><div class="seg-d">1:35 희석 · 약 11분</div></div>
+                  <div class="seg key"><div class="seg-ph">PHASE 19</div><div class="seg-t">접촉 시간</div><div class="seg-d">5~10분 · 액추에이터 전부 OFF</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 20</div><div class="seg-t">리셋</div></div>
+                  <div class="seg"><div class="seg-ph">AUTO</div><div class="seg-t">자동 린스</div><div class="seg-d">27 / 38 / 94분<br>소독제별 자동 설정</div></div>
+                </div>
+              </div>
+
+              <!-- 열 소독 -->
+              <div class="seq-lane lane-heat">
+                <div class="lane-head">
+                  <div class="lane-name"><span class="lane-chip"></span>열 소독</div>
+                  <span class="lane-en">Heat</span>
+                  <div class="lane-meta"><span>95 / 99°C</span><span>약 34분</span><span>약 11L</span></div>
+                </div>
+                <div class="lane-track">
+                  <div class="seg"><div class="seg-ph">FILL_UP</div><div class="seg-t">회로 충전</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 5~15</div><div class="seg-t">고유량 플러싱</div><div class="seg-d">침전물 제거</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 16</div><div class="seg-t">설정 온도 도달</div><div class="seg-d">냉수 차단 · 재순환 가열</div></div>
+                  <div class="seg key"><div class="seg-ph">PHASE 17~30</div><div class="seg-t">소독</div><div class="seg-d">1차 UF 탄젠셜 → 전체 회로</div></div>
+                  <div class="seg"><div class="seg-ph">~PHASE 37</div><div class="seg-t">배수 · 종료</div></div>
+                </div>
+              </div>
+
+              <!-- CleanCart -->
+              <div class="seq-lane lane-cc">
+                <div class="lane-head">
+                  <div class="lane-name"><span class="lane-chip"></span>CleanCart</div>
+                  <span class="lane-en">Heat with CleanCart</span>
+                  <div class="lane-meta"><span>95 / 99°C</span><span>약 44분</span><span>15~17.5L</span></div>
+                </div>
+                <div class="lane-track">
+                  <div class="seg"><div class="seg-ph">FILL UP</div><div class="seg-t">회로 충전</div><div class="seg-d">PB 펌프 미활성</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 5~16</div><div class="seg-t">플러싱 · 90°C 도달</div><div class="seg-d">온수로 카트리지 충전</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 17A</div><div class="seg-t">농도 확인</div><div class="seg-d">B 셀 전도도<br>미달 시 17B~17D</div></div>
+                  <div class="seg key"><div class="seg-ph">PHASE 18~40</div><div class="seg-t">분배 · 소독</div><div class="seg-d">전체 회로 분배 → 210초 재순환</div></div>
+                  <div class="seg"><div class="seg-ph">PHASE 41~43</div><div class="seg-t">플러싱 · 냉각</div></div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="seq-legend">
+              <span class="lg-key"></span>
+              <span>채워진 칸이 각 공정의 <strong>핵심 소독 구간</strong>입니다. 화학 소독만 접촉 시간(Phase 19) 이후 소독제 종류에 따라 린스 시간이 자동으로 달라지며, 열 소독·CleanCart는 온도 이탈 시 별도 회복 단계(Phase 38 / 51)로 분기합니다.</span>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 0-A: 미생물학 배경 (매뉴얼 4.1 / 4.2)
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-micro" data-cat="micro">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#0B5563"></div>
+          <div class="cat-name">미생물학 배경<span class="cat-name-en">Details of Microbiology · Section 4.1 &ndash; 4.2</span></div>
+          <div class="cat-count">4개 항목</div>
+        </div>
+
+        <div class="note-box" style="margin-bottom:20px;">
+          <strong>오염(Contamination)과 감염(Infection)은 다릅니다.</strong>
+          오염은 미생물이 표면에 도달해 증식하기 시작한 단계로, 아직 감염이 아니며 <strong>관리 가능한 상태로 회복시킬 수 있습니다</strong>.
+          감염은 미생물이 기기에서 환자로 넘어가 체내에 자리 잡고 증식을 시작한 단계입니다.
+          오염은 흔적 없이 제거할 수 있지만 감염은 항상 흔적을 남깁니다. 소독의 목표는 <strong>오염 단계에서 끊는 것</strong>입니다.
+        </div>
+
+        <!-- 다이어그램: 미생물 크기 -->
+        <div class="flowchart-wrap reveal">
+          <div class="flowchart-title">
+            미생물 크기 비교
+            <span class="fc-note">로그 스케일 (µm)</span>
+          </div>
+          <div class="flowchart-body">
+            <div class="size-row sz-virus">
+              <div class="size-name">바이러스<br><span style="font-weight:400;font-size:10px;font-style:italic;color:var(--text-secondary)">Virus</span></div>
+              <div class="size-track"><div class="size-span" style="left:0%; width:65.05%">0.1 &ndash; 2 µm</div></div>
+            </div>
+            <div class="size-row sz-bact">
+              <div class="size-name">박테리아<br><span style="font-weight:400;font-size:10px;font-style:italic;color:var(--text-secondary)">Bacteria</span></div>
+              <div class="size-track"><div class="size-span" style="left:15.05%; width:84.95%">0.2 &ndash; 10 µm</div></div>
+            </div>
+            <div class="size-axis">
+              <div></div>
+              <div class="ticks"><span>0.1</span><span>1</span><span>10 µm</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- M-01 박테리아 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#0B5563;color:#fff">M-01</div>
+              <div class="info-body">
+                <div class="info-name">박테리아<span class="info-name-en">Bacteria</span></div>
+                <div class="info-brief">0.2~10 µm 단세포 미생물. 최적 조건에서 10~60분마다 개체수가 2배로 증가</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-teal">0.2~10 µm</span>
+              <span class="tag tag-warn">이분법 증식</span>
+              <span class="tag tag-heat">내독소 / 외독소</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">증식 방식</div>
+                  <div class="detail-text">일정 크기까지 자란 뒤 <strong>이분법(binary fission)</strong>이라는 무성생식으로 분열해 유전적으로 동일한 딸세포 2개를 만듭니다. 최적 조건에서는 <strong>10~60분마다 개체수가 2배</strong>가 됩니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">생활사 4단계</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>잠복기:</strong> 새 환경 적응과 효소 합성이 필요해 증식이 거의 없음</div>
+                    <div class="phase-row"><strong>지수 성장기:</strong> 영양분이 있으면 기하급수적으로 증가</div>
+                    <div class="phase-row"><strong>정지기:</strong> 영양분이 줄어 개체수가 더 늘지 않음</div>
+                    <div class="phase-row"><strong>사멸기:</strong> 필수 영양분이 없어져 사멸</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">감염을 일으키는 3가지 경로</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>균체 자체:</strong> 단백질로 이루어진 구조를 숙주가 독소로 인식</div>
+                    <div class="phase-row"><strong>외독소(Exotoxin):</strong> 생존 중 균이 외부로 분비하는 독소</div>
+                    <div class="phase-row"><strong>내독소(Endotoxin):</strong> 균체 안에 있어 접촉하지 않다가, <strong>균이 죽어 용해(lysis)될 때 방출</strong>되는 안정한 독소</div>
+                  </div>
+                </div>
+                <div class="note-box">
+                  <strong>실무 함의:</strong> 내독소는 균을 죽인다고 사라지지 않습니다. 그래서 소독만으로는 부족하고, 잔해를 물리적으로 씻어내는 <strong>세정과 린스</strong>가 함께 필요합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- M-02 바이러스 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#0B5563;color:#fff">M-02</div>
+              <div class="info-body">
+                <div class="info-name">바이러스<span class="info-name-en">Virus</span></div>
+                <div class="info-brief">0.1~2 µm 비세포성 기생체. 스스로 증식하지 못하고 숙주세포의 대사를 이용</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-teal">0.1~2 µm</span>
+              <span class="tag tag-note">비세포성</span>
+              <span class="tag tag-chem">불활성화 대상</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">구조</div>
+                  <div class="detail-text">핵산(유전정보)이 <strong>캡시드(capsid)</strong>라는 단백질 외피에 둘러싸인 형태입니다. 세포가 아니므로 세포분열로 증식하지 않고, 숙주세포 안에서 조립되어 자신의 복제본을 대량으로 만듭니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">생활사 5단계</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>부착(Attachment):</strong> 캡시드의 수용체가 복제 가능한 세포를 식별</div>
+                    <div class="phase-row"><strong>침투(Penetration):</strong> 바이러스 유전체가 숙주세포로 진입</div>
+                    <div class="phase-row"><strong>탈피(Uncoating):</strong> 캡시드를 벗고 유전체가 숙주세포의 일부가 됨</div>
+                    <div class="phase-row"><strong>복제(Replication):</strong> 숙주세포를 이용해 핵산·효소·단백질 외피를 복제</div>
+                    <div class="phase-row"><strong>방출(Release):</strong> 숙주세포 막을 터뜨려(lysis) 죽이면서 새 바이러스가 방출</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">투석에서의 의미</div>
+                  <div class="detail-text">바이러스는 <strong>dialyzer 막을 통과해 post-dialyzer 유압 회로로 유입</strong>될 수 있습니다. 소독 공정의 목적 중 하나가 바로 이 구간에 들어온 바이러스를 <strong>불활성화</strong>하는 것입니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- M-03 진균 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#0B5563;color:#fff">M-03</div>
+              <div class="info-body">
+                <div class="info-name">진균 (곰팡이 &middot; 효모)<span class="info-name-en">Fungi &middot; Molds &amp; Yeasts</span></div>
+                <div class="info-brief">포자로 번식하며, 포자는 극한의 온도·압력에서도 생존해 적합한 환경을 기다림</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-warn">포자 번식</span>
+              <span class="tag tag-heat">극한 조건 생존</span>
+              <span class="tag tag-note">면역저하 위험</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">곰팡이와 효모의 구분</div>
+                  <div class="detail-text"><strong>곰팡이(Mold)</strong>는 다세포 필라멘트(균사)가 그물망으로 연결된 형태로, 커지면 육안으로도 보이는 집락을 이룹니다. <strong>효모(Yeast)</strong>는 단세포로 자라는 현미경적 진균입니다. 둘 다 유기물을 에너지원으로 쓰며 햇빛이 필요 없습니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">왜 제거가 어려운가</div>
+                  <div class="detail-text">번식 과정에서 만들어지는 <strong>포자(spore)</strong>는 적합한 환경을 만날 때까지 <strong>극한의 온도와 압력을 견디며 생존</strong>합니다. 또한 많은 종이 숙주 세포를 뚫고 들어가 영양분을 흡수하는 특화 구조를 가지고 있습니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">고위험 환자군</div>
+                  <div class="detail-text">면역계가 약화된 경우 감염 위험이 큽니다 &mdash; 다른 감염 진행 중, 강한 항생제 복용, <strong>신부전</strong>, 당뇨, 기존 면역 저하, 스테로이드 치료 중, 화상 환자 등. 투석 환자는 이 목록에 직접 해당합니다.</div>
+                </div>
+                <div class="caution-box">
+                  <p>표재성 진균증은 눈에 띄는 영향이 없을 수 있지만, 전신성 진균증은 폐에서 시작해 여러 장기로 퍼지며 발열에서 장기 부전까지 이를 수 있습니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- M-04 바이오필름 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#0B5563;color:#fff">M-04</div>
+              <div class="info-body">
+                <div class="info-name">바이오필름 &amp; 슬라임층<span class="info-name-en">Biofilm and Slime Layer</span></div>
+                <div class="info-brief">미생물이 스스로 만든 점액질 매트릭스에 갇혀 표면에 부착한 집합체 &mdash; 화학 소독의 최대 적</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">화학 소독 저항</span>
+              <span class="tag tag-warn">소독제 80% 차단</span>
+              <span class="tag tag-flow">매끄러운 표면 부착</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">정의</div>
+                  <div class="detail-text">바이오필름은 세포들이 서로 또는 표면에 달라붙은 미생물 집합체로, <strong>스스로 만들어낸 세포외 고분자 물질(EPS) 매트릭스</strong> 안에 묻혀 있습니다. 이 물질을 <strong>슬라임(slime)</strong>이라고도 부릅니다. 살아있는 표면과 무생물 표면 모두에 형성되며, 자연·산업·병원 환경 어디에나 존재합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">슬라임층의 기능 &mdash; 미생물 입장에서의 방어막</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>항생제와 건조로부터 세포를 보호</strong>합니다</div>
+                    <div class="phase-row">보철 의료기기·카테터 같은 <strong>매끄러운 표면에 부착</strong>할 수 있게 합니다</div>
+                    <div class="phase-row">항원으로 작용하고 세포 인식에 관여하며, 표면 부착과 바이오필름 형성을 돕습니다</div>
+                  </div>
+                </div>
+                <div class="warn-box">
+                  <p><strong>염소·요오드 등 화학 멸균에서도 균 집락이 생존할 수 있습니다.</strong> 원문은 이 경우 확실한 제염 방법으로 <strong>오토클레이브 또는 끓는 물 플러싱</strong>만을 남겨둔다고 명시합니다 &mdash; 열 기반 공정(열 소독·CleanCart)이 화학 소독과 병행되어야 하는 근본 이유입니다.</p>
+                </div>
+                <div class="note-box">
+                  <strong>구조의 다양성:</strong> 슬라임층은 조직화되지 않은 세포외 고분자 형태부터, 고도로 구조화된 캡슐(capsule) 또는 글리코칼릭스(glycocalyx)까지 복잡도가 다양합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 다이어그램: 세균 온도대 vs 소독 온도 -->
+        <div class="flowchart-wrap reveal" style="margin-top:20px;">
+          <div class="flowchart-title">
+            세균 생존 온도대 vs 기기 소독 온도
+            <span class="fc-note">Tab. 4.1 기준 · 굵은 선 = 최적 성장 온도</span>
+          </div>
+          <div class="flowchart-body">
+            <div class="temp-chart">
+              <div class="temp-row temp-psy">
+                <div class="temp-name">저온균<small>Psychrophile</small></div>
+                <div class="temp-track">
+                  <div class="temp-span" style="left:4.5%; width:31.8%"></div>
+                  <div class="temp-opt" style="left:27.3%"></div>
+                </div>
+              </div>
+              <div class="temp-row temp-mes">
+                <div class="temp-name">중온균<small>Mesophile</small></div>
+                <div class="temp-track">
+                  <div class="temp-span" style="left:18.2%; width:31.8%"></div>
+                  <div class="temp-opt" style="left:36.4%"></div>
+                </div>
+              </div>
+              <div class="temp-row temp-the">
+                <div class="temp-name">고온균<small>Thermophile</small></div>
+                <div class="temp-track">
+                  <div class="temp-span" style="left:50%; width:31.8%"></div>
+                  <div class="temp-opt" style="left:59.1%"></div>
+                </div>
+              </div>
+
+              <div class="temp-marks">
+                <div></div>
+                <div class="temp-marklane">
+                  <div class="temp-mark mk-amber" style="left:40.9%"><i></i><span>35°C 화학</span></div>
+                  <div class="temp-mark stagger mk-pine" style="left:90.9%"><i></i><span>90°C CleanCart</span></div>
+                  <div class="temp-mark end mk-danger" style="left:97.3%"><i></i><span>95/99°C 열소독</span></div>
+                </div>
+              </div>
+
+              <div class="temp-axis">
+                <div></div>
+                <div class="ticks"><span>-10°C</span><span>20</span><span>50</span><span>80</span><span>100°C</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="dgm-foot" style="border-top:1px solid var(--border); padding:10px 16px; font-size:0.72rem; color:var(--text-tertiary); line-height:1.6;">
+            열 소독의 <strong>95 / 99°C</strong>는 가장 내열성이 강한 고온균의 생존 상한(80°C)보다도 높습니다.
+            반면 화학 소독의 <strong>35°C</strong>는 중온균의 성장 구간(10~45°C) 한복판이며 &mdash;
+            이 온도는 살균 온도가 아니라 <strong>소독제 효능을 높이면서 위험 가스 발생을 피하기 위한 절충값</strong>입니다. 살균은 온도가 아니라 화학물질이 담당합니다.
+          </div>
+        </div>
+
+        <!-- 성장 환경 인자 -->
+        <div class="flowchart-wrap reveal" style="margin-top:20px;">
+          <div class="flowchart-title">미생물 성장에 관여하는 환경 인자<span class="fc-note">Section 4.2.1 &ndash; 4.2.6</span></div>
+          <div class="flowchart-body">
+            <div class="phase-list">
+              <div class="phase-row"><strong>물:</strong> 성장의 필수 조건. 세포의 최대 구성 성분이며 물질의 용해·운반·접근을 가능하게 합니다. <strong>수분이 15% 미만이면 성장이 매우 어렵습니다.</strong></div>
+              <div class="phase-row"><strong>온도:</strong> 대부분의 세균은 <strong>20~45°C</strong>에서 최적 성장. 세균은 스스로 체온을 조절하지 못해 환경 온도에 전적으로 좌우됩니다. 대사 과정에서 열이 발생하는데, 열이 방출되지 못하는 환경이면 오히려 증식에 더 유리한 온도가 될 수 있습니다.</div>
+              <div class="phase-row"><strong>영양분:</strong> 탄소(C)·산소(O)·질소(N)·수소(H)·인(P)·황(S)·칼륨(K)·마그네슘(Mg)·칼슘(Ca)·철(Fe)</div>
+              <div class="phase-row"><strong>산소:</strong> 산소가 있어야 사는 <strong>호기성</strong>, 없어야 사는 <strong>혐기성</strong>, 양쪽 모두 적응한 종으로 나뉩니다.</div>
+              <div class="phase-row"><strong>pH:</strong> 대부분의 세균이 <strong>pH 4~9</strong>에서 성장합니다.</div>
+              <div class="phase-row"><strong>압력:</strong> 미생물 대사에 영향을 주는 인자로 보이지 않습니다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════
+           섹션 0-B: 소독 원칙 (매뉴얼 4.3)
+      ════════════════════════════════════════════════════ -->
+      <section class="section cat-section" id="sec-principle" data-cat="principle">
+        <div class="cat-bar">
+          <div class="cat-dot" style="background:#58184F"></div>
+          <div class="cat-name">소독 원칙<span class="cat-name-en">Disinfection and Disinfectants &middot; Section 4.3</span></div>
+          <div class="cat-count">4개 항목</div>
+        </div>
+
+        <div class="card-grid">
+
+          <!-- P-01 목적 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#58184F;color:#fff">P-01</div>
+              <div class="info-body">
+                <div class="info-name">소독의 목적과 성능 기준<span class="info-name-en">Purpose &amp; 5 Log Reduction</span></div>
+                <div class="info-brief">투석액에서 환자 혈액으로의 미생물 전이를 차단. 기기 소독 성능은 5 log 감소로 정의</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-phase">5 log 감소</span>
+              <span class="tag tag-warn">세균 &amp; 효모</span>
+              <span class="tag tag-note">HDF POST 중요</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">목적 3가지</div>
+                  <div class="phase-list">
+                    <div class="phase-row">미생물(세균·효모)이 <strong>성장할 수 있는 환경을 만들지 못하게</strong> 합니다</div>
+                    <div class="phase-row">post-dialyzer 유압 회로에 유입된 <strong>바이러스를 불활성화</strong>합니다</div>
+                    <div class="phase-row">결과적으로 <strong>환자 감염 위험을 회피</strong>합니다</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">기기 소독 성능</div>
+                  <div class="detail-text">Artis / Evosys의 소독 성능은 <strong>세균과 효모 모두에 대해 5 log 감소(5 log reduction)</strong>로 정의되어 있습니다. 즉 미생물 수를 <strong>10만분의 1</strong>로 줄이는 수준입니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">유압 회로로 미생물이 들어오는 5가지 경로</div>
+                  <div class="phase-list">
+                    <div class="phase-row">제조 &middot; 생산 환경</div>
+                    <div class="phase-row">기기로 유입되는 <strong>RO수</strong></div>
+                    <div class="phase-row">투석액 조제에 쓰이는 <strong>외부 농축액 또는 중앙 공급 농축액</strong></div>
+                    <div class="phase-row">불충분한 세정·소독으로 <strong>유기물 / 무기물 barrier</strong>가 쌓인 유로</div>
+                    <div class="phase-row">dialyzer 막을 통과해 미생물이 들어올 수 있는 <strong>post-dialyzer 회로</strong></div>
+                  </div>
+                </div>
+                <div class="caution-box">
+                  <p>투석액 품질은 표준 HD-DN 치료의 핵심 전제조건이며, 투석액 일부가 체외순환로로 주입되는 <strong>HDF POST 치료에서는 더욱 중요</strong>해집니다.</p>
+                </div>
+                <div class="note-box">
+                  <strong>표준에 관한 참고:</strong> 소독제 <em>제품</em>은 미생물 살균률에 대한 표준을 따르지만, <strong>소독 <em>공정</em>(희석 화학물질을 유압 회로에 일련의 단계로 적용하는 절차)이 어떻게 동작해야 하는지를 정의하는 표준은 없습니다.</strong> Artis / Evosys의 소독 공정은 시스템 설계 시 정의된 전제조건을 기준으로 개발되었습니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- P-02 세정 vs 소독 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#58184F;color:#fff">P-02</div>
+              <div class="info-body">
+                <div class="info-name">세정과 소독의 차이<span class="info-name-en">Cleaning vs Disinfection</span></div>
+                <div class="info-brief">소독은 미생물을 줄이고, 세정은 유기·무기 물질을 제거 &mdash; 둘은 다른 작업입니다</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-phase">유기물 barrier</span>
+              <span class="tag tag-warn">무기물 barrier</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">두 공정의 목적</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>소독(Disinfection):</strong> 미생물을 제거하거나 그 수를 줄이는 것</div>
+                    <div class="phase-row"><strong>세정(Cleaning):</strong> 유로에서 유기물 또는 무기물을 제거하는 것</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">두 가지 barrier</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>유기물 barrier:</strong> 미생물, 그리고 사용된 투석액에 섞여 환자에게서 나온 노폐물</div>
+                    <div class="phase-row"><strong>무기물 barrier:</strong> 주로 <strong>탄산칼슘 잔류물</strong>. 불규칙한 다공성 표면을 만들어 <strong>미생물이 자라기 좋은 자리</strong>가 됩니다</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">왜 주기적 세정이 필수인가</div>
+                  <div class="detail-text">유기·무기 물질이 barrier나 바이오필름을 형성하면 <strong>소독 능력 자체가 떨어집니다.</strong> 게다가 각 barrier는 미생물의 저장소 역할을 합니다.</div>
+                </div>
+                <div class="warn-box">
+                  <p><strong>좋은 소독은 깨끗한 환경에서만 가능합니다.</strong> (원문: <em>&ldquo;a good disinfection can be executed only in a clean environment&rdquo;</em>) &mdash; 세정을 건너뛴 소독은 효과를 보장할 수 없습니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- P-03 소독 주기 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#58184F;color:#fff">P-03</div>
+              <div class="info-body">
+                <div class="info-name">소독 주기의 중요성<span class="info-name-en">Frequency for Disinfections</span></div>
+                <div class="info-brief">미생물에게 성장하고 번식 환경을 만들 시간을 주지 않는 것이 핵심</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-auto">정기 소독</span>
+              <span class="tag tag-heat">소독제 80% 차단</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">원칙</div>
+                  <div class="detail-text">유압 회로에 집락이나 바이오필름이 형성되는 것을 막아야 합니다. 이들이 소독 공정의 품질 자체를 떨어뜨리기 때문입니다. <strong>미생물에게 성장하고 번식에 적합한 환경을 만들 시간을 주면 안 됩니다.</strong></div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">불충분한 소독의 결과</div>
+                  <div class="detail-text">불충분하거나 간헐적인 소독 &mdash; 그리고 세정·스케일 제거 공정의 부족 &mdash; 은 오염을 통제하지 못할 뿐 아니라, 유기·무기 바이오필름이 <strong>단단한 barrier로 성장</strong>하도록 허용해 유압 회로의 올바른 소독을 <strong>무력화</strong>시킵니다.</div>
+                </div>
+                <div class="warn-box">
+                  <p>바이오필름은 소독을 비효율적으로 만드는 데 그치지 않고, <strong>그 안에 자리 잡은 미생물이 생존하고 번식할 은신처</strong>가 됩니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- P-04 소독 공정의 특성 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#58184F;color:#fff">P-04</div>
+              <div class="info-body">
+                <div class="info-name">소독 공정의 설계 특성<span class="info-name-en">Characteristics of the Process</span></div>
+                <div class="info-brief">치료 간 교차 감염 방지, 부품 호환성, 잔류물 최소화 &mdash; 그리고 정균(Bacteriostatic) 모드</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-phase">교차 감염 방지</span>
+              <span class="tag tag-flow">정균 모드</span>
+              <span class="tag tag-auto">자동 린스</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="detail-section">
+                  <div class="detail-lbl">공정이 보장해야 하는 것</div>
+                  <div class="phase-list">
+                    <div class="phase-row">화학이든 열이든 방식과 무관하게 <strong>미생물 성장의 통제</strong>를 보장해야 합니다</div>
+                    <div class="phase-row"><strong>두 투석 치료 사이</strong>의 소독을 보장해 교차 감염을 방지해야 합니다</div>
+                    <div class="phase-row">기기 <strong>부품과의 호환성</strong>을 보장하도록 개발되어야 합니다</div>
+                    <div class="phase-row">공정 종료 시 유압 회로에 <strong>화학물질 흔적만 겨우 남는 수준</strong>이어야 합니다</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">왜 열 소독은 단계 시퀀스로 구성되는가</div>
+                  <div class="detail-text">온수를 이용한 소독에서는 <strong>한 번에 유압 회로의 작은 부분만</strong>, 그것도 제한된 시간 동안만 영향을 받습니다. 기기가 온수를 유로의 일부 구간에만 유지할 수 있다는 것이 근본 제약입니다. 그래서 열 소독은 <strong>사전 정의된 유압 단계의 시퀀스</strong>로 개발되며, 공정 시간을 늘려야 하면 <strong>시퀀스를 통째로 반복</strong>합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">정균(Bacteriostatic) 모드</div>
+                  <div class="detail-text">소독 공정의 변형으로, 접촉 시간이 끝난 뒤 공정을 종료하면서 <strong>희석된 화학 소독제를 유압 회로 안에 수 시간~수일간 남겨둡니다.</strong> 기기를 장기간 사용하지 않을 때 미생물 성장을 낮게 유지하는 방법입니다.</div>
+                </div>
+                <div class="caution-box">
+                  <p><strong>정균 처리 후에는 사용자가 기계의 수동 또는 자동 전원 켜기를 계획해야 하며</strong>, 켜지는 즉시 적절한 린스가 시작됩니다. 일반 화학 소독에서는 공정 후 자동 린스가 실행되어 모든 제품 흔적을 제거합니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 다이어그램: 소독 주기 3패턴 -->
+        <div class="flowchart-wrap reveal" style="margin-top:20px;">
+          <div class="flowchart-title">소독 주기에 따른 오염도 추이<span class="fc-note">Fig. 4.2 &ndash; 4.4 · 세로축 오염도 / 가로축 경과일</span></div>
+          <div class="flowchart-body">
+            <div class="freq-grid">
+              <div class="freq-card good">
+                <div class="freq-title">충분한 주기</div>
+                <div class="freq-en">Frequent Disinfection</div>
+                <svg viewBox="0 0 120 52" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,46 12,34 12,46 24,33 24,46 36,34 36,46 48,33 48,46 60,34 60,46 72,33 72,46 84,34 84,46 96,33 96,46 108,34 108,46 120,35"
+                    fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round"/>
+                  <line x1="0" y1="50" x2="120" y2="50" stroke="var(--border)" stroke-width="1"/>
+                </svg>
+                <div class="freq-desc">적절한 소독 프로토콜이 계획되어 있으면 오염도가 <strong>항상 최대한 낮게</strong> 유지됩니다.</div>
+              </div>
+              <div class="freq-card warn">
+                <div class="freq-title">불충분한 주기</div>
+                <div class="freq-en">Insufficient Disinfection</div>
+                <svg viewBox="0 0 120 52" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,46 20,30 20,42 40,24 40,36 60,18 60,30 80,12 80,25 100,7 100,20 120,4"
+                    fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round"/>
+                  <line x1="0" y1="50" x2="120" y2="50" stroke="var(--border)" stroke-width="1"/>
+                </svg>
+                <div class="freq-desc">소독을 해도 미생물 증가를 통제하지 못해 <strong>오염도가 계속 상승</strong>합니다.</div>
+              </div>
+              <div class="freq-card bad">
+                <div class="freq-title">간헐적 소독</div>
+                <div class="freq-en">Occasional Disinfection</div>
+                <svg viewBox="0 0 120 52" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline points="0,46 40,12 40,30 80,6 80,24 120,3"
+                    fill="none" stroke="var(--c)" stroke-width="2" stroke-linejoin="round"/>
+                  <line x1="0" y1="50" x2="120" y2="50" stroke="var(--border)" stroke-width="1"/>
+                </svg>
+                <div class="freq-desc">소독 간격이 길어 그 사이 오염이 크게 자라고, <strong>회복되지 않는 수준</strong>까지 누적됩니다.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 다이어그램: 바이오필름 침투 감소 -->
+        <div class="flowchart-wrap reveal" style="margin-top:20px;">
+          <div class="flowchart-title">바이오필름이 소독제 농도에 미치는 영향<span class="fc-note">Fig. 4.5</span></div>
+          <div class="flowchart-body">
+            <div class="bio-wrap">
+              <div class="bio-step">
+                <div class="bio-bar full">100%</div>
+                <div class="bio-lbl">유로에 투입된<br>소독제 농도</div>
+              </div>
+              <div class="bio-arrow">&rarr;</div>
+              <div class="bio-step">
+                <div class="bio-bar film"><span>유기·무기 바이오필름</span></div>
+                <div class="bio-lbl">표면을 통과하면서<br>농도가 감소</div>
+              </div>
+              <div class="bio-arrow">&rarr;</div>
+              <div class="bio-step">
+                <div class="bio-bar left">20%</div>
+                <div class="bio-lbl">바이오필름 <strong>안쪽</strong>의<br>미생물에 도달하는 농도</div>
+              </div>
+            </div>
+          </div>
+          <div class="dgm-foot" style="border-top:1px solid var(--border); padding:10px 16px; font-size:0.72rem; color:var(--text-tertiary); line-height:1.6;">
+            바이오필름 표면을 통과한 소독제 농도는 <strong>80%까지 감소</strong>할 수 있습니다. 소독제를 바꾸거나 접촉 시간을 늘려도,
+            바이오필름 자체를 <strong>세정으로 제거하지 않으면</strong> 안쪽 미생물에는 유효 농도가 도달하지 않습니다.
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════════════
@@ -586,7 +1443,7 @@
             린스 공정
             <span class="cat-name-en">Rinse Process · Section 3.1.1</span>
           </div>
-          <div class="cat-count">4개 항목</div>
+          <div class="cat-count">5개 항목</div>
         </div>
 
         <div class="card-grid">
@@ -754,6 +1611,59 @@
               </div>
             </div>
           </div>
+
+          <!-- 린스 5: 잔류물 관리와 환자 안전 -->
+          <div class="info-card" onclick="toggleCard(this)">
+            <div class="info-card-head">
+              <div class="info-num" style="background:#1E4EA8;color:#fff">R-05</div>
+              <div class="info-body">
+                <div class="info-name">잔류물 관리와 환자 안전
+                  <span class="info-name-en">Measurement of the Efficacy of the Rinse Process</span>
+                </div>
+                <div class="info-brief">환자 연결 전 소독제 잔류 검사는 필수 &mdash; 화학 잔류물 노출은 혈액 용혈로 이어질 수 있음</div>
+              </div>
+              <div class="info-expand">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2 4 6 8 10 4"/></svg>
+              </div>
+            </div>
+            <div class="info-footer">
+              <span class="tag tag-heat">용혈 위험</span>
+              <span class="tag tag-note">과초산 최대 1 ppm</span>
+              <span class="tag tag-note">차염 최대 0.1 ppm</span>
+            </div>
+            <div class="info-detail">
+              <div class="info-detail-in">
+                <div class="warn-box">
+                  <p><strong>화학 소독 후에는 반드시 다음 환자 연결 전에 소독제 잔류 검사를 수행해야 합니다.</strong> 환자가 화학 잔류물에 노출되면 <strong>혈액 용혈(haemolysis)</strong> 위험이 있습니다. 기기는 린스 프로그램이 완료되기 전에는 투석을 허용하지 않습니다.</p>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">잔류 농도 국제 기준</div>
+                  <div class="detail-text">유럽 약전 기준 및 <strong>ANSI &ndash; AAMI RD62</strong>를 따르며, 측정 지점은 <strong>dialyzer 연결 직전</strong>의 유압 회로입니다.</div>
+                  <div class="phase-list" style="margin-top:8px;">
+                    <div class="phase-row"><strong>과초산:</strong> 최대 <strong>1 ppm</strong></div>
+                    <div class="phase-row"><strong>차아염소산나트륨:</strong> 최대 <strong>0.1 ppm</strong></div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">구연산도 안전하지 않습니다</div>
+                  <div class="detail-text">CleanCart C에 쓰이는 구연산은 혈장에 자연적으로 존재하는 생리적 물질이지만, 환자에게 주입되거나 투석되면 <strong>혈장의 이온화 칼슘과 결합</strong>하므로 위험합니다. 이 때문에 CleanCart 공정에도 유압 회로를 헹궈내는 린스 시퀀스가 포함되어 있습니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">화학물질 취급 주의</div>
+                  <div class="detail-text">화학물질 취급에는 위험이 따릅니다. <strong>차아염소산나트륨과 과초산은 공격적인 물질</strong>이며, 포름알데히드처럼 발암 가능성이 있는 물질도 존재합니다 (포름알데히드는 Artis에서 사용하지 않습니다).</div>
+                </div>
+                <div class="note-box">
+                  <strong>린스가 제거하는 범위:</strong> 린스는 투석액 유로뿐 아니라 <strong>화학물질이 확산되어 들어간 플라스틱 재질에서도</strong> 제거해, 투석 중에 잔류물이 방출될 위험을 방지합니다. 회로는 <strong>상류에서 하류 방향</strong>으로 헹궈집니다.
+                </div>
+                <div class="caution-box">
+                  <p><strong>중단되어도 린스는 반드시 수행됩니다.</strong> 화학 소독이 완료 전에 중단되면 자동 린스가 어떤 경우에도 실행되며 <strong>조작자가 중지할 수 없습니다.</strong> 소독 완료 전에 전원이 꺼진 경우에도, 다음 전원 투입 시 중단된 프로그램에 해당하는 린스가 자동으로 시작됩니다. 자동 린스의 지속 시간은 제조사가 정하며 조작자가 변경할 수 없습니다.</p>
+                </div>
+                <div class="note-box">
+                  <strong>수동 린스:</strong> 치료 사이에 농축액 잔류물 제거용으로 수동 실행할 수 있습니다. 지속 시간(16 / 27 / 38분) 사전 설정은 <strong>서비스 환경에서만</strong> 가능합니다.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -796,13 +1706,15 @@
                 <div class="detail-section">
                   <div class="detail-lbl">목적 및 원리</div>
                   <div class="detail-text">기계가 자동으로 소독제를 희석하여 설정 농도(1:35)를 달성합니다. 소독제는 기계 후면의 EVD 또는 EVC 전자 밸브를 통해 유입됩니다. 황색 커넥터: 차아염소산염 / 회색 커넥터: 과초산 소독제 사용.</div>
+                  <div class="detail-text" style="margin-top:8px;"><strong>희석 방식:</strong> 소독제는 <strong>Ps 펌프</strong>가 외부 탱크에서 흡입해 유입수와 혼합합니다. Ps 펌프는 <strong>유입 유량에 따라 속도가 제어</strong>되어 1:35 희석비를 맞춥니다. 이렇게 얻어진 농도는 세균과 효모에 유효하면서 부품 내성과도 양립하도록 계산된 값입니다.</div>
+                  <div class="detail-text" style="margin-top:8px;"><strong>공통 선행 단계:</strong> 두 화학 공정 모두 <strong>고유량 플러싱으로 시작</strong>합니다. 투석 침착물을 최대한 제거해, 소독제와 접촉했을 때 반응해버리는 것을 막기 위해서입니다.</div>
                 </div>
                 <div class="detail-section">
                   <div class="detail-lbl">공정 구성</div>
                   <div class="phase-list">
                     <div class="phase-row">예비 플러싱 및 희석: 약 11분</div>
                     <div class="phase-row">최소 접촉 시간(Dwell): 5분 / 최대 10분</div>
-                    <div class="phase-row">소독 온도: <strong>35°C</strong> (모든 소독제 공통)</div>
+                    <div class="phase-row">소독 온도: <strong>35°C</strong> (모든 소독제 공통) &mdash; 효능을 높이기 위한 고온의 필요성과 <strong>위험 가스 발생 방지</strong> 사이의 절충값으로 선택된 온도입니다</div>
                     <div class="phase-row">물소비: 약 4.5L (린스 공정은 별도 계산)</div>
                   </div>
                 </div>
@@ -873,15 +1785,23 @@
               <div class="info-detail-in">
                 <div class="detail-section">
                   <div class="detail-lbl">과초산(Peracetic Acid)</div>
-                  <div class="detail-text">최대 과초산 잔류량 0.10% → "과초산" 분류. 화학 소독 후 <strong>38분 린스</strong> 자동 설정.</div>
+                  <div class="detail-text">최종 용액의 과초산 농도가 <strong>0.01% 초과</strong>인 제품 → &ldquo;과초산&rdquo; 공정 선택. 화학 소독 후 <strong>38분 린스</strong>가 자동 설정됩니다.</div>
                 </div>
                 <div class="detail-section">
                   <div class="detail-lbl">저과초산(Low Peracetic Acid)</div>
-                  <div class="detail-text">최대 과초산 잔류량 0.01% → "저과초산" 분류. 화학 소독 후 <strong>27분 린스</strong> 자동 설정. 정균(Bacteriostatic) 모드 지원.</div>
+                  <div class="detail-text">최종 용액의 과초산 농도가 <strong>0.01% 미만</strong>인 제품 → &ldquo;저과초산&rdquo; 공정 선택. 화학 소독 후 <strong>27분 린스</strong>가 자동 설정됩니다. 정균(Bacteriostatic) 모드 지원.</div>
                 </div>
                 <div class="detail-section">
                   <div class="detail-lbl">차아염소산염(Hypochlorite)</div>
                   <div class="detail-text">화학 소독 후 <strong>94분 린스</strong> 자동 설정 (5사이클, 히터 활성화). 황색 커넥터 사용. 잘못된 소독제 감지 시 알람 578 발생 후 94분 린스 강제 실행.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">소독제별 화학적 성질과 농도 상한</div>
+                  <div class="phase-list">
+                    <div class="phase-row"><strong>과초산:</strong> 스케일 제거와 소독을 동시에 하는 <strong>이중 성질</strong>을 가집니다. 어떤 경우에도 최종 용액의 과초산 농도가 <strong>0.1%를 초과하는 소독제 사용은 허용되지 않습니다.</strong></div>
+                    <div class="phase-row"><strong>차아염소산나트륨:</strong> <strong>활성 염소</strong>를 방출해 미생물의 단백질 결합을 끊습니다. 염소가 단백질의 수소 분자를 치환해 구조를 바꾸고, 화학반응을 촉매하는 효소가 제 기능을 못하게 되어 미생물이 사멸합니다. 유기 침착물 제거와 소독을 겸합니다.</div>
+                    <div class="phase-row"><strong>차염 농도 상한:</strong> 시중 제품마다 농도가 달라, 희석 후 <strong>최대 허용 농도 0.2%</strong>를 넘지 않도록 사용 중인 제품의 특성을 반드시 확인해야 합니다.</div>
+                  </div>
                 </div>
                 <div class="detail-section">
                   <div class="detail-lbl">빈 소독제 탱크 감지 알고리즘</div>
@@ -1140,10 +2060,19 @@
                 <div class="detail-section">
                   <div class="detail-lbl">CleanCart 종류</div>
                   <div class="phase-list">
-                    <div class="phase-row"><strong>CleanCart C:</strong> 물소비 약 15L</div>
-                    <div class="phase-row"><strong>CleanCart A:</strong> 물소비 약 17.5L</div>
+                    <div class="phase-row"><strong>CleanCart C &mdash; 구연산 (Citric Acid):</strong> <strong>무기물</strong> 잔류물(스케일) 제거용. 가열 용액 농도 <strong>1~2%</strong>. 물소비 약 15L</div>
+                    <div class="phase-row"><strong>CleanCart A &mdash; 탄산나트륨 (Sodium Carbonate):</strong> 치료 중 회로에 쌓인 <strong>지방과 단백질</strong> 제거용. 가열 용액 농도 <strong>약 0.5%</strong>. 물소비 약 17.5L</div>
                     <div class="phase-row">C와 A는 동일한 유압 단계 시퀀스를 사용하지만 P1 펌프 관리 방식이 달라 물소비가 다릅니다.</div>
+                    <div class="phase-row">두 카트리지 모두 <strong>온수와 조합</strong>되어 사용됩니다 &mdash; 분말이 화학적 세정을 담당하고, <strong>온수가 소독을 담당</strong>합니다.</div>
                   </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">접촉 시간</div>
+                  <div class="detail-text">용액이 최대한 높은 온도로 전체 유로에 분배된 뒤, <strong>최소 5분간</strong> 접촉 상태를 유지합니다.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-lbl">왜 마지막에 린스 없이 배수만 하는가</div>
+                  <div class="detail-text">가열수는 각 분기를 <strong>열 소독하는 동시에 CleanCart 용액을 밀어내도록</strong> 분배됩니다. 따라서 어떤 분기를 열 소독하기 전에 그 상류는 이미 용액이 씻겨나간 상태가 됩니다. 이렇게 하면 후속 린스 필요성이 최소화되어 <strong>공정 종료 시 배수만</strong> 하면 됩니다 &mdash; 여기서 냉수를 넣으면 <strong>열 소독되지 않은 물</strong>이 회로에 들어가는 셈이 되기 때문입니다.</div>
                 </div>
                 <div class="detail-section">
                   <div class="detail-lbl">시작 시 PB 펌프 특성</div>
@@ -1603,16 +2532,6 @@
         a.click();
       } catch(e) { console.error('Download failed:', e); }
       if (menu) menu.style.display = '';
-    }
-
-    // === Mermaid 초기화 ===
-    if (typeof mermaid !== 'undefined') {
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: currentTheme === 'dark' ? 'dark' : 'default',
-        fontFamily: 'Noto Sans KR, Inter, sans-serif',
-        fontSize: 13
-      });
     }
   </script>
 </body>
