@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WRO 300H 위생 기능 & 소독 가이드</title>
+  <title>WRO 300 H · 위생 기능 & 소독 가이드</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
@@ -11,41 +11,51 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { interpolate-size: allow-keywords; }
 
-    /* ── VANTIVE 팔레트 ────────────────────────────────────── */
+    /* ── VANTIVE 팔레트 ──────────────────────────────────────
+       schedules_guide.html(Vantive Techwiki 가이드 정본)의
+       AA 검증 팔레트·지오메트리를 이식.
+       ───────────────────────────────────────────────────────── */
     :root {
+      /* — brand constants — */
+      --plum:#72256B; --plum-deep:#58184F; --plum-soft:#A4599C;
+      --cream:#FFFAEB; --pine:#105742; --eucalyptus:#6CA07A; --sage:#CDDFD7;
+
       --v-plum:       #72256B;
-      --v-plum-d:     #5C1A65;
-      --v-plum-bg:    rgba(114,37,107,0.08);
+      --v-plum-d:     #58184F;
+      --v-plum-bg:    rgba(114,37,107,0.10);
       --v-pine:       #105742;
-      --v-pine-bg:    rgba(16,87,66,0.09);
-      --v-amber:      #D4700A;
-      --v-amber-bg:   rgba(212,112,10,0.09);
-      --v-danger:     #C22020;
-      --v-danger-bg:  rgba(194,32,32,0.08);
+      --v-pine-bg:    rgba(16,87,66,0.12);
+      --v-amber:      #8A5A12;                 /* was #D4700A — 소문자 본문에서 AA 미달 */
+      --v-amber-bg:   rgba(176,125,46,0.16);
+      --v-danger:     #9A2F38;                 /* was #C22020 — 정본 --negative */
+      --v-danger-bg:  rgba(174,64,72,0.12);
       --v-blue:       #1E4EA8;
-      --v-blue-bg:    rgba(30,78,168,0.08);
-      --v-teal:       #0F6E72;
-      --v-teal-bg:    rgba(15,110,114,0.09);
+      --v-blue-bg:    rgba(30,78,168,0.10);
+      --v-teal:       #0B5563;                 /* was #0F6E72 — 정본 --info */
+      --v-teal-bg:    rgba(11,85,99,0.12);
+
+      /* — geometry (정본) — */
+      --r:14px; --r-md:12px; --r-sm:10px; --r-xs:6px;
     }
 
     html.theme-light {
-      --bg: #FFFAEB;
+      --bg: #F6F0EA;
       --surface: #FFFFFF;
-      --surface-hover: #FFF5D6;
-      --surface-2: #FFF0C8;
-      --border: rgba(0,0,0,0.07);
-      --border-strong: rgba(0,0,0,0.12);
-      --text: #1A1A1A;
-      --text-secondary: #6B6B6B;
-      --text-tertiary: #A8A8A8;
+      --surface-hover: #FFFAEB;
+      --surface-2: #F3EADD;
+      --border: rgba(114,37,107,0.14);
+      --border-strong: rgba(114,37,107,0.26);
+      --text: #1B1219;
+      --text-secondary: #6B5468;
+      --text-tertiary: #7A6478;
       --accent: var(--v-plum);
       --accent-secondary: var(--v-pine);
       --positive: var(--v-pine);
       --negative: var(--v-danger);
       --warning: var(--v-amber);
-      --shadow-sm: 0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
-      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --shadow-sm: 0 1px 4px rgba(27,18,25,0.05), 0 0 0 1px rgba(114,37,107,0.05);
+      --shadow-md: 0 2px 14px rgba(27,18,25,0.05), 0 0 0 1px rgba(114,37,107,0.06);
+      --shadow-lg: 0 4px 20px rgba(114,37,107,0.09);
     }
     html.theme-dark {
       --bg: #111110;
@@ -87,31 +97,44 @@
       padding: 96px 24px 72px;
       text-align: center;
       position: relative; overflow: hidden;
-      background: linear-gradient(105deg, #5C1A65 0%, #72256B 42%, #9C6697 100%);
+      /* 정본 .page-hdr — plum-deep → plum → pine → eucalyptus.
+         끝 스톱만 정본 --euca(#4E7D5D)로 심화: 이 페이지는 헤더가 넓고 본문이
+         가로 전체를 덮어, #6CA07A 위 흰 글자가 3.0:1로 AA 미달이었다. */
+      background: linear-gradient(90deg,#58184F 0%,#72256B 26%,#105742 62%,#4E7D5D 100%);
+      box-shadow: 0 2px 16px rgba(88,24,79,0.22);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
+    /* 정본의 소프트 서클 2개 */
     .hero::before {
       content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 60% 50% at 20% 50%, rgba(255,250,235,0.07) 0%, transparent 60%);
-      pointer-events: none;
+      position: absolute; top: -70px; right: -50px;
+      width: 250px; height: 250px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); pointer-events: none;
     }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -90px; left: -40px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255,255,255,0.05); pointer-events: none;
+    }
+    .hero > * { position: relative; z-index: 2; }
     .hero-eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,250,235,0.15); border: 1px solid rgba(255,250,235,0.25);
-      color: rgba(255,250,235,0.90); border-radius: 20px;
-      padding: 5px 14px; font-size: 12px; font-weight: 600;
-      letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 24px;
+      background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.24);
+      color: rgba(255,255,255,0.82); border-radius: 20px;
+      padding: 5px 14px; font-size: 12px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 24px;
     }
-    .hero h1 { margin-bottom: 20px; max-width: 700px; margin-left: auto; margin-right: auto; color: #FFFAEB; }
+    .hero h1 { margin-bottom: 20px; max-width: 700px; margin-left: auto; margin-right: auto; color: #fff; }
     .hero-sub {
-      font-size: 1.05rem; color: rgba(255,250,235,0.72); max-width: 560px;
+      font-size: 1.05rem; color: rgba(255,250,235,0.90); max-width: 560px;
       margin: 0 auto 48px; line-height: 1.8;
     }
     .hero-stats {
-      display: inline-flex; gap: 0; border: 1px solid rgba(255,250,235,0.22);
-      border-radius: 16px; overflow: hidden; background: rgba(255,250,235,0.12);
+      display: inline-flex; gap: 0; border: 1px solid rgba(255,255,255,0.24);
+      border-radius: 16px; overflow: hidden; background: rgba(255,255,255,0.14);
     }
-    .stat-item { padding: 18px 24px; text-align: center; border-right: 1px solid rgba(255,250,235,0.15); }
+    .stat-item { padding: 18px 24px; text-align: center; border-right: 1px solid rgba(255,255,255,0.16); }
     .stat-item:last-child { border-right: none; }
     .stat-num { font-size: 2rem; font-weight: 800; color: #FFFAEB; line-height: 1; letter-spacing: -0.04em; font-family: 'Inter', sans-serif; }
     .stat-lbl { font-size: 11px; color: rgba(255,250,235,0.62); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
@@ -119,7 +142,7 @@
     /* ── 스티키 필터 바 ─────────────────────────────────────── */
     .filter-bar {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(255,250,235,0.88); backdrop-filter: blur(16px);
+      background: rgba(246,240,234,0.88); backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border); transition: background 0.3s;
     }
     html.theme-dark .filter-bar { background: rgba(17,17,16,0.88); }
@@ -135,17 +158,21 @@
       cursor: pointer; font-family: inherit; transition: all 0.18s;
       display: flex; align-items: center; gap: 6px; white-space: nowrap;
     }
-    .filter-btn:hover { background: var(--surface); color: var(--text); }
-    .filter-btn.active { background: var(--surface); color: var(--text); border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+    .filter-btn:hover { background: var(--surface-hover); color: var(--accent); border-color: var(--border); }
+    .filter-btn.active { background: var(--surface); color: var(--accent); border-color: var(--border-strong); box-shadow: var(--shadow-sm); font-weight: 600; }
+    html.theme-dark .filter-btn:hover,
+    html.theme-dark .filter-btn.active { color: var(--accent); }
     .filter-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── 섹션 ───────────────────────────────────────────────── */
     .section { padding: 64px 0 24px; }
     .section-hdr { margin-bottom: 32px; }
-    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
-    .section-title { font-size: 1.6rem; font-weight: 700; }
+    /* 정본 .sec-label — accent 컬러 + 대문자 트래킹 */
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .section-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
     .cat-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-    .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
+    /* 정본 .tree-group 어휘 — 원형 대신 라운드 사각 마커 */
+    .cat-dot { width: 10px; height: 10px; border-radius: 3px; }
     .cat-name { font-size: 1.05rem; font-weight: 700; }
     .cat-name-en { display: block; font-size: 0.7em; font-weight: 400; letter-spacing: 0.04em; opacity: 0.65; margin-top: 1px; font-style: italic; line-height: 1.2; }
     .cat-count { font-size: 12px; color: var(--text-tertiary); margin-left: auto; font-weight: 500; }
@@ -160,17 +187,17 @@
     /* ── 카드 ───────────────────────────────────────────────── */
     .fn-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden;
+      border-radius: var(--r); overflow: hidden;
       box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.2s; cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s; cursor: pointer;
     }
-    .fn-card:hover { box-shadow: var(--shadow-md); }
+    .fn-card:hover { box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
     .fn-card-head {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 18px 18px 14px;
     }
     .fn-icon {
-      flex-shrink: 0; width: 42px; height: 42px; border-radius: 10px;
+      flex-shrink: 0; width: 42px; height: 42px; border-radius: var(--r-md);
       display: flex; align-items: center; justify-content: center;
     }
     .fn-info { flex: 1; min-width: 0; }
@@ -181,10 +208,11 @@
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
       padding: 10px 18px 14px; border-top: 1px solid var(--border);
     }
+    /* 정본 .tag / .pin — 알약형 필 */
     .tag {
       display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 9px; border-radius: 6px;
-      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
     }
     .tag-warning { background: var(--v-danger-bg); color: var(--v-danger); }
     html.theme-dark .tag-warning { color: #D07070; }
@@ -218,7 +246,7 @@
     .fn-card.open .fn-detail { max-height: 900px; border-top: 1px solid var(--border); }
     .fn-detail-in {
       padding: 16px 18px 18px;
-      background: linear-gradient(to bottom, var(--surface-2), var(--surface));
+      background: linear-gradient(to bottom, var(--surface-hover), var(--surface));
     }
     .detail-section { margin-bottom: 14px; }
     .detail-section:last-child { margin-bottom: 0; }
@@ -230,36 +258,40 @@
       display: flex; gap: 10px; align-items: flex-start;
       font-size: 12.5px; line-height: 1.6; color: var(--text-secondary);
     }
+    /* 정본 .step-num — 원형 대신 8px 라운드 사각 + accent 틴트 */
     .step-num {
-      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 8px;
       background: var(--v-plum-bg); color: var(--v-plum);
-      font-size: 10px; font-weight: 800; font-family: 'Inter', sans-serif;
+      font-size: 11px; font-weight: 800; font-family: 'Inter', sans-serif;
+      line-height: 1;
       display: flex; align-items: center; justify-content: center; margin-top: 1px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     html.theme-dark .step-num { background: rgba(176,122,172,0.15); color: #C095BC; }
-    .warn-box {
-      background: var(--v-danger-bg); border: 1px solid rgba(194,32,32,0.15);
-      border-radius: 8px; padding: 10px 12px; margin-top: 8px;
+    /* 정본 .tip-box 어휘 — 3px 좌측 accent 보더 + surface 배경 */
+    .warn-box, .note-box, .caution-box {
+      background: var(--surface);
+      border: 1px solid var(--border); border-left: 3px solid var(--border-strong);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      padding: 10px 13px; margin-top: 8px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
-    html.theme-dark .warn-box { border-color: rgba(208,112,112,0.2); }
-    .warn-box p { font-size: 12px; color: var(--v-danger); line-height: 1.6; font-weight: 500; }
+    .warn-box    { border-left-color: var(--v-danger); }
+    .note-box    { border-left-color: var(--v-blue); }
+    .caution-box { border-left-color: var(--v-amber); }
+    html.theme-dark .warn-box    { border-left-color: #D07070; }
+    html.theme-dark .note-box    { border-left-color: #7A9FD4; }
+    html.theme-dark .caution-box { border-left-color: #D4974A; }
+    .warn-box p, .note-box p, .caution-box p { font-size: 12px; line-height: 1.65; color: var(--text-secondary); }
+    .warn-box p strong, .note-box p strong, .caution-box p strong { color: var(--text); font-weight: 600; }
+    /* 안전 경고는 정본 대비 의도적 예외 — 본문 색을 유지해 시선을 끈다 */
+    .warn-box p { color: var(--v-danger); font-weight: 500; }
     html.theme-dark .warn-box p { color: #D07070; }
-    .note-box {
-      background: var(--v-blue-bg); border: 1px solid rgba(30,78,168,0.12);
-      border-radius: 8px; padding: 10px 12px; margin-top: 8px;
-    }
-    html.theme-dark .note-box { border-color: rgba(122,159,212,0.2); }
-    .note-box p { font-size: 12px; color: var(--v-blue); line-height: 1.6; }
-    html.theme-dark .note-box p { color: #7A9FD4; }
-    .caution-box {
-      background: var(--v-amber-bg); border: 1px solid rgba(212,112,10,0.15);
-      border-radius: 8px; padding: 10px 12px; margin-top: 8px;
-    }
-    .caution-box p { font-size: 12px; color: var(--v-amber); line-height: 1.6; font-weight: 500; }
+    .caution-box p { color: var(--v-amber); font-weight: 500; }
     html.theme-dark .caution-box p { color: #D4974A; }
     .formula-box {
-      background: var(--surface-2); border: 1px solid var(--border-strong);
-      border-radius: 8px; padding: 12px 14px; margin-top: 8px; font-family: 'Inter', monospace;
+      background: var(--surface-hover); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px 14px; margin-top: 8px; font-family: 'Inter', monospace;
     }
     .formula-row { font-size: 12.5px; color: var(--text); line-height: 2; font-weight: 500; }
     .formula-row span { color: var(--v-plum); font-weight: 700; }
@@ -269,16 +301,19 @@
     .overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 64px; }
     .ov-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm);
+      border-radius: var(--r); padding: 24px; box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s, background 0.2s;
     }
-    .ov-icon { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; }
+    .ov-card:hover { box-shadow: var(--shadow-lg); background: var(--surface-hover); }
+    .ov-icon { width: 42px; height: 42px; border-radius: var(--r-md); margin-bottom: 14px; display: flex; align-items: center; justify-content: center; }
     .ov-card h4 { margin-bottom: 8px; }
     .ov-card p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; }
 
     /* ── 단계 타임라인 ──────────────────────────────────────── */
     .phase-timeline {
       display: flex; gap: 0; margin: 12px 0 8px;
-      border-radius: 8px; overflow: hidden; border: 1px solid var(--border);
+      border-radius: var(--r-sm); overflow: hidden; border: 1px solid var(--border);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .phase-block {
       flex: 1; padding: 10px 8px; text-align: center;
@@ -287,9 +322,9 @@
     }
     .phase-block:last-child { border-right: none; }
     .phase-block .phase-num { font-size: 9px; opacity: 0.7; margin-bottom: 2px; font-weight: 600; text-transform: uppercase; }
-    .phase-intake { background: rgba(114,37,107,0.08); color: var(--v-plum); }
-    .phase-dwell  { background: rgba(16,87,66,0.08);  color: var(--v-pine); }
-    .phase-rinse  { background: rgba(30,78,168,0.08); color: var(--v-blue); }
+    .phase-intake { background: var(--v-plum-bg); color: var(--v-plum); }
+    .phase-dwell  { background: var(--v-pine-bg); color: var(--v-pine); }
+    .phase-rinse  { background: var(--v-blue-bg); color: var(--v-blue); }
     html.theme-dark .phase-intake { background: rgba(176,122,172,0.12); color: #C095BC; }
     html.theme-dark .phase-dwell  { background: rgba(94,168,143,0.12);  color: #5EA88F; }
     html.theme-dark .phase-rinse  { background: rgba(122,159,212,0.12); color: #7A9FD4; }
@@ -312,7 +347,7 @@
     /* ── 메뉴 ───────────────────────────────────────────────── */
     .viz-menu { position: fixed; top: 16px; right: 16px; z-index: 9999; }
     .viz-menu-toggle {
-      width: 40px; height: 40px; border-radius: 10px;
+      width: 40px; height: 40px; border-radius: var(--r-md);
       background: var(--surface); border: 1px solid var(--border);
       color: var(--text); cursor: pointer; display: flex;
       align-items: center; justify-content: center;
@@ -322,7 +357,7 @@
     .viz-menu-dropdown {
       position: absolute; top: 48px; right: 0; min-width: 180px;
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 6px;
+      border-radius: var(--r-md); padding: 6px;
       opacity: 0; visibility: hidden; transform: translateY(-6px);
       transition: all 0.18s; box-shadow: var(--shadow-md);
     }
@@ -354,7 +389,7 @@
       .hero { padding: 64px 20px 48px; }
       .card-grid { grid-template-columns: 1fr; }
       .hero-stats { flex-direction: column; border-radius: 12px; }
-      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,250,235,0.15); }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.16); }
       .stat-item:last-child { border-bottom: none; }
     }
     @media (max-width: 375px) {
@@ -451,13 +486,13 @@
       <span class="filter-dot" style="background:#1E4EA8"></span>중앙 화학 소독
     </button>
     <button class="filter-btn" data-cat="preserve" onclick="filterCat('preserve', this)">
-      <span class="filter-dot" style="background:#D4700A"></span>보존 처리
+      <span class="filter-dot" style="background:#8A5A12"></span>보존 처리
     </button>
     <button class="filter-btn" data-cat="heat" onclick="filterCat('heat', this)">
-      <span class="filter-dot" style="background:#C22020"></span>열 소독
+      <span class="filter-dot" style="background:#9A2F38"></span>열 소독
     </button>
     <button class="filter-btn" data-cat="lfh" onclick="filterCat('lfh', this)">
-      <span class="filter-dot" style="background:#0F6E72"></span>저유량 열처리
+      <span class="filter-dot" style="background:#0B5563"></span>저유량 열처리
     </button>
     <button class="filter-btn" data-cat="extra" onclick="filterCat('extra', this)">
       <span class="filter-dot" style="background:#1E4EA8"></span>추가 기능
@@ -477,21 +512,21 @@
     </div>
     <div class="overview-grid">
       <div class="ov-card animate delay-1" data-reveal>
-        <div class="ov-icon" style="background:rgba(194,32,32,0.09)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C22020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="ov-icon" style="background:rgba(174,64,72,0.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A2F38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <h4>경고 사항</h4>
         <p>소독제 및 세척제는 독성이 있을 수 있습니다. 안전 안경과 장갑을 착용하세요. 화학 소독 시 투석기를 WRO 300 H에서 분리하세요 (중앙 화학 소독 제외).</p>
       </div>
       <div class="ov-card animate delay-2" data-reveal>
-        <div class="ov-icon" style="background:rgba(114,37,107,0.09)">
+        <div class="ov-icon" style="background:rgba(114,37,107,0.10)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#72256B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <h4>소독 3단계 구성</h4>
         <p>화학 소독 및 세척은 <strong>흡입(Intake) → 드웰(Dwell) → 헹굼(Rinse)</strong> 3단계로 구성됩니다. DIS 버튼의 점등 상태로 소독 진행 여부를 확인할 수 있습니다.</p>
       </div>
       <div class="ov-card animate delay-3" data-reveal>
-        <div class="ov-icon" style="background:rgba(16,87,66,0.09)">
+        <div class="ov-icon" style="background:rgba(16,87,66,0.12)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#105742" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
         <h4>프로토콜 구성</h4>
@@ -565,7 +600,7 @@
       <!-- 카드 1: 개요 및 3단계 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(16,87,66,0.1)">
+          <div class="fn-icon" style="background:rgba(16,87,66,0.12)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#105742" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div class="fn-info">
@@ -603,7 +638,7 @@
       <!-- 카드 2: 흡입 단계 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(16,87,66,0.1)">
+          <div class="fn-icon" style="background:rgba(16,87,66,0.12)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#105742" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
           <div class="fn-info">
@@ -695,8 +730,8 @@
       <!-- 카드 4: 일시정지 / 재시작 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(212,112,10,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4700A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
+          <div class="fn-icon" style="background:rgba(176,125,46,0.16)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A5A12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">흡입 단계 일시정지 &amp; 재시작<span class="fn-name-en">Pause &amp; Restart Intake Phase</span></div>
@@ -738,7 +773,7 @@
       <!-- 카드 5: 드웰 & 헹굼 단계 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(30,78,168,0.1)">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
           </div>
           <div class="fn-info">
@@ -775,8 +810,8 @@
       <!-- 카드 6: 잔류물 검사 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(194,32,32,0.09)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C22020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5m4 0h10m0-11v11M5 7H3m18 0h-2M5 7h14"/></svg>
+          <div class="fn-icon" style="background:rgba(174,64,72,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A2F38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5m4 0h10m0-11v11M5 7H3m18 0h-2M5 7h14"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">잔류물 검사 (Residual Test)<span class="fn-name-en">Residual Test After Disinfection</span></div>
@@ -818,7 +853,7 @@
 
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(30,78,168,0.1)">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
           </div>
           <div class="fn-info">
@@ -854,7 +889,7 @@
 
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(30,78,168,0.1)">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>
           </div>
           <div class="fn-info">
@@ -893,7 +928,7 @@
   <!-- ══════════════════════════════════════════════════════ -->
   <section class="section cat-section" data-cat="preserve" id="sec-preserve">
     <div class="cat-bar">
-      <span class="cat-dot" style="background:#D4700A"></span>
+      <span class="cat-dot" style="background:#8A5A12"></span>
       <span class="cat-name">보존 처리<span class="cat-name-en">Preservation · 2.5.4</span></span>
       <span class="cat-count">2개 항목</span>
     </div>
@@ -901,8 +936,8 @@
 
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(212,112,10,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4700A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+          <div class="fn-icon" style="background:rgba(176,125,46,0.16)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A5A12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">동결 방지 보존 (글리세롤)<span class="fn-name-en">Preservation with Freeze Protection (Glycerol)</span></div>
@@ -942,8 +977,8 @@
 
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(212,112,10,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4700A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/><circle cx="12" cy="12" r="10"/></svg>
+          <div class="fn-icon" style="background:rgba(176,125,46,0.16)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A5A12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/><circle cx="12" cy="12" r="10"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">동결 방지 없는 보존 &amp; 보존 후 헹굼<span class="fn-name-en">Preservation without Freeze Protection &amp; Rinse</span></div>
@@ -985,7 +1020,7 @@
   <!-- ══════════════════════════════════════════════════════ -->
   <section class="section cat-section" data-cat="heat" id="sec-heat">
     <div class="cat-bar">
-      <span class="cat-dot" style="background:#C22020"></span>
+      <span class="cat-dot" style="background:#9A2F38"></span>
       <span class="cat-name">열 소독<span class="cat-name-en">Heat Disinfection · 2.5.5</span></span>
       <span class="cat-count">3개 항목</span>
     </div>
@@ -994,8 +1029,8 @@
       <!-- 카드 1: 개시 및 기능 점검 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(194,32,32,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C22020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 10a2 2 0 0 1 2 2"/><path d="M2 12a10 10 0 0 0 10 10"/></svg>
+          <div class="fn-icon" style="background:rgba(174,64,72,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A2F38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 10a2 2 0 0 1 2 2"/><path d="M2 12a10 10 0 0 0 10 10"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">열 소독 개시 &amp; 기능 점검<span class="fn-name-en">Initiate Heat Disinfection &amp; Function Check</span></div>
@@ -1036,8 +1071,8 @@
       <!-- 카드 2: 열 소독 절차 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(194,32,32,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C22020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+          <div class="fn-icon" style="background:rgba(174,64,72,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A2F38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">열 소독 절차 &amp; 냉각<span class="fn-name-en">Heat Disinfection Procedure &amp; Cooldown</span></div>
@@ -1086,8 +1121,8 @@
       <!-- 카드 3: 열 소독 알람 & 전원 장애 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(194,32,32,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C22020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="fn-icon" style="background:rgba(174,64,72,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9A2F38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">열 소독 알람 &amp; 전원 장애<span class="fn-name-en">Heat Disinfection Alarms &amp; Power Failure</span></div>
@@ -1128,7 +1163,7 @@
   <!-- ══════════════════════════════════════════════════════ -->
   <section class="section cat-section" data-cat="lfh" id="sec-lfh">
     <div class="cat-bar">
-      <span class="cat-dot" style="background:#0F6E72"></span>
+      <span class="cat-dot" style="background:#0B5563"></span>
       <span class="cat-name">저유량 열처리<span class="cat-name-en">Low Flow Heat · 2.5.6</span></span>
       <span class="cat-count">1개 항목</span>
     </div>
@@ -1136,8 +1171,8 @@
 
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(15,110,114,0.1)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F6E72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5S21.33 16 20.5 16h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
+          <div class="fn-icon" style="background:rgba(11,85,99,0.12)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5S21.33 16 20.5 16h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg>
           </div>
           <div class="fn-info">
             <div class="fn-name">저유량 열처리 (LFH)<span class="fn-name-en">Low Flow Heat Mode</span></div>
@@ -1189,7 +1224,7 @@
       <!-- 카드 1: 절수 기능 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(30,78,168,0.1)">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
           </div>
           <div class="fn-info">
@@ -1238,7 +1273,7 @@
       <!-- 카드 2: 리마인더 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(30,78,168,0.1)">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           </div>
           <div class="fn-info">
@@ -1294,7 +1329,7 @@
       <!-- 카드 3: 타임 채널 -->
       <div class="fn-card reveal" onclick="toggleCard(this)">
         <div class="fn-card-head">
-          <div class="fn-icon" style="background:rgba(30,78,168,0.1)">
+          <div class="fn-icon" style="background:rgba(30,78,168,0.10)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E4EA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div class="fn-info">
@@ -1316,9 +1351,9 @@
                 타임 채널은 3개의 프로그래밍 가능한 시간 기반 채널을 제공합니다. 각 채널에 다음 동작 중 하나를 할당할 수 있습니다:
               </div>
               <div class="step-list" style="margin-top:8px">
-                <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.1);color:#1E4EA8">A</span><strong>자동 열 소독 시작</strong> — 예약된 시각에 자동으로 열 소독 개시</div>
-                <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.1);color:#1E4EA8">B</span><strong>자동 RUN 시작</strong> — 예약된 시각에 RUN 모드 자동 시작</div>
-                <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.1);color:#1E4EA8">C</span><strong>자동 RUN 정지</strong> — 예약된 시각에 RUN 모드 자동 종료</div>
+                <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.10);color:#1E4EA8">A</span><strong>자동 열 소독 시작</strong> — 예약된 시각에 자동으로 열 소독 개시</div>
+                <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.10);color:#1E4EA8">B</span><strong>자동 RUN 시작</strong> — 예약된 시각에 RUN 모드 자동 시작</div>
+                <div class="step-row"><span class="step-num" style="background:rgba(30,78,168,0.10);color:#1E4EA8">C</span><strong>자동 RUN 정지</strong> — 예약된 시각에 RUN 모드 자동 종료</div>
               </div>
             </div>
             <div class="detail-section">
