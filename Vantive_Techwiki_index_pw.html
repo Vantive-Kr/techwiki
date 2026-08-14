@@ -296,10 +296,10 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
-    /* 가운데 안내 영역 — 비율 그대로 (0.7 → 0.875, 기존 대비 25% 확대) */
+    /* 가운데 안내 영역 — 비율 그대로 (0.875 → 0.744, 기존 대비 15% 축소) */
     .welcome-hero {
       display: flex; flex-direction: column; align-items: center;
-      zoom: 0.875;
+      zoom: 0.744;
       margin-bottom: 0;
     }
     .welcome-logo {
@@ -1141,7 +1141,7 @@ window.closeNotice = function() {
  *        파일이 없으면 첫 이미지로 자동 대체됩니다.
  *        → 목록에 넣은 이미지는 반드시 GitHub에도 업로드되어 있어야 합니다.
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const BANNER_FIXED  = 'vantive_image02.png';                    // 예: 'vantive_image05.png' (비우면 자동 교체)
+const BANNER_FIXED  = '';                    // 예: 'vantive_image05.png' (비우면 자동 교체)
 const BANNER_START  = '2026-08-03';          // 월요일부터 적용
 const BANNER_IMAGES = [
   'vantive_image01.png', 'vantive_image02.png', 'vantive_image03.png',
@@ -1289,8 +1289,9 @@ function rotateBanner() {
       id: 'serviceplan', label: 'Service Plan', icon: SVG.serviceplan,
       desc: '서비스 플랜 및 파트너 프로그램',
       items: [
-        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB1.pdf' },
-        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB1.pdf' },
+        { label: 'Service Plan 검색', file: 'Vantive_Serviceplan_search.html' },
+        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
+        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'Prismaflex Technical Services Partner Advantage (KOR)', file: 'Prismaflex_TSPA_Brochure_KOR_RevC.pdf' },
         { label: 'PrisMax Technical Services Partner Advantage (KOR)',    file: 'PrisMax_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'WRO300 Technical Services Partner Advantage (KOR)',     file: 'WRO300_TSPA_Brochure_KOR_RevC.pdf' },
