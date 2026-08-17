@@ -4,177 +4,332 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>작업 일정 등록 · Vantive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --plum:        #72256B;
-  --plum-d:      #5C1B56;
-  --plum-light:  rgba(114,37,107,0.09);
-  --plum-mid:    rgba(114,37,107,0.20);
-  --cream:       #FFFAEB;
-  --cream-mid:   #F5EDD8;
-  --pine:        #105742;
-  --euca:        #6CA07A;
-  --white:       #FFFFFF;
-  --text:        #1C1C1E;
-  --text2:       #52525B;
-  --text3:       #A1A1AA;
-  --border:      rgba(0,0,0,0.07);
-  --border-p:    rgba(114,37,107,0.14);
-  --shadow:      0 2px 14px rgba(0,0,0,0.06);
-  --shadow-md:   0 6px 24px rgba(0,0,0,0.10);
-  --r:    14px;
-  --r-sm:  9px;
-  --r-xs:  5px;
-  --ok:    #157347;
-  --err:   #C0392B;
-}
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body {
-  font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif;
-  background: var(--cream); color: var(--text);
-  font-size: 14px; min-height: 100vh; -webkit-font-smoothing: antialiased;
-}
-.header {
-  background: linear-gradient(150deg, var(--plum-d) 0%, var(--plum) 60%, #8B3080 100%);
-  padding: 18px 18px 16px; position: sticky; top: 0; z-index: 100;
-}
-.header-inner { max-width: 640px; margin: 0 auto; }
-.h-title h1 { color: var(--cream); font-size: 18px; font-weight: 700; letter-spacing: -.2px; }
-.h-title .sub { color: rgba(255,250,235,0.65); font-size: 11.5px; font-weight: 500; margin-top: 3px; }
+  /* — brand constants — */
+  --plum:#72256B; --plum-deep:#58184F; --plum-soft:#A4599C;
+  --cream:#FFFAEB; --pine:#105742; --eucalyptus:#6CA07A; --sage:#CDDFD7;
 
-.wrap { max-width: 640px; margin: 0 auto; padding: 20px 14px 48px; }
+  /* — light theme tokens (브리핑 정본 · schedules_guide와 동일) — */
+  --bg:#F6F0EA;
+  --surface:#FFFFFF;
+  --surface-hover:#FFFAEB;
+  --border:rgba(114,37,107,0.14);
+  --border-strong:rgba(114,37,107,0.26);
+  --rule:rgba(27,18,25,0.13);
+  --rule-soft:rgba(27,18,25,0.07);
+  --divider:#72256B;
+  --text:#1B1219;
+  --text-secondary:#6B5468;
+  --text-muted:#7A6478;          /* 정본 #9B879A 대비 미달 → 어둡게(AA) */
+  --accent:#72256B;
+  --accent-secondary:#6CA07A;
+  --positive:#105742;
+  --negative:#9A2F38;
+  --warning:#7E5210;         /* 자기 틴트 위 4.46:1 미달 → 5.11:1 */
+
+  /* — tints — */
+  --accent-tint:rgba(114,37,107,0.10);
+  --accent-tint-strong:rgba(114,37,107,0.16);
+  --positive-tint:rgba(16,87,66,0.12);
+  --warning-tint:rgba(176,125,46,0.16);
+  --negative-tint:rgba(154,47,56,0.10);
+
+  /* — geometry — */
+  --r:14px; --r-md:12px; --r-sm:10px; --r-xs:6px;
+  --shadow:0 2px 14px rgba(27,18,25,0.05);
+  --shadow-lift:0 4px 20px rgba(114,37,107,0.09);
+
+  --font-sans:'Noto Sans KR','Inter',-apple-system,BlinkMacSystemFont,
+    'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',Roboto,
+    'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--font-sans);
+  background:var(--bg); color:var(--text);
+  font-size:1rem; line-height:1.75; letter-spacing:-0.003em;
+  min-height:100vh; -webkit-font-smoothing:antialiased;
+}
+strong { font-weight:700; color:var(--text); }
+
+/* ══════════ MASTHEAD (브리핑 정본과 동일) ══════════ */
+.site-header {
+  position:sticky; top:0; z-index:100;
+  background:linear-gradient(90deg,#58184F 0%,#72256B 26%,#105742 62%,#6CA07A 100%);
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  padding:0.75rem 1.5rem;
+  display:flex; align-items:center; gap:1rem;
+  box-shadow:0 2px 16px rgba(88,24,79,0.25);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.site-header .header-logo img {
+  height:24px; width:auto; display:block;
+  filter:brightness(0) invert(1); opacity:0.95;
+}
+.site-header .header-divider { width:1px; height:22px; background:rgba(255,255,255,0.3); flex-shrink:0; }
+.site-header .header-title {
+  font-size:0.8125rem; font-weight:500; color:rgba(255,255,255,0.9);
+  letter-spacing:0.02em; line-height:1.35;
+}
+.header-badge {
+  margin-left:auto; padding:4px 12px; border-radius:20px;
+  background:rgba(255,255,255,0.22); color:#fff;
+  border:1px solid rgba(255,255,255,0.32);
+  font-size:0.6875rem; font-weight:600; letter-spacing:0.04em;
+  white-space:nowrap; flex-shrink:0;
+}
+
+/* ══════════ HERO ══════════ */
+.hero { max-width:44rem; margin:0 auto; padding:2.75rem 1.5rem 1.75rem; }
+.hero-eyebrow {
+  display:flex; align-items:center; gap:0.8rem;
+  font-size:0.6875rem; font-weight:700; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--text-muted);
+  margin-bottom:0.9rem; line-height:1.4;
+}
+.hero-eyebrow .label-bar {
+  display:block; width:26px; height:2px; background:var(--accent);
+  flex-shrink:0;
+}
+.hero h1 {
+  font-size:2rem; font-weight:800; letter-spacing:-0.03em;
+  line-height:1.24; margin-bottom:0.85rem;
+}
+.hero h1 span { color:var(--accent); }
+.hero-sub {
+  font-size:0.9375rem; color:var(--text-secondary); line-height:1.8;
+  padding-bottom:1.4rem; border-bottom:1px solid var(--rule);
+}
+
+/* ══════════ LAYOUT ══════════ */
+.wrap { max-width:44rem; margin:0 auto; padding:0 1.5rem 4rem; }
 
 .card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: var(--r); box-shadow: var(--shadow);
-  padding: 20px 18px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--shadow);
+  padding:1.6rem 1.5rem 1.75rem;
 }
 
-.field { margin-bottom: 15px; }
+/* ── 폼 그룹 라벨 (브리핑 section-label 어휘) ── */
+.group-label {
+  display:flex; align-items:center; gap:0.8rem;
+  font-size:0.6875rem; font-weight:700; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--text-muted);
+  margin:0 0 1.1rem; line-height:1.4;
+}
+.group-label .label-bar {
+  display:block; width:22px; height:2px; background:var(--accent); flex-shrink:0;
+}
+.group + .group { margin-top:1.9rem; padding-top:1.7rem; border-top:1px solid var(--rule-soft); }
+
+/* ══════════ FIELDS ══════════ */
+.field { margin-bottom:1.15rem; }
+.field:last-child { margin-bottom:0; }
 .field label {
-  display: block; font-size: 12.5px; font-weight: 700; color: var(--plum);
-  margin-bottom: 6px; letter-spacing: -.1px;
+  display:block; font-size:0.8125rem; font-weight:700; color:var(--text);
+  margin-bottom:0.45rem; letter-spacing:-0.01em;
 }
-.field label .req { color: var(--err); margin-left: 2px; }
+.field label .req { color:var(--negative); margin-left:2px; }
 .field input, .field select, .field textarea {
-  width: 100%; font-family: inherit; font-size: 14px; color: var(--text);
-  padding: 10px 12px; border: 1px solid var(--border-p); border-radius: var(--r-sm);
-  background: var(--white); transition: border-color .15s, box-shadow .15s;
+  width:100%; font-family:inherit; font-size:0.9375rem; color:var(--text);
+  padding:0.7rem 0.85rem; border:1px solid var(--border-strong);
+  border-radius:var(--r-sm); background:var(--surface);
+  line-height:1.5; transition:border-color .15s, box-shadow .15s, background .15s;
 }
+.field input::placeholder, .field textarea::placeholder { color:var(--text-muted); opacity:1; }
+.field input:hover, .field select:hover, .field textarea:hover { background:var(--surface-hover); }
 .field input:focus, .field select:focus, .field textarea:focus {
-  outline: none; border-color: var(--plum);
-  box-shadow: 0 0 0 3px var(--plum-light);
+  outline:none; border-color:var(--accent); background:var(--surface);
+  box-shadow:0 0 0 3px var(--accent-tint);
 }
-.field textarea { resize: vertical; min-height: 62px; }
-.field .hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.field textarea { resize:vertical; min-height:4.5rem; }
+.field select {
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2372256B' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 0.85rem center;
+  padding-right:2.4rem;
+}
+.field .hint { font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; line-height:1.6; }
 
-.row { display: flex; gap: 12px; }
-.row .field { flex: 1; }
+.row { display:flex; gap:0.85rem; }
+.row .field { flex:1; }
 
 .err-text {
-  display: none; font-size: 11.5px; color: var(--err); margin-top: 5px; font-weight: 600;
+  display:none; font-size:0.75rem; color:var(--negative);
+  margin-top:0.4rem; font-weight:700; line-height:1.6;
 }
-.err-text.show { display: block; }
+.err-text.show { display:block; }
 
+/* ══════════ BUTTON ══════════ */
 .btn {
-  width: 100%; margin-top: 6px; padding: 13px; border: none; cursor: pointer;
-  border-radius: var(--r-sm); font-family: inherit; font-size: 15px; font-weight: 700;
-  background: var(--plum); color: var(--cream); letter-spacing: .2px;
-  box-shadow: var(--shadow); transition: background .15s, opacity .15s;
+  width:100%; margin-top:1.6rem; padding:0.85rem; border:none; cursor:pointer;
+  border-radius:var(--r-sm); font-family:inherit;
+  font-size:0.9375rem; font-weight:700; letter-spacing:0.01em;
+  background:var(--accent); color:var(--cream);
+  box-shadow:var(--shadow); transition:background .15s, opacity .15s, box-shadow .15s;
 }
-.btn:hover { background: var(--plum-d); }
-.btn:disabled { opacity: .55; cursor: default; }
+.btn:hover { background:var(--plum-deep); box-shadow:var(--shadow-lift); }
+.btn:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.btn:disabled { opacity:.55; cursor:default; box-shadow:none; }
 
+/* ══════════ NOTICE ══════════ */
 .notice {
-  display: none; border-radius: var(--r-sm); padding: 11px 14px;
-  font-size: 13px; margin-bottom: 14px; box-shadow: var(--shadow);
+  display:none; border-radius:var(--r-sm);
+  padding:0.8rem 1rem 0.85rem; font-size:0.8438rem; line-height:1.7;
+  margin-bottom:1.1rem;
 }
-.notice.show { display: block; }
-.notice.warn { background: #FFF7E6; border: 1px solid #F5D9A0; border-left: 4px solid #E0A82E; color: #7a5a12; }
-.notice.err  { background: #FDECEA; border: 1px solid #F3C4BE; border-left: 4px solid var(--err); color: #8a271d; }
+.notice.show { display:block; }
+.notice.warn {
+  background:var(--warning-tint); border:1px solid rgba(126,82,16,0.30);
+  border-left:3px solid var(--warning); color:var(--warning);
+}
+.notice.err {
+  background:var(--negative-tint); border:1px solid rgba(154,47,56,0.26);
+  border-left:3px solid var(--negative); color:var(--negative);
+}
 
-/* Success panel */
-.done {
-  display: none; text-align: center; padding: 8px 6px 4px;
-}
-.done.show { display: block; }
+/* ══════════ SUCCESS PANEL ══════════ */
+.done { display:none; }
+.done.show { display:block; }
 .done .ico {
-  width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%;
-  background: rgba(21,115,71,0.12); display: flex; align-items: center; justify-content: center;
+  width:2.75rem; height:2.75rem; margin:0 0 1rem; border-radius:50%;
+  background:var(--positive-tint); display:flex; align-items:center; justify-content:center;
 }
-.done .ico svg { width: 30px; height: 30px; stroke: var(--ok); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.done h2 { font-size: 17px; font-weight: 800; color: var(--pine); margin-bottom: 6px; }
-.done p { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.5; }
-.done .links { display: flex; flex-direction: column; gap: 9px; }
+.done .ico svg {
+  width:1.5rem; height:1.5rem; stroke:var(--positive);
+  fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round;
+}
+.done h2 {
+  font-size:1.25rem; font-weight:800; color:var(--positive);
+  letter-spacing:-0.02em; margin-bottom:0.5rem;
+}
+.done p {
+  font-size:0.875rem; color:var(--text-secondary); line-height:1.75;
+  margin-bottom:1.4rem; padding-bottom:1.3rem; border-bottom:1px solid var(--rule-soft);
+}
+.done .links { display:flex; flex-direction:column; gap:0.6rem; }
 .done .lnk {
-  display: block; padding: 11px 14px; border-radius: var(--r-sm);
-  border: 1px solid var(--border-p); background: var(--plum-light);
-  color: var(--plum); font-weight: 700; font-size: 13.5px; text-decoration: none;
-  transition: background .15s;
+  display:block; padding:0.75rem 0.95rem; border-radius:var(--r-sm);
+  border:1px solid var(--border); background:var(--accent-tint);
+  color:var(--accent); font-weight:700; font-size:0.875rem; text-decoration:none;
+  transition:background .15s, border-color .15s;
 }
-.done .lnk:hover { background: var(--plum-mid); }
-.done .lnk.ghost { background: var(--white); color: var(--text2); font-weight: 600; }
+.done .lnk:hover { background:var(--accent-tint-strong); border-color:var(--border-strong); }
+.done .lnk:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.done .lnk.ghost {
+  background:var(--surface); color:var(--text-secondary); font-weight:600;
+  border-color:var(--rule);
+}
+.done .lnk.ghost:hover { background:var(--surface-hover); }
 /* 내 캘린더 저장 (휴가 등록 완료 화면과 동일한 구성) */
-.done .cal-row { display: flex; gap: 8px; }
-.done .cal-row .lnk { flex: 1; text-align: center; }
-.done .cal-hint { margin: -2px 0 2px; font-size: 12px; color: var(--text2); line-height: 1.5; }
-@media (max-width: 420px) { .done .cal-row { flex-direction: column; } }
+.done .cal-row { display:flex; gap:0.55rem; }
+.done .cal-row .lnk { flex:1; text-align:center; }
+.done .cal-hint {
+  margin:0.15rem 0 0.2rem; font-size:0.78rem; color:var(--text-muted);
+  line-height:1.7; padding-bottom:0; border-bottom:none;
+}
+
+/* ══════════ FOOTNOTE ══════════ */
+.foot-note {
+  margin-top:1.5rem; padding-top:1.1rem; border-top:1px solid var(--rule-soft);
+  font-size:0.75rem; color:var(--text-muted); line-height:1.8;
+}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media (max-width:640px) {
+  .site-header { padding:0.7rem 1.125rem; gap:0.75rem; }
+  .site-header .header-logo img { height:20px; }
+  .site-header .header-title { font-size:0.75rem; }
+  .header-badge { font-size:0.625rem; padding:3px 9px; }
+  .hero { padding:2rem 1.125rem 1.4rem; }
+  .hero h1 { font-size:1.5rem; }
+  .hero-sub { font-size:0.875rem; }
+  .wrap { padding:0 1.125rem 3rem; }
+  .card { padding:1.3rem 1.125rem 1.5rem; border-radius:var(--r-md); }
+}
+@media (max-width:420px) {
+  /* 좁은 화면: 히어로가 맥락을 담으므로 마스트헤드는 로고+배지만 남긴다 */
+  .site-header .header-divider, .site-header .header-title { display:none; }
+  .row { flex-direction:column; gap:0; }
+  .done .cal-row { flex-direction:column; }
+}
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="h-title">
-      <h1>작업 일정 등록</h1>
-      <div class="sub">담당자 작업 일정을 등록하면 지역별 작업 일정 캘린더에 표시됩니다 · Vantive Techwiki</div>
-    </div>
-  </div>
+<!-- ══════════ MASTHEAD ══════════ -->
+<header class="site-header" role="banner">
+  <div class="header-logo"><img src="data:image/png;base64,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" alt="Vantive"></div>
+  <div class="header-divider"></div>
+  <div class="header-title">Techwiki · Schedules</div>
+  <span class="header-badge">작업 일정 등록</span>
 </header>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-eyebrow"><span class="label-bar"></span>WORK SCHEDULE · REGISTER</div>
+  <h1>작업 일정 <span>등록</span></h1>
+  <p class="hero-sub">담당자 작업 일정을 등록하면 <strong>지역별 작업 일정 캘린더</strong>에 표시됩니다. · Vantive Techwiki</p>
+</section>
 
 <main class="wrap">
   <div class="notice" id="notice"></div>
 
   <div class="card" id="form-card">
-    <div class="field">
-      <label for="f-worker">담당자<span class="req">*</span></label>
-      <input type="text" id="f-worker" maxlength="50" placeholder="이름" autocomplete="off">
-      <div class="err-text" id="e-worker">담당자 이름을 입력하세요.</div>
-    </div>
 
-    <div class="field">
-      <label for="f-place">거래처 / 병원명<span class="req">*</span></label>
-      <input type="text" id="f-place" maxlength="80" placeholder="예: OO병원" autocomplete="off">
-      <div class="err-text" id="e-place">거래처를 입력하세요.</div>
-    </div>
+    <div class="group">
+      <div class="group-label"><span class="label-bar"></span>작업 정보</div>
 
-    <div class="field">
-      <label for="f-content">작업 내용<span class="req">*</span></label>
-      <textarea id="f-content" maxlength="200" placeholder="예: 정기 점검, 소모품 교체 등"></textarea>
-      <div class="err-text" id="e-content">작업 내용을 입력하세요.</div>
-    </div>
-
-    <div class="field">
-      <label for="f-region">지역<span class="req">*</span></label>
-      <select id="f-region">
-        <option value="seoul">서울</option>
-        <option value="djgj">대전·광주</option>
-        <option value="bsdg">부산·대구</option>
-      </select>
-    </div>
-
-    <div class="row">
       <div class="field">
-        <label for="f-start">시작일<span class="req">*</span></label>
-        <input type="date" id="f-start">
+        <label for="f-worker">담당자<span class="req">*</span></label>
+        <input type="text" id="f-worker" maxlength="50" placeholder="이름" autocomplete="off">
+        <div class="err-text" id="e-worker">담당자 이름을 입력하세요.</div>
       </div>
+
       <div class="field">
-        <label for="f-end">종료일<span class="req">*</span></label>
-        <input type="date" id="f-end">
-        <div class="hint">하루면 시작일과 동일하게 두세요.</div>
+        <label for="f-place">거래처 / 병원명<span class="req">*</span></label>
+        <input type="text" id="f-place" maxlength="80" placeholder="예: OO병원" autocomplete="off">
+        <div class="err-text" id="e-place">거래처를 입력하세요.</div>
+      </div>
+
+      <div class="field">
+        <label for="f-content">작업 내용<span class="req">*</span></label>
+        <textarea id="f-content" maxlength="200" placeholder="예: 정기 점검, 소모품 교체 등"></textarea>
+        <div class="err-text" id="e-content">작업 내용을 입력하세요.</div>
+      </div>
+
+      <div class="field">
+        <label for="f-region">지역<span class="req">*</span></label>
+        <select id="f-region">
+          <option value="seoul">서울</option>
+          <option value="djgj">대전·광주</option>
+          <option value="bsdg">부산·대구</option>
+        </select>
       </div>
     </div>
-    <div class="err-text" id="e-date">종료일은 시작일보다 빠를 수 없습니다.</div>
+
+    <div class="group">
+      <div class="group-label"><span class="label-bar"></span>일정</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="f-start">시작일<span class="req">*</span></label>
+          <input type="date" id="f-start">
+        </div>
+        <div class="field">
+          <label for="f-end">종료일<span class="req">*</span></label>
+          <input type="date" id="f-end">
+          <div class="hint">하루면 시작일과 동일하게 두세요.</div>
+        </div>
+      </div>
+      <div class="err-text" id="e-date">종료일은 시작일보다 빠를 수 없습니다.</div>
+    </div>
 
     <button class="btn" id="btn-save">작업 일정 등록</button>
   </div>
