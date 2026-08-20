@@ -7,7 +7,7 @@
  */
 'use strict';
 
-const CACHE_NAME = 'vantive-techwiki-v1';
+const CACHE_NAME = 'vantive-techwiki-v2';
 
 /* 설치 시 미리 캐시할 핵심 자산 (모두 상대경로 → scope 기준으로 해석됨) */
 const PRECACHE_URLS = [
@@ -48,6 +48,14 @@ self.addEventListener('fetch', (event) => {
 
   /* 교차 출처는 관여하지 않음 → Firestore·gstatic CDN·폰트는 항상 네트워크 직행 */
   if (url.origin !== self.location.origin) return;
+
+  /* PDF와 Range 요청은 관여하지 않음.
+   * PDF 뷰어(브라우저 내장·iOS 네이티브)는 'Range: bytes=' 부분 요청으로 문서를
+   * 나눠 받는다. 여기서 가로채 캐시본(200 전체 응답)을 돌려주면 뷰어가 기대하는
+   * 206 Partial Content가 아니어서 렌더링이 깨지고, 206 응답은 cache.put()이
+   * 스펙상 거부해 조용한 rejection까지 남긴다. 네트워크로 직행시킨다. */
+  if (req.headers.has('range')) return;
+  if (/\.pdf$/i.test(url.pathname)) return;
 
   /* 캐시 키는 쿼리 제거로 정규화 — index 로더가 ?v=타임스탬프, ?r=지역을
    * 붙여도 같은 파일 하나로 캐시된다 (지역 파싱은 문서 내 클라이언트 코드 몫). */

@@ -426,6 +426,51 @@
       display: none;
     }
 
+    /* ── 모바일 PDF 안내 패널 ─────────────────────── */
+    .pdfm {
+      flex: 1; overflow-y: auto;
+      display: flex; align-items: center; justify-content: center;
+      padding: 28px 20px; background: var(--cream);
+    }
+    .pdfm[hidden] { display: none; }
+    .pdfm-card {
+      width: 100%; max-width: 420px; text-align: center;
+      background: #fff; border: 1px solid var(--sage);
+      border-radius: 16px; padding: 32px 24px 26px;
+      box-shadow: 0 6px 22px rgba(16,87,66,0.10);
+    }
+    .pdfm-icon {
+      width: 56px; height: 56px; margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 14px; background: var(--sage); color: var(--pine-dark);
+    }
+    .pdfm-icon svg { width: 28px; height: 28px; }
+    .pdfm-title {
+      margin: 0 0 10px; font-size: 1.0625rem; font-weight: 700;
+      color: var(--pine-dark); line-height: 1.4; word-break: keep-all;
+    }
+    .pdfm-desc {
+      margin: 0 0 22px; font-size: 0.8125rem; line-height: 1.7;
+      color: #4a5b55; word-break: keep-all;
+    }
+    .pdfm-actions { display: flex; flex-direction: column; gap: 10px; }
+    .pdfm-btn {
+      display: block; padding: 13px 18px; border-radius: var(--radius);
+      font-size: 0.9375rem; font-weight: 600; text-decoration: none;
+      transition: background var(--transition), color var(--transition);
+    }
+    .pdfm-btn-primary { background: var(--pine-dark); color: #fff; }
+    .pdfm-btn-primary:active { background: var(--pine-light); }
+    .pdfm-btn-ghost {
+      background: transparent; color: var(--pine-dark);
+      border: 1px solid var(--pine-light);
+    }
+    .pdfm-btn-ghost:active { background: var(--sage); }
+    .pdfm-hint {
+      margin: 16px 0 0; font-size: 0.75rem; line-height: 1.6;
+      color: #6b7a75; word-break: break-all;
+    }
+
     /* ── Overlay (mobile) ────────────────────────── */
     .overlay {
       display: none; position: fixed; inset: 0;
@@ -1031,6 +1076,39 @@
 
     <iframe id="content-frame" title="Content"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals allow-popups-to-escape-sandbox"></iframe>
+
+    <!-- 모바일 PDF 안내 패널 -->
+    <!-- 모바일 브라우저(특히 iOS Safari/WKWebView)는 iframe 안의 PDF를 첫 페이지
+         미리보기 한 장으로만 렌더링해 다음 장으로 넘길 수 없다. PDF를 최상위 문서로
+         열어야 기기 내장 뷰어(전체 페이지·핀치줌·공유)가 뜨므로, 모바일에서는
+         iframe 대신 이 패널을 띄우고 새 탭으로 넘긴다. -->
+    <div id="pdf-mobile" class="pdfm" hidden>
+      <div class="pdfm-card">
+        <div class="pdfm-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="13" y2="17"/>
+          </svg>
+        </div>
+        <h2 class="pdfm-title" id="pdfm-title">PDF 문서</h2>
+        <p class="pdfm-desc">
+          휴대폰 브라우저는 페이지 안에 끼워 넣은 PDF를 첫 장만 보여줍니다.<br>
+          아래 버튼으로 열면 전체 페이지를 넘겨볼 수 있습니다.
+        </p>
+        <div class="pdfm-actions">
+          <a id="pdfm-open" class="pdfm-btn pdfm-btn-primary" href="#" target="_blank" rel="noopener">
+            PDF 전체 보기
+          </a>
+          <a id="pdfm-save" class="pdfm-btn pdfm-btn-ghost" href="#" download>
+            기기에 저장
+          </a>
+        </div>
+        <p class="pdfm-hint" id="pdfm-hint"></p>
+      </div>
+    </div>
   </main>
 
 </div>
@@ -1290,8 +1368,8 @@ function rotateBanner() {
       desc: '서비스 플랜 및 파트너 프로그램',
       items: [
         { label: 'Service Plan 검색', file: 'Vantive_Serviceplan_search.html' },
-        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB1.pdf' },
-        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB1.pdf' },
+        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
+        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'Prismaflex Technical Services Partner Advantage (KOR)', file: 'Prismaflex_TSPA_Brochure_KOR_RevC.pdf' },
         { label: 'PrisMax Technical Services Partner Advantage (KOR)',    file: 'PrisMax_TSPA_Brochure_KOR_RevB.pdf' },
         { label: 'WRO300 Technical Services Partner Advantage (KOR)',     file: 'WRO300_TSPA_Brochure_KOR_RevC.pdf' },
@@ -1748,18 +1826,61 @@ function rotateBanner() {
 
   /* ── Load page ───────────────────────────────── */
   const FRAME_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals allow-popups-to-escape-sandbox';
+  const pdfmPanel = document.getElementById('pdf-mobile');
+  const pdfmTitle = document.getElementById('pdfm-title');
+  const pdfmOpen  = document.getElementById('pdfm-open');
+  const pdfmSave  = document.getElementById('pdfm-save');
+  const pdfmHint  = document.getElementById('pdfm-hint');
+
+  /* 모바일 판별: 터치 주도 입력 + 좀은 화면 → iframe PDF 렌더링을 신뢰할 수 없는 환경.
+     iOS는 아이패드도 동일한 WKWebView 제약을 받아 폭과 무관하게 포함한다. */
+  function isMobileViewer() {
+    const ua = navigator.userAgent || '';
+    const iOS = /iPad|iPhone|iPod/.test(ua) ||
+                (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1); // iPadOS 데스크톱 UA
+    if (iOS) return true;
+    if (/Android/i.test(ua)) return true;
+    return window.matchMedia('(pointer: coarse)').matches && window.innerWidth <= 900;
+  }
+
+  function showPdfPanel(file, label) {
+    frame.style.display = 'none';
+    frame.src = '';
+    pdfmTitle.textContent = label || 'PDF 문서';
+    pdfmOpen.href = file;
+    pdfmSave.href = file;
+    pdfmSave.setAttribute('download', file.split('/').pop());
+    pdfmHint.textContent = file.split('/').pop();
+    pdfmPanel.hidden = false;
+  }
+
+  function hidePdfPanel() { pdfmPanel.hidden = true; }
+
   function loadPage(file, linkEl) {
     if (activeLink) activeLink.classList.remove('active');
     activeLink = linkEl;
     if (linkEl && linkEl.classList) linkEl.classList.add('active');
     welcome.style.display = 'none';
+
+    const isPdf = /\.pdf(?:[?#]|$)/i.test(file);
+
+    /* 모바일 + PDF → iframe 대신 안내 패널. iframe에 넣으면 iOS가
+       첫 페이지 미리보기 한 장만 그려서 다음 장으로 못 넘긴다.
+       새 탭으로 열면 PDF가 최상위 문서가 돼 내장 뷰어가 정상 동작한다. */
+    if (isPdf && isMobileViewer()) {
+      showPdfPanel(file, linkEl && linkEl.textContent ? linkEl.textContent.trim() : '');
+      return;
+    }
+
+    hidePdfPanel();
     frame.style.display = 'block';
     // PDF는 브라우저 내장 뷰어(플러그인)로 렌더링되는데, sandbox가 걸리면 차단되어
     // 흰 화면만 나온다. PDF일 때만 sandbox를 해제하고 그 외에는 다시 적용한다.
-    const isPdf = /\.pdf(?:[?#]|$)/i.test(file);
     if (isPdf) frame.removeAttribute('sandbox');
     else       frame.setAttribute('sandbox', FRAME_SANDBOX);
-    frame.src = file + '?v=' + Date.now();
+    // PDF는 캐시버스터를 붙이지 않는다 — 열 때마다 수 MB를 다시 받게 되고,
+    // 뷰어의 Range 요청과도 궁합이 나쁘다.
+    frame.src = isPdf ? file : (file + '?v=' + Date.now());
   }
 
   /* ── Process welcome logo: Pine text on cream bg (base64 embedded → no CORS) ── */
@@ -1805,6 +1926,7 @@ function rotateBanner() {
     activeLink = null;
     frame.style.display = 'none';
     frame.src = '';
+    hidePdfPanel();
     welcome.style.display = '';   /* restore default flex */
     closeTab();                   /* 아코디언 초기화 */
   }
