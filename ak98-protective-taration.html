@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<title>AK98 보호 테라레이션 알람</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --plum: #72256B; --plum-deep: #58184F; --pine: #105742; --eucalyptus: #6CA07A;
+  --bg: #F6F0EA; --surface: #FFFFFF; --surface-2: #FFFAEB;
+  --rule: rgba(27,18,25,0.14); --rule-soft: rgba(27,18,25,0.07);
+  --text: #1B1219; --text-2: #6B5468; --text-3: #9B879A;
+  --accent: #72256B; --accent-soft: rgba(114,37,107,0.10);
+  --positive: #105742; --negative: #AE4048; --warning: #A8741F;
+  --line-fresh: #4F8C60; --line-used: #B9772E; --line-bypass: #9B879A;
+  --hl: #AE4048;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+:root[data-theme="dark"] {
+  --bg: #150A14; --surface: #1F0F1D; --surface-2: #2C182A;
+  --rule: rgba(243,239,228,0.17); --rule-soft: rgba(243,239,228,0.08);
+  --text: #F3EFE4; --text-2: #C9B4C6; --text-3: #94808F;
+  --accent: #C77BBD; --accent-soft: rgba(199,123,189,0.14);
+  --positive: #7FC49A; --negative: #E08A8A; --warning: #D9AE55;
+  --line-fresh: #7FC49A; --line-used: #D9A25E; --line-bypass: #7E6C7B;
+  --hl: #F08F8F;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-size: 1rem; line-height: 1.75; letter-spacing: -0.003em;
+  -webkit-font-smoothing: antialiased;
+}
+strong { font-weight: 700; color: var(--text); }
+code, .code { font-family: var(--mono); font-weight: 600; letter-spacing: 0; }
+
+/* masthead */
+.site-header {
+  background: linear-gradient(90deg, #58184F 0%, #72256B 26%, #105742 62%, #6CA07A 100%);
+  padding: 0.7rem clamp(1rem, 3vw, 2rem);
+  display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+  box-shadow: 0 2px 16px rgba(88,24,79,0.25);
+}
+.site-header .brand { color: #fff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.14em; }
+.site-header .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.3); }
+.site-header .title { color: rgba(255,255,255,0.9); font-size: 0.8rem; font-weight: 500; }
+.site-header .badge {
+  margin-left: auto; padding: 3px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.32);
+  color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em;
+}
+.print-btn {
+  background: none; border: 1px solid rgba(255,255,255,0.4); color: #fff;
+  font: inherit; font-size: 0.72rem; padding: 3px 10px; cursor: pointer;
+}
+.print-btn:focus-visible, .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* layout */
+.wrap { max-width: 1000px; margin: 0 auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+.hero { padding-block: clamp(2.5rem, 7vw, 5rem) 2.5rem; }
+.eyebrow {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); padding-bottom: 0.9rem; margin-bottom: 1.8rem; border-bottom: 1px solid var(--rule);
+}
+h1 { font-size: clamp(2rem, 5.2vw, 3.1rem); line-height: 1.18; letter-spacing: -0.03em; font-weight: 800; margin: 0 0 1.3rem; text-wrap: balance; }
+h1 span { color: var(--accent); }
+h2 { font-size: clamp(1.45rem, 3.4vw, 1.9rem); line-height: 1.28; letter-spacing: -0.025em; font-weight: 700; margin: 0 0 0.7rem; text-wrap: balance; }
+h3 { font-size: 1.12rem; letter-spacing: -0.015em; font-weight: 700; margin: 2.6rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule-soft); }
+.lead { font-size: 1.05rem; color: var(--text-2); max-width: 46em; margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; margin-top: 1.6rem; font-size: 0.82rem; color: var(--text-3); }
+.meta span + span::before { content: '·'; margin-right: 1.4rem; margin-left: -0.7rem; color: var(--text-3); }
+.note-banner {
+  margin-top: 2rem; border-left: 2px solid var(--accent); padding: 0.1rem 0 0.1rem 1.3rem;
+  font-size: 0.9rem; color: var(--text-2);
+}
+.tag { display: inline-block; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; padding: 1px 7px; border-radius: 3px; vertical-align: 0.1em; white-space: nowrap; }
+.tag.man { background: rgba(16,87,66,0.12); color: var(--positive); }
+.tag.inf { background: rgba(168,116,31,0.14); color: var(--warning); }
+
+main section { border-top: 4px solid var(--plum); padding-top: 3rem; margin-bottom: 3.5rem; }
+.section-label { display: flex; align-items: center; gap: 0.8rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+.section-label::before { content: ''; width: 26px; height: 2px; background: var(--accent); }
+.desc { color: var(--text-2); margin: 0 0 1.5rem; max-width: 48em; }
+
+.quote { position: relative; font-size: clamp(1.3rem, 3.2vw, 1.75rem); font-weight: 700; line-height: 1.45; letter-spacing: -0.02em; padding-left: 2.4rem; margin: 1.6rem 0; }
+.quote::before { content: '“'; position: absolute; left: 0; top: -0.6rem; font-size: 3.2rem; color: var(--accent); line-height: 1; }
+.quote em { font-style: normal; color: var(--accent); }
+.quote small { display: block; font-size: 0.86rem; font-weight: 400; color: var(--text-2); margin-top: 0.8rem; letter-spacing: 0; line-height: 1.7; }
+
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 1rem 1.25rem; margin: 1rem 0; font-size: 0.92rem; color: var(--text-2); }
+.callout.pine { border-left-color: var(--positive); }
+.callout.warn { border-left-color: var(--warning); }
+
+/* alarm trio */
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.trio > div { padding: 1.4rem 1.3rem 1.5rem 0; }
+.trio > div + div { border-left: 1px solid var(--rule-soft); padding-left: 1.3rem; }
+.trio .code { font-size: 1.5rem; color: var(--accent); display: block; line-height: 1.2; }
+.trio .code small { font-size: 0.78rem; color: var(--text-3); font-weight: 500; margin-right: 0.3rem; }
+.trio .k { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-3); margin-top: 0.9rem; }
+.trio .v { font-weight: 700; font-size: 0.95rem; }
+.trio p { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--text-2); line-height: 1.65; }
+
+/* diagram */
+.dia-card { background: var(--surface); border: 1px solid var(--rule); padding: 1.1rem 1.1rem 0.9rem; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; align-items: center; }
+.tabs .lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-3); margin-right: 0.4rem; }
+.tab { font: inherit; font-size: 0.82rem; font-weight: 700; padding: 0.35rem 0.9rem; border: 1px solid var(--rule); background: var(--bg); color: var(--text-2); cursor: pointer; border-radius: 999px; }
+.tab .code { font-size: 0.8rem; }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.dia-scroll { overflow-x: auto; }
+.dia-scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg .ln { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+svg .fresh { stroke: var(--line-fresh); }
+svg .used { stroke: var(--line-used); }
+svg .bypass { stroke: var(--line-bypass); stroke-dasharray: 7 6; stroke-width: 3; }
+svg .thin { stroke: var(--line-bypass); stroke-width: 2; }
+svg .span { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 5; }
+svg .spantxt { fill: var(--accent); font-size: 12px; font-weight: 700; }
+svg .body { fill: var(--surface); stroke: var(--text-2); stroke-width: 2; }
+svg .valve { fill: var(--surface); stroke: var(--text-2); stroke-width: 2; stroke-linejoin: round; }
+svg .sensor { fill: var(--accent); stroke: var(--accent); stroke-width: 2; }
+svg text { fill: var(--text); font-size: 12px; font-family: 'Noto Sans KR', sans-serif; }
+svg text.sub { fill: var(--text-3); font-size: 10.5px; }
+svg text.b { font-weight: 700; }
+svg .comp { transition: opacity 0.2s; }
+svg .ring { fill: none; stroke: var(--hl); stroke-width: 2.5; opacity: 0; transition: opacity 0.2s; }
+#dia[data-alarm="011"] .comp:not(.t011),
+#dia[data-alarm="012"] .comp:not(.t012),
+#dia[data-alarm="015"] .comp:not(.t015) { opacity: 0.28; }
+#dia[data-alarm="011"] .t011 .ring,
+#dia[data-alarm="012"] .t012 .ring,
+#dia[data-alarm="015"] .t015 .ring { opacity: 1; }
+#dia[data-alarm="011"] .t011 text.b,
+#dia[data-alarm="012"] .t012 text.b,
+#dia[data-alarm="015"] .t015 text.b { fill: var(--hl); }
+@media (prefers-reduced-motion: reduce) { svg .comp, svg .ring { transition: none; } }
+.legend { display: flex; flex-wrap: wrap; gap: 0.3rem 1.4rem; font-size: 0.74rem; color: var(--text-2); padding-top: 0.7rem; margin-top: 0.4rem; border-top: 1px solid var(--rule-soft); }
+.legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+.legend i { display: inline-block; width: 22px; height: 0; border-top: 4px solid; }
+.legend i.f { border-color: var(--line-fresh); }
+.legend i.u { border-color: var(--line-used); }
+.legend i.b { border-top: 3px dashed var(--line-bypass); }
+.legend i.s { width: 14px; height: 10px; border: 2px solid var(--accent); background: var(--accent); }
+.legend i.r { width: 14px; height: 14px; border: 2px solid var(--hl); border-radius: 50%; }
+.panel { margin-top: 1rem; }
+.panel-head { font-size: 0.9rem; color: var(--text-2); margin: 0 0 0.6rem; }
+.suspects { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); column-gap: 2rem; }
+.suspects li { padding: 0.55rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.86rem; color: var(--text-2); line-height: 1.6; }
+.suspects li strong { display: block; font-size: 0.9rem; }
+
+/* tables */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; border-top: 2px solid var(--text); font-size: 0.86rem; min-width: 640px; }
+th { text-align: left; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-3); padding: 0.75rem 1rem 0.6rem 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+td { padding: 0.8rem 1rem 0.8rem 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; color: var(--text-2); line-height: 1.65; }
+td:first-child { color: var(--text); font-weight: 700; }
+td .code { color: var(--accent); }
+.chip { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 1px 8px; border-radius: 3px; white-space: nowrap; margin: 0 0.25rem 0.2rem 0; }
+.chip.loss { background: rgba(174,64,72,0.12); color: var(--negative); }
+.chip.noise { background: rgba(168,116,31,0.14); color: var(--warning); }
+.chip.both { background: var(--accent-soft); color: var(--accent); }
+.chip.drift { background: rgba(16,87,66,0.12); color: var(--positive); }
+.al { font-family: var(--mono); font-size: 0.74rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+
+/* shift rows */
+.shift { border-top: 1px solid var(--rule); }
+.shift-row { display: grid; grid-template-columns: 1fr 2.2rem 1.25fr; align-items: baseline; padding: 0.9rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.9rem; }
+.shift-from { font-weight: 700; }
+.shift-from small { display: block; font-weight: 400; color: var(--text-3); font-size: 0.78rem; }
+.shift-arrow { color: var(--accent); opacity: 0.6; }
+.shift-to { color: var(--text-2); }
+
+/* steps */
+.steps { border-top: 1px solid var(--rule); }
+.step { display: grid; grid-template-columns: 4.2rem 1fr; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--rule-soft); }
+.step-num { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; padding-top: 0.2rem; }
+.step-num b { display: block; font-size: 1.6rem; line-height: 1.1; font-weight: 600; }
+.step h4 { margin: 0 0 0.35rem; font-size: 1rem; letter-spacing: -0.01em; }
+.step p, .step ul { margin: 0; font-size: 0.88rem; color: var(--text-2); }
+.step ul { padding-left: 1.1rem; }
+.step li { margin: 0.15rem 0; }
+.branch { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 0.8rem; }
+.branch > div { background: var(--surface); border: 1px solid var(--rule); padding: 0.75rem 0.95rem; font-size: 0.84rem; color: var(--text-2); }
+.branch .if { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-3); display: block; margin-bottom: 0.2rem; }
+.branch .go { font-weight: 700; color: var(--text); }
+.step.key { background: linear-gradient(90deg, var(--accent-soft), transparent 70%); }
+
+/* timeline */
+.tl { border-top: 1px solid var(--rule); }
+.tl-row { display: grid; grid-template-columns: 5.5rem 11.5rem 1fr; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.86rem; align-items: baseline; }
+.tl-when { font-family: var(--mono); font-weight: 600; color: var(--text-3); font-size: 0.8rem; }
+.tl-code { font-family: var(--mono); font-weight: 600; font-size: 0.8rem; }
+.tl-row.alarm .tl-when, .tl-row.alarm .tl-code { color: var(--negative); }
+.tl-row.power .tl-code { color: var(--text-3); }
+.tl-what { color: var(--text-2); }
+.tl-what strong { font-weight: 700; }
+
+/* actions */
+.act { display: grid; grid-template-columns: 2rem 1fr; gap: 0.8rem; padding: 1rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.9rem; color: var(--text-2); }
+.act:first-of-type { border-top: 1px solid var(--rule); }
+.act-n { font-family: var(--mono); font-weight: 600; color: var(--accent); }
+.foot { font-size: 0.78rem; color: var(--text-3); border-top: 1px solid var(--rule); padding-top: 1rem; margin-top: 2.5rem; padding-bottom: 4rem; }
+
+@media (max-width: 760px) {
+  .trio { grid-template-columns: 1fr; }
+  .trio > div, .trio > div + div { padding: 1.1rem 0; border-left: none; }
+  .trio > div + div { border-top: 1px solid var(--rule-soft); }
+  .suspects { grid-template-columns: 1fr; }
+  .shift-row { grid-template-columns: 1fr; gap: 0.2rem; }
+  .shift-arrow { transform: rotate(90deg); width: 1rem; }
+  .step { grid-template-columns: 1fr; gap: 0.3rem; }
+  .step-num b { display: inline; font-size: 1.1rem; margin-left: 0.3rem; }
+  .branch { grid-template-columns: 1fr; }
+  .tl-row { grid-template-columns: 4.6rem 1fr; }
+  .tl-row .tl-what { grid-column: 1 / -1; }
+  .site-header .badge { margin-left: 0; }
+}
+@media print {
+  .site-header { position: static; }
+  .print-btn, .tabs { display: none; }
+  main section { break-inside: avoid-page; }
+}
+
+/* section tabs */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; }
+.sec-nav { background: var(--bg); border-bottom: 1px solid var(--rule); box-shadow: 0 6px 18px rgba(27,18,25,0.06); }
+.sec-nav-inner { max-width: 1000px; margin: 0 auto; padding: 0.6rem clamp(1rem, 4vw, 3rem); display: flex; gap: 0.45rem; overflow-x: auto; scrollbar-width: none; align-items: stretch; }
+.sec-nav-inner::-webkit-scrollbar { display: none; }
+.sec-tab {
+  --g: var(--accent); --g-bg: rgba(114,37,107,0.07); --g-bd: rgba(114,37,107,0.20);
+  flex: 1 0 auto; font: inherit; font-size: 0.84rem; font-weight: 700; color: var(--text-2);
+  background: var(--g-bg); border: 1px solid var(--g-bd); border-radius: 8px;
+  padding: 0.45rem 0.85rem 0.5rem; cursor: pointer; white-space: nowrap; text-align: left;
+  display: flex; flex-direction: column; line-height: 1.3; transition: background 0.15s, color 0.15s;
+}
+.sec-tab small { font-family: var(--mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em; color: var(--g); opacity: 0.85; }
+.sec-tab[data-group="fix"] { --g: var(--positive); --g-bg: rgba(16,87,66,0.07); --g-bd: rgba(16,87,66,0.22); }
+.sec-tab[data-group="case"] { --g: var(--warning); --g-bg: rgba(168,116,31,0.08); --g-bd: rgba(168,116,31,0.26); }
+:root[data-theme="dark"] .sec-tab { --g-bg: rgba(199,123,189,0.10); --g-bd: rgba(199,123,189,0.28); }
+:root[data-theme="dark"] .sec-tab[data-group="fix"] { --g-bg: rgba(127,196,154,0.10); --g-bd: rgba(127,196,154,0.28); }
+:root[data-theme="dark"] .sec-tab[data-group="case"] { --g-bg: rgba(217,174,85,0.10); --g-bd: rgba(217,174,85,0.30); }
+.sec-tab:hover { color: var(--text); border-color: var(--g); }
+.sec-tab[aria-selected="true"] { background: var(--g); border-color: var(--g); color: var(--surface); }
+.sec-tab[aria-selected="true"] small { color: var(--surface); opacity: 0.8; }
+.sec-sep { flex: 0 0 1px; background: var(--rule); margin: 0.3rem 0.15rem; }
+.sec-tab:focus-visible, .pager button:focus-visible { outline: 2px solid var(--g, var(--accent)); outline-offset: 2px; }
+main section { scroll-margin-top: 7rem; }
+.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+.pager button { font: inherit; font-size: 0.86rem; font-weight: 700; color: var(--accent); background: var(--surface); border: 1px solid var(--rule); padding: 0.55rem 1rem; cursor: pointer; text-align: left; }
+.pager button small { display: block; font-size: 0.66rem; letter-spacing: 0.12em; color: var(--text-3); font-weight: 700; }
+.pager .next { margin-left: auto; text-align: right; }
+@media print {
+  .topbar { position: static; }
+  .sec-nav, .pager { display: none !important; }
+  main section[hidden] { display: block !important; }
+}
+</style>
+
+<div class="topbar">
+<header class="site-header">
+  <span class="brand">TECHNICAL SERVICE</span>
+  <span class="divider" aria-hidden="true"></span>
+  <span class="title">AK98 · Protective UF 테라레이션 알람</span>
+  <span class="badge">FSE 브리핑 · 2026.09.16</span>
+  <button class="print-btn" type="button" id="theme-btn" aria-pressed="false">다크 모드</button>
+  <button class="print-btn" type="button" onclick="window.print()">인쇄</button>
+</header>
+<nav class="sec-nav" aria-label="문서 섹션">
+  <div class="sec-nav-inner" role="tablist">
+    <button class="sec-tab" role="tab" data-target="s0" data-group="understand"><small>01</small><span class="nm">핵심 요약</span></button>
+    <button class="sec-tab" role="tab" data-target="s1" data-group="understand"><small>02</small><span class="nm">측정 경로</span></button>
+    <button class="sec-tab" role="tab" data-target="s2" data-group="understand"><small>03</small><span class="nm">원인 매핑</span></button>
+    <span class="sec-sep" aria-hidden="true"></span>
+    <button class="sec-tab" role="tab" data-target="s3" data-group="fix"><small>04</small><span class="nm">교체 고찰</span></button>
+    <button class="sec-tab" role="tab" data-target="s4" data-group="fix"><small>05</small><span class="nm">대응 순서</span></button>
+    <span class="sec-sep" aria-hidden="true"></span>
+    <button class="sec-tab" role="tab" data-target="s5" data-group="case"><small>06</small><span class="nm">현장 사례</span></button>
+    <button class="sec-tab" role="tab" data-target="s6" data-group="case"><small>07</small><span class="nm">공유 사항</span></button>
+  </div>
+</nav>
+</div>
+
+<div class="wrap">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="eyebrow">AK98 Technical Briefing · 0118 020 011 / 012 / 015</div>
+    <h1 id="hero-title">알람이 가리키는 곳은 부품이 아니라<br><span>두 센서 사이의 구간입니다</span></h1>
+    <p class="lead">보호 UF 테라레이션 알람 3종은 모두 <strong>UFS ch1과 ch2가 같은 유량을 보고 있는가</strong>를 확인하는 과정에서 발생합니다. 현장에서는 보통 UF cell과 UFS를 교체해 해결하지만, 교체가 원인을 가리는 경우도 많습니다. 이 문서는 알람 발생 구조와 원인 후보를 정리하고, 부품 교체 전에 먼저 점검할 순서를 제안합니다.</p>
+    <div class="meta">
+      <span>AK 98 Technical description HC12832003 Rev 2020-11-26</span>
+      <span>Program version 3.xx</span>
+      <span>대상: TS FSE</span>
+    </div>
+    <div class="note-banner">
+      매뉴얼에 명시된 내용은 <span class="tag man">매뉴얼</span>, flow path 구조에서 추론한 내용은 <span class="tag inf">추정</span>으로 구분했습니다. 추정 항목은 현장 사례와 서비스 매뉴얼로 검증한 뒤 표준 절차로 확정해야 합니다.
+    </div>
+  </section>
+</div>
+
+<main class="wrap" id="main">
+
+  <section aria-labelledby="s0">
+    <div class="section-label">Core finding</div>
+    <h2 id="s0">한 줄로 정리하면</h2>
+    <div class="quote">
+      UFS ch1과 ch2 사이에서 <em>유량이 새거나, 더해지거나, 공기가 섞이면</em> 계수가 틀어집니다.
+      <small>보호 테라레이션에는 zero flow 단계가 없고, ZEVA를 통하든 BYVA를 통하든 ch1과 ch2는 항상 직렬로 연결됩니다. 두 센서 사이 구간에서 생긴 이상은 그대로 차이값으로 나타납니다.</small>
+    </div>
+
+    <h3>알람 3종이 비교하는 대상</h3>
+    <div class="trio">
+      <div>
+        <span class="code"><small>0118 020</small>011</span>
+        <div class="k">비교 대상</div>
+        <div class="v">이번 계수 ↔ 직전 계수</div>
+        <p>치료 중 계수가 점점 변하는 경우입니다. 오염 누적, 간헐적 공기, 밸브 누설을 의심합니다.</p>
+      </div>
+      <div>
+        <span class="code"><small>0118 020</small>012</span>
+        <div class="k">비교 대상</div>
+        <div class="v">첫 테라레이션 ↔ Function check</div>
+        <p>FC(shunt 연결)와 치료 준비(투석기 연결) 사이에 조건이 달라진 경우입니다. <strong>투석기 쪽에서 새로 생긴 경로</strong>를 먼저 봅니다.</p>
+      </div>
+      <div>
+        <span class="code"><small>0118 020</small>015</span>
+        <div class="k">비교 대상</div>
+        <div class="v">UF rate 표준편차 (2회 연속)</div>
+        <p>계수가 아니라 신호 자체가 흔들리는 경우입니다. 공기, 유량 발생부, <strong>Control UF cell</strong>을 의심합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s1">
+    <div class="section-label">Flow path</div>
+    <h2 id="s1">보호 UF 측정 경로와 의심 부위</h2>
+    <p class="desc">매뉴얼 Fluid unit flow path를 테라레이션 관점에서 단순화한 그림입니다. 알람 코드를 선택하면 해당 알람의 원인 후보 부위가 표시됩니다.</p>
+
+    <div class="dia-card">
+      <div class="tabs" role="tablist" aria-label="알람 선택">
+        <span class="lbl">알람 선택</span>
+        <button class="tab" role="tab" id="tab-all" aria-selected="true" data-alarm="all">전체 구조</button>
+        <button class="tab" role="tab" id="tab-011" aria-selected="false" data-alarm="011"><span class="code">011</span> 계수 변화</button>
+        <button class="tab" role="tab" id="tab-012" aria-selected="false" data-alarm="012"><span class="code">012</span> FC 대비 차이</button>
+        <button class="tab" role="tab" id="tab-015" aria-selected="false" data-alarm="015"><span class="code">015</span> 신호 불안정</button>
+      </div>
+
+      <div class="dia-scroll">
+      <svg id="dia" data-alarm="all" viewBox="0 0 1000 520" role="img" aria-label="AK98 보호 UF 측정 경로 단순화 다이어그램">
+        <!-- ch1–ch2 span -->
+        <rect class="span" x="390" y="62" width="515" height="385" rx="4"/>
+        <text class="spantxt" x="404" y="82">UFS ch1 ↔ ch2 사이 구간 · 여기서의 누설·유입·공기 = 계수 이탈</text>
+
+        <!-- lines -->
+        <path class="ln thin" d="M160 90 V40 H985 V420 H930"/>
+        <path class="ln fresh" d="M40 110 H440"/>
+        <path class="ln bypass" d="M440 110 H840"/>
+        <path class="ln fresh" d="M440 110 V210 H560"/>
+        <path class="ln bypass" d="M560 210 H720"/>
+        <path class="ln fresh" d="M560 210 V390 H590"/>
+        <path class="ln used" d="M650 390 H700"/>
+        <path class="ln used" d="M720 365 V210 H840 V110"/>
+        <path class="ln used" d="M840 110 H930 V500"/>
+        <path class="ln thin" d="M740 390 H930"/>
+
+        <!-- Flow pump -->
+        <g class="comp t015">
+          <circle class="ring" cx="60" cy="110" r="22"/>
+          <circle class="body" cx="60" cy="110" r="14"/>
+          <path d="M54 102 L68 110 L54 118 Z" fill="var(--text-2)"/>
+          <text class="b" x="60" y="146" text-anchor="middle">Flow pump</text>
+          <text class="sub" x="60" y="161" text-anchor="middle">+ Flow restrictor</text>
+          <text class="sub" x="60" y="175" text-anchor="middle">+ Degassing 압력</text>
+        </g>
+        <!-- Degassing chamber -->
+        <g class="comp t015">
+          <rect class="ring" x="137" y="82" width="46" height="56" rx="6"/>
+          <rect class="body" x="145" y="90" width="30" height="40" rx="3"/>
+          <text class="b" x="160" y="156" text-anchor="middle">Degassing ch.</text>
+          <text class="sub" x="160" y="171" text-anchor="middle">상단 O-ring</text>
+        </g>
+        <!-- RIVA -->
+        <g class="comp t011 t012 t015">
+          <circle class="ring" cx="300" cy="40" r="19"/>
+          <polygon class="valve" points="291,33 300,40 291,47"/><polygon class="valve" points="309,33 300,40 309,47"/>
+          <text class="b" x="300" y="24" text-anchor="middle">RIVA</text>
+        </g>
+        <text class="sub" x="720" y="30" text-anchor="middle">RIVA 라인 → UFS ch2 뒤(suction 쪽)로 합류</text>
+        <!-- Cond P / HPG -->
+        <g class="comp">
+          <rect class="body" x="235" y="100" width="30" height="20" rx="2"/>
+          <text class="sub" x="250" y="140" text-anchor="middle">Cond P · HPG</text>
+        </g>
+        <!-- UFS ch1 -->
+        <g class="comp t011 t012 t015">
+          <rect class="ring" x="322" y="88" width="56" height="44" rx="6"/>
+          <rect class="sensor" x="330" y="96" width="40" height="28" rx="3"/>
+          <text x="350" y="115" text-anchor="middle" style="fill:var(--surface);font-weight:700;font-size:11px">ch1</text>
+          <text class="b" x="350" y="150" text-anchor="middle">UFS ch1</text>
+        </g>
+        <!-- ZEVA -->
+        <g class="comp t015">
+          <circle class="ring" cx="640" cy="110" r="19"/>
+          <polygon class="valve" points="631,103 640,110 631,117"/><polygon class="valve" points="649,103 640,110 649,117"/>
+          <text class="b" x="640" y="140" text-anchor="middle">ZEVA</text>
+        </g>
+        <!-- UF cell ch1 -->
+        <g class="comp t011 t015">
+          <rect class="ring" x="462" y="190" width="76" height="40" rx="6"/>
+          <rect class="body" x="470" y="198" width="60" height="24" rx="3"/>
+          <text x="500" y="214" text-anchor="middle" style="font-size:10.5px;font-weight:700">1</text>
+          <text class="b" x="500" y="248" text-anchor="middle">UF cell ch1</text>
+        </g>
+        <!-- BYVA -->
+        <g class="comp t015">
+          <circle class="ring" cx="640" cy="210" r="19"/>
+          <polygon class="valve" points="631,203 640,210 631,217"/><polygon class="valve" points="649,203 640,210 649,217"/>
+          <text class="b" x="640" y="245" text-anchor="middle">BYVA</text>
+        </g>
+        <!-- UF cell ch2 -->
+        <g class="comp t011 t015">
+          <rect class="ring" x="742" y="190" width="76" height="40" rx="6"/>
+          <rect class="body" x="750" y="198" width="60" height="24" rx="3"/>
+          <text x="780" y="214" text-anchor="middle" style="font-size:10.5px;font-weight:700">2</text>
+          <text class="b" x="780" y="248" text-anchor="middle">UF cell ch2</text>
+          <text class="sub" x="770" y="263" text-anchor="middle">포트 O-ring(음압)</text>
+        </g>
+        <!-- DIVA -->
+        <g class="comp t011 t012">
+          <circle class="ring" cx="560" cy="300" r="19"/>
+          <polygon class="valve" points="553,291 560,300 567,291"/><polygon class="valve" points="553,309 560,300 567,309"/>
+          <text class="b" x="542" y="304" text-anchor="end">DIVA</text>
+        </g>
+        <!-- Dialyzer -->
+        <g class="comp t012 t015">
+          <rect class="ring" x="582" y="370" width="76" height="40" rx="6"/>
+          <rect class="body" x="590" y="378" width="60" height="24" rx="10"/>
+          <text class="b" x="620" y="428" text-anchor="middle">Dialyzer</text>
+          <text class="sub" x="620" y="442" text-anchor="middle">커넥터 O-ring·프라이밍</text>
+        </g>
+        <!-- Deaerating chamber -->
+        <g class="comp">
+          <rect class="body" x="702" y="365" width="36" height="50" rx="3"/>
+          <text class="sub" x="720" y="432" text-anchor="middle">Deaerating</text>
+        </g>
+        <!-- TAVA -->
+        <g class="comp t012 t015">
+          <circle class="ring" cx="720" cy="300" r="19"/>
+          <polygon class="valve" points="713,291 720,300 727,291"/><polygon class="valve" points="713,309 720,300 727,309"/>
+          <text class="b" x="738" y="304">TAVA</text>
+        </g>
+        <!-- EVVA -->
+        <g class="comp t011 t012">
+          <circle class="ring" cx="840" cy="390" r="19"/>
+          <polygon class="valve" points="831,383 840,390 831,397"/><polygon class="valve" points="849,383 840,390 849,397"/>
+          <text class="b" x="840" y="374" text-anchor="middle">EVVA</text>
+        </g>
+        <!-- Cond C* -->
+        <g class="comp t011 t015">
+          <rect class="ring" x="857" y="92" width="46" height="36" rx="6"/>
+          <rect class="body" x="865" y="100" width="30" height="20" rx="2"/>
+          <text class="b" x="880" y="146" text-anchor="middle">Cond C*</text>
+          <text class="sub" x="880" y="160" text-anchor="middle">커넥터(음압)</text>
+        </g>
+        <!-- UFS ch2 -->
+        <g class="comp t011 t012 t015">
+          <rect class="ring" x="908" y="176" width="44" height="56" rx="6"/>
+          <rect class="sensor" x="916" y="184" width="28" height="40" rx="3"/>
+          <text x="930" y="208" text-anchor="middle" style="fill:var(--surface);font-weight:700;font-size:11px">ch2</text>
+          <text class="b" x="918" y="244" text-anchor="end">UFS ch2</text>
+          <text class="sub" x="918" y="258" text-anchor="end">오염 취약</text>
+        </g>
+        <!-- BLD -->
+        <g class="comp">
+          <circle class="body" cx="930" cy="275" r="10"/>
+          <text class="sub" x="914" y="292" text-anchor="end">Blood leak det.</text>
+        </g>
+        <!-- Suction pump -->
+        <g class="comp">
+          <circle class="body" cx="930" cy="460" r="14"/>
+          <path d="M924 452 L924 468 L938 460 Z" transform="rotate(90 930 460)" fill="var(--text-2)"/>
+          <text class="sub" x="908" y="464" text-anchor="end">Suction pump</text>
+          <text class="sub" x="944" y="512">Drain</text>
+        </g>
+      </svg>
+      </div>
+
+      <div class="legend">
+        <span><i class="f"></i>투석액(ch1 쪽, 양압)</span>
+        <span><i class="u"></i>Dialysate(ch2 쪽, <strong>음압</strong>)</span>
+        <span><i class="b"></i>ZEVA·BYVA 우회 경로(테라레이션 시 사용)</span>
+        <span><i class="s"></i>UFS 센서</span>
+        <span><i class="r"></i>선택한 알람의 의심 부위</span>
+      </div>
+
+      <div class="panel" id="panel-all">
+        <p class="panel-head"><strong>구조에서 읽어야 할 세 가지</strong></p>
+        <ul class="suspects">
+          <li><strong>ch1과 ch2는 항상 직렬입니다</strong>ZEVA가 열려도, BYVA로 UF cell을 거쳐도 두 센서 사이에 같은 유량이 흘러야 합니다. <span class="tag man">매뉴얼</span></li>
+          <li><strong>EVVA와 RIVA는 UFS ch2 뒤로 배출됩니다</strong>DIVA로 새어 나간 유체가 EVVA로 빠지면 ch2를 거치지 않으므로 ch1 &gt; ch2가 됩니다. <span class="tag inf">추정</span></li>
+          <li><strong>ch2 쪽 구간은 음압입니다</strong>O-ring이나 커넥터가 조금만 불량해도 공기가 빨려 들어가고, 그 공기는 ch2만 감지합니다. <span class="tag inf">추정</span></li>
+          <li><strong>유량 발생은 UF cell 데이터로 제어됩니다</strong>UF cell 신호가 흔들리면 flow pump가 헌팅하고, 이것이 015로 이어집니다. <span class="tag man">매뉴얼</span></li>
+        </ul>
+      </div>
+      <div class="panel" id="panel-011" hidden>
+        <p class="panel-head"><span class="code">011</span> 치료 중 계수가 직전 테라레이션보다 크게 변했을 때</p>
+        <ul class="suspects">
+          <li><strong>UFS ch2 오염</strong>dialysate가 흐르는 구간이라 바이오필름이나 석회가 누적되며 감도가 변합니다.</li>
+          <li><strong>DIVA 누설 + EVVA 배출</strong>ch2를 거치지 않고 빠지는 유량이 생깁니다.</li>
+          <li><strong>음압 구간의 간헐적 공기</strong>UF cell ch2 포트나 Cond C* 커넥터 O-ring을 확인합니다.</li>
+          <li><strong>RIVA 누설</strong>매뉴얼에 원인 후보로 명시되어 있습니다.</li>
+        </ul>
+      </div>
+      <div class="panel" id="panel-012" hidden>
+        <p class="panel-head"><span class="code">012</span> 첫 테라레이션 계수가 Function check 계수와 크게 다를 때</p>
+        <ul class="suspects">
+          <li><strong>투석기 커넥터 O-ring · 프라이밍 부족</strong>FC 때 없던 공기가 투석기 연결 후 유입됩니다.</li>
+          <li><strong>DIVA / TAVA 누설</strong>투석기 루프가 ch1과 ch2 사이에 연결되면서 유량이 빠지거나 더해집니다.</li>
+          <li><strong>EVVA 경로</strong>Deaerating chamber의 공기를 배출할 때 ch2 뒤로 유량이 빠집니다.</li>
+          <li><strong>기준 계수가 오래된 경우</strong>UFS slope self calibration은 Extended FC에서만 수행됩니다.</li>
+        </ul>
+      </div>
+      <div class="panel" id="panel-015" hidden>
+        <p class="panel-head"><span class="code">015</span> 재테라레이션까지 UF rate 표준편차가 기준을 넘을 때</p>
+        <ul class="suspects">
+          <li><strong>Control UF cell 불량</strong>유량 조절용 데이터가 불안정해집니다. <span class="tag man">매뉴얼</span></li>
+          <li><strong>Flow pump · Flow restrictor · Degassing 압력센서</strong>유량 발생부 자체가 흔들립니다.</li>
+          <li><strong>Degassing chamber 상단 O-ring 위치</strong>매뉴얼에 원인 후보로 명시되어 있습니다.</li>
+          <li><strong>음압 구간 공기 · 투석기 쪽 공기</strong>UF cell ch2 포트, C*, BYVA·ZEVA 다이어프램, 투석기 커넥터를 확인합니다.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s2">
+    <div class="section-label">Cause map</div>
+    <h2 id="s2">원인별로 어느 채널에 어떤 영향을 주는가</h2>
+    <p class="desc">원인 후보는 매뉴얼의 "possible explanations"를 기준으로 했고, 메커니즘과 채널 영향은 flow path에서 추론했습니다.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>원인</th><th>메커니즘</th><th>영향</th><th>관련 알람</th></tr></thead>
+        <tbody>
+          <tr><td>DIVA 누설</td><td>ch1을 지난 유체가 투석기와 Deaerating chamber를 거쳐 EVVA로 ch2 뒤에 배출됩니다.</td><td><span class="chip loss">ch1 &gt; ch2</span></td><td class="al">011 · 012</td></tr>
+          <tr><td>TAVA 누설</td><td>suction이 닫힌 투석기 루프를 끌어당겨 음압이 생기고, 탈기된 공기나 막을 통한 이동 유량이 ch2로 유입됩니다.</td><td><span class="chip noise">ch2 노이즈</span></td><td class="al">012 · 015</td></tr>
+          <tr><td>DIVA + TAVA 누설 (환자 연결)</td><td>TMP에 의한 환자 측 UF나 역여과가 두 센서 사이에 더해집니다.</td><td><span class="chip loss">차동 유량</span></td><td class="al">012</td></tr>
+          <tr><td>RIVA 누설</td><td>ch1 앞에서 유량이 빠져나갑니다. 차동 오차보다는 degassing 레벨과 유량 흔들림을 유발합니다.</td><td><span class="chip both">양 채널 불안정</span></td><td class="al">015 (011·012)</td></tr>
+          <tr><td>음압 구간 air ingress</td><td>UF cell ch2 포트, Cond C*, UFS ch2 커넥터, BYVA·ZEVA 다이어프램으로 공기가 들어옵니다.</td><td><span class="chip noise">ch2만 흔들림</span></td><td class="al">015 · 011</td></tr>
+          <tr><td>투석기 커넥터 O-ring · 프라이밍 부족</td><td>Deaerating chamber가 공기를 다 제거하지 못합니다. <span class="tag man">매뉴얼 3.3.3.6.5</span></td><td><span class="chip noise">ch2 공기</span></td><td class="al">012 · 015</td></tr>
+          <tr><td>UFS 전극 오염</td><td>단백질·바이오필름이나, 소독이 부족할 때 생기는 CaCO₃ 석회로 감도가 변합니다. dialysate를 흘리는 ch2가 더 취약합니다.</td><td><span class="chip drift">계수 drift</span></td><td class="al">011 · 012</td></tr>
+          <tr><td>Flow pump · restrictor · degassing 압력센서</td><td>유량 자체가 흔들립니다.</td><td><span class="chip both">양 채널 노이즈</span></td><td class="al">015</td></tr>
+          <tr><td>Control UF cell 불량</td><td>유량 조절이 UF cell 데이터를 쓰기 때문에 flow pump가 헌팅합니다. <span class="tag man">매뉴얼</span></td><td><span class="chip both">양 채널 노이즈</span></td><td class="al">015</td></tr>
+          <tr><td>UFS 센서 자체 불량</td><td>코일, 전극, 프리앰프 문제로 신호 오프셋이나 노이즈가 생깁니다.</td><td><span class="chip both">해당 채널</span></td><td class="al">전체</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="section-label">Why replacement works</div>
+    <h2 id="s3">UF cell·UFS 교체로 "해결되는" 이유</h2>
+    <p class="desc">교체하면 알람이 사라지는 건 사실입니다. 다만 교체 한 번에 여러 효과가 함께 일어나서, 진짜 원인이 무엇이었는지 알 수 없게 됩니다.</p>
+    <div class="shift">
+      <div class="shift-row"><div class="shift-from">전극이 새것이 됨<small>교체 효과</small></div><div class="shift-arrow">→</div><div class="shift-to">원인이 오염·석회였다면 부품 불량이 아니라 <strong>소독·수질 문제</strong>입니다.</div></div>
+      <div class="shift-row"><div class="shift-from">O-ring·커넥터가 새것이 됨<small>교체 효과</small></div><div class="shift-arrow">→</div><div class="shift-to">원인이 air ingress였다면 <strong>O-ring 교체만으로</strong> 해결됐을 수 있습니다.</div></div>
+      <div class="shift-row"><div class="shift-from">호스 재장착·에어 제거<small>교체 효과</small></div><div class="shift-arrow">→</div><div class="shift-to">분해와 재조립 과정에서 갇힌 공기가 빠집니다. 부품과 무관한 해결입니다.</div></div>
+      <div class="shift-row"><div class="shift-from">기준 계수 재설정<small>교체 효과</small></div><div class="shift-arrow">→</div><div class="shift-to">비교 기준이 초기화되어 알람 조건 자체가 리셋됩니다.</div></div>
+      <div class="shift-row"><div class="shift-from">Control UF cell 교체<small>교체 효과</small></div><div class="shift-arrow">→</div><div class="shift-to">flow pump 제어가 안정됩니다. <strong>015에서는 실제 원인일 수 있습니다.</strong> <span class="tag man">매뉴얼</span></div></div>
+    </div>
+    <div class="callout warn">
+      <strong>이런 패턴이 생깁니다</strong> — 교체 후 수 주~수 개월 뒤 재발한다면 오염, O-ring, 공기가 근본 원인이었을 가능성이 큽니다. UF cell과 UFS를 함께 교체하면 어느 쪽이 원인인지 기록이 남지 않고, <strong>부품 비용과 재방문</strong>이 동시에 늘어납니다.
+    </div>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="section-label">Field guide</div>
+    <h2 id="s4">현장 대응 순서</h2>
+    <p class="desc">비용이 낮고 원인을 분리하는 효과가 큰 순서로 배치했습니다. 부품 교체는 마지막 단계이며, 한 번에 하나씩 진행합니다.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">STEP<b>0</b></div>
+        <div><h4>분해 전 기록 확인</h4>
+          <ul>
+            <li>발생 시점을 봅니다. FC 직후라면 012, 치료 중 30분 주기라면 011, 재테라레이션 실패라면 015입니다.</li>
+            <li>같은 날 반복 발생했는지, 전원 재기동 이력이 있는지 확인합니다.</li>
+            <li>서비스 데이터에서 UFS ch1/ch2 유량과 계수 이력을 확인합니다. <strong>어느 채널이 흔들리는지</strong>가 핵심입니다.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step key">
+        <div class="step-num">STEP<b>1</b></div>
+        <div><h4>조건 분리 테스트: shunt 상태에서 재현</h4>
+          <p>커넥터를 shunt에 꽂고 Extended FC를 수행한 뒤 준비 단계까지 진행합니다. 원인을 좁히는 효과가 가장 큰 단계입니다.</p>
+          <div class="branch">
+            <div><span class="if">SHUNT 정상 · 투석기 연결 시에만 발생</span><span class="go">투석기 쪽 경로</span> — 커넥터 O-ring → 프라이밍 → DIVA/TAVA 순으로 확인</div>
+            <div><span class="if">SHUNT 상태에서도 발생</span><span class="go">기계 내부</span> — STEP 2부터 진행</div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP<b>2</b></div>
+        <div><h4>저비용 점검 (부품 교체 전)</h4>
+          <ul>
+            <li>투석기 커넥터(블루/레드) O-ring 확인 및 교체</li>
+            <li>음압 구간 O-ring 확인: UF cell ch2 포트, Cond C*, UFS ch2 커넥터</li>
+            <li>Degassing chamber 상단 O-ring 위치 확인, Flow restrictor 오염 확인·세척</li>
+            <li>소독 이력 확인. 석회가 의심되면 <strong>탈석회 소독 후 재테스트</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP<b>3</b></div>
+        <div><h4>밸브 점검</h4>
+          <p>Extended FC의 valve leakage test 결과와 Basic FC의 DIVA/TAVA/EVVA closing test 결과를 확인합니다. 이후 서비스 모드에서 DIVA, TAVA, RIVA를 개별 점검하고, 필요하면 다이어프램을 교체합니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP<b>4</b></div>
+        <div><h4>유량 안정성 점검 (015 중심)</h4>
+          <p>Flow pump 동작과 degassing pressure 값이 안정적인지 확인합니다. UF cell ch1 신호가 흔들리면 <strong>Control UF cell을 우선 교체</strong>합니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP<b>5</b></div>
+        <div><h4>센서 교체는 하나씩</h4>
+          <ul>
+            <li><span class="code">015</span>: UF cell을 먼저 교체하고, 알람이 남으면 UFS를 교체합니다.</li>
+            <li><span class="code">011/012</span>에서 ch2 이상이 확인되면 UFS ch2를 먼저 교체합니다.</li>
+            <li>UFS ch1과 ch2가 같은 P/N이라면 위치를 바꿔 끼워 불량 채널을 특정합니다. 캘리브레이션 필요 여부는 사전에 확인합니다. <span class="tag inf">확인 필요</span></li>
+            <li>교체 후 반드시 <strong>Extended FC</strong>를 수행합니다. 서비스 모드를 종료하면 자동으로 수행됩니다.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP<b>6</b></div>
+        <div><h4>사례 기록</h4>
+          <p>교체 부품, 교체 전 점검 결과(O-ring, 밸브, 소독 상태), 재발 여부를 남깁니다. 기록이 쌓이면 불량 부품 반송 분석과 교체 기준을 정하는 근거로 쓸 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s5">
+    <div class="section-label">Case · 2026.09.16</div>
+    <h2 id="s5">현장 사례: 오류 목록 해석</h2>
+    <p class="desc">AK98 서비스 메뉴 &gt; 오류 목록 화면 기준입니다. 아래쪽이 과거, 위쪽이 최근입니다.</p>
+    <div class="tl">
+      <div class="tl-row alarm"><div class="tl-when">11:31:49</div><div class="tl-code">0118 020 012 005</div><div class="tl-what"><strong>1차 012 발생</strong> — Leakage/contamination detected during protective taration</div></div>
+      <div class="tl-row power"><div class="tl-when">11:35:42</div><div class="tl-code">0933 002 000 007</div><div class="tl-what">Main switch shut down — 사용자가 재기동</div></div>
+      <div class="tl-row"><div class="tl-when">11:35:55</div><div class="tl-code">0119 000 002 003</div><div class="tl-what">Startup problem, presets not received</div></div>
+      <div class="tl-row"><div class="tl-when">11:35:55</div><div class="tl-code">0119 003 004 008</div><div class="tl-what">Internal communication error</div></div>
+      <div class="tl-row"><div class="tl-when">11:35:58</div><div class="tl-code">0516 002 012 007</div><div class="tl-what">Missing preset variable</div></div>
+      <div class="tl-row power"><div class="tl-when">12:33:42</div><div class="tl-code">0933 002 000 007</div><div class="tl-what">Main switch shut down</div></div>
+      <div class="tl-row alarm"><div class="tl-when">12:33:48</div><div class="tl-code">0118 020 012 005</div><div class="tl-what"><strong>012 재발</strong> — 약 1시간 간격으로 같은 코드 반복</div></div>
+    </div>
+    <div class="callout">
+      <strong>해석</strong> — 012가 1시간 간격으로 반복된 것으로 보아, 일시적인 공기 문제보다는 <strong>지속적인 조건 차이</strong>가 있을 가능성이 높습니다. 투석기·커넥터 쪽이나 밸브 누설을 우선 의심합니다. <span class="tag inf">추정</span>
+    </div>
+    <div class="callout warn">
+      <strong>함께 볼 것</strong> — 11:35의 통신 오류와 preset 미수신은 알람 직후 전원을 껐다 켠 영향일 수 있지만, 보호 보드 통신 문제일 가능성도 있습니다. 재발하면 따로 추적합니다. 끝자리 <span class="code">005</span>의 의미는 서비스 매뉴얼에서 확인이 필요합니다.
+    </div>
+    <div class="callout pine">
+      <strong>권장 순서</strong> — shunt 상태에서 Extended FC 실행 → 투석기 커넥터 O-ring 확인 → DIVA/TAVA 누설 점검 → 그다음에 센서 교체 판단
+    </div>
+  </section>
+
+  <section aria-labelledby="s6">
+    <div class="section-label">Takeaways</div>
+    <h2 id="s6">FSE 공유 사항</h2>
+    <div class="act"><div class="act-n">A</div><div><strong>알람 코드로 방향을 먼저 정합니다.</strong> 011은 변화, 012는 FC 대비 조건 차이, 015는 신호 불안정입니다. 코드마다 의심 부위가 다릅니다.</div></div>
+    <div class="act"><div class="act-n">B</div><div><strong>012라면 shunt 재현 테스트를 먼저 합니다.</strong> 투석기 쪽 원인인지 기계 내부 원인인지 부품 교체 없이 가를 수 있습니다.</div></div>
+    <div class="act"><div class="act-n">C</div><div><strong>UF cell과 UFS를 동시에 교체하지 않습니다.</strong> 하나씩 교체해야 원인이 기록되고 불필요한 부품 비용이 줄어듭니다.</div></div>
+    <div class="act"><div class="act-n">D</div><div><strong>교체 전 점검 결과를 서비스 리포트에 남깁니다.</strong> O-ring, 밸브, 소독 상태를 남기면 재발 분석과 교체 기준 수립에 쓸 수 있습니다.</div></div>
+
+    <div class="foot">
+      출처: AK 98 Dialysis Machine Technical description (HC12832003 Rev 2020-11-26) 3.3.3.6 Fluid output – UF control system, 12.1.3 Function check, 오류 코드 0118 020 011/012/015 설명, 현장 오류 목록 화면(2026-09-16). <span class="tag inf">추정</span> 표시 항목은 flow path 구조에 근거한 가설이므로 현장 검증 후 표준 절차에 반영하시기 바랍니다.
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme-btn');
+  function apply(t) {
+    root.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '크림 모드' : '다크 모드';
+    btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('ak98-theme'); } catch (e) {}
+  apply(saved === 'dark' ? 'dark' : 'light');
+  btn.addEventListener('click', function () {
+    var t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(t);
+    try { localStorage.setItem('ak98-theme', t); } catch (e) {}
+  });
+})();
+(function () {
+  var dia = document.getElementById('dia');
+  var tabs = document.querySelectorAll('.tab');
+  var panels = { all: 'panel-all', '011': 'panel-011', '012': 'panel-012', '015': 'panel-015' };
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var a = t.getAttribute('data-alarm');
+      dia.setAttribute('data-alarm', a);
+      tabs.forEach(function (x) { x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+      Object.keys(panels).forEach(function (k) { document.getElementById(panels[k]).hidden = (k !== a); });
+    });
+  });
+})();
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.sec-tab'));
+  var secs = tabs.map(function (t) { return document.getElementById(t.dataset.target).closest('section'); });
+  var topbar = document.querySelector('.topbar');
+  function show(i, scroll) {
+    tabs.forEach(function (t, j) { t.setAttribute('aria-selected', j === i ? 'true' : 'false'); t.tabIndex = j === i ? 0 : -1; });
+    secs.forEach(function (sec, j) { sec.hidden = j !== i; });
+    tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    try { localStorage.setItem('ak98-tab', String(i)); } catch (e) {}
+    if (scroll) {
+      var y = document.getElementById('main').getBoundingClientRect().top + window.scrollY - topbar.offsetHeight - 8;
+      if (window.scrollY > y) window.scrollTo({ top: y });
+    }
+  }
+  secs.forEach(function (sec, i) {
+    sec.style.borderTop = 'none'; sec.style.paddingTop = '2rem';
+    var pg = document.createElement('div'); pg.className = 'pager';
+    if (i > 0) { var b = document.createElement('button'); b.type = 'button'; b.className = 'prev'; b.innerHTML = '<small>이전</small>← ' + tabs[i-1].querySelector('.nm').textContent; b.onclick = function () { show(i-1, true); }; pg.appendChild(b); }
+    if (i < secs.length - 1) { var n = document.createElement('button'); n.type = 'button'; n.className = 'next'; n.innerHTML = '<small>다음</small>' + tabs[i+1].querySelector('.nm').textContent + ' →'; n.onclick = function () { show(i+1, true); }; pg.appendChild(n); }
+    sec.appendChild(pg);
+  });
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { show(i, true); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        var k = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        show(k, false); tabs[k].focus(); e.preventDefault();
+      }
+    });
+  });
+  var start = 0;
+  try { var v = parseInt(localStorage.getItem('ak98-tab'), 10); if (v >= 0 && v < tabs.length) start = v; } catch (e) {}
+  show(start, false);
+  window.scrollTo(0, 0);
+})();
+</script>
+
+</body>
+</html>
