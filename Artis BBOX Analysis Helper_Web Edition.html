@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artis BBOX Analysis Helper — Web with macro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #72256B;
+    --brand-deep: #58184F;
+    --brand-soft: #A4599C;
+    --brand-light: #F3E8F2;
+    --pine: #105742;
+    --eucalyptus: #6CA07A;
+    --sage: #CDDFD7;
+    --danger: #AE4048;
+    --warn: #B07D2E;
+    --ok: #105742;
+    --bg: #F6F0EA;
+    --card: #FFFFFF;
+    --card-hover: #FFFAEB;
+    --border: rgba(114,37,107,.14);
+    --text: #1B1219;
+    --text-secondary: #6B5468;
+    --text-muted: #9B879A;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  header { box-shadow: 0 2px 16px rgba(88,24,79,.25); }
+  header h1 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; color: #fff; }
+  header span { font-size: 12px; opacity: .8; margin-left: 8px; }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+
+  /* ── Drop zone ───────────────────────────────────── */
+  #dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+    position: relative;
+  }
+  #dropzone:hover { box-shadow: 0 4px 20px rgba(114,37,107,.09); }
+  #dropzone.drag-over {
+    border-color: var(--brand);
+    background: var(--card-hover);
+  }
+  #dropzone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  #dropzone .dz-icon { color: var(--brand); margin-bottom: 12px; }
+  #dropzone h2 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  #dropzone p { color: var(--text-secondary); font-size: 13px; }
+
+  /* ── Summary cards ───────────────────────────────── */
+  #summary { display: none; margin-top: 20px; }
+  .stat-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    flex: 1 1 160px;
+    min-width: 140px;
+    transition: box-shadow .2s, background .2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 20px rgba(114,37,107,.09); background: var(--card-hover); }
+  .stat-card .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; font-weight: 700; font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+  .stat-card .value { font-size: 26px; font-weight: 800; margin-top: 6px; letter-spacing: -.02em; }
+  .stat-card.alarm .value { color: var(--brand); }
+  .stat-card.files .value { color: var(--brand); }
+  .stat-card.records .value { color: var(--text); }
+  .stat-card.version .value { font-size: 16px; color: var(--pine); margin-top: 8px; font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+
+  /* ── Action bar ──────────────────────────────────── */
+  .action-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .action-bar h2 { font-size: 12px; font-weight: 800; flex: 1; color: var(--brand); text-transform: uppercase; letter-spacing: .1em; font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+  button.btn {
+    border: none;
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity .15s, transform .1s, box-shadow .15s;
+  }
+  button.btn:active { transform: scale(.97); }
+  button.btn-primary { background: var(--brand); color: #fff; font-family: 'Inter', 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 700; }
+  button.btn-primary:hover { opacity: .9; box-shadow: 0 4px 14px rgba(114,37,107,.28); }
+  button.btn-danger { background: var(--pine); color: #fff; font-family: 'Inter', 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 700; }
+  button.btn-danger:hover { opacity: .9; box-shadow: 0 4px 14px rgba(16,87,66,.28); }
+  button.btn-ghost {
+    background: var(--card);
+    color: var(--brand);
+    border: 1px solid var(--border);
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  button.btn-ghost:hover { background: var(--card-hover); }
+
+  /* ── Filter bar ──────────────────────────────────── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-bar input, .filter-bar select {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    font-size: 13px;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+  }
+  .filter-bar input:focus, .filter-bar select:focus { border-color: var(--brand); }
+  .filter-bar input { flex: 1; min-width: 200px; }
+
+  /* ── Table ───────────────────────────────────────── */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--card-hover);
+    text-align: left;
+    padding: 11px 14px;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    user-select: none;
+  }
+  thead th.sortable {
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  thead th.sortable:hover { background: var(--brand-light); color: var(--brand); }
+  thead th.sort-asc::after  { content: " ▲"; font-size: 9px; opacity: .85; }
+  thead th.sort-desc::after { content: " ▼"; font-size: 9px; opacity: .85; }
+  thead th.sort-asc, thead th.sort-desc { background: var(--brand-light); color: var(--brand); }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--card-hover); }
+  tbody td { padding: 10px 14px; vertical-align: top; }
+
+  .badge {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-alarm { background: var(--brand-light); color: var(--brand); border: 1px solid rgba(114,37,107,.2); font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+  .badge-info  { background: rgba(16,87,66,.1); color: var(--pine); border: 1px solid rgba(16,87,66,.2); font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+  .badge-ver   { background: var(--sage); color: var(--pine); border: 1px solid var(--eucalyptus); font-family: 'Inter', 'Noto Sans KR', sans-serif; font-weight: 700; }
+
+  td.file-col { color: var(--text-secondary); font-family: monospace; font-size: 12px; }
+  td.alarm-col { font-weight: 500; }
+  td.code-col { font-family: monospace; color: var(--text-secondary); }
+
+  .csv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    background: var(--brand-light);
+    color: var(--brand);
+    border: 1px solid rgba(114,37,107,.2);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    transition: background .15s;
+  }
+  .csv-btn:hover { background: #e8d0e4; }
+
+  /* ── Empty / loading states ──────────────────────── */
+  #empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    display: none;
+  }
+  #loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--brand);
+    display: none;
+  }
+  .spinner {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--brand-light);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Alarm type color coding ─────────────────────── */
+  .sev-high td { background: rgba(114,37,107,.035); }
+  .sev-high td:first-child { border-left: 3px solid var(--brand); }
+
+  /* ── Progress bar ────────────────────────────────── */
+  #progress-wrap { display: none; margin-top: 12px; }
+  #progress-bar {
+    height: 6px;
+    background: var(--brand-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  #progress-fill {
+    height: 100%;
+    background: var(--brand);
+    width: 0%;
+    transition: width .2s;
+    border-radius: 3px;
+  }
+  #progress-label { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+
+  /* ── Tab bar ─────────────────────────────────────── */
+  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .tab {
+    padding: 9px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    transition: color .15s, border-color .15s;
+  }
+  .tab:hover { color: var(--brand); }
+  .tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 700; font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+
+  #tab-files { display: none; }
+
+  /* ── Triage tab ──────────────────────────────────── */
+  .cat-panel { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .cat-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 11px; font-weight: 800;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    cursor: pointer; border: 2px solid transparent;
+    transition: opacity .15s, transform .1s, box-shadow .15s;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .cat-btn:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,.18); }
+  .cat-btn:active { transform: scale(.97); }
+  .cat-btn.active { box-shadow: 0 0 0 3px rgba(255,255,255,.5) inset, 0 2px 10px rgba(0,0,0,.25); }
+  .triage-idx {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 22px; border-radius: 6px;
+    font-size: 10px; font-weight: 900; font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    color: #fff; flex-shrink: 0; padding: 0 4px;
+  }
+  .tr-priority td { background: rgba(114,37,107,.045) !important; }
+  .tr-priority td:first-child { border-left: 3px solid var(--brand); }
+  .tr-priority:hover td { background: rgba(114,37,107,.08) !important; }
+  .tr-other td { opacity: .38; }
+  .tr-other:hover td { opacity: .7 !important; }
+  .tr-separator td {
+    background: var(--brand-light); padding: 5px 14px;
+    font-size: 10px; font-weight: 800;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: var(--brand); border-top: 2px solid rgba(114,37,107,.2); border-bottom: 1px solid rgba(114,37,107,.12);
+  }
+  .tr-separator-other td {
+    background: var(--card-hover); padding: 5px 14px;
+    font-size: 10px; font-weight: 700;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-muted); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .triage-hint {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1.5px dashed var(--border); border-radius: var(--radius);
+    padding: 36px 24px; text-align: center; justify-content: center;
+    flex-direction: column; color: var(--text-muted); font-size: 13px;
+  }
+  .triage-hint svg { opacity: .4; }
+  #triage-stat {
+    display: none; margin-bottom: 14px;
+    background: var(--brand-light); border: 1px solid rgba(114,37,107,.2); border-left: 3px solid var(--brand);
+    border-radius: var(--radius-sm); padding: 10px 16px; font-size: 12px; color: var(--brand-deep);
+  }
+
+  /* ── File list ───────────────────────────────────── */
+  .file-list { display: flex; flex-direction: column; gap: 10px; }
+  .file-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: box-shadow .2s, background .2s;
+  }
+  .file-item:hover { box-shadow: 0 4px 20px rgba(114,37,107,.09); background: var(--card-hover); }
+  .file-item .fi-name { font-weight: 600; flex: 1; word-break: break-all; }
+  .file-item .fi-meta { color: var(--text-secondary); font-size: 12px; }
+  .file-item .fi-alarm { color: var(--brand); font-weight: 700; }
+  .file-item .fi-ok { color: var(--pine); }
+
+  @media (max-width: 640px) {
+    header h1 { font-size: 15px; }
+    .stat-card { flex: 1 1 120px; }
+    td, th { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header style="position:relative;padding:16px 28px 16px 170px;background:linear-gradient(90deg,#58184F 0%,#72256B 30%,#105742 70%,#6CA07A 100%);overflow:hidden;display:flex;align-items:center;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 15% 50%,rgba(255,255,255,0.07) 0%,transparent 60%);pointer-events:none;"></div>
+  <div style="position:absolute;top:50%;left:20px;transform:translateY(-50%);z-index:10;">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABJAAAAEQCAYAAADvWI5WAABztUlEQVR42u3ddXhU17o/8O+KuxEhWPAgCcHd3YMUq3tLe+o9bU/hnhq01KhSp9QgwaNAILgHh6CBBALE3WcyM+v3Bz3319PbhmEyuuf7eZ7z9D69zey93rXX3mu/e4mY3+VJEBERERERERER/R0HhoCIiIiIiIiIiBrCBBIRERERERERETWICSQiIiIiIiIiImoQE0hERERERERERNQgJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJqEBNIRERERERERETUICaQiIiIiIiIiIioQUwgERERERERERFRg5hAIiIiIiIiIiKiBjGBREREREREREREDWICiYiIiIiIiIiIGsQEEhERERERERERNYgJJCIiIiIiIiIiahATSERERERERERE1CAmkIiIiIiIiIiIqEFODAERERERkXI1aeaPbsM7y65DwhHUMgC+QT5wdv3r14D6unqUF1WiMLsY6Xsv4vSu86Ikt4xBJCIiiPldnmQUiIiIiIgUpGmboEm9xnVL6jaiM1p0DAWEgT8kgesXc3F65zkc23pmTH5WYSqjS0Rkn5hAIiIiIiJSiICmfpj89GjZd1J3CAdh1N+WOonDiSeQ9FWqKM0vZ7CJiOwME0hERERERDbOw8cd4x4ZJofNHfC309OMpV6lwa5VB7H1x92iprKWwScishNMIBERERER2bCoEV3kvW/NgIePu1mPW11ei1//vQ5ndl8QrAUiIuXjLmxERERERLZIAOMeHS4f+/husyePAMDT1x1PfHIvxj40VLIyiIiUj7uwERERERHZGGdXZ9z75gzZe0I3i56HcBCIfm4cmrVvKle+vUHUqzSsHCIihbK6BJKXvycGz+wj20S1gk8TbwgjDYiVev9LU9H/YDqtDuVFlbh87CrSkk6IqrIaXql21yl0Qs+x3WSXge0REOoPJ2fHv+ixmbQ7aPSfMeQXaypqceNiLvatSwspyC4u4JVBREQEuHu74ZlvHpZhXZtbzTn1mRSFoFZN5BfzV4i6qjpWEhGRAlnVGkjterSWjy+9G17+nqyZ36lq1Nj4yWbsXZvGueV2olP/9vLe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r6pn4OiOObs6oWmb4MPNOoT0bdY+BM3aN0Wz9iHwC/Zp9GwuqZMozilDXmYBcq8UIDczH3mZBarczEI3dS1HexMR6cvT1x1tu7eWvkHe8A3yhk+gN3wD////7RPgBQcnw6aYauq1KM0tQ3FOGYpzSpGTkYfsczdx41Ke4L2a7E2nfu3k4Fl90bl/B7h5/f9F7jVqDTKOXcXB+GNG31WQ7K3v7YygVk2WBrdq8kJwWCCCwwIR3KoJPH3d4erhClcPF7h6uMLxNvd0KYF6VT3UtfVQ16mhrvv//3d5QQWKbpai+GYpim+WoOhmqSjNK+cGS6Z6d2cCiayJTxMvtOnWSoa0DoSnnwfqqlQoulmCq2eui8LrXPmeTMPd2w3e/p7Bbl5up929XEPcvNzg5ukGdy9XuHnd+qeTixNUNWrUVdWhrlqFumoVaqtUqKuuQ01F7YrC7OKH1XVMbBIRmbzz6iDg5e8J30DvJJ9A70m+QbcSTN4BXtBqtFDVqqGurf/9n2qoatWoKKpEcU6ZKC+sABcAJvpTmxIC/k194e7t9qO6Vv1wSW4ZuAYMmZOzq9MfE0pLdRrtdnVdffJ/EkX1qnpwBL+V3C+YQCIiIiIiIiIiooY4MARERERERERERNQQJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJqEBNIRERERERERETUICaQiIiIiIiIiIioQUwgERERERERERFRg5hAIiIiIiIiIiKiBjGBREREREREREREDWICiYiIiIiIiIiIGsQEEhERERERERERNYgJJCIiIiIiIiIiahATSERERERERERE1CAmkIiIiIiIiIiIqEFMIBERERERERERUYOYQCIiIiIiIiIiogYxgURERERERERERA1iAomIiIiIiIiIiBrEBBIRERERERERETWICSQiIiIiIiIiImoQE0hERERERERERNQgJpCIiIiIiIiIiKhBTCAREREREREREVGDmEAiIiIiIiIiIqIGMYFEREREREREREQNYgKJiIiIiIiIiIgaxAQSERERERERERE1iAkkIiIiIiIiIiJq0P8Dtwh/n4IOYogAAAAASUVORK5CYII=" alt="Vantive" style="height:24px;display:block;filter:brightness(0) invert(1);opacity:0.92;">
+  </div>
+  <div>
+    <h1><span style="font-family:'Inter','Noto Sans KR',sans-serif;font-weight:900;letter-spacing:-2px;margin-right:8px;opacity:0.7;font-size:14px;">&gt;&gt;&gt;</span>Artis BBOX Analysis Helper <span>Web Edition</span><span style="font-size:10px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.32);border-radius:20px;padding:3px 10px;margin-left:10px;letter-spacing:.04em;text-transform:uppercase;font-family:'Inter','Noto Sans KR',sans-serif;font-weight:700;">with macro</span></h1>
+  </div>
+</header>
+
+<main>
+  <!-- Drop Zone -->
+  <div id="dropzone">
+    <input type="file" id="file-input" accept=".dat" multiple>
+    <div class="dz-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <rect x="4" y="8" width="30" height="36" rx="4" fill="#f3e8f2" stroke="#72256B" stroke-width="2"/>
+        <path d="M34 8v8h8" stroke="#72256B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M34 8l8 8" stroke="#72256B" stroke-width="2" stroke-linecap="round"/>
+        <path d="M24 20v14M18 28l6 6 6-6" stroke="#72256B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h2>Drop .dat files here</h2>
+    <p>Or click to browse &nbsp;·&nbsp; Multiple files supported &nbsp;·&nbsp; All Artis BBOX formats (8.09 / 8.33 / 8.60 / 9.05)</p>
+  </div>
+
+  <div id="progress-wrap">
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="progress-label">Processing…</div>
+  </div>
+
+  <!-- Results -->
+  <div id="summary">
+
+    <div class="stat-row" id="stat-row"></div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="showTab('alarms')">Alarm Log</div>
+      <div class="tab" onclick="showTab('files')">Files</div>
+      <div class="tab" onclick="showTab('macro')"><span style="letter-spacing:-1px;margin-right:3px;font-size:9px;">≫</span>Macro</div>
+      <div class="tab" onclick="showTab('triage')"><span style="letter-spacing:-1px;margin-right:3px;font-size:9px;">≫</span>Triage</div>
+    </div>
+
+    <!-- Alarm tab -->
+    <div id="tab-alarms">
+      <div class="action-bar">
+        <h2><span style="letter-spacing:-2px;margin-right:6px;">&gt;&gt;&gt;</span>ALARM RECORDS</h2>
+        <button class="btn btn-primary" onclick="downloadAllCSV()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4 7l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Export All CSV
+        </button>
+        <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="search" placeholder="Search alarm description or file name…" oninput="applyFilter()">
+        <select id="filter-file" onchange="applyFilter()">
+          <option value="">All files</option>
+        </select>
+        <select id="filter-type" onchange="applyFilter()">
+          <option value="">All types</option>
+          <option value="ALARM">ALARM only</option>
+          <option value="AUTOMATIC">AUTOMATIC</option>
+          <option value="OPERATOR_ACT">OPERATOR</option>
+          <option value="SET_CNF_VALUE">PARAMETER</option>
+        </select>
+      </div>
+
+      <div id="loading"><span class="spinner"></span> Parsing files…</div>
+      <div id="empty-state">No records found. Adjust the filter or load files.</div>
+
+      <div class="table-wrap" id="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" data-col="timeStr" onclick="sortBy('timeStr')">Date / Time</th>
+              <th class="sortable" data-col="fileName" onclick="sortBy('fileName')">File</th>
+              <th class="sortable" data-col="typeName" onclick="sortBy('typeName')">Type</th>
+              <th class="sortable" data-col="techCode" onclick="sortBy('techCode')">Code</th>
+              <th class="sortable" data-col="description" onclick="sortBy('description')">Description</th>
+              <th>CSV</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- Macro tab -->
+    <div id="tab-macro" style="display:none">
+      <div class="action-bar">
+        <h2><span style="letter-spacing:-2px;margin-right:6px;">&gt;&gt;&gt;</span>ALARM SUMMARY · MACRO VIEW</h2>
+      </div>
+
+      <div style="background:#f3e8f2;border:1px solid #c8a0c4;border-left:3px solid #72256B;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#5C1B56;display:flex;gap:10px;align-items:flex-start;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" style="flex-shrink:0;margin-top:1px;">
+          <rect x="3" y="3" width="18" height="18"/><line x1="12" y1="10" x2="12" y2="17"/><line x1="12" y1="7" x2="12" y2="7.5" stroke-width="2.5"/>
+        </svg>
+        <span>Excel 매크로의 <strong>알람 확인 + CSV 변환</strong> 기능을 재현합니다. 파일을 날짜순으로 정렬하고, 각 파일의 고유 알람 목록을 표시합니다. <strong>≫ 버튼</strong>으로 해당 파일의 전체 데이터를 CSV로 내보낼 수 있습니다.</span>
+      </div>
+
+      <!-- Sort control -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:800;color:#72256B;text-transform:uppercase;letter-spacing:.5px;font-family:'Inter','Noto Sans KR',sans-serif;">Sort:</span>
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;" onclick="renderMacro('desc')" id="sort-desc-btn">▼ Latest First</button>
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;" onclick="renderMacro('asc')" id="sort-asc-btn">▲ Oldest First</button>
+      </div>
+
+      <!-- Macro table -->
+      <div class="table-wrap" id="macro-table-wrap">
+        <table style="font-size:12px;">
+          <thead>
+            <tr>
+              <th style="width:160px;">Start Time</th>
+              <th style="width:auto;">File Name</th>
+              <th style="min-width:260px;">Unique Alarms</th>
+              <th style="width:70px;text-align:center;">CSV</th>
+            </tr>
+          </thead>
+          <tbody id="macro-body"></tbody>
+        </table>
+      </div>
+      <div id="macro-empty" style="display:none;text-align:center;padding:40px;color:var(--text-muted);">No files loaded. Drop .dat files to begin.</div>
+    </div>
+
+    <!-- Files tab -->
+    <div id="tab-files" style="display:none">
+      <div class="action-bar">
+        <h2><span style="letter-spacing:-2px;margin-right:6px;">&gt;&gt;&gt;</span>LOADED FILES</h2>
+        <button class="btn btn-danger" onclick="resetAll()">Clear All</button>
+      </div>
+      <div class="file-list" id="file-list"></div>
+    </div>
+
+    <!-- Triage tab -->
+    <div id="tab-triage" style="display:none">
+      <div class="action-bar">
+        <h2><span style="letter-spacing:-2px;margin-right:6px;">&gt;&gt;&gt;</span>DIAGNOSTIC TRIAGE</h2>
+        <button class="btn btn-ghost" id="triage-reset-btn" onclick="resetTriage()" style="display:none;font-size:11px;padding:5px 16px;">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+          Show All
+        </button>
+      </div>
+
+      <div style="background:#f3e8f2;border:1px solid #c8a0c4;border-left:3px solid #72256B;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#5C1B56;display:flex;gap:10px;align-items:flex-start;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" style="flex-shrink:0;margin-top:1px;">
+          <rect x="3" y="3" width="18" height="18"/><line x1="12" y1="10" x2="12" y2="17"/><line x1="12" y1="7" x2="12" y2="7.5" stroke-width="2.5"/>
+        </svg>
+        <span>알람 카테고리 버튼을 선택하면, 해당 카테고리의 알람 레코드가 <strong>우선 인덱싱</strong>되어 상단에 강조 표시됩니다. 임상/기술적 판단에 필요한 데이터를 빠르게 식별하고 진단에 활용하세요. 같은 버튼을 다시 누르거나 <strong>Show All</strong>로 초기화할 수 있습니다.</span>
+      </div>
+
+      <!-- Category button panel (populated by JS) -->
+      <div class="cat-panel" id="cat-panel"></div>
+
+      <!-- Result stat bar -->
+      <div id="triage-stat"></div>
+
+      <!-- Hint when no category selected -->
+      <div class="triage-hint" id="triage-hint">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#72256B" stroke-width="1.5" stroke-linecap="square">
+          <rect x="4" y="8" width="32" height="24" rx="2"/>
+          <line x1="10" y1="16" x2="30" y2="16"/>
+          <line x1="10" y1="21" x2="24" y2="21"/>
+          <line x1="10" y1="26" x2="20" y2="26"/>
+          <circle cx="32" cy="30" r="6" fill="#f3e8f2" stroke="#72256B" stroke-width="1.5"/>
+          <line x1="30" y1="28" x2="34" y2="32"/>
+          <line x1="34" y1="28" x2="30" y2="32"/>
+        </svg>
+        <div style="font-weight:800;font-family:'Inter','Noto Sans KR',sans-serif;font-size:13px;color:#72256B;margin-bottom:4px;">카테고리를 선택하세요</div>
+        <div style="font-size:12px;color:#a07898;">위 버튼을 클릭하면 해당 알람 유형이 우선순위화됩니다.</div>
+      </div>
+
+      <!-- Triage results table -->
+      <div class="table-wrap" id="triage-table-wrap" style="display:none">
+        <table style="font-size:13px;">
+          <thead>
+            <tr>
+              <th style="width:32px;text-align:center;">#</th>
+              <th class="sortable" style="min-width:140px;">Date / Time</th>
+              <th class="sortable">File</th>
+              <th style="width:70px;">Code</th>
+              <th>Description</th>
+              <th style="width:60px;">CSV</th>
+            </tr>
+          </thead>
+          <tbody id="triage-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Error message table (derived from VBA GetErrorMessage + GetCsvErrorMessage)
+// ─────────────────────────────────────────────────────────────────────────────
+const ERROR_MESSAGES = {
+  1:"Acid/Acetate Concentrate Container Empty",2:"Incorrect Red Concentrate Connector Position",
+  3:"Incorrect SelectCart Holder Arms Position",4:"Air in Venous Line",6:"Arterial sensor error",
+  7:"Incorrect Arterial Clamp Position",8:"Blood pump cover open",10:"Pump speed too high",
+  11:"Arterial pressure out of range",12:"Blood pump speed error",13:"Blood pump rotor error",
+  18:"Incorrect Blue Concentrate Connector Position",21:"BiCart cartridge empty",
+  22:"Incorrect BiCart Holder Arms Position",23:"Incorrect bicart/blue concentrate tube concentration",
+  28:"Blood in dialysate",30:"BPM failure",31:"BPM Measurement failure or Out of Range",
+  33:"Air In Hydraulic Pathway (LD1)",34:"Hydraulic Sensor Dirty (LP)",35:"Air in Hydraulic Pathway (LD2)",
+  40:"Dialysate pH high (optional)",43:"Data Error",44:"Dialysis fluid flow high",
+  46:"BPM Diastolic pressure alarm",48:"EEPROM BLOOD ERROR",49:"EEPROM HYDRAULIC ERROR",
+  51:"Treatment Time Complete",53:"Fluid Removal Complete",55:"Heparin pump overload",
+  58:"Heparin infusion complete",59:"Heater protection error",60:"UF target will not be achieved",
+  62:"Incorrect conductivity measured",63:"ADR PROCESS NOT INITIATED",64:"Safe State Activated",
+  66:"BPM Heart rate alarm",67:"Disinfection timeout error",68:"TMP High",
+  69:"Heparin pump lower limit reached",71:"Heparinization Not Initiated",
+  79:"Infusion Settings Invalid Prescription",81:"Low Temperature",84:"Low Flow In Degasser",
+  87:"Dialyzer Inlet Pressure High",88:"Dialyzer Outlet Pressure High",90:"MAXIMUM TEMPERATURE LIMIT",
+  92:"Max Weight On The Scale",94:"Dialyzer Inlet Pressure Low",95:"Dialyzer Outlet Pressure Low",
+  99:"Infusion Flow Rate Error",100:"Insufficient water supply",
+  102:"Infusion Settings Outside Prescription",104:"P1 Pump failure",106:"P2 pump failure",
+  108:"Acid Pump Failure",110:"Bicarbonate pump failure",111:"PC Pump failure",
+  112:"Incorrect disinfectant",113:"Incorrect disinfectant",114:"Dialyzer Pressure Maximum",
+  115:"Dialyzer Pressure Minimum",120:"PROTECTION SYSTEM FAILURE",130:"BLOOD SLAVE ERROR",
+  131:"Hydraulic slave error",132:"BPM Systolic pressure alarm",134:"Dialysis fluid temp high",
+  138:"Ultrafilter TMP High",142:"TMP Low",145:"UF rate higher than expected",
+  146:"Dialysate Pressure High",148:"Incorrect Venous Clamp Position",149:"Venous pump cover is open",
+  153:"Venous pressure out of range",154:"Venous pressure too high",155:"Venous pressure high",
+  157:"Venous pump speed error",158:"Venous pump rotor error",159:"Venous sensor error",
+  161:"Scale Measurement Error",167:"Blood leak detector calibration error",170:"BLD Sensitivity Loss",
+  173:"EEPROM CRC ERROR",182:"Protection module software error",183:"Backup battery failure",
+  185:"Protection module data error",190:"ADR Process Timed Out",191:"HEMOSCAN: Minimum Blood Volume",
+  204:"Low blood pump speed",205:"Incorrect venous or arterial line position in clamp",
+  206:"Fluid path obstruction",223:"HEMOSCAN: DARK Out of Range",224:"HEMOSCAN: Communication Error",
+  225:"HEMOSCAN: TEST Out of Range",226:"HEMOSCAN: L/H Out of Range",
+  231:"Smartscan - Hemocontrol: High Na Concentration",232:"Smartscan - Hemocontrol: Low Na Concentration",
+  234:"Hemocontrol: BV% not available",291:"AFBK: ByPass too Frequent",293:"SelectBag empty",
+  295:"Blood slave communication error",296:"Bioslave Subsystem Communication Error",
+  297:"BIO SLAVE ERROR",300:"D1 FLOWMETER FAILURE",301:"D2 FLOWMETER FAILURE",302:"Still in bypass",
+  304:"Hydraulic slave communication error",305:"ARTERIAL PRESSURE HIGH",
+  306:"Arterial Pressure Below Treatment Min. Limit",319:"Wrong A/V or SN Pressure Offset",
+  320:"MALFUNCTION",327:"Control Data Error",329:"Reminder - Still In Pause Therapy",
+  330:"Blue Dialysis Fluid Tube Incorrect Position",331:"Red Dialysis Fluid Tube Incorrect Position",
+  353:"No power - Using battery backup",359:"Blood Sensed in Venous Line",362:"Pump speed too low",
+  363:"Blood Pump Rotor Error",364:"Venous line not in patient sensor",
+  366:"Incorrect bicart/blue concentrate tube concentration",368:"Dialysate pH low (optional)",
+  369:"A Concentrate Error (Acid/SelectCart/Safebag)",370:"B Concentrate Error (BiCart/Safebag K)",
+  373:"Dialysis fluid flow low",375:"Incorrect conductivity measured",377:"Dialysis fluid temp low",
+  379:"UF rate lower than expected",382:"Venous pressure low",384:"Arterial pressure low",
+  385:"Air In Blood T0 Failure",395:"Set value out of range",396:"Timeout on messages acknowledge",
+  401:"Na or Bic Settings result in conductivity out of range",402:"Ultrafilter Replacement Reminder",
+  404:"Incorrect Green Concentrate Connector Position",410:"Ps Out of Order",
+  411:"Incorrect SelectBag Holder Arm Position",412:"Venous Flow Minimum",413:"Venous Flow Maximum",
+  415:"No Power - Using Battery Backup",416:"Left Blue EvaClean door incorrect position",
+  417:"Right Red EvaClean door incorrect position",418:"T1 Test SN Pressure",
+  419:"T1 Test Arterial Pump/ABD",422:"T1 Test Flow Meters",423:"Ultra door incorrect position",
+  424:"Sensor Bar Door Open",425:"Dialysis fluid flow too low",426:"PWHO Out of Order",
+  434:"T1 Test BLD",438:"T1 Test Acoustical Buzzer Failed",440:"T1 Test Cut 24 Volts Failed",
+  441:"T1 Test Venous Clamp",442:"T1 Test Valves Command Failed",443:"Ultrafiltration suspended",
+  444:"T1 Test Temperature Failed",445:"T1 Test Conductivity Cells Failed",
+  446:"T1 Test Venous Pressure",447:"T1 Test Arterial Pressure",
+  449:"Comunication Protective Cond. Cell Stopped",450:"Comunication Select Cond. Cell Stopped",
+  451:"T1 Test Acoustic Speaker",452:"PDr Pressure High",453:"PDr Pressure Low",
+  454:"Insert the HEMOSCAN cuvette",457:"Arterial pressure high",
+  459:"Venous Pressure Below Treatment Min. Limit",460:"Dialysis fluid temp too high",
+  461:"Dialysis fluid temp too low",462:"Conductivity too low",463:"Conductivity too high",
+  464:"Conductivity from Bicart/blue concentrate tube too Low",
+  465:"Conductivity from Bicart/blue concentrate tube too High",466:"Air compressor failure",
+  467:"Leakages Test (A) Failure",468:"Leakages Test (B) Failure",469:"Leakages Test (C) Failure",
+  470:"Leakages Test (D) Failure",473:"HEMOSCAN Autocalibration Failure",
+  474:"Preparation not Completed - Incorrect Condition on D1 Flow Rate",
+  475:"Preparation not Completed - Incorrect Condition on TcA",
+  476:"Preparation not Completed - Incorrect Condition on Acid/AFB Distribution",
+  477:"Preparation not Completed - Incorrect Condition on Bicarbonate/AFB Distribution",
+  478:"Preparation not Completed - Incorrect Condition on Select Distribution",
+  479:"Reminder - Still In Isolated UF",480:"PRSS Start Up Message Missing",
+  484:"Flowmeters alignment timeout",485:"T1 test FPGA failed",486:"Select pump failure",
+  493:"Bubble Trap T1 Test",496:"Incorrect fluid conductivity detected",
+  497:"Control Flowmeters Test Failed",498:"Leakages Test (E) Failure",499:"Leakages Test (F) Failure",
+  500:"Leakages Test (G) Failure",502:"Reminder - Wrong Dip Switches",
+  503:"Wrong Arterial and Venous Treatment Limits",
+  504:"Low Disinfectant Level in last Clean Cart Process",505:"UF Deviation",
+  506:"Flowmeter Alignment Failed",507:"Blood Cassette presence required",
+  508:"Wrong disposable configuration on ULTRALINE HDF holder",509:"Blood Lines Clamped",
+  510:"Incorrect Rinsing or Disinfection",511:"Invalid Rinsing or Disinfection",
+  512:"Smartscan - Low QB",513:"Smartscan: Low QD",514:"Smartscan: High QD",
+  515:"Saline Bag Not Connected",516:"Venous Line Clamped or Saline Bag Empty",
+  517:"Arterial Line Clamped",
+  518:"Line Not Connected in EvaClean Port or Access Line Open",
+  519:"Arterial Infusion lines open or Patient lines not connected to EvaClean",
+  521:"Venous Pump Rotor Error",522:"SN Pressure out of range",523:"SN Pressure sensor error",
+  524:"Hemoconcentration risk or incorrect arterial connector connection",
+  525:"Pressure Alarm Limits Still Expanded",526:"Substitution suspended",527:"TMP Upper Limit",
+  528:"Diascan: Autocalibration Failure",529:"Diascan: Measurement Failure",
+  530:"Smartscan - Diascan: Low Clearance",531:"Smartscan - Diascan: Low KT/V",
+  532:"Time Out on Data Reception",
+  533:"Chemical process not properly performed: disinfectant tank empty",
+  534:"Disinfection not Properly Performed",535:"Flowmeter Alignment Failed",
+  536:"Diascan measurement error",537:"T1 Test Water Presence Sensor Failure",
+  538:"Temperature Mismatch between Tp and Tca",539:"Water Leakage",540:"Dialysate Pressure Low",
+  542:"Incorrect connections or clamp status",543:"Ultra Scan aborted",544:"Ultra Scan completed",
+  545:"New Ultra Scan is suggested",546:"On-Line Fluid Volume Exceeded Maximum Limit",
+  547:"Patient Venous Line Incorrect Position",548:"Leakages H",549:"Leakages I",
+  550:"Power Failure: Check Power Supply",552:"90% Maximum On-line Volume Reached",
+  553:"Maximum On-line Volume Reached",554:"Hemocontrol Error",555:"Scale Stability not Reached",
+  558:"Reminder:",559:"Preparation Completed",560:"Priming Completed",
+  562:"Autoscheduled Disinfection/Rinse Program not Performed",564:"Ultrafilter Cover Error",
+  565:"Hydraulic Centralise Acetate Connector Type One",
+  566:"Hydraulic Centralise Acetate Connector Type Two",567:"TMP Set too Low",
+  568:"Wrong Check Red Concentrate Connector",569:"Wrong Check Blue Concentrate Connector",
+  570:"Isolated UF Completed",
+  571:"Treatment can not begin until the ultrafilters have been replaced",
+  573:"Low Heparinization",574:"Wrong Single Needle Clamps Position",
+  575:"Zero Adjustment Procedure Failure",
+  576:"Preparation can not proceed until dressing is complete",577:"Smartscan - Low Real Qb",
+  578:"Wrong Disinfectant used in Chemical Disinf.",
+  579:"On-line blood restitution: wrong Cassette configuration",
+  580:"Incorrect configuration for Blood Set or ULTRALINE accessory",
+  581:"Isolated UF target loss will not be achieved",582:"Residual Check Reminder",
+  583:"Air detector cleaning required",584:"Air detector inspection required",
+  585:"Saline Bag Empty",586:"Arterial Pump Segment Not Correctly loaded",
+  587:"Venous Infusion Line Open",
+  588:"Chemical Disinfection not Properly Performed: wrong disinfectant used",
+  589:"SN Pressure High",590:"Select Concentrate Error",
+  591:"Protract Air in Hydraulic Pathway (LD2)",592:"SN: Pressure not increasing",
+  593:"SN: Pressure not decreasing",594:"SN Service Line(s) on SN Cassette open",
+  595:"Maximum Blood Volume Reached",596:"SelectCart cartridge Empty",597:"End of Hospasol Bag",
+  598:"Bicart Change Failed",599:"SelectCart Change Failed",600:"SelectBag Not Connected",
+  601:"SelectBag Conductivity Check Failure",
+  602:"Bicarbonate/Select Conductivity Set too Low",603:"Bicarbonate/Select Conductivity Set too High",
+  606:"Smartscan - High Sodium setting",609:"Scale Measurement Error",
+  610:"Safebag - K Compartment Empty",611:"Safebag - AFB Compartment Empty",
+  612:"Infusion Settings Still Outside Prescription",613:"Infusion Settings Out of Range",
+  614:"Infusion Cassette not Connected to Blood Cassette",615:"Hospasol Infusion Line Clamped",
+  616:"Degassing Line on Infusion Cassette Clamped",617:"EvaClean Doors Incorrect Position",
+  618:"Scale Acquisition Failure",619:"Scale Power Supply Failure",620:"End of Hospasol Bag",
+  621:"End of Hospasol Bag or Hospasol Infusion Line Clamped",
+  622:"Infusion Chamber Pressure too High",623:"K Profile Error",624:"No Hospasol Bag on Scale",
+  625:"Hospasol Low Weight Limit Reached",626:"Infusion Volume Error",
+  627:"Wrong Scheduled Preparation",628:"Saline solution has entered in the Hospasol bag",
+  629:"Unstable Conductivity Condition",
+  630:"Wrong Date/Time or wrong Date of Installation of U9000 ultrafilters",
+  631:"Unreliable SN Pressure",632:"Venous Flow Too High",633:"Venous Flow Over Allowed Range",
+  634:"Venous Flow too Low: SN Cassette Inspection Required",
+  635:"Hemocontrol: Refilling Rate Better than Expected",636:"Hemocontrol: Unusual Status",
+  637:"Hemocontrol: Refilling rate lower than expected",
+  638:"Hemocontrol: UF Volume may not be reached",
+  639:"Emptying cannot proceed: blue dialysis fluid connector not reconnected",
+  641:"All Calibration Coefficients Default",642:"Arterial Chamber: Level Adjustment Required",
+  643:"Low Arterial Chamber Level",644:"Pressure Transducer: Inspection and Greasing Required",
+  645:"Incorrect Ultra Clamp Position",646:"Smartscan: Low QDIFF",647:"Low QI/QB%",
+  648:"High QI/QB%",649:"On-line Bolus aborted: Incorrect clamp status",650:"On-line Bolus aborted",
+  651:"Ultra/Fluid line or Arterial/Venous connector Clamped",
+  652:"Incorrect Fluid line position or prescription",653:"T1 Test Ultra Port Sensor",
+  654:"Ultra Port Leakage",655:"On-line rinseback: Arterial patient line not properly connected",
+  656:"Ultra line required in Ultra Clamp",
+  657:"Ultra/Fluid line or Arterial/Venous connector Still Clamped",
+  659:"Reminder - Perform a Descaling Procedure",660:"Flowmeter not calibrated",
+  662:"Preparation can not start until a Descaling procedure has been performed",
+  663:"Wrong Flowmeters Configuration",664:"Flowmeters Stuck",
+  665:"Incorrect Conc. Connectors/Holders Arms /CleanCart Position",
+  668:"EVDS1 EVDS2 T1 test failed",669:"Hydraulic Circuit Failure",
+  670:"Art. Level Low Or Repositioning Required",671:"Cassette Repositioning Required",
+  672:"Hydraulic Pressure Alignment Failure",673:"Leakages J",
+  674:"Preparation cannot proceed until concentrates are installed",675:"T1 Test PFS-PO",
+  676:"T1 Test OWPRV1 and OWPRV2 failure",677:"HD-Ultra/HDF/HF treatments disabled",
+  678:"Disinfection Required Before Treatment",
+};
+
+function getErrorMsg(code) {
+  // GetCsvErrorMessage overrides
+  if (code === 582) return 'Residual Check Reminder';
+  if (code === 105) return 'Heparin infusion complete';
+  if (code === 457) return 'Arterial pressure high';
+  return ERROR_MESSAGES[code] || 'Unknown Error';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Schema definitions (headers / modes / numChars / masks) — 809 / 860 / 905 / 833
+// ─────────────────────────────────────────────────────────────────────────────
+const SCHEMAS = {
+  '809': {
+    headers: "Hyd Code HYD|Hyd Phase HYD|Hyd Num Mes HYD|Cond A HYD|PA Freq HYD|PA Activ HYD|Cond B HYD|PB Freq HYD|PB Activ HYD|TP HYD|Heater Command HYD|UF Value HYD|D1c flow HYD|P1 Freq HYD|P1 Activ HYD|P2 Freq HYD|P2 Activ HYD|Press In HYD|Press Out HYD|Press PFS HYD|Press PDG HYD|PC Freq HYD|PC Activ HYD|PS Freq HYD|PS Activ HYD|Valves 1 HYD|Valves 2 HYD|Sensor 1 HYD|Sensor 2 HYD|Sensor 3 HYD|Error W1 HYD|Error W2 HYD|Error W3 HYD|Error W4 HYD|Autom W1 HYD|Autom W2 HYD|Total WL HYD|D2c flow HYD|PWho Freq HYD|PWho Activ HYD|TcA HYD|TcB HYD|PSel Activ HYD|Blood Code BLO|Blood Phase BLO|Blood Msg Num BLO|Art. Pump Flow BLO|Art. Pump Set BLO|Art Pump Sts. BLO|SN Avg Flow BLO|SN Stroke Vol BLO|AC Mode BLO|AC Lin. Speed BLO|AC Status BLO|Systolic Press. BLO|Diastolic Press. BLO|Heart Rate BLO|BPM Pressure BLO|BPM Error BLO|BPM Status BLO|Ven. Pressure BLO|Art. Pressure BLO|Error 1 BLO|Error 2 BLO|Automatism 1 BLO|Sensor 1 BLO|Sensor 2 BLO|Art. Clamp Sts BLO|Ven. Clamp Sts BLO|AC Int. Speed BLO|AC Pump Pos. BLO|Blood Slave Info BLO|Art Pump Flag BLO|HardKey Count. BLO|Cond P PRO|Tp PRO|D1P flow PRO|D2P flow PRO|Inf Weight Err PRO|Press In PRO|pH Value PRO|BLD Value PRO|Pat Sensor PRO|Press Ven PRO|Press Art PRO|SSS Req PRO|SSS Unsat PRO|Sensors 1/2 PRO|VLine Pres PRO|Alarm 0 PRO|Alarm 1 PRO|Alarm 2 PRO|Warning 0 PRO|Warning 1 PRO|Warning 2 PRO|Ven Offset PRO|Art Offset PRO|Blood Pres PRO|Safety Act PRO|Debug W1 PRO|Debug W2 PRO|Debug W3 PRO|Debug W4 PRO|Debug W5 PRO|Debug W6 PRO|Debug W7 PRO|Debug W8 PRO|Debug W9 PRO|Debug W10 PRO|Hgb_VoltCH2 HDF|Hgb_ValCH2 HDF|Hgb_Volt HDF|Hgb_Val HDF|Hgb_Aut_Val HDF|Hgb_Gain HDF|Bvm_Status HDF|Bvm_Adc HDF|Bvm_Flags HDF|Bvm_Alarms HDF|Scale Weight HDF|Air Level Art PRO|Air Level Ven PRO|dP Arterial PRO|dP Venous PRO|QF Venous PRO|Phase DIA|Calib DIA|Gain DIA|Const DIA|Plasma Cond. DSC|Cond Y1 DIA|Cond Y2 DIA|Cond Y3 DIA|R HYDT DIA|KtV DSC|Num Meas DIA|Clearance DIA|Priming Vol AUX|HYD SSS AUX|SW TP 3 AUX|Cartr. subph AUX|Leak. Subph AUX|Prime subph AUX|Sterile Vol AUX|UC Aborted AUX|UC Timer AUX|RAM Free AUX|RAM Alloc AUX|CF Free AUX|Prof TWL Error AUX|Ven. Pump Flag BLO|Ven. Pump Flow BLO|Ven. Pump Set BLO|Ven. Pump Sts. BLO|Pinch Position BLO|Automatism 2 BLO|Error 3 BLO|Error 4 BLO|Dbg TMP HYD|PSel Freq HYD|Press PDrain HYD|Warning 3 PRO|Warning 4 PRO|Cond Sel. PRO|PSel Freq PRO|Alarm 3 PRO|Alarm 4 PRO|T1 AP/ABD PRO|PRSS status PRO|SN Pressure PRO|T1T group PRO|Sensors 2/2 PRO|GSS Attrib2 PRO|GSS Attrib PRO|Inf rate sp HYD|Inf ctrl bflag HYD|Total Inf Vol HYD|TMP filt val HYD|WLR actual HYD|Treat time set AUX|Tot inf vol set AUX|Tot WL set AUX|Cond D HYD|KP x 10000 PRO|Total WL PRO|Scale weight PRO|K x 10000 PRO|HD Cassette BLO|Ultra HDF Set BLO|Ctrl AV fork AUX|Prot AV fork AUX|Treat. time AUX|Norm. Tr. time AUX|Norm. Bv time AUX|Current Bv AUX|Desired Bv AUX|Current Twl AUX|Desired Twl AUX|Current Ne AUX|Desired Ne AUX|Bv/Twl error n AUX|Bv/Ne error n AUX|Start treat. Ufr AUX|Max Ufr AUX|Min Ufr AUX|Ufr step n AUX|Ufr stop AUX|Start treat. Na AUX|Max Na AUX|Min Na AUX|Na step n AUX|Na stop AUX|Flags 1 AUX|Flags 2 AUX|PA Error PRO|PB Error PRO|Auto Not FCHK HYD|Hyd SW Rel HYD|Caddy Bic HYD|Afbk Trt Time AUX|Afbk K Current AUX|T1Skip Status SER|T1Skip SFlags SER|T1Skip PFlags SER|Treatment Type SER|Conc. Type SER",
+    modes: "H|U|U|S|S|H|S|U|H|U|H|U|S|U|H|U|H|S|S|S|S|U|H|U|H|H|H|H|H|H|H|H|H|H|H|H|S|S|U|H|U|U|H|H|U|U|U|U|S|U|U|H|U|O|S|S|U|S|H|O|S|S|H|H|H|H|H|D|D|U|U|H|H|U|S|U|S|S|S|S|U|U|U|S|S|H|H|H|Y|H|H|H|H|H|H|S|S|R|R|S|S|S|S|S|S|S|S|S|H|S|U|S|U|S|S|H|H|H|H|U|S|S|S|S|S|H|H|U|U|U|U|U|U|U|U|H|U|U|H|S|S|S|S|U|H|U|L|L|L|S|H|U|U|O|H|H|H|H|U|U|S|H|H|S|U|H|H|H|U|S|U|H|H|S|U|H|U|S|S|U|U|U|S|U|S|U|U|U|U|U|U|U|U|U|S|S|U|U|U|U|S|S|U|U|U|U|U|U|U|U|U|U|H|H|S|S|O|H|S|S|S|H|H|H|T|C",
+    nums: "2|1|1|2|2|1|2|2|1|2|1|2|2|2|1|2|1|2|2|2|2|2|1|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|2|2|1|2|1|1|2|2|1|2|1|1|2|1|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|0|0|0|0|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|1|2|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|1|1|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|H|H|S|S|O|H|S|S|S|H|H|H|T|C".split('|').map((_,i)=>['2','1','1','2','2','1','2','2','1','2','1','2','2','2','1','2','1','2','2','2','2','2','1','2','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','2','2','1','2','1','1','2','2','1','2','1','1','2','1','2','2','2','2','2','1','2','2','2','2','2','2','2','2','2','2','2','2','1','1','2','2','2','2','2','2','2','1','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','0','0','0','0','2','2','2','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','1','2','2','2','2','2','2','1','2','2','2','2','2','2','2','2','2','2','2','1','1','1','1','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2','2'][i]),
+    masks: "0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x4000|0|0|0|0|0|0|0|0x0001|0x0010|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x0001|0|0|0|0|0|0|0|0|0xF000|0x0F00|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x03|0x03|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x0100|0|0|0|0|0|0|0xFFFF|0|0",
+  },
+  '860': {
+    headers: "Hyd Code HYD|Hyd Phase HYD|Hyd Num Mes HYD|Cond A HYD|PA Activ HYD|Cond B HYD|PB Freq HYD|PB Activ HYD|TP HYD|Heater Command HYD|UF Value HYD|D1c flow HYD|P1 Freq HYD|P1 Activ HYD|P2 Freq HYD|P2 Activ HYD|T1 POL leak HYD|Press In HYD|Press Out HYD|Press PFS HYD|Press PDG HYD|PC Freq HYD|PC Activ HYD|PS Freq HYD|PS Activ HYD|Valves 1 HYD|Valves 2 HYD|Sensor 1 HYD|Sensor 2 HYD|Sensor 3 HYD|Error W1 HYD|Error W2 HYD|Error W3 HYD|Error W4 HYD|Autom W1 HYD|Autom W2 HYD|WLRComp HYD|IsCompActive HYD|WLErrorHYD HYD|Total WL HYD|D2c flow HYD|PWho Freq HYD|PWho Activ HYD|TcA HYD|TcB HYD|PSel Activ HYD|Blood Code BLO|Blood Phase BLO|Blood Msg Num BLO|Art. Pump Flow BLO|Art. Pump Set BLO|Art Pump Sts. BLO|SN Avg Flow BLO|SN Stroke Vol BLO|AC Mode BLO|AC Lin. Speed BLO|AC Status BLO|Systolic Press. BLO|Diastolic Press. BLO|Heart Rate BLO|BPM Pressure BLO|BPM Error BLO|BPM Status BLO|Ven. Pressure BLO|Art. Pressure BLO|Error 1 BLO|Error 2 BLO|Automatism 1 BLO|Sensor 1 BLO|Sensor 2 BLO|Art. Clamp Sts BLO|Ven. Clamp Sts BLO|AC Int. Speed BLO|AC Pump Pos. BLO|Blood Slave Info BLO|Art Pump Flag BLO|HardKey Count. BLO|Cond P PRO|Tp PRO|D1P flow PRO|D2P flow PRO|Inf Weight Err PRO|Press In PRO|pH Value PRO|BLD Value PRO|Pat Sensor PRO|Press Ven PRO|Press Art PRO|SSS Req PRO|SSS Unsat PRO|Sensors 1/2 PRO|Alarm 0 PRO|Alarm 1 PRO|Alarm 2 PRO|Warning 0 PRO|Warning 1 PRO|Warning 2 PRO|Ven Offset PRO|Art Offset PRO|Blood Pres PRO|Safety Act PRO|Debug W1 PRO|Debug W2 PRO|Debug W3 PRO|Debug W4 PRO|Debug W5 PRO|Debug W6 PRO|Debug W7 PRO|Debug W8 PRO|Debug W9 PRO|Debug W10 PRO|Hgb_VoltCH2 HDF|Hgb_ValCH2 HDF|Hgb_Volt HDF|Hgb_Val HDF|Hgb_Aut_Val HDF|Hgb_Gain HDF|Bvm_Status HDF|Bvm_Adc HDF|Bvm_Flags HDF|Bvm_Alarms HDF|Scale Weight HDF|BloSideFillVol BLO|RUF Alarm SER|RAM Max Free Block AUX|Ultra Clamp Sts BLO|Ultra Line Pres. BLO|Air Level Art PRO|Air Level Ven PRO|dP Arterial PRO|dP Venous PRO|Phase DIA|Calib DIA|Gain DIA|Const DIA|Plasma Cond. DSC|Cond Y1 DIA|Cond Y2 DIA|Cond Y3 DIA|R HYDT DIA|KtV DSC|Num Meas DIA|Clearance DIA|Priming Vol AUX|HYD SSS AUX|Cartr. subph AUX|Leak. Subph AUX|Prime subph AUX|Sterile Vol AUX|IUF state AUX|UC Aborted AUX|UC Timer AUX|RAM Free AUX|RAM Alloc AUX|CF Free AUX|Prof TWL Error AUX|Ven. Pump Flag BLO|Ven. Pump Flow BLO|Ven. Pump Set BLO|Ven. Pump Sts. BLO|Automatism 2 BLO|Error 3 BLO|Error 4 BLO|Dbg TMP HYD|Press PDrain HYD|Warning 3 PRO|Cond Sel. PRO|PSel Freq PRO|Alarm 3 PRO|Alarm 4 PRO|T1 cut 24V PRO|T1 AP/ABD PRO|PRSS status PRO|SN Pressure PRO|T1T group PRO|Sensors 2/2 PRO|GSS Attrib PRO|Inf rate sp HYD|Inf ctrl bflag HYD|Total Inf Vol HYD|TMP filt val HYD|WLR actual HYD|Treat time set AUX|Tot inf vol set AUX|Tot WL set AUX|Cond D HYD|KP x 10000 PRO|Total WL PRO|Scale weight PRO|K x 10000 PRO|TcD HYD|HD Cassette BLO|Ultra HDF Set BLO|Prot AV fork AUX|Treat. time AUX|Current Bv AUX|Desired Bv AUX|Current Twl AUX|Desired Twl AUX|Current Ne AUX|Desired Ne AUX|Max Ufr AUX|Min Ufr AUX|Ufr step n AUX|Ufr stop AUX|Max Na AUX|Min Na AUX|Na step n AUX|Na stop AUX|PA Error PRO|PB Error PRO|Hyd SW Rel HYD|Caddy Bic HYD|T1Skip Status SER|T1Skip SFlags SER|T1Skip PFlags SER|Treatment Type SER|Conc. Type SER|Effective Time SER|Internal Parameters SER|D1CTempCo HY4|KD2CD1CtCo HY4|PA Freq HY4|PSel Freq HY4|stkD2CcmpFA HY4|stkD1CcmpFA HY4|deltaPFSexp HY4|P1OLSetPnt HY4|AptCoefP1500 HY4|AptCoefP1NeP HY4|AptCoefP2500 HY4|Debug 4EM 1 PR4|MB ErrComp PR4|WLErrorKBased PR4|MemWLErrK PR4|stkD1CcmpFA PR4|stkD2CcmpFA PR4|stkD1PcmpFA PR4|stkD2PcmpFA PR4|MaxLoad PR4|MeanLoad PR4|UF Dev Err PRO",
+    modes: "H|U|U|S|H|S|U|H|U|H|U|S|U|H|U|H|H|S|S|S|S|U|H|U|H|H|H|H|H|H|H|H|H|H|H|H|U|O|S|S|S|U|H|U|U|H|H|U|U|U|U|S|U|U|H|U|O|S|S|U|S|H|O|S|S|H|H|H|H|H|D|D|U|U|H|H|U|S|U|S|S|S|S|U|U|U|S|S|H|H|H|H|H|H|H|H|H|S|S|R|R|S|S|S|S|S|S|S|S|S|H|S|U|S|U|S|S|H|H|H|H|U|U|H|L|D|Y|S|S|S|S|H|H|U|U|U|U|U|U|U|U|H|U|U|H|S|S|S|U|U|H|U|L|L|L|S|H|U|U|O|H|H|H|U|S|H|S|U|H|H|H|H|U|S|U|H|S|U|H|U|S|S|U|U|U|S|U|S|U|U|U|U|U|U|U|S|S|H|S|H|H|H|T|C|U|H|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S",
+    nums: "2|1|1|2|1|2|2|1|2|1|2|2|2|1|2|1|1|2|2|2|2|2|1|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|2|2|1|2|1|1|2|2|1|2|1|1|2|1|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|0|0|0|0|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|1|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|1|2|2|2|2|2|2|1|1|2|2|0|0|1|1|1|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2",
+    masks: "0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x7FFF|0x8000|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x4000|0|0|0|0|0|0|0|0x0001|0x0010|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0xF000|0x0F00|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x0008|0x0100|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x03|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0xFFFF|0|0|0|0xFFFF|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0",
+  },
+};
+// 905 uses 860's structure with slight header differences — we include them here
+SCHEMAS['905'] = {
+  headers: "Hyd Code HYD|Hyd Phase HYD|Hyd Num Mes HYD|Cond A HYD|PA Activ HYD|Cond B HYD|PB Freq HYD|PB Activ HYD|TP HYD|Heater Command HYD|UF Value HYD|D1c flow HYD|P1 Freq HYD|P1 Activ HYD|P2 Freq HYD|P2 Activ HYD|T1 POL leak HYD|Press In HYD|Press Out HYD|Press PFS HYD|Press PDG HYD|PC Freq HYD|PC Activ HYD|PS Freq HYD|PS Activ HYD|Valves 1 HYD|Valves 2 HYD|Sensor 1 HYD|Sensor 2 HYD|Sensor 3 HYD|Error W1 HYD|Error W2 HYD|Error W3 HYD|Error W4 HYD|Autom W1 HYD|Autom W2 HYD|WLRComp HYD|IsCompActive HYD|WLErrorHYD HYD|Total WL HYD|D2c flow HYD|PWho Freq HYD|PWho Activ HYD|TcA HYD|TcB HYD|PSel Activ HYD|Blood Code BLO|Blood Phase BLO|Blood Msg Num BLO|Art. Pump Flow BLO|Art. Pump Set BLO|Art Pump Sts. BLO|SN Avg Flow BLO|SN Stroke Vol BLO|AC Mode BLO|AC Lin. Speed BLO|AC Status BLO|Systolic Press. BLO|Diastolic Press. BLO|Heart Rate BLO|BPM Pressure BLO|BPM Error BLO|BPM Status BLO|Ven. Pressure BLO|Art. Pressure BLO|Error 1 BLO|Error 2 BLO|Automatism 1 BLO|Sensor 1 BLO|Sensor 2 BLO|Art. Clamp Sts BLO|Ven. Clamp Sts BLO|AC Int. Speed BLO|AC Pump Pos. BLO|Blood Slave Info BLO|Art Pump Flag BLO|HardKey Count. BLO|Cond P PRO|Tp PRO|D1P flow PRO|D2P flow PRO|Inf Weight Err PRO|Press In PRO|pH Value PRO|BLD Value PRO|Pat Sensor PRO|Press Ven PRO|Press Art PRO|SSS Req PRO|SSS Unsat PRO|Sensors 1/2 PRO|Alarm 0 PRO|Alarm 1 PRO|Alarm 2 PRO|Warning 0 PRO|Warning 1 PRO|Warning 2 PRO|Ven Offset PRO|Art Offset PRO|Blood Pres PRO|Safety Act PRO|Debug W1 PRO|Debug W2 PRO|Debug W3 PRO|Debug W4 PRO|Debug W5 PRO|Debug W6 PRO|Debug W7 PRO|Debug W8 PRO|Debug W9 PRO|Debug W10 PRO|Hgb_VoltCH2 HDF|Hgb_ValCH2 HDF|Hgb_Volt HDF|Hgb_Val HDF|Hgb_Aut_Val HDF|Hgb_Gain HDF|Bvm_Status HDF|Bvm_Adc HDF|Bvm_Flags HDF|Bvm_Alarms HDF|Scale Weight HDF|BloSideFillVol BLO|Leak Fail Code HYD|Leak Fail Code2 HYD|Hyd Subphase AUX|Hyd Cfg ID HYD|RUF Alarm SER|RAM Max Free Block AUX|Ultra Clamp Sts BLO|Ultra Line Pres. BLO|Air Level Art PRO|Air Level Ven PRO|dP Arterial PRO|dP Venous PRO|Phase DIA|Calib DIA|Gain DIA|Const DIA|Plasma Cond. DSC|Cond Y1 DIA|Cond Y2 DIA|KtV DSC|Num Meas DIA|Clearance DIA|Priming Vol AUX|HYD SSS AUX|Sterile Vol AUX|IUF state AUX|UC Aborted AUX|UC Timer AUX|RAM Free AUX|CF Free AUX|Prof TWL Error AUX|Ven. Pump Flag BLO|Ven. Pump Flow BLO|Ven. Pump Set BLO|Ven. Pump Sts. BLO|Automatism 2 BLO|Error 3 BLO|Error 4 BLO|Dbg TMP HYD|Press PDrain HYD|Warning 3 PRO|Cond Sel. PRO|PSel Freq PRO|Alarm 3 PRO|Alarm 4 PRO|T1 cut 24V PRO|T1 AP/ABD PRO|PRSS status PRO|SN Pressure PRO|T1T group PRO|Sensors 2/2 PRO|GSS Attrib PRO|Inf rate sp HYD|Inf ctrl bflag HYD|Total Inf Vol HYD|TMP filt val HYD|WLR actual HYD|Treat time set AUX|Tot inf vol set AUX|Tot WL set AUX|Cond D HYD|KP x 10000 PRO|Total WL PRO|Scale weight PRO|K x 10000 PRO|TcD HYD|HD Cassette BLO|Ultra HDF Set BLO|Prot AV fork AUX|Treat. time AUX|Current Bv AUX|Desired Bv AUX|Current Twl AUX|Desired Twl AUX|Current Ne AUX|Desired Ne AUX|Max Ufr AUX|Min Ufr AUX|Ufr step n AUX|Ufr stop AUX|Max Na AUX|Min Na AUX|Na step n AUX|Na stop AUX|PA Error PRO|PB Error PRO|Hyd SW Rel HYD|Caddy Bic HYD|T1Skip Status SER|T1Skip SFlags SER|T1Skip PFlags SER|Treatment Type SER|Conc. Type SER|Effective Time SER|D1CTempCo HY4|KD2CD1CtCo HY4|PA Freq HY4|PSel Freq HY4|stkD2CcmpFA HY4|stkD1CcmpFA HY4|deltaPFSexp HY4|P1OLSetPnt HY4|AptCoefP1500 HY4|AptCoefP1NeP HY4|AptCoefP2500 HY4|Debug 4EM 1 PR4|MB ErrComp PR4|WLErrorKBased PR4|MemWLErrK PR4|stkD1CcmpFA PR4|stkD2CcmpFA PR4|stkD1PcmpFA PR4|stkD2PcmpFA PR4|MaxLoad PR4|MeanLoad PR4|UF Dev Err PRO|AC Theo Vol PRO|AC Real Vol PRO|UFR High IE PRO",
+  modes: "H|U|U|S|H|S|U|H|U|H|U|S|U|H|U|H|H|S|S|S|S|U|H|U|H|H|H|H|H|H|H|H|H|H|H|H|U|O|S|S|S|U|H|U|U|H|H|U|U|U|U|S|U|U|H|U|O|S|S|U|S|H|O|S|S|H|H|H|H|H|D|D|U|U|H|H|U|S|U|S|S|S|S|U|U|U|S|S|H|H|H|H|H|H|H|H|H|S|S|R|R|S|S|S|S|S|S|S|S|S|H|S|U|S|U|S|S|H|H|H|H|U|U|H|H|U|U|H|L|D|Y|S|S|S|S|H|H|U|U|U|U|U|U|H|U|U|H|U|U|H|U|L|L|S|H|U|U|O|H|H|H|U|S|H|S|U|H|H|H|H|U|S|U|H|S|U|H|U|S|S|U|U|U|S|U|S|U|U|U|U|U|U|U|S|S|U|U|U|U|U|U|U|U|U|U|U|U|S|S|H|S|H|H|H|T|C|U|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|S|U|U|U",
+  nums: "2|1|1|2|1|2|2|1|2|1|2|2|2|1|2|1|1|2|2|2|2|2|1|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|2|2|1|2|1|1|2|2|1|2|1|1|2|1|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|0|0|0|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|1|2|2|2|2|2|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|1|1|1|2|2|2|2|2|2|1|1|2|2|0|0|1|1|1|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2|2",
+  masks: "0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x7FFF|0x8000|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x4000|0|0|0|0|0|0|0|0x0001|0x0010|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0xF000|0x0F00|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0x03|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0xFFFF|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0",
+};
+// 833 uses the same modes/masks from 860/809 by header name lookup — simplified here
+SCHEMAS['833'] = SCHEMAS['860']; // close enough for status columns
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Binary parsing helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function uint32LE(view, offset) {
+  return view.getUint32(offset, true);
+}
+function uint16LE(view, offset) {
+  return view.getUint16(offset, true);
+}
+function int32LE(view, offset) {
+  return view.getInt32(offset, true);
+}
+
+function resolveFormat(fileSize) {
+  if ((fileSize - 255) % 492 === 0) return { header: 255, record: 492, count: (fileSize-255)/492, ver: '8.09', schema: '809' };
+  if ((fileSize - 259) % 520 === 0) return { header: 259, record: 520, count: (fileSize-259)/520, ver: '8.33', schema: '833' };
+  if ((fileSize - 262) % 540 === 0) return { header: 262, record: 540, count: (fileSize-262)/540, ver: '8.60', schema: '860' };
+  if ((fileSize - 263) % 540 === 0) return { header: 263, record: 540, count: (fileSize-263)/540, ver: '9.05', schema: '905' };
+  return null;
+}
+
+function formatTs(ts) {
+  const d = new Date(ts * 1000);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function getTypeName(code) {
+  return {0:'ALARM',1:'OPERATOR_ACT',2:'SET_CNF_VALUE',4:'AUTOMATIC',6:'DIAGNOSTIC_QUEUE',7:'DIAGNOSTIC_TASK'}[code] || String(code);
+}
+
+function parseMask(m) {
+  if (!m || m==='0') return 0;
+  if (m.startsWith('0x') || m.startsWith('0X')) return parseInt(m, 16);
+  return parseInt(m, 10);
+}
+
+function signed8(v) { v &= 0xFF; return v >= 128 ? v-256 : v; }
+function signed16(v) { v &= 0xFFFF; return v >= 32768 ? v-65536 : v; }
+
+function formatStatus(raw, mode, num, mask) {
+  const mv = parseMask(mask);
+  let v = raw & 0xFFFF;
+  switch (mode) {
+    case 'H': { let x = mv ? (v & mv) : v; return x === 0 ? '0' : x.toString(16).toUpperCase(); }
+    case 'U': { v = (num === '1') ? (v & 0xFF) : (v & 0xFFFF); if (mv) v &= mv; return String(v); }
+    case 'S': { v = (num === '1') ? signed8(v) : signed16(v); return v===0 ? '0.00' : (v>0 ? '+'+v+'.00' : v+'.00'); }
+    case 'O': return v ? 'On' : 'Off';
+    case 'R': return v ? 'Off' : 'On';
+    case 'D': return v ? 'Open' : 'Closed';
+    case 'Y': { let x = mv ? (v & mv) : v; return x ? 'Yes' : 'No'; }
+    case 'T': return (v===0||v===2) ? 'HD DNSP' : String(v);
+    case 'C': return v===1||v===10000 ? 'Bicart' : v===0 ? '' : String(v);
+    case 'L': { let sv = signed16(v); return sv<0 ? String(4294967296+sv) : String(sv); }
+    default: return String(v);
+  }
+}
+
+function escapeCsv(s) {
+  s = String(s);
+  if (s.includes('"')) s = s.replace(/"/g,'""');
+  if (s.includes(',') || s.includes('\n') || s.includes('"')) s = '"'+s+'"';
+  return s;
+}
+
+// Automatic event names
+const AUTO_EVENTS = {2:'EVENT_START_SETUP',4:'EVENT_START_PROCDIA',5:'EVENT_STOP_PROCDIA',6:'EVENT_START_CHEMICAL',8:'EVENT_STOP_CHEMICAL',9:'EVENT_START_HEAT',10:'EVENT_STOP_HEAT',15:'EVENT_START_RINSE',16:'EVENT_STOP_RINSE',21:'EVENT_START_IDLE',22:'EVENT_START_PATCONNECTION',23:'EVENT_START_TREATMENT',24:'EVENT_START_RESTITUTION',26:'EVENT_START_EMPTING',27:'EVENT_START_FILTERCHANGE',28:'EVENT_START_PAUSE_THERAPY',29:'EVENT_STOP_PAUSE_THERAPY',30:'EVENT_BLOOD_DETECTION',31:'EVENT_START_BYPASS',32:'EVENT_STOP_BYPASS',35:'EVENT_START_UFMIN',36:'EVENT_STOP_UFMIN',37:'EVENT_START_TEMPOD',38:'EVENT_STOP_TEMPOD',39:'EVENT_BPM_NEWMEASURE',47:'EVENT_PATIENT_LOGIN',49:'EVENT_STARTUP',54:'EVENT_MACHINE_FOX',56:'EVENT_BBOX_SYNC',57:'EVENT_START_TXRECORD_4',60:'EVENT_POWERFAILURE_BEGIN',62:'EVENT_EMERGENCYRESTART_PROCDIA',63:'EVENT_HYDR_PHASE_CHANGE',64:'EVENT_POST_TX',65:'EVENT_POWER_FAILURE_ON',69:'EVENT_START_CART_C',70:'EVENT_STOP_CART_C',73:'EVENT_START_PROCDIA_PAR_OK',79:'EVENT_START_CHEM_ULTRA_PERACETIC',80:'EVENT_STOP_CHEM_ULTRA_PERACETIC'};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parse a single .dat file → { fileName, version, schema, startTime, records, alarms }
+// ─────────────────────────────────────────────────────────────────────────────
+function parseDat(buffer, fileName) {
+  const fmt = resolveFormat(buffer.byteLength);
+  if (!fmt) return { fileName, error: 'Unsupported format / file size' };
+
+  const view = new DataView(buffer);
+  const records = [];
+  const alarms = [];
+  const alarmSet = new Set();
+
+  const sch = SCHEMAS[fmt.schema];
+  const schHeaders = sch ? sch.headers.split('|') : [];
+  const schModes   = sch ? sch.modes.split('|') : [];
+  const schNums    = sch ? sch.nums.split('|') : [];
+  const schMasks   = sch ? sch.masks.split('|') : [];
+
+  let startTime = null;
+
+  for (let i = 0; i < fmt.count; i++) {
+    const pos = fmt.header + i * fmt.record;
+    const ts      = uint32LE(view, pos + 0);
+    const typeCode = uint16LE(view, pos + 6);
+    const recNo   = uint32LE(view, pos + 8);
+    const code12  = uint32LE(view, pos + 12);
+    const code16  = uint32LE(view, pos + 16);
+
+    if (i === 0) startTime = ts;
+
+    const typeName = getTypeName(typeCode);
+    const timeStr  = formatTs(ts);
+
+    const row = [
+      String(recNo).padStart(String(fmt.count).length, '0'),
+      timeStr,
+      typeName,
+      '', '', '', '', '', '', '', '', '', '',
+    ];
+
+    let description = '';
+    let techCode = 0;
+
+    if (typeCode === 0) { // ALARM
+      techCode = code16 & 0xFFFF;
+      const userCode = (code12 >>> 16) & 0xFFFF;
+      description = getErrorMsg(techCode);
+      row[3]  = 'Description';
+      row[4]  = description;
+      row[5]  = 'Tech Code';
+      row[6]  = String(techCode);
+      row[7]  = 'User Code';
+      row[8]  = String(userCode);
+      row[9]  = 'IsMalfunction';
+      row[10] = ((code16 & 0x10000) !== 0) ? 'True' : 'False';
+      row[11] = 'Is First Occurrence';
+      row[12] = ((code16 & 0x1000000) !== 0) ? 'True' : 'False';
+
+      if (techCode > 0 && !alarmSet.has(techCode)) {
+        alarmSet.add(techCode);
+        alarms.push({ techCode, description });
+      }
+    } else if (typeCode === 4) { // AUTOMATIC
+      const ec = code12 & 0xFFFF;
+      description = AUTO_EVENTS[ec] || 'UNKNOWN_EVENT';
+      row[3] = 'Event'; row[4] = description;
+    } else if (typeCode === 2) { // PARAMETER
+      row[3] = 'Parameter'; row[4] = ''; row[5] = 'New value';
+      row[6] = String(int32LE(view, pos + 16));
+      description = `Parameter change: ${row[6]}`;
+    }
+
+    // Status columns (at byte offset 40, 2 bytes each)
+    const statusVals = [];
+    for (let s = 0; s < schHeaders.length; s++) {
+      const rawOffset = pos + 40 + s * 2;
+      if (rawOffset + 1 < pos + fmt.record) {
+        const rawWord = uint16LE(view, rawOffset);
+        statusVals.push(formatStatus(rawWord, schModes[s], schNums[s], schMasks[s]));
+      } else {
+        statusVals.push('');
+      }
+    }
+
+    records.push({
+      recNo, ts, timeStr, typeCode, typeName, techCode, description,
+      row: [...row, ...statusVals, ''],
+    });
+  }
+
+  return {
+    fileName, version: fmt.ver, schema: fmt.schema,
+    startTime: startTime ? formatTs(startTime) : '?',
+    recordCount: fmt.count,
+    headers: schHeaders,
+    records, alarms,
+    buffer,
+    fmt,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Generate CSV text from a parsed file
+// ─────────────────────────────────────────────────────────────────────────────
+function generateCsv(parsed) {
+  const fixedHeaders = ['Rec. N.','Time','Type','','','','','','','','','',''];
+  const allHeaders = [...fixedHeaders, ...parsed.headers, ''];
+  const lines = [allHeaders.map(escapeCsv).join(',')];
+  for (const rec of parsed.records) {
+    lines.push(rec.row.map(escapeCsv).join(','));
+  }
+  return lines.join('\r\n');
+}
+
+function downloadCsv(csvText, name) {
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// App state
+// ─────────────────────────────────────────────────────────────────────────────
+let allFiles = [];   // array of parsed file objects
+let allRows = [];    // flat array of display rows
+let activeCat = null; // active triage category id
+
+function resetAll() {
+  allFiles = [];
+  allRows = [];
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('dropzone').style.display = 'block';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('filter-file').innerHTML = '<option value="">All files</option>';
+  document.getElementById('table-body').innerHTML = '';
+  document.getElementById('file-list').innerHTML = '';
+  document.getElementById('macro-body').innerHTML = '';
+  document.getElementById('macro-empty').style.display = 'none';
+  document.getElementById('triage-body').innerHTML = '';
+  document.getElementById('triage-hint').style.display = 'flex';
+  document.getElementById('triage-table-wrap').style.display = 'none';
+  document.getElementById('triage-stat').style.display = 'none';
+  document.getElementById('triage-reset-btn').style.display = 'none';
+  activeCat = null;
+  document.getElementById('search').value = '';
+  document.getElementById('filter-type').value = '';
+}
+
+function showTab(name) {
+  document.getElementById('tab-alarms').style.display  = name==='alarms'  ? 'block' : 'none';
+  document.getElementById('tab-files').style.display   = name==='files'   ? 'block' : 'none';
+  document.getElementById('tab-macro').style.display   = name==='macro'   ? 'block' : 'none';
+  document.getElementById('tab-triage').style.display  = name==='triage'  ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active',
+    (i===0&&name==='alarms')||(i===1&&name==='files')||(i===2&&name==='macro')||(i===3&&name==='triage')));
+  if (name === 'macro')  renderMacro('desc');
+  if (name === 'triage') initCatPanel();
+}
+
+function setProgress(pct, label) {
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = label;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// File processing
+// ─────────────────────────────────────────────────────────────────────────────
+async function processFiles(files) {
+  if (!files.length) return;
+
+  document.getElementById('dropzone').style.display = 'none';
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('summary').style.display = 'none';
+
+  const total = files.length;
+  for (let i = 0; i < total; i++) {
+    const file = files[i];
+    setProgress(Math.round((i/total)*100), `Parsing ${file.name} (${i+1}/${total})…`);
+    await new Promise(resolve => setTimeout(resolve, 0)); // yield to UI
+
+    const buf = await file.arrayBuffer();
+    const parsed = parseDat(buf, file.name);
+    parsed.fileSize = file.size;
+    parsed.startTs = (parsed.records && parsed.records.length) ? (parsed.records[0].ts || 0) : 0;
+    allFiles.push(parsed);
+
+    // Build flat rows
+    for (const rec of (parsed.records || [])) {
+      allRows.push({ ...rec, fileName: parsed.fileName, version: parsed.version });
+    }
+  }
+
+  setProgress(100, 'Done');
+  await new Promise(resolve => setTimeout(resolve, 300));
+  document.getElementById('progress-wrap').style.display = 'none';
+
+  renderAll();
+}
+
+function renderAll() {
+  renderStats();
+  renderFileFilter();
+  renderFileList();
+  renderTable(allRows);
+  document.getElementById('summary').style.display = 'block';
+  // Refresh macro tab if it's the active tab
+  if (document.getElementById('tab-macro').style.display === 'block') renderMacro();
+}
+
+function renderStats() {
+  const totalAlarms = allRows.filter(r => r.typeCode === 0).length;
+  const totalFiles  = allFiles.length;
+  const totalRecs   = allRows.length;
+  const versions    = [...new Set(allFiles.map(f => f.version || 'ERR'))].join(', ');
+
+  document.getElementById('stat-row').innerHTML = `
+    <div class="stat-card files"><div class="label">Files</div><div class="value">${totalFiles}</div></div>
+    <div class="stat-card records"><div class="label">Total Records</div><div class="value">${totalRecs.toLocaleString()}</div></div>
+    <div class="stat-card alarm"><div class="label">Alarm Events</div><div class="value">${totalAlarms.toLocaleString()}</div></div>
+    <div class="stat-card version"><div class="label">Detected Versions</div><div class="value">${versions}</div></div>
+  `;
+}
+
+function renderFileFilter() {
+  const sel = document.getElementById('filter-file');
+  sel.innerHTML = '<option value="">All files</option>';
+  for (const f of allFiles) {
+    const opt = document.createElement('option');
+    opt.value = f.fileName;
+    opt.textContent = f.fileName;
+    sel.appendChild(opt);
+  }
+}
+
+function renderFileList() {
+  const el = document.getElementById('file-list');
+  el.innerHTML = '';
+  for (const f of allFiles) {
+    const alarmCount = (f.alarms || []).length;
+    const hasError = !!f.error;
+    const csvName = f.fileName.replace(/\.dat$/i, '_1.csv');
+    el.innerHTML += `
+      <div class="file-item">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="2" width="22" height="28" rx="3" fill="#f3e8f2" stroke="#72256B" stroke-width="1.5"/>
+          <path d="M24 2v7h6" stroke="#72256B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M24 2l6 7" stroke="#72256B" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div style="flex:1">
+          <div class="fi-name">${f.fileName}</div>
+          <div class="fi-meta">
+            ${f.error ? `<span style="color:var(--danger)">${f.error}</span>` :
+              `Ver. ${f.version} &nbsp;·&nbsp; ${(f.recordCount||0).toLocaleString()} records &nbsp;·&nbsp; Start: ${f.startTime}`}
+          </div>
+        </div>
+        ${!hasError ? `
+          <span class="${alarmCount ? 'fi-alarm' : 'fi-ok'}">${alarmCount} alarm${alarmCount!==1?'s':''}</span>
+          <span class="badge badge-ver">${f.version}</span>
+          <button class="csv-btn" onclick="downloadFileCsv('${f.fileName}')">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 6l3 3 3-3M1 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            CSV
+          </button>
+        ` : ''}
+      </div>`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sort state
+// ─────────────────────────────────────────────────────────────────────────────
+let sortCol = 'timeStr';
+let sortDir = 1; // 1=asc, -1=desc
+
+function sortBy(col) {
+  if (sortCol === col) {
+    sortDir *= -1;
+  } else {
+    sortCol = col;
+    sortDir = 1;
+  }
+  // Update header indicators
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.col === col) {
+      th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+    }
+  });
+  applyFilter();
+}
+
+function sortRows(rows) {
+  return [...rows].sort((a, b) => {
+    let av = a[sortCol] ?? '';
+    let bv = b[sortCol] ?? '';
+    if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('table-body');
+  const empty = document.getElementById('empty-state');
+  const wrap  = document.getElementById('table-wrap');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    wrap.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.style.display = 'block';
+
+  // Only show first 5000 rows for performance
+  const sorted = sortRows(rows);
+  const display = sorted.slice(0, 5000);
+  const isAlarm = r => r.typeCode === 0;
+
+  tbody.innerHTML = display.map(r => {
+    const alarm = isAlarm(r);
+    const typeClass = alarm ? 'badge-alarm' : 'badge-info';
+    const rowClass  = alarm ? 'sev-high' : '';
+    const code = alarm ? `#${r.techCode}` : '';
+    const csvBtn = `<button class="csv-btn" onclick="downloadFileCsv('${r.fileName}')">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 6l3 3 3-3M1 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>`;
+    return `<tr class="${rowClass}">
+      <td>${r.timeStr}</td>
+      <td class="file-col">${r.fileName}</td>
+      <td><span class="badge ${typeClass}">${r.typeName}</span></td>
+      <td class="code-col">${code}</td>
+      <td class="alarm-col">${r.description || ''}</td>
+      <td>${csvBtn}</td>
+    </tr>`;
+  }).join('');
+
+  if (rows.length > 5000) {
+    tbody.innerHTML += `<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--text-muted);font-style:italic;">
+      Showing first 5,000 of ${rows.length.toLocaleString()} records. Use filters to narrow results.
+    </td></tr>`;
+  }
+}
+
+function applyFilter() {
+  const search   = document.getElementById('search').value.toLowerCase();
+  const fileF    = document.getElementById('filter-file').value;
+  const typeF    = document.getElementById('filter-type').value;
+
+  const filtered = allRows.filter(r => {
+    if (fileF && r.fileName !== fileF) return false;
+    if (typeF && r.typeName !== typeF) return false;
+    if (search) {
+      const hay = (r.description + ' ' + r.fileName + ' ' + r.typeName).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+  renderTable(filtered);
+}
+
+function downloadFileCsv(fileName) {
+  const f = allFiles.find(x => x.fileName === fileName);
+  if (!f || f.error) return;
+  const csv = generateCsv(f);
+  const csvName = fileName.replace(/\.dat$/i, '_1.csv');
+  downloadCsv(csv, csvName);
+}
+
+function downloadAllCSV() {
+  for (const f of allFiles) {
+    if (!f.error) {
+      const csv = generateCsv(f);
+      const csvName = f.fileName.replace(/\.dat$/i, '_1.csv');
+      downloadCsv(csv, csvName);
+    }
+  }
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MACRO TAB: Alarm Summary + CSV Export (replicates Excel macro behaviour)
+// - Groups files by parsed date (desc/asc)
+// - Shows unique alarm codes per file
+// - ≫ button exports full CSV for that file
+// ─────────────────────────────────────────────────────────────────────────────
+let macroSortDir = 'desc';
+
+function renderMacro(dir) {
+  macroSortDir = dir || macroSortDir;
+
+  // Update sort button state
+  document.getElementById('sort-desc-btn').style.background = macroSortDir === 'desc' ? '#72256B' : '';
+  document.getElementById('sort-desc-btn').style.color      = macroSortDir === 'desc' ? '#fff' : '';
+  document.getElementById('sort-asc-btn').style.background  = macroSortDir === 'asc'  ? '#72256B' : '';
+  document.getElementById('sort-asc-btn').style.color       = macroSortDir === 'asc'  ? '#fff' : '';
+
+  const body  = document.getElementById('macro-body');
+  const empty = document.getElementById('macro-empty');
+  const wrap  = document.getElementById('macro-table-wrap');
+
+  if (!allFiles.length) {
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    wrap.style.display  = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  wrap.style.display  = 'block';
+
+  // Sort files by startTime
+  const sorted = [...allFiles].sort((a, b) => {
+    const ta = a.startTs || 0, tb = b.startTs || 0;
+    return macroSortDir === 'desc' ? tb - ta : ta - tb;
+  });
+
+  body.innerHTML = sorted.map(f => {
+    // Build unique alarm list (deduplicated by techCode)
+    const seen = new Set();
+    const uniqueAlarms = [];
+    for (const rec of (f.records || [])) {
+      if (rec.typeCode === 0 && rec.techCode && !seen.has(rec.techCode)) {
+        seen.add(rec.techCode);
+        uniqueAlarms.push({ code: rec.techCode, desc: rec.description || 'Unknown Error' });
+      }
+    }
+
+    const alarmHtml = uniqueAlarms.length
+      ? uniqueAlarms.map(a =>
+          `<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
+            <span style="background:#f3e8f2;color:#72256B;border:1px solid #c8a0c4;border-radius:8px;padding:1px 6px;font-size:10px;font-weight:800;font-family:'Inter','Noto Sans KR',sans-serif;white-space:nowrap;">#${a.code}</span>
+            <span style="color:#1a2332;font-size:11.5px;">${a.desc}</span>
+          </div>`
+        ).join('')
+      : `<span style="color:#a0a8b8;font-size:11px;font-style:italic;">No alarms detected</span>`;
+
+    const hasError = !!f.error;
+    const timeDisplay = f.startTime || '—';
+    const versionBadge = !hasError
+      ? `<span style="background:#CDDFD7;color:#105742;border:1px solid #6CA07A;border-radius:8px;padding:1px 7px;font-size:10px;font-weight:800;font-family:'Inter','Noto Sans KR',sans-serif;margin-left:6px;">${f.version}</span>`
+      : '';
+
+    const csvBtn = !hasError
+      ? `<button onclick="downloadFileCsv('${f.fileName.replace(/'/g, "\'")}')"
+           style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;
+                  background:#72256B;color:#fff;border:none;border-radius:8px;
+                  font-size:11px;font-weight:800;cursor:pointer;
+                  font-family:'Inter','Noto Sans KR',sans-serif;letter-spacing:.3px;
+                  transition:opacity .15s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><rect x="3" y="14" width="18" height="7"/><line x1="12" y1="3" x2="12" y2="13"/><polyline points="7 9 12 14 17 9"/></svg>
+           CSV
+         </button>`
+      : `<span style="color:#c0392b;font-size:11px;">ERR</span>`;
+
+    const rowBg = hasError ? '#fff5f5' : (uniqueAlarms.length > 0 ? '#fdf5fc' : '');
+
+    return `<tr style="background:${rowBg};border-bottom:1px solid #eef1f7;vertical-align:top;">
+      <td style="padding:12px 14px;white-space:nowrap;font-size:12px;">${timeDisplay}${versionBadge}</td>
+      <td style="padding:12px 14px;font-family:monospace;font-size:11px;color:#6b7a99;word-break:break-all;">${f.fileName}${hasError ? `<br><span style="color:#c0392b;font-size:10px;">${f.error}</span>` : ''}</td>
+      <td style="padding:12px 14px;">${alarmHtml}</td>
+      <td style="padding:12px 14px;text-align:center;">${csvBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TRIAGE TAB: Alarm Category Diagnostic Prioritization
+// Mirrors the Excel macro's category-button → indexed-data triage view.
+// Select a category → matching alarm records surface to top with index badges.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ALARM_CATEGORIES = [
+  {
+    id: 'blood_circuit',
+    label: 'Blood Circuit',
+    labelKo: '혈액 회로',
+    color: '#72256B', text: '#fff',
+    codes: [4,6,7,8,10,11,12,13,148,149,153,154,155,157,158,159,
+            204,205,295,305,306,359,362,363,364,382,384,457,459,
+            509,521,524,595,642,643,670,671]
+  },
+  {
+    id: 'air_detection',
+    label: 'Air Detection',
+    labelKo: '공기 감지',
+    color: '#e67e22', text: '#fff',
+    codes: [4,33,35,385,466,493,583,584,591]
+  },
+  {
+    id: 'pressure',
+    label: 'Pressure Alarms',
+    labelKo: '압력 알람',
+    color: '#105742', text: '#fff',
+    codes: [11,68,87,88,94,95,114,115,138,142,146,153,154,155,
+            305,319,452,453,457,459,522,525,527,540,567,589,631]
+  },
+  {
+    id: 'uf',
+    label: 'UF / Fluid Removal',
+    labelKo: '한외여과 / 수분 제거',
+    color: '#6CA07A', text: '#fff',
+    codes: [53,60,92,138,145,379,402,443,479,505,526,527,545,546,
+            552,553,570,571,581,630,638]
+  },
+  {
+    id: 'temperature',
+    label: 'Temperature',
+    labelKo: '온도',
+    color: '#c0392b', text: '#fff',
+    codes: [59,81,90,134,377,444,460,461,538]
+  },
+  {
+    id: 'conductivity',
+    label: 'Conductivity / Conc.',
+    labelKo: '전도도 / 농축액',
+    color: '#2471A3', text: '#fff',
+    codes: [1,2,18,21,22,23,40,62,368,369,370,375,401,462,463,
+            464,465,496,590,596,600,601,602,603,610,611,629]
+  },
+  {
+    id: 'pumps',
+    label: 'Pumps & Flow',
+    labelKo: '펌프 및 유량',
+    color: '#1a5276', text: '#fff',
+    codes: [30,31,44,84,100,104,106,108,110,111,131,300,301,373,
+            412,413,484,486,506,535,632,633,634,660,663,664]
+  },
+  {
+    id: 'heparin',
+    label: 'Heparin',
+    labelKo: '헤파린',
+    color: '#7D3C98', text: '#fff',
+    codes: [55,58,69,71,573]
+  },
+  {
+    id: 'blood_leak',
+    label: 'Blood Leak',
+    labelKo: '혈액 누출',
+    color: '#922B21', text: '#fff',
+    codes: [28,167,170,434]
+  },
+  {
+    id: 'bpm',
+    label: 'BPM',
+    labelKo: '혈압 모니터링',
+    color: '#1A5276', text: '#fff',
+    codes: [30,31,46,66,132]
+  },
+  {
+    id: 'system',
+    label: 'System / Hardware',
+    labelKo: '시스템 / 하드웨어',
+    color: '#566573', text: '#fff',
+    codes: [43,48,49,64,120,173,182,183,185,296,297,304,320,327,
+            353,415,532,550]
+  }
+];
+
+function initCatPanel() {
+  const panel = document.getElementById('cat-panel');
+  panel.innerHTML = ALARM_CATEGORIES.map(cat => {
+    // Count matching alarms in loaded data
+    const codeSet = new Set(cat.codes);
+    const matchCount = allRows.filter(r => r.typeCode === 0 && codeSet.has(r.techCode)).length;
+    const countBadge = matchCount > 0
+      ? `<span style="background:rgba(255,255,255,.25);border-radius:6px;padding:0 5px;font-size:10px;margin-left:4px;">${matchCount}</span>`
+      : '';
+    return `<button class="cat-btn${activeCat===cat.id?' active':''}" id="cat-${cat.id}"
+      style="background:${cat.color};color:${cat.text};border-color:${cat.color};"
+      onclick="selectCategory('${cat.id}')" title="${cat.labelKo}">
+      ${cat.label}${countBadge}
+    </button>`;
+  }).join('');
+}
+
+function selectCategory(catId) {
+  if (activeCat === catId) {
+    resetTriage();
+    return;
+  }
+  activeCat = catId;
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('cat-' + catId);
+  if (activeBtn) activeBtn.classList.add('active');
+  document.getElementById('triage-reset-btn').style.display = 'inline-flex';
+  renderTriageTable();
+}
+
+function resetTriage() {
+  activeCat = null;
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('triage-reset-btn').style.display = 'none';
+  document.getElementById('triage-stat').style.display = 'none';
+  document.getElementById('triage-hint').style.display = 'flex';
+  document.getElementById('triage-table-wrap').style.display = 'none';
+}
+
+function renderTriageTable() {
+  const cat = ALARM_CATEGORIES.find(c => c.id === activeCat);
+  if (!cat) return;
+
+  const codeSet = new Set(cat.codes);
+  // Only show ALARM type records
+  const alarmRows = allRows.filter(r => r.typeCode === 0);
+
+  const priority = [...alarmRows.filter(r => codeSet.has(r.techCode))].sort((a,b) => a.ts - b.ts);
+  const other    = [...alarmRows.filter(r => !codeSet.has(r.techCode))].sort((a,b) => a.ts - b.ts);
+
+  // Update stat bar
+  const stat = document.getElementById('triage-stat');
+  stat.style.display = 'block';
+  stat.innerHTML = `<span style="font-weight:900;font-family:'Inter','Noto Sans KR',sans-serif;">
+      <span style="background:${cat.color};color:#fff;border-radius:20px;padding:1px 9px;margin-right:8px;">${cat.label}</span>
+      <strong style="font-size:15px;color:${priority.length>0?cat.color:'#a07898'}">${priority.length}</strong>
+      건 매칭
+    </span>
+    <span style="margin:0 10px;color:#c8a0c4;">|</span>
+    기타 알람 ${other.length}건
+    <span style="margin:0 10px;color:#c8a0c4;">|</span>
+    전체 알람 ${alarmRows.length}건`;
+
+  document.getElementById('triage-hint').style.display = 'none';
+  document.getElementById('triage-table-wrap').style.display = 'block';
+
+  const tbody = document.getElementById('triage-body');
+  let html = '';
+
+  // ── Prioritized section ───────────────────────
+  html += `<tr class="tr-separator"><td colspan="6">
+    <span style="background:${cat.color};color:#fff;border-radius:20px;padding:1px 8px;margin-right:8px;font-size:10px;">${cat.label}</span>
+    ${priority.length > 0
+      ? `<span style="color:${cat.color};font-size:11px;">▶ ${priority.length}건 우선 표시</span>`
+      : `<span style="color:#a07898;font-size:11px;font-style:italic;">해당 알람 없음</span>`}
+  </td></tr>`;
+
+  if (priority.length) {
+    html += priority.map((r, i) => {
+      const csvBtn = `<button class="csv-btn" onclick="downloadFileCsv('${r.fileName.replace(/'/g,"\\'")}')">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 6l3 3 3-3M1 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>`;
+      return `<tr class="tr-priority">
+        <td style="text-align:center;"><span class="triage-idx" style="background:${cat.color}">${i+1}</span></td>
+        <td style="white-space:nowrap;">${r.timeStr}</td>
+        <td class="file-col">${r.fileName}</td>
+        <td class="code-col" style="font-weight:700;color:${cat.color};">#${r.techCode}</td>
+        <td class="alarm-col">${r.description || ''}</td>
+        <td>${csvBtn}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    html += `<tr><td colspan="6" style="text-align:center;padding:16px;color:#a07898;font-size:12px;font-style:italic;">
+      현재 로드된 파일에 ${cat.label} 관련 알람이 없습니다.
+    </td></tr>`;
+  }
+
+  // ── Other records section ─────────────────────
+  if (other.length) {
+    const showOther = other.slice(0, 3000);
+    html += `<tr class="tr-separator-other"><td colspan="6">기타 알람 — ${other.length}건 (우선순위 외)</td></tr>`;
+    html += showOther.map(r => {
+      const csvBtn = `<button class="csv-btn" onclick="downloadFileCsv('${r.fileName.replace(/'/g,"\\'")}')">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 6l3 3 3-3M1 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV</button>`;
+      return `<tr class="tr-other">
+        <td></td>
+        <td style="white-space:nowrap;">${r.timeStr}</td>
+        <td class="file-col">${r.fileName}</td>
+        <td class="code-col">#${r.techCode}</td>
+        <td class="alarm-col">${r.description || ''}</td>
+        <td>${csvBtn}</td>
+      </tr>`;
+    }).join('');
+    if (other.length > 3000) {
+      html += `<tr><td colspan="6" style="text-align:center;padding:10px;color:var(--text-muted);font-style:italic;font-size:11px;">
+        … 외 ${(other.length-3000).toLocaleString()}건 더 있음 (CSV 내보내기로 전체 확인)
+      </td></tr>`;
+    }
+  }
+
+  tbody.innerHTML = html;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Drag & drop / file input
+// ─────────────────────────────────────────────────────────────────────────────
+const dz = document.getElementById('dropzone');
+const fi = document.getElementById('file-input');
+
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  const files = [...e.dataTransfer.files].filter(f => f.name.toLowerCase().endsWith('.dat'));
+  if (files.length) processFiles(files);
+});
+fi.addEventListener('change', () => {
+  const files = [...fi.files];
+  if (files.length) processFiles(files);
+  fi.value = '';
+});
+</script>
+</body>
+</html>
