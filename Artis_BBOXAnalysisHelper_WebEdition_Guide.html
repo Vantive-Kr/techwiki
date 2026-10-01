@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artis BBOX 사용 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --plum: #72256B; --plum-deep: #58184F; --plum-soft: #A4599C; --plum-light: #F3E8F2;
+  --cream: #FFFAEB; --pine: #105742; --eucalyptus: #6CA07A; --sage: #CDDFD7;
+}
+.theme-light {
+  --bg: #F6F0EA; --surface: #FFFFFF; --surface-hover: #FFFAEB;
+  --border: rgba(114,37,107,0.14); --rule: rgba(27,18,25,0.13); --rule-soft: rgba(27,18,25,0.07);
+  --divider: #72256B; --text: #1B1219; --text-secondary: #6B5468; --text-muted: #8A7589;
+  --accent: #72256B; --accent-secondary: #6CA07A; --positive: #105742; --negative: #AE4048; --warning: #8F6420;
+  --tint: #F3E8F2; --tint-pine: rgba(16,87,66,0.09);
+}
+.theme-dark {
+  --bg: #150A14; --surface: #1F0F1D; --surface-hover: #2C182A;
+  --border: rgba(205,223,215,0.16); --rule: rgba(243,239,228,0.16); --rule-soft: rgba(243,239,228,0.08);
+  --divider: #A4599C; --text: #F3EFE4; --text-secondary: #C9B4C6; --text-muted: #A8949F;
+  --accent: #C77BBD; --accent-secondary: #8FC49E; --positive: #7FC49A; --negative: #E08A8A; --warning: #D9AE55;
+  --tint: rgba(199,123,189,0.14); --tint-pine: rgba(127,196,154,0.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+  font-size: 1rem; line-height: 1.75; letter-spacing: -0.003em;
+  transition: background 0.3s, color 0.3s; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+strong { font-weight: 700; color: var(--text); }
+code, .mono { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.86em; }
+code { background: var(--tint); color: var(--accent); padding: 0.05rem 0.4rem; border-radius: 4px; word-break: break-all; }
+.skip-link { position: absolute; top: -40px; left: 1rem; background: var(--accent); color: #fff; padding: 8px 16px; font-size: 0.875rem; z-index: 9999; text-decoration: none; }
+.skip-link:focus { top: 8px; }
+
+/* ---------- UTILITY MENU ---------- */
+.viz-menu { position: fixed; top: 3.75rem; right: 1.25rem; z-index: 9998; }
+.viz-menu-toggle {
+  width: 34px; height: 34px; background: var(--bg); border: 1px solid var(--rule);
+  color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.viz-menu-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.viz-menu-dropdown {
+  position: absolute; top: 40px; right: 0; background: var(--surface); border: 1px solid var(--rule);
+  padding: 4px; min-width: 170px; opacity: 0; pointer-events: none; transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(27,18,25,0.10); transition: all 0.18s;
+}
+.viz-menu-dropdown.open { opacity: 1; pointer-events: all; transform: none; }
+.viz-menu-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: none;
+  background: none; color: var(--text); cursor: pointer; font-size: 0.85rem; font-family: inherit; text-align: left;
+}
+.viz-menu-btn:hover { color: var(--accent); }
+
+/* ---------- MASTHEAD ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: linear-gradient(90deg, #58184F 0%, #72256B 26%, #105742 62%, #6CA07A 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding: 0.75rem 2rem; display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 16px rgba(88,24,79,0.25);
+}
+.theme-dark .site-header { background: linear-gradient(90deg, #3E0F38 0%, #58184F 32%, #0C4234 68%, #4E7D5D 100%); box-shadow: 0 2px 16px rgba(0,0,0,0.45); }
+.header-logo img { height: 26px; width: auto; display: block; filter: brightness(0) invert(1); opacity: 0.95; }
+.header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.3); flex-shrink: 0; }
+.header-title { font-size: 0.8125rem; font-weight: 500; color: rgba(255,255,255,0.92); letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-badge {
+  margin-left: auto; padding: 4px 12px; border-radius: 20px; flex-shrink: 0;
+  background: rgba(255,255,255,0.22); color: #fff; border: 1px solid rgba(255,255,255,0.32);
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+}
+.theme-dark .header-badge { background: rgba(0,0,0,0.25); }
+
+/* ---------- TYPE ---------- */
+h1 { font-size: 3.25rem; line-height: 1.15; letter-spacing: -0.03em; font-weight: 800; margin-bottom: 1.35rem; }
+h1 span { color: var(--accent); }
+h2 { font-size: 2rem; line-height: 1.24; letter-spacing: -0.025em; margin-bottom: 0.8rem; font-weight: 700; }
+h3 {
+  font-size: 1.2rem; line-height: 1.4; letter-spacing: -0.015em; margin: 2.75rem 0 1rem; font-weight: 700;
+  padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule-soft);
+}
+
+/* ---------- HERO ---------- */
+.hero { max-width: 900px; margin: 0 auto; padding: 5.5rem 3rem 3rem; }
+.hero-eyebrow {
+  display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 2rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--rule);
+}
+.hero-sub { font-size: 1.1rem; color: var(--text-secondary); margin: 0 0 0.5rem; line-height: 1.85; }
+.s-kpi { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 2.25rem 0 0; }
+.s-kpi > div { padding: 1.4rem 1.2rem 1.5rem 0; }
+.s-kpi > div + div { border-left: 1px solid var(--rule-soft); padding-left: 1.2rem; }
+.s-lab { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.6rem; }
+.s-val { font-size: 2rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--text); }
+.s-val.g { color: var(--positive); } .s-val.p { color: var(--accent); }
+.s-val small { font-size: 0.9rem; font-weight: 700; margin-left: 2px; }
+.s-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; }
+.hero-meta { display: flex; flex-wrap: wrap; padding-top: 1.1rem; margin-top: 1.6rem; }
+.hero-meta-item { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.02em; }
+.hero-meta-item + .hero-meta-item::before { content: '·'; margin: 0 0.85rem; color: var(--rule); font-weight: 700; }
+
+/* ---------- SECTION NAV (s-tab 스타일) ---------- */
+.s-tabs { position: sticky; top: var(--hdr-h, 50px); z-index: 90; background: var(--bg); border-bottom: 1px solid var(--rule); margin-bottom: 1.6rem; }
+.s-tabs-in { max-width: 900px; margin: 0 auto; padding: 0.85rem 3rem 0; display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+.s-tabs-in::-webkit-scrollbar { display: none; }
+.s-tab {
+  flex-shrink: 0; display: inline-flex; align-items: baseline; gap: 0.45rem;
+  padding: 0.62rem 0.95rem 0.64rem; border-radius: 8px 8px 0 0;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+  font-size: 0.82rem; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; text-decoration: none;
+  background: rgba(27,18,25,0.05); color: var(--text-secondary); opacity: 0.8;
+  transition: background 0.16s, color 0.16s, border-color 0.16s, opacity 0.16s;
+}
+.theme-dark .s-tab { background: rgba(243,239,228,0.06); }
+.s-tab .n { font-size: 0.68rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.s-tab:hover { opacity: 1; }
+.s-tab.on { opacity: 1; background: rgba(114,37,107,0.13); color: var(--accent); border-bottom-color: var(--accent); }
+.s-tab.new { background: rgba(108,160,122,0.16); }
+.s-tab.new .n { color: var(--positive); }
+.s-tab.new.on { background: rgba(108,160,122,0.30); color: var(--positive); border-bottom-color: var(--positive); }
+.theme-dark .s-tab.on { background: rgba(199,123,189,0.22); }
+.theme-dark .s-tab.new { background: rgba(143,196,158,0.14); }
+.theme-dark .s-tab.new.on { background: rgba(143,196,158,0.28); }
+
+/* ---------- SECTIONS ---------- */
+main { max-width: 900px; margin: 0 auto; padding: 0 3rem 6rem; }
+main > section { padding-top: 3.25rem; margin: 0 0 3.5rem; border-top: 4px solid var(--divider); scroll-margin-top: 7.5rem; }
+main > section:first-child { border-top: none; padding-top: 1rem; }
+.section-label {
+  display: flex; align-items: center; gap: 0.8rem; margin: 0 0 0.9rem;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
+}
+.section-label .label-bar { display: block; width: 26px; height: 2px; background: var(--accent); flex-shrink: 0; }
+.section-label .tag-new {
+  font-size: 0.62rem; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 20px;
+  background: var(--tint-pine); color: var(--positive); border: 1px solid rgba(16,87,66,0.25);
+}
+.section-desc { font-size: 1rem; color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.85; }
+p.body { color: var(--text-secondary); margin-bottom: 1rem; }
+
+/* ---------- CALLOUT ---------- */
+.callout { border-left: 2px solid var(--accent); padding: 0.25rem 0 0.25rem 1.4rem; margin: 1.75rem 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.85; }
+.callout .ct { display: block; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.2rem; }
+.callout.pine { border-left-color: var(--positive); } .callout.pine .ct { color: var(--positive); }
+.callout.warn { border-left-color: var(--warning); } .callout.warn .ct { color: var(--warning); }
+.callout.neg { border-left-color: var(--negative); } .callout.neg .ct { color: var(--negative); }
+
+/* ---------- FEATURE GRID (fact rows) ---------- */
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
+.feat { padding: 1.35rem 1.4rem 1.45rem 0; border-bottom: 1px solid var(--rule-soft); }
+.feat:nth-child(even) { padding-left: 1.4rem; padding-right: 0; border-left: 1px solid var(--rule-soft); }
+.feat-k { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 0.45rem; }
+.feat-t { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+.feat-s { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ---------- FLOW ---------- */
+.flow { display: grid; grid-template-columns: 1fr 30px 1fr 30px 1fr 30px 1fr; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.flow-node { padding: 1.4rem 0.9rem 1.5rem 0; }
+.flow-arrow + .flow-node { border-left: 1px solid var(--rule-soft); padding-left: 0.9rem; }
+.flow-k { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 0.6rem; }
+.flow-t { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; letter-spacing: -0.01em; }
+.flow-s { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.65; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); opacity: 0.5; }
+
+/* ---------- STEP LIST (agenda) ---------- */
+.steps { border-top: 1px solid var(--rule); }
+.step { display: grid; grid-template-columns: 2.6rem 1fr; align-items: baseline; padding: 1.05rem 0; border-bottom: 1px solid var(--rule-soft); }
+.step-n { font-weight: 800; font-size: 0.9rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+.step-t { font-weight: 700; font-size: 0.98rem; margin-bottom: 0.2rem; }
+.step-s { font-size: 0.87rem; color: var(--text-secondary); line-height: 1.75; }
+
+/* ---------- MARKER LIST (A/B/C) ---------- */
+.mk {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--plum); color: #fff;
+  font-size: 0.68rem; font-weight: 800; font-family: 'Inter', sans-serif; flex-shrink: 0; line-height: 1;
+}
+.theme-dark .mk { background: #A4599C; }
+.mk-list { border-top: 1px solid var(--rule); margin-top: 1.4rem; }
+.mk-row { display: grid; grid-template-columns: 2rem 9.5rem 1fr; gap: 0 0.6rem; align-items: baseline; padding: 0.85rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.87rem; }
+.mk-row .mk { transform: translateY(3px); }
+.mk-row b { font-weight: 700; }
+.mk-row span.d { color: var(--text-secondary); line-height: 1.7; }
+
+/* ---------- TABLE ---------- */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.s-tbl { width: 100%; border-collapse: collapse; border-top: 2px solid var(--text); font-variant-numeric: tabular-nums; }
+.theme-dark .s-tbl { border-top-color: var(--text-secondary); }
+.s-tbl th { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--text-muted); font-weight: 700; text-align: left; white-space: nowrap; padding: 0.65rem 0.8rem 0.65rem 0; border-bottom: 1px solid var(--rule); }
+.s-tbl td { font-size: 0.85rem; padding: 0.65rem 0.8rem 0.65rem 0; line-height: 1.65; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+.s-tbl th:first-child, .s-tbl td:first-child { padding-left: 0.6rem; }
+.s-tbl th:last-child, .s-tbl td:last-child { padding-right: 0.6rem; }
+.s-tbl .n { text-align: right; font-weight: 800; }
+.s-tbl .ac { font-weight: 700; white-space: nowrap; }
+.s-tbl .mut { color: var(--text-secondary); }
+.s-tbl tbody tr:hover td { background: var(--surface-hover); }
+.theme-dark .s-tbl tbody tr:hover td { background: rgba(255,255,255,0.04); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.5rem; vertical-align: 0; }
+
+/* ---------- APP MOCKUP (웹앱 실제 스타일 재현) ---------- */
+.mock {
+  border: 1px solid var(--border); border-radius: 14px; background: var(--bg);
+  overflow: hidden; margin: 0.4rem 0 0; box-shadow: 0 6px 24px rgba(88,24,79,0.07);
+}
+.mock-bar {
+  display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.9rem;
+  background: linear-gradient(90deg, #58184F 0%, #72256B 30%, #105742 70%, #6CA07A 100%);
+  color: #fff; font-size: 0.72rem; font-weight: 700; font-family: 'Inter', 'Noto Sans KR', sans-serif;
+}
+.mock-bar i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.45); display: inline-block; }
+.mock-bar .ttl { margin-left: 0.35rem; opacity: 0.92; letter-spacing: 0.01em; }
+.mock-body { padding: 1.1rem; font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+.mock-cap { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.11em; color: var(--text-muted); text-transform: uppercase; margin: 2rem 0 0.6rem; }
+.pin { position: relative; }
+.pin > .mk { position: absolute; top: -8px; right: -8px; z-index: 2; box-shadow: 0 0 0 2px var(--bg); }
+
+.m-drop {
+  border: 2px dashed rgba(114,37,107,0.3); border-radius: 14px; background: var(--surface);
+  padding: 2rem 1rem; text-align: center;
+}
+.m-drop h4 { font-size: 0.95rem; font-weight: 700; margin: 0.6rem 0 0.25rem; }
+.m-drop p { font-size: 0.74rem; color: var(--text-secondary); }
+
+.m-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.m-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 0.9rem; }
+.m-stat .l { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+.m-stat .v { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 0.15rem; color: var(--accent); }
+.m-stat .v.t { color: var(--text); }
+.m-stat .v.s { font-size: 0.95rem; color: var(--positive); margin-top: 0.45rem; }
+
+.m-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 0.9rem; overflow-x: auto; scrollbar-width: none; }
+.m-tab { padding: 0.45rem 0.85rem; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.m-tab.on { color: var(--accent); border-bottom-color: var(--accent); }
+
+.m-act { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.m-act h5 { flex: 1; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; min-width: 140px; }
+.m-btn { display: inline-flex; align-items: center; gap: 0.3rem; border-radius: 9px; padding: 0.35rem 0.8rem; font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
+.m-btn.p { background: var(--plum); color: #fff; }
+.m-btn.g { background: var(--surface); color: var(--accent); border: 1px solid var(--border); }
+.m-btn.d { background: var(--pine); color: #fff; }
+.m-btn.on { background: var(--plum); color: #fff; border-color: var(--plum); }
+
+.m-filter { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.m-in { border: 1px solid var(--border); border-radius: 9px; background: var(--surface); padding: 0.4rem 0.7rem; font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
+.m-in.grow { flex: 1; min-width: 180px; }
+
+.m-tw { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+.m-tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 560px; }
+.m-tbl th { background: var(--surface-hover); text-align: left; padding: 0.5rem 0.7rem; font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.m-tbl th.sorted { background: var(--plum-light); color: var(--plum); }
+.theme-dark .m-tbl th.sorted { background: var(--tint); color: var(--accent); }
+.m-tbl td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.m-tbl tr:last-child td { border-bottom: none; }
+.m-tbl tr.hi td { background: rgba(114,37,107,0.04); }
+.m-tbl tr.hi td:first-child { box-shadow: inset 3px 0 0 var(--plum); }
+.m-tbl tr.dim td { opacity: 0.4; }
+.m-tbl tr.sep td { background: var(--plum-light); color: var(--plum); font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.7rem; }
+.theme-dark .m-tbl tr.sep td { background: var(--tint); color: var(--accent); }
+.m-tbl tr.sep2 td { background: var(--surface-hover); color: var(--text-muted); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.7rem; }
+.m-tbl .fc { font-family: monospace; color: var(--text-secondary); font-size: 0.68rem; }
+.badge { display: inline-block; border-radius: 20px; padding: 1px 8px; font-size: 0.62rem; font-weight: 600; white-space: nowrap; }
+.b-alarm { background: var(--plum-light); color: var(--plum); border: 1px solid rgba(114,37,107,0.2); }
+.b-info { background: rgba(16,87,66,0.1); color: var(--pine); border: 1px solid rgba(16,87,66,0.2); }
+.b-ver { background: var(--sage); color: var(--pine); border: 1px solid var(--eucalyptus); font-weight: 700; }
+.theme-dark .b-alarm { background: var(--tint); color: var(--accent); }
+.theme-dark .b-info { color: var(--positive); }
+.csvb { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: var(--plum-light); color: var(--plum); border: 1px solid rgba(114,37,107,0.2); border-radius: 7px; font-size: 0.6rem; font-weight: 700; white-space: nowrap; }
+.theme-dark .csvb { background: var(--tint); color: var(--accent); }
+.csvb.solid { background: var(--plum); color: #fff; border-color: var(--plum); padding: 3px 10px; }
+.code-chip { background: var(--plum-light); color: var(--plum); border: 1px solid #c8a0c4; border-radius: 7px; padding: 0 5px; font-size: 0.6rem; font-weight: 800; margin-right: 5px; }
+.theme-dark .code-chip { background: var(--tint); color: var(--accent); border-color: rgba(199,123,189,0.35); }
+.uq { margin-bottom: 3px; white-space: nowrap; }
+
+.m-cats { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+.m-cat { display: inline-flex; align-items: center; gap: 4px; padding: 0.38rem 0.75rem; border-radius: 7px; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; }
+.m-cat.on { box-shadow: 0 0 0 3px rgba(255,255,255,0.5) inset, 0 2px 10px rgba(0,0,0,0.25); }
+.m-cat .c { background: rgba(255,255,255,0.25); border-radius: 5px; padding: 0 4px; font-size: 0.58rem; }
+.m-tstat { background: var(--plum-light); border: 1px solid rgba(114,37,107,0.2); border-left: 3px solid var(--plum); border-radius: 9px; padding: 0.5rem 0.85rem; font-size: 0.7rem; color: var(--plum-deep); margin-bottom: 0.75rem; }
+.theme-dark .m-tstat { background: var(--tint); color: var(--text); border-color: rgba(199,123,189,0.3); border-left-color: var(--accent); }
+.idx { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 5px; font-size: 0.58rem; font-weight: 900; color: #fff; background: var(--plum); }
+
+.m-file { display: flex; align-items: center; gap: 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.7rem 0.9rem; flex-wrap: wrap; }
+.m-file .nm { font-weight: 600; font-size: 0.76rem; word-break: break-all; }
+.m-file .mt { font-size: 0.68rem; color: var(--text-secondary); }
+.m-file .al { color: var(--accent); font-weight: 700; font-size: 0.74rem; }
+
+.m-prog { height: 6px; background: var(--plum-light); border-radius: 3px; overflow: hidden; margin-top: 0.9rem; }
+.m-prog > i { display: block; height: 100%; width: 62%; background: var(--plum); border-radius: 3px; }
+.theme-dark .m-prog { background: var(--tint); }
+
+/* ---------- FAQ ---------- */
+.faq { border-top: 1px solid var(--rule); }
+.faq details { border-bottom: 1px solid var(--rule-soft); }
+.faq summary { list-style: none; cursor: pointer; padding: 1rem 2rem 1rem 0; font-weight: 700; font-size: 0.95rem; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; position: absolute; right: 0.2rem; top: 0.9rem; color: var(--accent); font-weight: 400; font-size: 1.2rem; transition: transform 0.2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq summary .q { color: var(--accent); margin-right: 0.6rem; font-weight: 800; }
+.faq .a { padding: 0 0 1.1rem 1.6rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.8; }
+
+/* ---------- FOOTER ---------- */
+footer { border-top: 1px solid var(--rule); max-width: 900px; margin: 0 auto; padding: 1.6rem 3rem 3rem; font-size: 0.76rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; justify-content: space-between; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+  main, .hero, footer { max-width: 100%; }
+  main { padding: 0 2rem 5rem; } .hero { padding: 4.5rem 2rem 2.5rem; } footer { padding: 1.6rem 2rem 3rem; }
+  .s-tabs-in { padding: 0.8rem 2rem 0; padding-right: 62px; }
+}
+@media (max-width: 768px) {
+  .site-header { padding: 0.65rem 1rem; gap: 0.7rem; }
+  .header-logo img { height: 20px; }
+  .header-badge { display: none; }
+  .viz-menu { top: 3.4rem; right: 0.75rem; }
+  h1 { font-size: 2.2rem; } h2 { font-size: 1.55rem; }
+  .hero { padding: 3rem 1rem 2rem; }
+  main { padding: 0 1rem 4rem; } footer { padding: 1.4rem 1rem 2.5rem; }
+  .s-tabs-in { padding: 0.65rem 1rem 0; padding-right: 56px; }
+  .s-tab { padding: 0.55rem 0.75rem 0.58rem; font-size: 0.78rem; }
+  main > section { padding-top: 2.25rem; margin-bottom: 2.25rem; border-top-width: 3px; scroll-margin-top: 6.5rem; }
+  .s-kpi { grid-template-columns: 1fr 1fr; }
+  .s-kpi > div:nth-child(3) { border-left: none; padding-left: 0; border-top: 1px solid var(--rule-soft); }
+  .s-kpi > div:nth-child(4) { border-top: 1px solid var(--rule-soft); }
+  .s-val { font-size: 1.65rem; }
+  .feat-grid { grid-template-columns: 1fr; }
+  .feat, .feat:nth-child(even) { padding: 1.15rem 0; border-left: none; }
+  .flow { grid-template-columns: 1fr; }
+  .flow-node, .flow-arrow + .flow-node { padding: 1.1rem 0; border-left: none; }
+  .flow-arrow + .flow-node { border-top: 1px solid var(--rule-soft); }
+  .flow-arrow { display: none; }
+  .mk-row { grid-template-columns: 1.8rem 1fr; }
+  .mk-row span.d { grid-column: 2; }
+  .m-stats { grid-template-columns: 1fr 1fr; }
+  .mock-body { padding: 0.8rem; }
+}
+@media print {
+  .viz-menu, .s-tabs { display: none; }
+  .site-header { position: static; }
+  main > section { break-inside: avoid-page; }
+  .faq details { display: block; } .faq .a { display: block; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">본문 바로가기</a>
+
+<nav class="viz-menu" aria-label="문서 메뉴">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-expanded="false" aria-label="메뉴 열기">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown" role="menu">
+    <button class="viz-menu-btn" onclick="cycleTheme()" role="menuitem">테마 변경</button>
+    <button class="viz-menu-btn" onclick="window.print()" role="menuitem">인쇄</button>
+  </div>
+</nav>
+
+<header class="site-header" role="banner">
+  <div class="header-logo"><img src="data:image/png;base64,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" alt="Vantive"></div>
+  <div class="header-divider"></div>
+  <div class="header-title">Artis BBOX Analysis Helper · 사용 가이드</div>
+  <span class="header-badge">Web Edition · v2.0</span>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Technical Support · Field Tool Guide</div>
+  <h1>Artis BBOX<br><span>Analysis Helper</span></h1>
+  <p class="hero-sub">Artis 투석기 블랙박스 <strong>.dat 파일</strong>을 브라우저에서 바로 열어 알람 이력을 확인하고, 카테고리별로 우선 정렬하고, <strong>CSV로 내보내는</strong> 웹 도구의 사용 가이드입니다. Excel 매크로(.xlsm) 없이 같은 작업을 할 수 있습니다.</p>
+  <div class="s-kpi">
+    <div><div class="s-lab">분석 탭</div><div class="s-val p">4<small>개</small></div><div class="s-sub">Alarm Log · Files · Macro · Triage</div></div>
+    <div><div class="s-lab">지원 포맷</div><div class="s-val">4<small>종</small></div><div class="s-sub">8.09 · 8.33 · 8.60 · 9.05</div></div>
+    <div><div class="s-lab">알람 설명 내장</div><div class="s-val">356<small>개</small></div><div class="s-sub">코드 #1 – #678</div></div>
+    <div><div class="s-lab">Triage 카테고리</div><div class="s-val g">11<small>개</small></div><div class="s-sub">혈액회로 · 압력 · 전도도 등</div></div>
+  </div>
+  <div class="hero-meta">
+    <span class="hero-meta-item">Vantive Korea Technical Support</span>
+    <span class="hero-meta-item">2026.10 개정</span>
+    <span class="hero-meta-item">설치 불필요 · 오프라인 동작</span>
+  </div>
+</section>
+
+<nav class="s-tabs" aria-label="가이드 목차">
+  <div class="s-tabs-in" id="secNav">
+    <a class="s-tab" href="#s-overview"><span class="n">01</span>개요</a>
+    <a class="s-tab" href="#s-load"><span class="n">02</span>파일 불러오기</a>
+    <a class="s-tab" href="#s-summary"><span class="n">03</span>요약 카드</a>
+    <a class="s-tab" href="#s-log"><span class="n">04</span>Alarm Log</a>
+    <a class="s-tab new" href="#s-macro"><span class="n">05</span>Macro</a>
+    <a class="s-tab new" href="#s-triage"><span class="n">06</span>Triage</a>
+    <a class="s-tab" href="#s-files"><span class="n">07</span>Files · 초기화</a>
+    <a class="s-tab" href="#s-csv"><span class="n">08</span>CSV</a>
+    <a class="s-tab" href="#s-format"><span class="n">09</span>지원 포맷</a>
+    <a class="s-tab" href="#s-faq"><span class="n">10</span>문제 해결</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- 01 -->
+<section id="s-overview">
+  <div class="section-label"><span class="label-bar"></span>01 · Overview</div>
+  <h2>이 도구로 할 수 있는 일</h2>
+  <p class="section-desc">HTML 파일 하나를 브라우저로 열면 바로 쓸 수 있습니다. 파일은 <strong>외부 서버로 전송되지 않고</strong> 내 PC의 브라우저 안에서만 처리됩니다.</p>
+
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-k">LOAD</div><div class="feat-t">드래그 &amp; 드롭 분석</div><div class="feat-s">.dat 파일을 화면에 끌어다 놓으면 버전을 자동으로 감지해 바로 분석합니다. 여러 파일을 한 번에 넣을 수 있습니다.</div></div>
+    <div class="feat"><div class="feat-k">ALARM LOG</div><div class="feat-t">전체 레코드 조회</div><div class="feat-s">발생 시각·타입·코드·설명을 표로 보고, 키워드·파일·타입으로 걸러내고, 컬럼 클릭으로 정렬합니다.</div></div>
+    <div class="feat"><div class="feat-k">MACRO</div><div class="feat-t">파일별 고유 알람 요약</div><div class="feat-s">Excel 매크로의 "알람 확인 + CSV 변환"을 재현합니다. 파일마다 중복을 뺀 알람 목록을 날짜순으로 보여줍니다.</div></div>
+    <div class="feat"><div class="feat-k">TRIAGE</div><div class="feat-t">카테고리별 우선 정렬</div><div class="feat-s">혈액회로·압력·전도도 등 11개 카테고리 중 하나를 고르면 해당 알람이 번호와 함께 맨 위로 올라옵니다.</div></div>
+    <div class="feat"><div class="feat-k">EXPORT</div><div class="feat-t">CSV 내보내기</div><div class="feat-s">파일 단위 또는 전체를 CSV로 저장해 Excel에서 센서 값까지 이어서 분석할 수 있습니다.</div></div>
+    <div class="feat"><div class="feat-k">OFFLINE</div><div class="feat-t">설치·인터넷 불필요</div><div class="feat-s">한 번 열린 뒤에는 인터넷 연결 없이도 동작합니다. 데이터는 브라우저 메모리에만 머뭅니다.</div></div>
+  </div>
+
+  <h3>작업 흐름 한눈에</h3>
+  <div class="flow">
+    <div class="flow-node"><div class="flow-k">STEP 1</div><div class="flow-t">.dat 복사</div><div class="flow-s">장비에서 USB로 블랙박스 파일을 PC로 옮깁니다.</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-k">STEP 2</div><div class="flow-t">드롭</div><div class="flow-s">도구 화면의 점선 영역에 파일을 놓습니다.</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-k">STEP 3</div><div class="flow-t">탭에서 분석</div><div class="flow-s">Macro로 훑고 Triage로 좁히고 Alarm Log로 확인합니다.</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-k">STEP 4</div><div class="flow-t">CSV 저장</div><div class="flow-s">필요한 파일을 CSV로 받아 보고서나 추가 분석에 씁니다.</div></div>
+  </div>
+
+  <div class="callout pine"><span class="ct">지원 브라우저</span>Chrome, Edge, Safari, Firefox 최신 버전에서 동작합니다. Internet Explorer는 지원하지 않습니다.</div>
+</section>
+
+<!-- 02 -->
+<section id="s-load">
+  <div class="section-label"><span class="label-bar"></span>02 · Load Files</div>
+  <h2>파일 불러오기</h2>
+  <p class="section-desc">처음 화면에 보이는 점선 영역(드롭존)으로 .dat 파일을 넣습니다. 끌어다 놓거나 클릭해서 고르는 두 가지 방법이 있습니다.</p>
+
+  <div class="mock-cap">첫 화면 · 드롭존</div>
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">&gt;&gt;&gt; Artis BBOX Analysis Helper · Web Edition</span></div>
+    <div class="mock-body">
+      <div class="pin"><span class="mk">A</span>
+        <div class="m-drop">
+          <svg width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="4" y="8" width="30" height="36" rx="4" fill="#f3e8f2" stroke="#72256B" stroke-width="2"/><path d="M34 8v8h8M34 8l8 8" stroke="#72256B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 20v14M18 28l6 6 6-6" stroke="#72256B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <h4>Drop .dat files here</h4>
+          <p>Or click to browse · Multiple files supported · All Artis BBOX formats (8.09 / 8.33 / 8.60 / 9.05)</p>
+        </div>
+      </div>
+      <div class="pin" style="margin-top:0.4rem"><span class="mk">B</span>
+        <div class="m-prog"><i></i></div>
+        <div style="font-size:0.68rem;color:var(--text-secondary);margin-top:0.35rem">Parsing BB12_200326_0703_C400AD3B7AF2_33434.dat (2/3)…</div>
+      </div>
+    </div>
+  </div>
+  <div class="mk-list">
+    <div class="mk-row"><span class="mk">A</span><b>드롭존</b><span class="d">파일을 끌어다 놓거나, 영역을 클릭해 파일 선택 창을 엽니다. 선택 창에서는 Ctrl(⌘)+클릭으로 여러 파일을 고를 수 있습니다.</span></div>
+    <div class="mk-row"><span class="mk">B</span><b>진행 표시줄</b><span class="d">여러 파일을 넣으면 어떤 파일을 몇 번째로 처리 중인지 보여줍니다. 끝나면 결과 화면으로 바뀝니다.</span></div>
+  </div>
+
+  <h3>단계별 순서</h3>
+  <div class="steps">
+    <div class="step"><span class="step-n">01</span><div><div class="step-t">장비에서 .dat 파일 복사</div><div class="step-s">Artis 투석기에서 USB 등으로 블랙박스 파일을 PC에 옮깁니다. 파일명은 <code>BB12_YYMMDD_HHMM_…dat</code> 또는 <code>TalkFile_BB11_…dat</code> 형태입니다.</div></div></div>
+    <div class="step"><span class="step-n">02</span><div><div class="step-t">드롭존에 파일 놓기</div><div class="step-s">파일을 점선 영역 위로 끌고 오면 테두리 색이 바뀌고, 놓는 순간 분석이 시작됩니다.</div></div></div>
+    <div class="step"><span class="step-n">03</span><div><div class="step-t">버전 자동 감지 후 결과 표시</div><div class="step-s">파일 크기로 8.09 / 8.33 / 8.60 / 9.05 중 하나를 판별해 모든 레코드를 읽습니다. 별도 설정은 필요 없습니다.</div></div></div>
+  </div>
+
+  <div class="callout warn"><span class="ct">파일 추가는 초기화 후</span>분석이 끝나면 드롭존이 사라집니다. 파일을 더 넣으려면 <strong>Reset</strong>(또는 Files 탭의 <strong>Clear All</strong>)을 누른 뒤, 분석할 파일을 <strong>모두 한 번에</strong> 다시 넣으세요.</div>
+  <div class="callout neg"><span class="ct">Unsupported format / file size</span>파일 크기가 지원 포맷 계산식과 맞지 않으면 이 오류가 표시됩니다. 복사 중 파일이 잘렸는지 확인하고, 다시 받은 뒤에도 같다면 기술지원 담당자에게 문의하세요.</div>
+</section>
+
+<!-- 03 -->
+<section id="s-summary">
+  <div class="section-label"><span class="label-bar"></span>03 · Summary</div>
+  <h2>요약 카드 4개</h2>
+  <p class="section-desc">분석이 끝나면 화면 맨 위에 카드 4개가 나타납니다. 불러온 데이터의 규모를 먼저 확인하세요.</p>
+
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">결과 화면 · 상단</span></div>
+    <div class="mock-body">
+      <div class="m-stats">
+        <div class="m-stat pin"><span class="mk">A</span><div class="l">Files</div><div class="v">3</div></div>
+        <div class="m-stat pin"><span class="mk">B</span><div class="l">Total Records</div><div class="v t">1,472</div></div>
+        <div class="m-stat pin"><span class="mk">C</span><div class="l">Alarm Events</div><div class="v">38</div></div>
+        <div class="m-stat pin"><span class="mk">D</span><div class="l">Detected Versions</div><div class="v s">8.60, 9.05</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="mk-list">
+    <div class="mk-row"><span class="mk">A</span><b>Files</b><span class="d">불러온 .dat 파일 수 (오류 파일 포함)</span></div>
+    <div class="mk-row"><span class="mk">B</span><b>Total Records</b><span class="d">모든 파일의 전체 레코드 수. 알람뿐 아니라 자동 이벤트, 작업자 조작, 설정값 변경까지 포함합니다.</span></div>
+    <div class="mk-row"><span class="mk">C</span><b>Alarm Events</b><span class="d">실제 알람 레코드 수 (Type = ALARM)</span></div>
+    <div class="mk-row"><span class="mk">D</span><b>Detected Versions</b><span class="d">감지된 파일 버전 목록. 형식이 맞지 않는 파일이 있으면 <code>ERR</code>로 표시됩니다.</span></div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="s-log">
+  <div class="section-label"><span class="label-bar"></span>04 · Alarm Log</div>
+  <h2>Alarm Log — 조회 · 필터 · 정렬</h2>
+  <p class="section-desc">결과 화면의 기본 탭입니다. 모든 레코드를 시간순 표로 보여주며, 필터 3개와 컬럼 정렬로 원하는 행을 빠르게 찾습니다.</p>
+
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">Alarm Log 탭</span></div>
+    <div class="mock-body">
+      <div class="m-tabs"><span class="m-tab on">Alarm Log</span><span class="m-tab">Files</span><span class="m-tab">≫ Macro</span><span class="m-tab">≫ Triage</span></div>
+      <div class="m-act"><h5>&gt;&gt;&gt; Alarm Records</h5>
+        <span class="pin"><span class="mk">E</span><span class="m-btn p">↓ Export All CSV</span></span>
+        <span class="pin"><span class="mk">F</span><span class="m-btn g">Reset</span></span>
+      </div>
+      <div class="m-filter">
+        <span class="m-in grow pin"><span class="mk">A</span>Search alarm description or file name…</span>
+        <span class="m-in pin"><span class="mk">B</span>All files ▾</span>
+        <span class="m-in pin"><span class="mk">C</span>All types ▾</span>
+      </div>
+      <div class="m-tw">
+        <table class="m-tbl">
+          <thead><tr><th class="sorted">Date / Time ▲ <span class="mk" style="width:16px;height:16px;font-size:0.58rem;margin-left:4px;vertical-align:-3px">D</span></th><th>File</th><th>Type</th><th>Code</th><th>Description</th><th>CSV</th></tr></thead>
+          <tbody>
+            <tr><td>2026-03-20 07:03:12</td><td class="fc">BB12_200326_0703….dat</td><td><span class="badge b-info">AUTOMATIC</span></td><td class="fc"></td><td>Preparation Completed</td><td><span class="csvb">↓ CSV</span></td></tr>
+            <tr class="hi"><td>2026-03-20 07:41:55</td><td class="fc">BB12_200326_0703….dat</td><td><span class="badge b-alarm">ALARM</span></td><td class="fc">#154</td><td>Venous pressure too high</td><td><span class="csvb">↓ CSV</span></td></tr>
+            <tr><td>2026-03-20 07:42:08</td><td class="fc">BB12_200326_0703….dat</td><td><span class="badge b-info">OPERATOR_ACT</span></td><td class="fc"></td><td>—</td><td><span class="csvb">↓ CSV</span></td></tr>
+            <tr class="hi"><td>2026-03-20 09:15:30</td><td class="fc">BB12_200326_0703….dat</td><td><span class="badge b-alarm">ALARM</span></td><td class="fc">#68</td><td>TMP High</td><td><span class="csvb">↓ CSV</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="mk-list">
+    <div class="mk-row"><span class="mk">A</span><b>검색창</b><span class="d">알람 설명·파일명·타입명에서 부분 일치로 찾습니다. 대소문자 구분 없이, 입력하는 즉시 반영됩니다.</span></div>
+    <div class="mk-row"><span class="mk">B</span><b>파일 필터</b><span class="d">여러 파일을 불러왔을 때 특정 파일의 레코드만 봅니다.</span></div>
+    <div class="mk-row"><span class="mk">C</span><b>타입 필터</b><span class="d">ALARM only / AUTOMATIC / OPERATOR / PARAMETER 중 하나로 좁힙니다. 세 필터는 함께 적용됩니다.</span></div>
+    <div class="mk-row"><span class="mk">D</span><b>컬럼 정렬</b><span class="d">Date/Time·File·Type·Code·Description 머리글을 누르면 정렬되고, 다시 누르면 방향이 바뀝니다. 정렬 중인 컬럼은 보라색 배경에 ▲▼가 붙습니다.</span></div>
+    <div class="mk-row"><span class="mk">E</span><b>Export All CSV</b><span class="d">불러온 모든 파일을 파일별 CSV로 한꺼번에 내려받습니다. (08 참고)</span></div>
+    <div class="mk-row"><span class="mk">F</span><b>Reset</b><span class="d">불러온 파일과 필터를 모두 지우고 첫 화면으로 돌아갑니다.</span></div>
+  </div>
+
+  <h3>표의 컬럼과 타입</h3>
+  <div class="table-scroll">
+    <table class="s-tbl">
+      <thead><tr><th>컬럼 / 값</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td class="ac">Date / Time</td><td class="mut">레코드 발생 시각 (장비 기준 시간). 기본 정렬은 오래된 순</td></tr>
+        <tr><td class="ac">File</td><td class="mut">해당 레코드가 들어 있는 원본 .dat 파일명</td></tr>
+        <tr><td class="ac">Code</td><td class="mut">알람 코드 <code>#번호</code> — ALARM 행에만 표시</td></tr>
+        <tr><td class="ac">Description</td><td class="mut">알람 코드에 대응하는 영문 설명. 내장 목록에 없는 코드는 <code>Unknown Error</code></td></tr>
+        <tr><td class="ac"><span class="badge b-alarm">ALARM</span></td><td class="mut">실제 알람. 행 왼쪽에 보라색 줄이 표시되어 눈에 띕니다</td></tr>
+        <tr><td class="ac"><span class="badge b-info">AUTOMATIC</span></td><td class="mut">장비가 자동으로 기록한 이벤트</td></tr>
+        <tr><td class="ac"><span class="badge b-info">OPERATOR_ACT</span></td><td class="mut">작업자 조작 기록 (필터 메뉴의 OPERATOR)</td></tr>
+        <tr><td class="ac"><span class="badge b-info">SET_CNF_VALUE</span></td><td class="mut">설정값 변경 기록 (필터 메뉴의 PARAMETER)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout"><span class="ct">최대 5,000행 표시</span>결과가 5,000건을 넘으면 앞의 5,000건만 화면에 보이고 표 아래에 안내가 나옵니다. 필터로 범위를 좁히거나 CSV로 전체를 확인하세요.</div>
+</section>
+
+<!-- 05 -->
+<section id="s-macro">
+  <div class="section-label"><span class="label-bar"></span>05 · Macro<span class="tag-new">NEW</span></div>
+  <h2>Macro — 파일별 고유 알람 요약</h2>
+  <p class="section-desc">Excel 매크로의 <strong>"알람 확인 + CSV 변환"</strong>과 같은 화면입니다. 파일 한 줄에 그 파일에서 발생한 알람을 <strong>코드 중복 없이</strong> 모아 보여주므로, 여러 날짜의 파일을 넣었을 때 어느 치료에서 무슨 알람이 났는지 가장 빨리 훑을 수 있습니다.</p>
+
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">≫ Macro 탭</span></div>
+    <div class="mock-body">
+      <div class="m-tabs"><span class="m-tab">Alarm Log</span><span class="m-tab">Files</span><span class="m-tab on">≫ Macro</span><span class="m-tab">≫ Triage</span></div>
+      <div class="m-act" style="margin-bottom:0.6rem"><span style="font-size:0.62rem;font-weight:800;color:var(--accent);letter-spacing:0.05em">SORT:</span>
+        <span class="pin"><span class="mk">A</span><span class="m-btn g on">▼ Latest First</span></span>
+        <span class="m-btn g">▲ Oldest First</span>
+      </div>
+      <div class="m-tw">
+        <table class="m-tbl">
+          <thead><tr><th>Start Time</th><th>File Name</th><th>Unique Alarms</th><th style="text-align:center">CSV</th></tr></thead>
+          <tbody>
+            <tr class="hi"><td style="white-space:nowrap">2026-03-20 07:03:12 <span class="badge b-ver">9.05</span></td><td class="fc">BB12_200326_0703_C400AD3B7AF2_33434.dat</td>
+              <td class="pin"><span class="mk" style="top:-4px;right:-4px">B</span><div class="uq"><span class="code-chip">#154</span>Venous pressure too high</div><div class="uq"><span class="code-chip">#68</span>TMP High</div><div class="uq"><span class="code-chip">#28</span>Blood in dialysate</div></td>
+              <td style="text-align:center" class="pin"><span class="mk" style="top:-4px;right:-4px">C</span><span class="csvb solid">↓ CSV</span></td></tr>
+            <tr><td style="white-space:nowrap">2026-03-18 21:51:40 <span class="badge b-ver">8.60</span></td><td class="fc">TalkFile_BB11_180326_2151.dat</td><td><div class="uq"><span class="code-chip">#559</span>Preparation Completed</div></td><td style="text-align:center"><span class="csvb solid">↓ CSV</span></td></tr>
+            <tr><td style="white-space:nowrap">2026-03-17 08:12:05 <span class="badge b-ver">8.60</span></td><td class="fc">TalkFile_BB11_170326_0812.dat</td><td style="color:var(--text-muted);font-style:italic">No alarms detected</td><td style="text-align:center"><span class="csvb solid">↓ CSV</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="mk-list">
+    <div class="mk-row"><span class="mk">A</span><b>정렬 버튼</b><span class="d">파일 시작 시각 기준으로 <strong>최신순(기본)</strong> 또는 오래된 순으로 바꿉니다. 선택된 버튼은 보라색으로 채워집니다.</span></div>
+    <div class="mk-row"><span class="mk">B</span><b>Unique Alarms</b><span class="d">같은 코드가 여러 번 나도 한 번만, 처음 발생한 순서대로 표시합니다. 알람이 있는 파일은 행 배경이 연한 보라색입니다. 알람이 없으면 <em>No alarms detected</em>.</span></div>
+    <div class="mk-row"><span class="mk">C</span><b>CSV 버튼</b><span class="d">그 파일의 전체 레코드(센서 값 포함)를 CSV로 내려받습니다. 형식 오류 파일은 <code>ERR</code>로 표시되고 버튼이 없습니다.</span></div>
+  </div>
+
+  <div class="callout pine"><span class="ct">이렇게 쓰세요</span>장비 한 대의 며칠 치 파일을 한꺼번에 넣고 Macro 탭에서 <strong>반복되는 알람 코드</strong>부터 찾으세요. 의심 파일이 보이면 그 행의 CSV를 받아 알람 전후 센서 값을 확인합니다.</div>
+</section>
+
+<!-- 06 -->
+<section id="s-triage">
+  <div class="section-label"><span class="label-bar"></span>06 · Triage<span class="tag-new">NEW</span></div>
+  <h2>Triage — 카테고리별 우선 정렬</h2>
+  <p class="section-desc">알람 계통 버튼을 누르면 그 계통의 알람이 <strong>번호(1, 2, 3…)와 함께 맨 위</strong>로 올라오고, 나머지 알람은 아래에 흐리게 남습니다. "압력 쪽 문제인가?"처럼 가설을 세우고 확인할 때 씁니다.</p>
+
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">≫ Triage 탭 · Pressure Alarms 선택</span></div>
+    <div class="mock-body">
+      <div class="m-tabs"><span class="m-tab">Alarm Log</span><span class="m-tab">Files</span><span class="m-tab">≫ Macro</span><span class="m-tab on">≫ Triage</span></div>
+      <div class="m-act"><h5>&gt;&gt;&gt; Diagnostic Triage</h5><span class="pin"><span class="mk">D</span><span class="m-btn g">✕ Show All</span></span></div>
+      <div class="m-cats pin"><span class="mk">A</span>
+        <span class="m-cat" style="background:#72256B">Blood Circuit <span class="c">1</span></span>
+        <span class="m-cat" style="background:#e67e22">Air Detection</span>
+        <span class="m-cat on" style="background:#105742">Pressure Alarms <span class="c">2</span></span>
+        <span class="m-cat" style="background:#6CA07A">UF / Fluid Removal</span>
+        <span class="m-cat" style="background:#c0392b">Temperature</span>
+        <span class="m-cat" style="background:#2471A3">Conductivity / Conc.</span>
+        <span class="m-cat" style="background:#566573">…</span>
+      </div>
+      <div class="m-tstat pin"><span class="mk">B</span><span class="badge" style="background:#105742;color:#fff">Pressure Alarms</span> <strong style="color:inherit">2</strong>건 매칭 &nbsp;|&nbsp; 기타 알람 1건 &nbsp;|&nbsp; 전체 알람 3건</div>
+      <div class="m-tw pin"><span class="mk">C</span>
+        <table class="m-tbl">
+          <thead><tr><th>#</th><th>Date / Time</th><th>File</th><th>Code</th><th>Description</th><th>CSV</th></tr></thead>
+          <tbody>
+            <tr class="sep"><td colspan="6">Pressure Alarms &nbsp;▶ 2건 우선 표시</td></tr>
+            <tr class="hi"><td><span class="idx" style="background:#105742">1</span></td><td>2026-03-20 07:41:55</td><td class="fc">BB12_200326….dat</td><td style="color:#105742;font-weight:700">#154</td><td>Venous pressure too high</td><td><span class="csvb">↓ CSV</span></td></tr>
+            <tr class="hi"><td><span class="idx" style="background:#105742">2</span></td><td>2026-03-20 09:15:30</td><td class="fc">BB12_200326….dat</td><td style="color:#105742;font-weight:700">#68</td><td>TMP High</td><td><span class="csvb">↓ CSV</span></td></tr>
+            <tr class="sep2"><td colspan="6">기타 알람 — 1건 (우선순위 외)</td></tr>
+            <tr class="dim"><td></td><td>2026-03-20 10:02:47</td><td class="fc">BB12_200326….dat</td><td class="fc">#28</td><td>Blood in dialysate</td><td><span class="csvb">↓ CSV</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="mk-list">
+    <div class="mk-row"><span class="mk">A</span><b>카테고리 버튼</b><span class="d">버튼 옆 흰 숫자는 불러온 데이터에서 그 계통에 해당하는 알람 건수입니다. 숫자가 없으면 해당 알람이 없다는 뜻입니다. 마우스를 올리면 한글 이름이 보입니다.</span></div>
+    <div class="mk-row"><span class="mk">B</span><b>결과 요약</b><span class="d">선택 계통 매칭 건수 · 기타 알람 건수 · 전체 알람 건수를 한 줄로 보여줍니다.</span></div>
+    <div class="mk-row"><span class="mk">C</span><b>결과 표</b><span class="d">위쪽은 매칭 알람(시간순, 번호 부여), 아래쪽은 나머지 알람(흐리게, 최대 3,000건)입니다. ALARM 타입만 대상입니다.</span></div>
+    <div class="mk-row"><span class="mk">D</span><b>Show All</b><span class="d">선택을 해제합니다. 같은 카테고리 버튼을 한 번 더 눌러도 해제됩니다.</span></div>
+  </div>
+
+  <h3>11개 카테고리와 포함 코드 수</h3>
+  <p class="body">한 알람 코드가 두 계통에 걸칠 수 있습니다. 예를 들어 <code>#4 Air in Venous Line</code>은 Blood Circuit과 Air Detection 모두에, <code>#153–155 Venous pressure</code>는 Blood Circuit과 Pressure Alarms 모두에 포함됩니다.</p>
+  <div class="table-scroll">
+    <table class="s-tbl">
+      <thead><tr><th>카테고리</th><th>한글명</th><th class="n">코드 수</th><th>대표 알람</th></tr></thead>
+      <tbody>
+        <tr><td class="ac"><span class="dot" style="background:#72256B"></span>Blood Circuit</td><td>혈액 회로</td><td class="n">37</td><td class="mut">#4 Air in Venous Line · #154 Venous pressure too high · #509 Blood Lines Clamped</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#e67e22"></span>Air Detection</td><td>공기 감지</td><td class="n">9</td><td class="mut">#33 Air In Hydraulic Pathway (LD1) · #583 Air detector cleaning required</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#105742"></span>Pressure Alarms</td><td>압력 알람</td><td class="n">27</td><td class="mut">#68 TMP High · #87 Dialyzer Inlet Pressure High · #589 SN Pressure High</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#6CA07A"></span>UF / Fluid Removal</td><td>한외여과 / 수분 제거</td><td class="n">21</td><td class="mut">#60 UF target will not be achieved · #505 UF Deviation</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#c0392b"></span>Temperature</td><td>온도</td><td class="n">9</td><td class="mut">#134 Dialysis fluid temp high · #538 Temperature Mismatch</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#2471A3"></span>Conductivity / Conc.</td><td>전도도 / 농축액</td><td class="n">27</td><td class="mut">#62 Incorrect conductivity measured · #21 BiCart cartridge empty</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#1a5276"></span>Pumps &amp; Flow</td><td>펌프 및 유량</td><td class="n">26</td><td class="mut">#104 P1 Pump failure · #300 D1 Flowmeter Failure</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#7D3C98"></span>Heparin</td><td>헤파린</td><td class="n">5</td><td class="mut">#55 Heparin pump overload · #573 Low Heparinization</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#922B21"></span>Blood Leak</td><td>혈액 누출</td><td class="n">4</td><td class="mut">#28 Blood in dialysate · #170 BLD Sensitivity Loss</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#1A5276"></span>BPM</td><td>혈압 모니터링</td><td class="n">5</td><td class="mut">#31 BPM Measurement failure · #132 BPM Systolic pressure alarm</td></tr>
+        <tr><td class="ac"><span class="dot" style="background:#566573"></span>System / Hardware</td><td>시스템 / 하드웨어</td><td class="n">18</td><td class="mut">#64 Safe State Activated · #120 Protection System Failure · #550 Power Failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><span class="ct">판단 보조 도구입니다</span>카테고리는 알람 코드를 계통별로 묶어 둔 것으로, 원인 진단을 대신하지 않습니다. 최종 판단은 서비스 매뉴얼과 CSV의 센서 값을 함께 확인한 뒤 내리세요.</div>
+</section>
+
+<!-- 07 -->
+<section id="s-files">
+  <div class="section-label"><span class="label-bar"></span>07 · Files &amp; Reset</div>
+  <h2>Files 탭과 초기화</h2>
+  <p class="section-desc">불러온 파일 목록과 파일별 요약(버전·레코드 수·시작 시각·알람 수)을 확인합니다.</p>
+
+  <div class="mock">
+    <div class="mock-bar"><i></i><i></i><i></i><span class="ttl">Files 탭</span></div>
+    <div class="mock-body">
+      <div class="m-tabs"><span class="m-tab">Alarm Log</span><span class="m-tab on">Files</span><span class="m-tab">≫ Macro</span><span class="m-tab">≫ Triage</span></div>
+      <div class="m-act"><h5>&gt;&gt;&gt; Loaded Files</h5><span class="pin"><span class="mk">C</span><span class="m-btn d">Clear All</span></span></div>
+      <div class="m-file pin"><span class="mk">A</span>
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="2" y="2" width="22" height="28" rx="3" fill="#f3e8f2" stroke="#72256B" stroke-width="1.5"/><path d="M24 2v7h6M24 2l6 7" stroke="#72256B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="flex:1;min-width:180px"><div class="nm">BB12_200326_0703_C400AD3B7AF2_33434.dat</div><div class="mt">Ver. 9.05 · 490 records · Start: 2026-03-20 07:03:12</div></div>
+        <span class="al">13 alarms</span><span class="badge b-ver">9.05</span><span class="csvb pin"><span class="mk" style="top:-12px;right:-12px">B</span>↓ CSV</span>
+      </div>
+    </div>
+  </div>
+  <div class="mk-list">
+    <div class="mk-row"><span class="mk">A</span><b>파일 카드</b><span class="d">파일명, 버전, 레코드 수, 첫 레코드 시각, 알람 수를 보여줍니다. 형식 오류 파일은 빨간 글씨로 오류 내용이 나옵니다.</span></div>
+    <div class="mk-row"><span class="mk">B</span><b>CSV</b><span class="d">이 파일 하나만 CSV로 내려받습니다.</span></div>
+    <div class="mk-row"><span class="mk">C</span><b>Clear All</b><span class="d">Alarm Log 탭의 Reset과 같습니다. 모든 파일·필터·Triage 선택을 지우고 드롭존으로 돌아갑니다.</span></div>
+  </div>
+  <div class="callout warn"><span class="ct">파일 하나만 빼기는 안 됩니다</span>현재 버전에는 개별 삭제 기능이 없습니다. Clear All로 비운 뒤 필요한 파일만 다시 넣으세요. 브라우저를 새로고침해도 모든 데이터가 지워집니다.</div>
+</section>
+
+<!-- 08 -->
+<section id="s-csv">
+  <div class="section-label"><span class="label-bar"></span>08 · CSV Export</div>
+  <h2>CSV 내보내기</h2>
+  <p class="section-desc">CSV에는 화면 표에 없는 <strong>센서·상태 컬럼까지 전부</strong> 들어갑니다. 알람 전후의 압력·온도·전도도 값을 보려면 CSV를 받으세요.</p>
+
+  <div class="table-scroll">
+    <table class="s-tbl">
+      <thead><tr><th>위치</th><th>버튼</th><th>받는 범위</th></tr></thead>
+      <tbody>
+        <tr><td class="ac">Alarm Log 상단</td><td><span class="m-btn p" style="padding:0.2rem 0.6rem">↓ Export All CSV</span></td><td class="mut">불러온 모든 파일 — 파일마다 CSV 1개씩</td></tr>
+        <tr><td class="ac">Alarm Log · Triage 각 행</td><td><span class="csvb">↓ CSV</span></td><td class="mut">그 행이 속한 파일 전체 (행 하나만이 아님)</td></tr>
+        <tr><td class="ac">Macro 각 행</td><td><span class="csvb solid">↓ CSV</span></td><td class="mut">그 파일 전체</td></tr>
+        <tr><td class="ac">Files 카드</td><td><span class="csvb">↓ CSV</span></td><td class="mut">그 파일 전체</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>파일명 규칙</h3>
+  <p class="body">원본 파일명에서 <code>.dat</code>를 떼고 <code>_1.csv</code>를 붙입니다. Excel 매크로 결과물과 같은 이름이라 기존 분석 파일과 바로 비교할 수 있습니다.</p>
+  <div class="steps">
+    <div class="step"><span class="step-n mono">IN</span><div class="step-s"><code>BB12_200326_0703_C400AD3B7AF2_33434.dat</code></div></div>
+    <div class="step"><span class="step-n mono">OUT</span><div class="step-s"><code>BB12_200326_0703_C400AD3B7AF2_33434_1.csv</code></div></div>
+  </div>
+
+  <div class="callout warn"><span class="ct">여러 파일 다운로드 허용</span>Export All CSV로 여러 파일을 받을 때 브라우저가 "여러 파일 다운로드" 허용 여부를 물을 수 있습니다. <strong>허용</strong>을 눌러야 모든 파일이 저장됩니다.</div>
+</section>
+
+<!-- 09 -->
+<section id="s-format">
+  <div class="section-label"><span class="label-bar"></span>09 · Formats</div>
+  <h2>지원 포맷과 레코드 구조</h2>
+  <p class="section-desc">파일 크기가 아래 계산식 중 하나와 정확히 맞으면 그 버전으로 판별합니다. N은 레코드 수입니다.</p>
+
+  <div class="table-scroll">
+    <table class="s-tbl">
+      <thead><tr><th>버전</th><th class="n">헤더</th><th class="n">레코드 1개</th><th>파일 크기 계산식</th></tr></thead>
+      <tbody>
+        <tr><td class="ac"><span class="badge b-ver">8.09</span></td><td class="n">255 B</td><td class="n">492 B</td><td class="mono">255 + N × 492</td></tr>
+        <tr><td class="ac"><span class="badge b-ver">8.33</span></td><td class="n">259 B</td><td class="n">520 B</td><td class="mono">259 + N × 520</td></tr>
+        <tr><td class="ac"><span class="badge b-ver">8.60</span></td><td class="n">262 B</td><td class="n">540 B</td><td class="mono">262 + N × 540</td></tr>
+        <tr><td class="ac"><span class="badge b-ver">9.05</span></td><td class="n">263 B</td><td class="n">540 B</td><td class="mono">263 + N × 540</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>레코드 안에서 읽는 값</h3>
+  <div class="table-scroll">
+    <table class="s-tbl">
+      <thead><tr><th>바이트 위치</th><th>형식</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td class="ac mono">0 – 3</td><td class="mut">uint32 LE</td><td class="mut">Unix 타임스탬프 → Date / Time</td></tr>
+        <tr><td class="ac mono">6 – 7</td><td class="mut">uint16 LE</td><td class="mut">타입 코드 (0 = ALARM, 1 = OPERATOR_ACT, 2 = SET_CNF_VALUE, 4 = AUTOMATIC …)</td></tr>
+        <tr><td class="ac mono">8 – 11</td><td class="mut">uint32 LE</td><td class="mut">레코드 번호 (CSV의 Rec. N.)</td></tr>
+        <tr><td class="ac mono">16 – 19</td><td class="mut">uint32 LE</td><td class="mut">알람 기술 코드 → 내장 목록에서 설명 조회 (ALARM 행)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><span class="ct">알람 설명 범위</span>코드 #1 – #678 가운데 356개의 설명이 내장되어 있습니다. 목록에 없는 코드는 <code>Unknown Error</code>로 표시되므로, 코드 번호로 서비스 매뉴얼을 찾아보세요.</div>
+</section>
+
+<!-- 10 -->
+<section id="s-faq">
+  <div class="section-label"><span class="label-bar"></span>10 · Troubleshooting</div>
+  <h2>자주 묻는 질문</h2>
+  <p class="section-desc">현장에서 자주 받는 질문을 모았습니다.</p>
+  <div class="faq">
+    <details><summary><span class="q">Q</span>"Unsupported format / file size"가 나옵니다.</summary><div class="a">파일 크기가 4가지 포맷 계산식과 맞지 않는 경우입니다. USB 복사 중 잘렸거나 다른 종류의 파일일 수 있습니다. 장비에서 다시 받아 보고, 그래도 같으면 파일을 기술지원 담당자에게 전달하세요.</div></details>
+    <details><summary><span class="q">Q</span>파일을 더 추가하고 싶은데 드롭존이 없어요.</summary><div class="a">분석 후에는 드롭존이 숨겨집니다. Reset(또는 Clear All)을 누르면 다시 나타납니다. 함께 볼 파일은 처음부터 한 번에 모두 넣는 것이 좋습니다.</div></details>
+    <details><summary><span class="q">Q</span>알람 설명이 "Unknown Error"로 나옵니다.</summary><div class="a">내장 목록(356개)에 없는 코드입니다. Code 컬럼의 번호로 서비스 매뉴얼의 알람 표를 확인하세요.</div></details>
+    <details><summary><span class="q">Q</span>Export All CSV를 눌렀는데 파일이 하나만 받아졌어요.</summary><div class="a">브라우저가 여러 파일 동시 다운로드를 막은 경우입니다. 주소창 오른쪽의 다운로드 차단 아이콘에서 이 페이지를 허용한 뒤 다시 누르세요. 또는 Macro 탭에서 파일별 CSV 버튼을 하나씩 눌러도 됩니다.</div></details>
+    <details><summary><span class="q">Q</span>Triage 카테고리 버튼에 숫자가 없어요.</summary><div class="a">불러온 파일에 그 계통 알람이 없다는 뜻입니다. 눌러도 "해당 알람 없음"으로 표시되고 나머지 알람만 아래에 나옵니다.</div></details>
+    <details><summary><span class="q">Q</span>환자 데이터가 외부로 나가지 않나요?</summary><div class="a">파일은 브라우저 메모리에서만 처리되며 어떤 서버로도 전송되지 않습니다. 탭을 닫거나 새로고침하면 모두 사라집니다. 받은 CSV 파일은 사내 보안 규정에 따라 보관하세요.</div></details>
+    <details><summary><span class="q">Q</span>Alarm Log에 5,000건까지만 보여요.</summary><div class="a">화면 속도를 위해 5,000행까지만 그립니다. 파일·타입 필터나 검색으로 좁히면 나머지도 볼 수 있고, CSV에는 항상 전체가 들어갑니다.</div></details>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>&gt;&gt;&gt; Artis BBOX Analysis Helper · Web Edition 사용 가이드 v2.0</span>
+  <span>Vantive Korea Technical Support · 2026</span>
+</footer>
+
+<script>
+var currentTheme = 'light', menuOpen = false;
+function cycleTheme(){ var h=document.documentElement;
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  h.className = 'theme-' + currentTheme;
+  try { localStorage.setItem('bboxGuideTheme', currentTheme); } catch (e) {}
+  toggleMenu(false); }
+function toggleMenu(force){ menuOpen = typeof force === 'boolean' ? force : !menuOpen;
+  document.getElementById('vizMenuDropdown').classList.toggle('open', menuOpen);
+  document.querySelector('.viz-menu-toggle').setAttribute('aria-expanded', menuOpen ? 'true' : 'false'); }
+document.addEventListener('click', function(e){
+  if (menuOpen && !e.target.closest('.viz-menu')) toggleMenu(false); });
+try { if (localStorage.getItem('bboxGuideTheme') === 'dark') { currentTheme = 'dark'; document.documentElement.className = 'theme-dark'; } } catch (e) {}
+
+function syncHdr(){ var h=document.querySelector('.site-header');
+  if (h) document.documentElement.style.setProperty('--hdr-h', h.offsetHeight + 'px'); }
+window.addEventListener('resize', syncHdr); syncHdr();
+
+// 목차 탭 활성 표시
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#secNav .s-tab'));
+  var map = {}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  function setOn(id){ links.forEach(function(a){ a.classList.toggle('on', map[id] === a); });
+    var a = map[id]; if (a) { var nav = a.parentNode;
+      var l = a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2;
+      nav.scrollTo({ left: l, behavior: 'smooth' }); } }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting) setOn(e.target.id); });
+  }, { rootMargin: '-35% 0px -60% 0px' });
+  document.querySelectorAll('main > section').forEach(function(s){ io.observe(s); });
+})();
+</script>
+</body>
+</html>
