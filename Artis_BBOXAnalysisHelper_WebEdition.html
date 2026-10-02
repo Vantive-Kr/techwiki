@@ -151,10 +151,15 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
   }
   table {
     width: 100%;
+    min-width: 760px;
     border-collapse: collapse;
     font-size: 13px;
   }
@@ -267,12 +272,15 @@
   #progress-label { font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
 
   /* ── Tab bar ─────────────────────────────────────── */
-  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tab-bar::-webkit-scrollbar { display: none; }
   .tab {
     padding: 9px 20px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
     color: var(--text-muted);
