@@ -352,22 +352,22 @@
     }
     .welcome-topnav::-webkit-scrollbar { display: none; }  /* 스크롤바 숨김 (WebKit) */
     .topnav-item {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 10px 9px; flex: 0 0 auto;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 10px 6px; flex: 0 0 auto;      /* 9px→6px: Tools 추가 후 한 줄 유지 */
       border: none; background: transparent; cursor: pointer;
       border-radius: 999px;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      font-size: 12.6px; font-weight: 700;   /* 기존 14px에서 ~10% 축소 (Annual Leave 추가로 한 줄에 다 표시) */
+      font-size: 12px; font-weight: 700;     /* 14px→12.6px(Annual Leave)→12px(Tools 추가) — 한 줄 유지 */
       color: var(--plum); letter-spacing: -0.2px;
       white-space: nowrap;
       transition: background var(--transition), color var(--transition);
     }
     .topnav-item .tn-icon {
-      width: 18px; height: 18px; flex-shrink: 0;
+      width: 16px; height: 16px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .topnav-item .tn-icon svg {
-      width: 18px; height: 18px;
+      width: 16px; height: 16px;
       stroke: var(--plum); stroke-width: 2.2;
       transition: stroke var(--transition);
     }
@@ -1316,6 +1316,10 @@ function rotateBanner() {
               <line x1="3" y1="10" x2="21" y2="10"/>
               <path d="M9 15.5l2 2 4-4"/>
             </svg>`,
+    tools: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>`,
   };
 
   /* ── Data ────────────────────────────────────── */
@@ -1324,33 +1328,34 @@ function rotateBanner() {
       id: 'alarm', label: 'Alarm Search', icon: SVG.alarm,
       desc: '기기별 알람·에러 코드를 검색하고 원인과 조치 방법을 빠르게 확인하세요.',
       items: [
-        { label: 'AK98 Error Code Search',   file: 'ak98_alarm_search_eng.html' },
-        { label: 'ARTIS Alarm Search',        file: 'artis_alarm_search.html' },
-        { label: 'Phoenix Alarm Search',      file: 'phoenix_alarm_search.html' },
-        { label: 'Prismaflex Alarm Search',   file: 'prismaflex_alarm_search.html' },
-        { label: 'PrisMax Alarm Search',      file: 'prismax_alarm_search.html' },
+        { group: 'Artis',   label: 'ARTIS Alarm Search',        file: 'artis_alarm_search.html' },
+        { group: 'AK',      label: 'AK98 Error Code Search',   file: 'ak98_alarm_search_eng.html' },
+        { group: 'Phoenix', label: 'Phoenix Alarm Search',      file: 'phoenix_alarm_search.html' },
+        { group: 'CRRT',    label: 'Prismaflex Alarm Search',   file: 'prismaflex_alarm_search.html' },
+        { group: 'CRRT',    label: 'PrisMax Alarm Search',      file: 'prismax_alarm_search.html' },
       ]
     },
     {
       id: 'inspection', label: 'Device Inspection', icon: SVG.inspection,
       desc: '장비별 점검 이력과 기록을 조회하고 관리합니다.',
       items: [
-        { label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
+        { group: 'CRRT', label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
       ]
     },
     {
       id: 'info', label: 'Device Info', icon: SVG.info,
       desc: '기기 사용법, 소독·자가진단, 유압 회로 등 기술 자료를 확인하세요.',
       items: [
-        { label: 'Artis UF Deviation Alarm (505/506)',  file: 'UF_Deviation_alarm_505_506_weightloss.html' },
-        { label: 'Artis 소독 단계 및 유압 회로 문제 해결', file: 'Artis_disinfection_guide_kor.html' },
-        { label: 'Artis Hydraulic Circuit Description', file: 'Artis_Physio_Plus_Hydraulic_Manual.html' },
-        { label: 'Artis Electronic Description', file: 'Artis_Physio_Plus_Electronic_Description.html' },
-        { label: 'Artis CRC 기술 가이드',                  file: 'CRC-Technical-Guide.html' },
-        { label: 'PrisMax 모의 환자 치료 절차',      file: 'prismax_simulated_treatment_kor_v2.html' },
-        { label: 'PrisMax 시스템 자가진단 가이드(SST)',   file: 'prismax_sst_guide_kor_v3.html' },
-        { label: 'WRO 300 H 위생 기능 & 소독 가이드',   file: 'wro300h_hygiene_guide_kor.html' },
-        { label: 'AK98 Diascan',                          file: 'ak98_diascan_guide_kor.html' },
+        { group: 'Artis', label: 'Artis UF Deviation Alarm (505/506)',  file: 'UF_Deviation_alarm_505_506_weightloss.html' },
+        { group: 'Artis', label: 'Artis 소독 단계 및 유압 회로 문제 해결', file: 'Artis_disinfection_guide_kor.html' },
+        { group: 'Artis', label: 'Artis Hydraulic Circuit Description', file: 'Artis_Physio_Plus_Hydraulic_Manual.html' },
+        { group: 'Artis', label: 'Artis Electronic Description', file: 'Artis_Physio_Plus_Electronic_Description.html' },
+        { group: 'Artis', label: 'Artis CRC 기술 가이드',                  file: 'CRC-Technical-Guide.html' },
+        { group: 'AK',    label: 'AK98 Diascan',                          file: 'ak98_diascan_guide_kor.html' },
+        { group: 'RO',    label: 'WRO 300 H 위생 기능 & 소독 가이드',   file: 'wro300h_hygiene_guide_kor.html' },
+        { group: 'RO',    label: 'RO Treatment Head 742 System 가이드', file: 'ROTreatmentHead_742_system_guide.html' },
+        { group: 'CRRT',  label: 'PrisMax 모의 환자 치료 절차',      file: 'prismax_simulated_treatment_kor_v2.html' },
+        { group: 'CRRT',  label: 'PrisMax 시스템 자가진단 가이드(SST)',   file: 'prismax_sst_guide_kor_v3.html' },
       ]
     },
     {
@@ -1371,15 +1376,15 @@ function rotateBanner() {
       id: 'serviceplan', label: 'Service Plan', icon: SVG.serviceplan,
       desc: '서비스 플랜 및 파트너 프로그램',
       items: [
-        { label: 'Service Plan 검색', file: 'Vantive_Serviceplan_search.html' },
-        { label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
-        { label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
-        { label: 'Prismaflex Technical Services Partner Advantage (KOR)', file: 'Prismaflex_TSPA_Brochure_KOR_RevC.pdf' },
-        { label: 'PrisMax Technical Services Partner Advantage (KOR)',    file: 'PrisMax_TSPA_Brochure_KOR_RevB.pdf' },
-        { label: 'WRO300 Technical Services Partner Advantage (KOR)',     file: 'WRO300_TSPA_Brochure_KOR_RevC.pdf' },
-        { label: 'CWP 임대 Service Partner Advantage (KOR)',              file: 'CWP_Rental_SPA_KOR_RevF.pdf' },
-        { label: 'CWP 판매 Only Service Partner Advantage (KOR)',         file: 'CWP_Sales_Only_SPA_KOR_RevC.pdf' },
-        { label: 'CWP 판매+HD Service Partner Advantage (KOR)',           file: 'CWP_Sales_HD_SPA_KOR_RevF.pdf' },
+        { group: '공통',  label: 'Service Plan 검색', file: 'Vantive_Serviceplan_search.html' },
+        { group: 'Artis',  label: 'APP Technical Services Partner Advantage (KOR)',        file: 'APP_TSPA_Brochure_KOR_RevB.pdf' },
+        { group: 'AK',     label: 'AK98 Technical Services Partner Advantage (KOR)',       file: 'AK98_TSPA_Brochure_KOR_RevB.pdf' },
+        { group: 'RO',     label: 'WRO300 Technical Services Partner Advantage (KOR)',     file: 'WRO300_TSPA_Brochure_KOR_RevC.pdf' },
+        { group: 'RO',     label: 'CWP 임대 Service Partner Advantage (KOR)',              file: 'CWP_Rental_SPA_KOR_RevF.pdf' },
+        { group: 'RO',     label: 'CWP 판매 Only Service Partner Advantage (KOR)',         file: 'CWP_Sales_Only_SPA_KOR_RevC.pdf' },
+        { group: 'RO',     label: 'CWP 판매+HD Service Partner Advantage (KOR)',           file: 'CWP_Sales_HD_SPA_KOR_RevF.pdf' },
+        { group: 'CRRT',   label: 'Prismaflex Technical Services Partner Advantage (KOR)', file: 'Prismaflex_TSPA_Brochure_KOR_RevC.pdf' },
+        { group: 'CRRT',   label: 'PrisMax Technical Services Partner Advantage (KOR)',    file: 'PrisMax_TSPA_Brochure_KOR_RevB.pdf' },
       ]
     },
     {
@@ -1395,6 +1400,14 @@ function rotateBanner() {
         { group: 'Work Schedules', label: '서울 작업 일정',             file: 'work_schedule_calendar.html?r=seoul' },
         { group: 'Work Schedules', label: '대전·광주 작업 일정',        file: 'work_schedule_calendar.html?r=djgj' },
         { group: 'Work Schedules', label: '부산·대구 작업 일정',        file: 'work_schedule_calendar.html?r=bsdg' },
+      ]
+    },
+    {
+      id: 'tools', label: 'Tools', icon: SVG.tools,
+      desc: '블랙박스 분석 등 현장 업무용 웹 도구와 사용 가이드를 확인하세요.',
+      items: [
+        { group: 'Artis BBOX', label: 'Mediartis Tech &amp; Analysis Helper (Web Edition)', file: 'Artis_BBOXAnalysisHelper_WebEdition.html' },
+        { group: 'Artis BBOX', label: '사용 가이드 · Mediartis Helper', file: 'Artis_BBOXAnalysisHelper_WebEdition_Guide.html' },
       ]
     }
   ];

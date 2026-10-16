@@ -1292,33 +1292,34 @@ function rotateBanner() {
       id: 'alarm', label: 'Alarm Search', icon: SVG.alarm,
       desc: '기기별 알람·에러 코드를 검색하고 원인과 조치 방법을 빠르게 확인하세요.',
       items: [
-        { label: 'AK98 Error Code Search',   file: 'ak98_alarm_search_eng.html' },
-        { label: 'ARTIS Alarm Search',        file: 'artis_alarm_search.html' },
-        { label: 'Phoenix Alarm Search',      file: 'phoenix_alarm_search.html' },
-        { label: 'Prismaflex Alarm Search',   file: 'prismaflex_alarm_search.html' },
-        { label: 'PrisMax Alarm Search',      file: 'prismax_alarm_search.html' },
+        { group: 'Artis',   label: 'ARTIS Alarm Search',        file: 'artis_alarm_search.html' },
+        { group: 'AK',      label: 'AK98 Error Code Search',   file: 'ak98_alarm_search_eng.html' },
+        { group: 'Phoenix', label: 'Phoenix Alarm Search',      file: 'phoenix_alarm_search.html' },
+        { group: 'CRRT',    label: 'Prismaflex Alarm Search',   file: 'prismaflex_alarm_search.html' },
+        { group: 'CRRT',    label: 'PrisMax Alarm Search',      file: 'prismax_alarm_search.html' },
       ]
     },
     {
       id: 'inspection', label: 'Device Inspection', icon: SVG.inspection,
       desc: '장비별 점검 이력과 기록을 조회하고 관리합니다.',
       items: [
-        { label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
+        { group: 'CRRT', label: 'CRRT Inspection', file: 'CRRT_inspection.html' },
       ]
     },
     {
       id: 'info', label: 'Device Info', icon: SVG.info,
       desc: '기기 사용법, 소독·자가진단, 유압 회로 등 기술 자료를 확인하세요.',
       items: [
-        { label: 'Artis UF Deviation Alarm (505/506)',  file: 'UF_Deviation_alarm_505_506_weightloss.html' },
-        { label: 'Artis 소독 단계 및 유압 회로 문제 해결', file: 'Artis_disinfection_guide_kor.html' },
-        { label: 'Artis Hydraulic Circuit Description', file: 'Artis_Physio_Plus_Hydraulic_Manual.html' },
-        { label: 'Artis Electronic Description', file: 'Artis_Physio_Plus_Electronic_Description.html' },
-        { label: 'Artis CRC 기술 가이드',                  file: 'CRC-Technical-Guide.html' },
-        { label: 'PrisMax 모의 환자 치료 절차',      file: 'prismax_simulated_treatment_kor_v2.html' },
-        { label: 'PrisMax 시스템 자가진단 가이드(SST)',   file: 'prismax_sst_guide_kor_v3.html' },
-        { label: 'WRO 300 H 위생 기능 & 소독 가이드',   file: 'wro300h_hygiene_guide_kor.html' },
-        { label: 'AK98 Diascan',                          file: 'ak98_diascan_guide_kor.html' },
+        { group: 'Artis', label: 'Artis UF Deviation Alarm (505/506)',  file: 'UF_Deviation_alarm_505_506_weightloss.html' },
+        { group: 'Artis', label: 'Artis 소독 단계 및 유압 회로 문제 해결', file: 'Artis_disinfection_guide_kor.html' },
+        { group: 'Artis', label: 'Artis Hydraulic Circuit Description', file: 'Artis_Physio_Plus_Hydraulic_Manual.html' },
+        { group: 'Artis', label: 'Artis Electronic Description', file: 'Artis_Physio_Plus_Electronic_Description.html' },
+        { group: 'Artis', label: 'Artis CRC 기술 가이드',                  file: 'CRC-Technical-Guide.html' },
+        { group: 'AK',    label: 'AK98 Diascan',                          file: 'ak98_diascan_guide_kor.html' },
+        { group: 'RO',    label: 'WRO 300 H 위생 기능 & 소독 가이드',   file: 'wro300h_hygiene_guide_kor.html' },
+        { group: 'RO',    label: 'RO Treatment Head 742 System 가이드', file: 'ROTreatmentHead_742_system_guide.html' },
+        { group: 'CRRT',  label: 'PrisMax 모의 환자 치료 절차',      file: 'prismax_simulated_treatment_kor_v2.html' },
+        { group: 'CRRT',  label: 'PrisMax 시스템 자가진단 가이드(SST)',   file: 'prismax_sst_guide_kor_v3.html' },
       ]
     },
     {
