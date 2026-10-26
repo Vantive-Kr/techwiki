@@ -1330,7 +1330,7 @@ section:has(> .stage) { counter-reset: todo; }
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero-eyebrow">TECHNICAL SERVICE · SALES PROCESS · REVENUE · TAX INVOICE · COLLECTION</div>
   <h1 id="hero-title">TS 유상수리·부품판매<br><span>매출 프로세스 가이드</span></h1>
-  <p class="hero-sub">Finance(A2R·C2C)가 정리한 <strong>매출 인식·세금계산서 발급 기준</strong>과, 이를 지키기 위한 <strong>8단계 업무 절차</strong>를 TS 업무 기준으로 옮겼습니다. 핵심은 하나입니다 — <strong>작업이 끝난 날짜와 그 증빙을 바로 공유</strong>하는 것.</p>
+  <p class="hero-sub">Finance 교육의 <strong>매출 인식·세금계산서 기준</strong>과 <strong>8단계 절차</strong>를 TS 업무에 맞춰 정리했습니다. 핵심은 하나 — <strong>완료일과 증빙을 바로 공유</strong>.</p>
   <div class="hero-meta">
     <div class="hero-meta-item">교육일 2026.10.22 (목) · 57분</div>
     <div class="hero-meta-item">Finance A2R팀 · C2C팀</div>
@@ -1338,7 +1338,7 @@ section:has(> .stage) { counter-reset: todo; }
   </div>
   <div class="rename-banner">
     <div style="font-size:0.9rem; color:var(--text-secondary); line-height:1.7;">
-      <strong style="color:var(--text)">무엇이 바뀌나요?</strong> 지금까지는 가격 협의·내부 오더가 끝날 때까지 세금계산서를 기다리는 경우가 있었습니다. 앞으로는 <strong style="color:var(--text)">작업 완료일 기준으로 표준 단가에 따라 바로 발행</strong>하고, 가격 조정은 <strong style="color:var(--text)">별도 승인 절차(마이너스 세금계산서)</strong>로 처리합니다. 위 <strong style="color:var(--text)">주제 탭</strong>으로 이동하세요.
+      <strong style="color:var(--text)">무엇이 바뀌나요?</strong> 가격 협의·오더를 기다리지 않고 <strong style="color:var(--text)">완료일 기준·표준 단가로 바로 발행</strong>, 가격 조정은 <strong style="color:var(--text)">별도 승인(마이너스 세금계산서)</strong>.
     </div>
     <a class="ver-link" href="TS_sales_process_FSE_todo.html">현장에서 할 일만 빠르게 보기 — FSE To-Do 버전 →</a>
   </div>
@@ -1362,7 +1362,7 @@ section:has(> .stage) { counter-reset: todo; }
   <section aria-labelledby="ov-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>OVERVIEW</div>
     <h2 id="ov-title">한눈에 보기</h2>
-    <p class="section-desc">세법은 회사 내부 처리일(오더 생성일·가격 확정일)보다 <strong>부품이 실제로 인도된 날, 수리가 실제로 끝난 날</strong>을 더 중요하게 봅니다. 그 날짜가 매출 인식일이자 세금계산서 작성일이 되고, 발급은 <strong>늦어도 다음 달 10일</strong>까지입니다.</p>
+    <p class="section-desc">기준은 내부 처리일이 아니라 <strong>실제 인도·수리 완료일</strong>. 이 날이 매출 인식일·작성일이고, 발급은 <strong>늦어도 다음 달 10일</strong>.</p>
 
     <div class="card-grid-4">
       <div class="kpi-card"><div class="kpi-label">기준일</div><div class="kpi-value">완료일</div><div class="kpi-note">부품 인도일 · 설치 완료일 · 수리 완료일 (내부 오더일 아님)</div></div>
@@ -1405,9 +1405,7 @@ section:has(> .stage) { counter-reset: todo; }
 
     <h3>왜 이렇게 엄격한가</h3>
     <div class="hero-quote">세금계산서는 고객에게 대금을 청구하는 종이가 아니라, <em>국세청에 우리가 매출을 인식했고 부가세를 신고한다</em>는 의미도 담고 있습니다.<span class="hero-quote-by">— C2C 파이낸스 · 교육 중 설명 요지</span></div>
-    <div class="callout">
-      기한을 넘기면 <strong>가산세</strong>만의 문제가 아닙니다. 10월에 끝난 수리가 11월 거래로 처리되면 <strong>부가세 신고 시점·월별 매출</strong>이 실제와 달라지고, 청구가 늦어져 <strong>대금 회수도 지연</strong>됩니다. 세무 감사 시 회사의 세무 리스크로도 이어집니다.
-    </div>
+    <div class="callout">기한을 넘기면 가산세에 더해 <strong>신고 시점·월 매출이 어긋나고 수금이 늦어집니다</strong>.</div>
 
     <h3>역할 분담</h3>
     <div class="card-grid-3">
@@ -1423,7 +1421,7 @@ section:has(> .stage) { counter-reset: todo; }
   <section aria-labelledby="std-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>STANDARD · A2R</div>
     <h2 id="std-title">매출 인식과 세금계산서 발급 기준</h2>
-    <p class="section-desc">회계상 매출 인식(제품·서비스의 통제가 고객에게 넘어간 시점)과 세법상 공급 시기는 판단 방식이 다르지만, TS 거래에서는 결국 <strong>같은 날짜 — 실제 완료일</strong>로 모입니다. 부품 판매는 <strong>재화의 공급(부가세법 15조)</strong>, 유상수리는 <strong>용역의 공급(16조)</strong>입니다.</p>
+    <p class="section-desc">회계·세법 기준은 달라도 TS 거래에서는 <strong>같은 날짜, 실제 완료일</strong>로 모입니다.</p>
 
     <h3>거래 유형별 기준일과 증빙</h3>
     <div class="table-scroll">
@@ -1442,7 +1440,7 @@ section:has(> .stage) { counter-reset: todo; }
     <h3>세금계산서 발급 기한</h3>
     <div class="timeline">
       <div class="timeline-item"><div class="timeline-dot done"></div><div class="timeline-period">원칙 · 부가세법 34조</div><div class="timeline-title">공급 시기에 즉시 발급</div><div class="timeline-detail">부품은 인도 시점, 설치 거래는 설치 완료 시점, 유상수리는 수리 완료 시점에 발급합니다.</div></div>
-      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-period">예외 · 법적 요건 충족 시</div><div class="timeline-title">공급한 달의 다음 달 10일까지</div><div class="timeline-detail">월 합계 세금계산서, 또는 작업 완료 확인서·납품서로 실제 거래일이 확인되고 그 날짜를 작성일로 적는 경우. TS 실무에서는 <strong>“늦어도 다음 달 10일까지는 무조건 발급”</strong>으로 기억하면 됩니다.</div></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-period">예외 · 법적 요건 충족 시</div><div class="timeline-title">공급한 달의 다음 달 10일까지</div><div class="timeline-detail"><strong>실무 기준: 늦어도 다음 달 10일까지 무조건 발급</strong> (월 합계·증빙으로 거래일 확인 시 적용).</div></div>
       <div class="timeline-item"><div class="timeline-dot pending"></div><div class="timeline-period">주의</div><div class="timeline-title">다음 달 10일은 ‘발급 기한’이지 ‘공급일’이 아닙니다</div><div class="timeline-detail">11월 10일에 발급하더라도 <strong>작성일자와 부가세 귀속월은 수리 완료일(10월 20일)</strong> 그대로입니다. 공급월을 11월로 바꿀 수 없습니다.</div></div>
     </div>
 
@@ -1483,7 +1481,7 @@ section:has(> .stage) { counter-reset: todo; }
   <section aria-labelledby="proc-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>PROCESS · C2C</div>
     <h2 id="proc-title">권고 End-to-End 프로세스 8단계</h2>
-    <p class="section-desc">목적은 유상 서비스를 어렵게 만드는 것이 아니라, <strong>유상수리를 안전하게 제공하고 청구·수금이 자연스럽게 이어지게</strong> 하는 것입니다. 병원 안에서는 <strong>서비스 요청자 · 비용 승인자 · 세금계산서 수신자 · 대금 지급자</strong>가 서로 다른 경우가 많아, 한 단계라도 끊기면 수금이 멈춥니다.</p>
+    <p class="section-desc">목적은 <strong>청구·수금이 끊기지 않게</strong> 하는 것. 병원은 <strong>요청자·승인자·세금계산서 수신자·지급자</strong>가 다른 경우가 많습니다.</p>
 
     <div class="phase-legend">
       <span class="pl pre">작업 전</span><span class="pl field">현장 작업</span><span class="pl post">작업 후</span>
@@ -1503,7 +1501,7 @@ section:has(> .stage) { counter-reset: todo; }
       <div class="dcm-chip">KEY RULE</div>
       <div>
         <div class="dcm-title">가격 협상 때문에 프로세스를 멈추지 않습니다</div>
-        <div class="dcm-desc">서비스를 완료했다면 <strong>표준 단가로 세금계산서를 발행하고 매출을 인식</strong>합니다. 발행 후 고객이 가격 조정을 요청하면 <strong>별도의 가격 조정 프로세스</strong>로 승인받고, 감액분만큼 <strong>마이너스 세금계산서(Credit Memo)</strong>를 별도 발행합니다. 즉시 발행은 협상을 거절한다는 뜻도, 모든 조정을 받아들인다는 뜻도 아닙니다 — 가격·서비스 정책 판단은 <strong>TS 매니지먼트</strong>가 합니다.</div>
+        <div class="dcm-desc">서비스를 완료했다면 <strong>표준 단가로 세금계산서를 발행하고 매출을 인식</strong>합니다. 발행 후 고객이 가격 조정을 요청하면 <strong>별도의 가격 조정 프로세스</strong>로 승인받고, 감액분만큼 <strong>마이너스 세금계산서(Credit Memo)</strong>를 별도 발행합니다. 가격 판단은 <strong>TS 매니지먼트</strong>가 합니다.</div>
       </div>
     </div>
 
@@ -1537,7 +1535,7 @@ section:has(> .stage) { counter-reset: todo; }
           <li>지급 기일</li>
           <li>추가 작업·가격 변동 시 승인·변경 기준</li>
         </ul>
-        <div class="doc-extra"><strong>서면에 없어도 따로 확인</strong> — 요청은 간호사·인공신장실에서 해도, 세금계산서 수신과 지급은 의공과·구매과인 경우가 많습니다. <strong>세금계산서 수신 담당자</strong>와 <strong>비용 지급 담당자</strong>를 구두로라도 확인해 두세요.</div>
+        <div class="doc-extra"><strong>따로 확인</strong> — 요청자(간호사 등)와 별도로 <strong>세금계산서 수신·지급 담당자</strong>(의공과·구매과 등).</div>
       </div>
       <div class="doc-card after">
         <div class="doc-when">작업 후 · AFTER</div>
@@ -1552,7 +1550,7 @@ section:has(> .stage) { counter-reset: todo; }
           <li><strong>유상 처리 확인 문구</strong>, <strong>최종 작업 범위·금액</strong></li>
           <li>세금계산서 수신 정보, 지급 확인</li>
         </ul>
-        <div class="doc-extra"><strong>비용 담당자 이름·연락처</strong> — 서류에 받지 못하더라도 별도로 확보해 두면 수금 문제 시 바로 확인할 수 있습니다.</div>
+        <div class="doc-extra"><strong>비용 담당자 이름·연락처</strong>도 따로 확보해 두면 수금 문제 때 바로 확인할 수 있습니다.</div>
       </div>
     </div>
 
@@ -1568,7 +1566,6 @@ section:has(> .stage) { counter-reset: todo; }
       <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-period">리스트 해당 병원에서 유상수리 요청 시</div><div class="timeline-title">“선입금 후 진행” 안내</div><div class="timeline-detail">회사 기준상 선입금 거래처로 분류되어 <strong>먼저 입금되어야 유상수리를 진행</strong>할 수 있다고 안내합니다.</div></div>
       <div class="timeline-item"><div class="timeline-dot pending"></div><div class="timeline-period">금액(인건비 등)이 확정되지 않은 경우</div><div class="timeline-title">“7일 이내 입금” 확인을 받은 뒤 진행</div><div class="timeline-detail">유상수리 후 <strong>반드시 7일 이내에 입금</strong>하겠다는 병원의 확인을 받고 작업합니다.</div></div>
     </div>
-    <div class="callout">교육 전날(10/21) C2C가 <strong>장기 미수 병원 3곳</strong>에 대해 담당 엔지니어에게 개별 확인을 요청했습니다. 유상수리·부품 교체 후에도 장기간 대금이 지급되지 않은 사례입니다.</div>
   </section>
   </div><!-- /top-docs -->
 
@@ -1586,7 +1583,7 @@ section:has(> .stage) { counter-reset: todo; }
       <div class="flow-arrow">→</div>
       <div class="flow-node"><div class="flow-node-icon" style="color:var(--negative)">STEP 3</div><div class="flow-node-title">병원 거래 전면 정지</div><div class="flow-node-sub">TS 미수 하나로 HD 소모품 · Acute 소모품 · PD 의약품 공급까지 함께 정지</div></div>
     </div>
-    <div class="callout">그래서 <strong>사후 독촉보다 사전 동의와 담당자 정보 확보</strong>가 훨씬 중요합니다. 분쟁이 생기면 TS·영업·Finance 모두에 추가 업무가 생깁니다. 다른 사업부 영업 담당자도 대금 입금까지 확인해야 프로세스가 끝났다고 봅니다.</div>
+    <div class="callout">그래서 <strong>사후 독촉보다 사전 동의와 담당자 정보 확보</strong>가 중요합니다. 분쟁이 생기면 TS·영업·Finance 모두 일이 늘어납니다.</div>
 
     <h3>가격 조정 프로세스 (예외 절차)</h3>
     <p class="section-desc" style="margin-bottom:0">가격 조정은 고객 관계상 필요할 수 있지만, 매출 인식·세금계산서 발급을 늦추는 이유가 될 수 없습니다.</p>
@@ -1600,8 +1597,8 @@ section:has(> .stage) { counter-reset: todo; }
 
     <h3>표준 단가와 단가 등록</h3>
     <div class="card-grid-2">
-      <div class="feature-card"><div class="feature-icon">표준 단가</div><div class="feature-title">TS 내부에서 반드시 운영</div><div class="feature-desc">표준 단가가 없으면 공정거래와 세무감사 측면에서 문제가 됩니다. 단, 부품별 가격표 전체를 병원에 공개할 필요는 없습니다 — 회사 내부 가격 정책입니다. 요청이 오면 <strong>예상 가격과 작업 범위만 안내</strong>합니다.</div></div>
-      <div class="feature-card"><div class="feature-icon green">단가 등록</div><div class="feature-title">병원 일괄 등록 가능</div><div class="feature-desc">표준 가격 파일을 <strong>단가 등록 Power Apps</strong>에 올려 내부 승인 후 등록합니다. 병원과 협의된 변경 단가는 TS 내부 승인 후 추가 등록 — 절차 축소는 어렵지만, 정착 후에는 업무량이 크게 줄어듭니다.</div></div>
+      <div class="feature-card"><div class="feature-icon">표준 단가</div><div class="feature-title">TS 내부에서 반드시 운영</div><div class="feature-desc">없으면 공정거래·세무감사에서 문제가 됩니다. 가격표 전체를 공개할 필요는 없고, 요청 시 <strong>예상 가격·작업 범위만 안내</strong>합니다.</div></div>
+      <div class="feature-card"><div class="feature-icon green">단가 등록</div><div class="feature-title">병원 일괄 등록 가능</div><div class="feature-desc">표준 가격 파일을 <strong>Power Apps</strong>에 올려 승인 후 일괄 등록합니다. 협의 단가는 TS 승인 후 추가 등록하며, 정착되면 업무량이 줄어듭니다.</div></div>
     </div>
   </section>
   </div><!-- /top-risk -->
@@ -1610,18 +1607,15 @@ section:has(> .stage) { counter-reset: todo; }
   <div class="top-panel" id="top-act" role="tabpanel" aria-labelledby="tab-act">
   <section aria-labelledby="act-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>FIELD CHECKLIST</div>
-    <h2 id="act-title">현장에서 기억할 6가지</h2>
-    <p class="section-desc">유상수리 건마다 확인하세요. 체크 상태는 이 브라우저에만 저장됩니다.</p>
-    <div class="chk-head"><span id="chkCount">0 / 6 확인</span><button type="button" class="chk-reset" onclick="resetChecks()">초기화</button></div>
-    <ul class="chk" id="chkList">
-      <li><label><input type="checkbox"><span><strong>유상수리임을 명확히 안내</strong>했다 — 거래처 병원에 사전 고지</span></label></li>
-      <li><label><input type="checkbox"><span><strong>병원 크레딧 상태를 확인</strong>했다 — 매월 10일경 선입금 리스트, 개별 안내된 문제 병원</span></label></li>
-      <li><label><input type="checkbox"><span><strong>예상 금액 · 작업 범위 · 지급 기일</strong>에 서면 동의를 받았다</span></label></li>
-      <li><label><input type="checkbox"><span><strong>현장 요청자와 비용 승인자를 구분</strong>해 연락처를 확보했다</span></label></li>
-      <li><label><input type="checkbox"><span><strong>작업 확인서</strong>로 작업 내용 · 장비 작동·인계 · 유상 금액 · 세금계산서 수신 정보 · 지급 확인을 받았다</span></label></li>
-      <li><label><input type="checkbox"><span><strong>긴급 수리 · 가격 조정</strong>은 예외 사유와 승인을 서면으로 남겼다</span></label></li>
-    </ul>
-    <div class="callout pine">이 절차는 엔지니어가 제공한 서비스가 <strong>정상적으로 매출과 현금으로 전환되도록 보호하는 장치</strong>입니다. 초기에는 혼선과 업무량이 있겠지만, 단가 등록·조정 절차가 정착되면 업무량과 세무·수금 리스크가 함께 줄어듭니다.</div>
+    <h2 id="act-title">현장 체크리스트</h2>
+    <div class="dcm-banner">
+      <div class="dcm-chip">FSE TO-DO</div>
+      <div>
+        <div class="dcm-title">체크·서명·PDF·메일은 FSE To-Do에서</div>
+        <div class="dcm-desc">현장에서 확인할 6가지, 확인 시각 자동 기록, 병원 확인 서명, PDF 저장·메일 보내기를 한 화면에서 합니다.</div>
+        <a class="ver-link" href="TS_sales_process_FSE_todo.html#tab-chk">현장 체크리스트 열기 →</a>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="faq-title" data-reveal>
@@ -1629,15 +1623,15 @@ section:has(> .stage) { counter-reset: todo; }
     <h2 id="faq-title">교육에서 나온 질문</h2>
     <p class="section-desc">지난 화요일 미팅과 이번 교육에서 TS가 질문하고 Finance가 답한 내용입니다.</p>
     <div class="faq">
-      <details><summary>병원이 <strong>역발행</strong>을 요청하면 어떻게 하나요?</summary><div class="faq-a">역발행은 <strong>공급받는 병원이 세금계산서를 국세청에 올리는 방식</strong>입니다(정발행은 공급자인 우리가 발행). ERP가 잘 갖춰진 대형 병원이 선호하며 전체의 약 10% 수준입니다. 역발행 방식 자체는 유지해도 되지만, 병원 요청을 기다리느라 <strong>매출 인식·세금계산서 관리가 무기한 멈춰서는 안 됩니다</strong>. 실제 완료 시점에 발행되도록 증빙을 보강하고 병원에 빠른 역발행을 요청하세요. 지연되면 <strong>CS(CS 담당)를 통해 병원 담당자에게 요청</strong>하거나 Finance에 공유하면 됩니다.<br><span class="faq-note">※ “병원별 단가 협의·병원 내부 절차 후 발행”은 역발행이 아니라 별개의 문제(가격 조정)입니다.</span></div></details>
-      <details><summary>금액이 크면 <strong>계약서</strong>를 써야 하나요?</summary><div class="faq-a">TS 서비스는 금액 기준의 계약서 작성 의무는 없습니다. 다만 거래 규모가 크거나 단가를 시스템에 등록해야 하는 경우에는 <strong>계약서 또는 합의서</strong>를 확보하는 것이 좋습니다.</div></details>
-      <details><summary>‘내부 매출 인식’은 TS가 CS에 세금계산서 발행을 요청하는 것을 뜻하나요?</summary><div class="faq-a">연관되어 있지만 같은 행위는 아닙니다. 매출 인식일은 원칙적으로 세금계산서 발행일이 아니라 <strong>실제 인도일·서비스 완료일</strong>입니다. 매출을 인식했다면 세금계산서는 그 날짜로 즉시, 늦어도 다음 달 10일까지 발행합니다. 역발행처럼 발행일이 달라지는 경우에도 증빙을 갖춰 완료일 기준으로 인식되도록 협조해 주세요.</div></details>
+      <details><summary>병원이 <strong>역발행</strong>을 요청하면 어떻게 하나요?</summary><div class="faq-a">역발행은 <strong>병원이 세금계산서를 국세청에 올리는 방식</strong>(전체의 약 10%, 주로 대형 병원)입니다. 방식은 유지해도 되지만 <strong>병원 요청을 기다리며 무기한 멈추면 안 됩니다</strong>. 완료 즉시 빠른 역발행을 요청하고, 지연되면 CS나 Finance에 공유하세요.<br><span class="faq-note">※ 병원별 단가 협의 후 발행은 역발행이 아니라 가격 조정 문제입니다.</span></div></details>
+      <details><summary>금액이 크면 <strong>계약서</strong>를 써야 하나요?</summary><div class="faq-a">금액 기준 작성 의무는 없습니다. 거래 규모가 크거나 단가를 시스템에 등록해야 하면 <strong>계약서·합의서</strong>를 확보하세요.</div></details>
+      <details><summary>‘내부 매출 인식’은 TS가 CS에 세금계산서 발행을 요청하는 것을 뜻하나요?</summary><div class="faq-a">같은 행위는 아닙니다. 매출 인식일은 발행일이 아니라 <strong>실제 인도·완료일</strong>이고, 세금계산서는 그 날짜로 늦어도 다음 달 10일까지 발행합니다.</div></details>
       <details><summary><strong>크레딧 메모(Credit Memo)</strong>는 정해진 양식이 있나요?</summary><div class="faq-a">별도 양식은 없습니다. 가격 조정이 승인되어 감액분만큼 발행하는 <strong>마이너스 세금계산서</strong>가 곧 크레딧 메모입니다.</div></details>
-      <details><summary>발행 마감은 다음 달 10일인가요? (10/29 완료, 11/2 완료의 경우)</summary><div class="faq-a">네. 서비스를 완료한 달의 <strong>다음 달 10일까지 반드시</strong> 발행합니다. <strong>10월 29일 완료 → 11월 10일까지</strong>, <strong>11월 2일 완료 → 12월 10일까지</strong>. 기한을 넘기면 가산세 리스크가 있습니다. <a href="#" onclick="selectTop('std', true); return false;">발급 기한 계산기 →</a></div></details>
-      <details><summary>CS에 발행 요청한 뒤 병원이 결제했는지 어떻게 확인하나요?</summary><div class="faq-a">한국 전용 <strong>Finance 애플리케이션</strong>에서 결제·매출 정보를 볼 수 있습니다. TS 엔지니어 전원 접근 권한을 작업 중이며, <strong>교육일 기준 약 10일 이내</strong>에 가이드와 계정을 받을 예정입니다. 다만 HD·Acute·PD를 함께 거래하는 병원은 월 1회 묶어서 지급하는 경우가 많아 특정 TS 건의 입금 확인이 어려우니, 이때는 <strong>C2C 파이낸스</strong>에 문의하세요.</div></details>
-      <details><summary>협의 단가로 다음 달 10일까지 발행하기 어려운데, 단가를 두 번 등록하는 절차를 줄일 수 있나요?</summary><div class="faq-a">원칙은 <strong>출동 전 예상 견적 안내 → 완료 후 합의 단가로 발행</strong>입니다. 어려운 경우 <strong>표준 단가로 먼저 발행</strong>하고, 병원에 타당한 사유가 있으면 TS 매니지먼트의 가격 조정 기준으로 승인받아 변경 단가를 등록합니다. 단가는 <strong>Power Apps로 병원 일괄 등록</strong>이 가능합니다. 모든 단계가 내부 통제와 연결되어 있어 절차 자체를 줄이기는 어렵습니다.</div></details>
-      <details><summary>중환자실 장비 <strong>응급 수리</strong>처럼 사전에 지불 부서와 견적 협의가 어려운 경우는?</summary><div class="faq-a">표준 단가 근거로 <strong>예상 작업 범위·예상 가격을 안내</strong>하고, 급하게 요청한 간호사·의료진에게 “나중에 의공과·구매과에서 비용 집행이 되도록 협조해 달라”고 말한 뒤 진행합니다. 완료 후 <strong>표준 단가로 발행</strong>하고, 병원이 받아들이기 어려우면 이후 가격 조정 프로세스로 마이너스 발행합니다. 긴급 수리는 예외 사유와 승인을 서면으로 남기세요.</div></details>
-      <details><summary>부품 단가가 외부에 공개되지 않았는데, 영업 계약처럼 사전 공개해야 하나요?</summary><div class="faq-a">영업 계약(사전 단가 협의 → 계약 → 공급)과 달리 TS 응급 수리는 수리가 먼저 발생합니다. 그래도 <strong>표준 단가 운영은 필수</strong>이며, 부품별 가격표 전체를 공개할 필요는 없습니다. 요청이 들어오면 <strong>예상 가격과 작업 범위를 안내하고 동의를 받은 뒤</strong> 출동하고, 이후 조정은 가격 조정 프로세스로 협의합니다.</div></details>
+      <details><summary>발행 마감은 다음 달 10일인가요? (10/29 완료, 11/2 완료의 경우)</summary><div class="faq-a">네. <strong>10월 29일 완료 → 11월 10일까지</strong>, <strong>11월 2일 완료 → 12월 10일까지</strong>. <a href="#" onclick="selectTop('std', true); return false;">발급 기한 계산기 →</a></div></details>
+      <details><summary>CS에 발행 요청한 뒤 병원이 결제했는지 어떻게 확인하나요?</summary><div class="faq-a"><strong>Finance 애플리케이션</strong>에서 확인합니다(TS 전원 권한 작업 중, 교육일 기준 약 10일 내 계정 제공 예정). 여러 사업부를 함께 거래해 묶어 지급하는 병원은 <strong>C2C 파이낸스</strong>에 문의하세요.</div></details>
+      <details><summary>협의 단가로 다음 달 10일까지 발행하기 어려운데, 단가를 두 번 등록하는 절차를 줄일 수 있나요?</summary><div class="faq-a"><strong>표준 단가로 먼저 발행</strong>하고, 타당한 사유가 있으면 TS 매니지먼트 승인 후 변경 단가를 등록합니다. 단가는 <strong>Power Apps로 일괄 등록</strong>할 수 있지만, 내부 통제상 절차 자체를 줄이기는 어렵습니다.</div></details>
+      <details><summary>중환자실 장비 <strong>응급 수리</strong>처럼 사전에 지불 부서와 견적 협의가 어려운 경우는?</summary><div class="faq-a">표준 단가로 <strong>예상 범위·가격을 안내</strong>하고 “의공과·구매과 비용 집행에 협조해 달라”고 요청한 뒤 진행합니다. 완료 후 <strong>표준 단가로 발행</strong>, 이견은 가격 조정 절차로 처리하고 예외 사유·승인은 서면으로 남기세요.</div></details>
+      <details><summary>부품 단가가 외부에 공개되지 않았는데, 영업 계약처럼 사전 공개해야 하나요?</summary><div class="faq-a">가격표 전체를 공개할 필요는 없습니다. 다만 <strong>표준 단가 운영은 필수</strong>이고, 요청 시 <strong>예상 가격·범위를 안내하고 동의를 받은 뒤</strong> 출동합니다.</div></details>
     </div>
   </section>
 
@@ -1775,21 +1769,6 @@ function renderCalc() {
   out.innerHTML = h;
 }
 
-/* ---- 체크리스트 (이 브라우저에만 저장) ---- */
-var CHK_KEY = 'ts_sales_chk_v1';
-function chkBoxes() { return Array.prototype.slice.call(document.querySelectorAll('#chkList input')); }
-function saveChecks() {
-  var s = chkBoxes().map(function(b){ return b.checked ? 1 : 0; });
-  try { localStorage.setItem(CHK_KEY, JSON.stringify(s)); } catch (e) {}
-  updateCount();
-}
-function updateCount() {
-  var b = chkBoxes(), n = b.filter(function(x){ return x.checked; }).length;
-  document.getElementById('chkCount').textContent = n + ' / ' + b.length + ' 확인';
-  document.getElementById('chkCount').classList.toggle('all', n === b.length);
-}
-function resetChecks() { chkBoxes().forEach(function(b){ b.checked = false; }); saveChecks(); }
-
 var observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
@@ -1809,13 +1788,6 @@ document.addEventListener('DOMContentLoaded', function() {
     renderCalc();
   });
   renderCalc();
-  var saved = null;
-  try { saved = JSON.parse(localStorage.getItem(CHK_KEY) || 'null'); } catch (e) {}
-  chkBoxes().forEach(function(b, i) {
-    if (saved && saved[i]) b.checked = true;
-    b.addEventListener('change', saveChecks);
-  });
-  updateCount();
   var h = (location.hash || '').replace('#tab-', '');
   selectTop(TOP_IDS.indexOf(h) >= 0 ? h : 'sum', false);
 });
