@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TS 매출 프로세스 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<style>
+:root {
+  --plum: #72256B;
+  --plum-deep: #58184F;
+  --plum-soft: #A4599C;
+  --cream: #FFFAEB;
+  --pine: #105742;
+  --eucalyptus: #6CA07A;
+  --sage: #CDDFD7;
+}
+.theme-light {
+  --bg: #F6F0EA;
+  --surface: #FFFFFF;
+  --surface-hover: #FFFAEB;
+  --border: rgba(114,37,107,0.14);
+  --rule: rgba(27,18,25,0.13);
+  --rule-soft: rgba(27,18,25,0.07);
+  --divider: #72256B;
+  --divider-soft: #A4599C;
+  --text: #1B1219;
+  --text-secondary: #6B5468;
+  --text-muted: #9B879A;
+  --accent: #72256B;
+  --accent-secondary: #6CA07A;
+  --positive: #105742;
+  --negative: #AE4048;
+  --warning: #B07D2E;
+}
+.theme-dark {
+  --bg: #150A14;
+  --surface: #1F0F1D;
+  --surface-hover: #2C182A;
+  --border: rgba(205,223,215,0.16);
+  --rule: rgba(243,239,228,0.16);
+  --rule-soft: rgba(243,239,228,0.08);
+  --divider: #A4599C;
+  --divider-soft: #72256B;
+  --text: #F3EFE4;
+  --text-secondary: #C9B4C6;
+  --text-muted: #94808F;
+  --accent: #C77BBD;
+  --accent-secondary: #8FC49E;
+  --positive: #7FC49A;
+  --negative: #E08A8A;
+  --warning: #D9AE55;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  letter-spacing: -0.003em;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+strong { font-weight: 700; color: var(--text); }
+em { font-style: italic; }
+
+.skip-link { position: absolute; top: -40px; left: 1rem; background: var(--accent); color: #fff; padding: 8px 16px; font-size: 0.875rem; z-index: 9999; text-decoration: none; }
+.skip-link:focus { top: 8px; }
+
+/* ---------- UTILITY MENU ---------- */
+.viz-menu { position: fixed; top: 3.75rem; right: 1.25rem; z-index: 9998; }
+.viz-menu-toggle {
+  width: 34px; height: 34px;
+  background: var(--bg); border: 1px solid var(--rule);
+  color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.viz-menu-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.viz-menu-dropdown {
+  position: absolute; top: 40px; right: 0;
+  background: var(--surface); border: 1px solid var(--rule);
+  padding: 4px; min-width: 170px; opacity: 0; pointer-events: none;
+  transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(27,18,25,0.10);
+  transition: all 0.18s;
+}
+.viz-menu-dropdown.open { opacity: 1; pointer-events: all; transform: none; }
+.viz-menu-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 12px; border: none;
+  background: none; color: var(--text); cursor: pointer;
+  font-size: 0.85rem; font-family: inherit; text-align: left;
+  transition: color 0.15s;
+}
+.viz-menu-btn:hover { color: var(--accent); }
+.viz-menu-btn svg { flex-shrink: 0; color: var(--text-muted); }
+
+/* ---------- MASTHEAD (기존 디자인 유지) ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: linear-gradient(90deg, #58184F 0%, #72256B 26%, #105742 62%, #6CA07A 100%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding: 0.75rem 2rem;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 16px rgba(88,24,79,0.25);
+}
+.theme-dark .site-header {
+  background: linear-gradient(90deg, #3E0F38 0%, #58184F 32%, #0C4234 68%, #4E7D5D 100%);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.45);
+}
+.site-header .header-logo img { height: 26px; width: auto; display: block; filter: brightness(0) invert(1); opacity: 0.95; }
+.site-header .header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.3); }
+.site-header .header-title { font-size: 0.8125rem; font-weight: 500; color: rgba(255,255,255,0.9); letter-spacing: 0.02em; text-transform: none; }
+.header-badge {
+  margin-left: auto; padding: 4px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.22); color: #fff;
+  border: 1px solid rgba(255,255,255,0.32); border-left: 1px solid rgba(255,255,255,0.32);
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: none;
+  backdrop-filter: blur(4px);
+}
+.theme-dark .header-badge { background: rgba(0,0,0,0.25); color: rgba(255,255,255,0.92); }
+
+/* ---------- TYPE SCALE ---------- */
+h1, h2, h3, .display {
+  font-family: 'Noto Sans KR', 'Inter', sans-serif;
+}
+h1 {
+  font-size: 3.25rem; line-height: 1.15; letter-spacing: -0.03em;
+  font-weight: 800; margin-bottom: 1.35rem;
+}
+h1 span { color: var(--accent); font-style: normal; }
+.hero h1 { margin-bottom: 1rem; }
+h2 {
+  font-size: 2rem; line-height: 1.24; letter-spacing: -0.025em;
+  margin-bottom: 0.8rem; font-weight: 700;
+}
+h3 {
+  font-size: 1.25rem; line-height: 1.4; letter-spacing: -0.015em;
+  margin: 2.75rem 0 1rem; font-weight: 700;
+  padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule-soft);
+}
+
+/* ---------- COVER ---------- */
+.hero {
+  max-width: 1180px; margin: 0 auto;
+  padding: 3.25rem 3rem 2.25rem;
+  text-align: left; position: relative;
+}
+.hero-eyebrow {
+  display: block; padding: 0; border: none; background: none;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 1.3rem; padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  max-width: 780px;
+}
+.hero-eyebrow-dot { display: none; }
+.hero-sub {
+  font-size: 1.1rem; color: var(--text-secondary);
+  max-width: 640px; margin: 0 0 1.85rem; line-height: 1.8;
+}
+.hero-meta {
+  display: flex; align-items: baseline; justify-content: flex-start;
+  gap: 0; flex-wrap: wrap; max-width: 780px;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+.hero-meta-item {
+  display: inline-flex; align-items: center; gap: 0;
+  font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.02em;
+}
+.hero-meta-item + .hero-meta-item::before {
+  content: '·'; margin: 0 0.85rem; color: var(--rule); font-weight: 700;
+}
+.hero-meta-item svg { display: none; }
+.rename-banner {
+  margin: 2.25rem 0 0; max-width: 780px;
+  background: none; border: none; border-left: 2px solid var(--accent);
+  border-radius: 0; padding: 0.15rem 0 0.15rem 1.4rem;
+}
+.rename-banner > div:first-child { text-align: left !important; font-size: 0.85rem !important; line-height: 1.8 !important; }
+.palette { display: none; }
+
+/* ---------- EDITORIAL GRID ---------- */
+main { max-width: 1180px; margin: 0 auto; padding: 0 3rem 7rem; }
+main > section {
+  display: grid;
+  grid-template-columns: 196px minmax(0, 1fr);
+  column-gap: 3.5rem;
+  padding-top: 3.5rem;
+  margin-bottom: 3.5rem;
+  border-top: 4px solid var(--divider);
+}
+main > section:first-child { border-top: none; padding-top: 1rem; }
+main > section > *:not(.section-label) { grid-column: 2; }
+main > section > *:not(.section-label) { max-width: 780px; }
+
+.section-label {
+  grid-column: 1; grid-row: 1 / 200;
+  align-self: start; position: sticky; top: 5.5rem;
+  display: block; margin: 0.4rem 0 0;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-muted);
+  line-height: 1.65;
+}
+.section-label .label-bar {
+  display: block; width: 26px; height: 2px; background: var(--accent);
+  border-radius: 0; opacity: 1; margin-bottom: 0.7rem;
+}
+.section-desc {
+  font-size: 1rem; color: var(--text-secondary);
+  margin-bottom: 2rem; line-height: 1.85;
+}
+
+/* ---------- PULL QUOTE ---------- */
+.hero-quote {
+  background: none; border: none; border-radius: 0;
+  border-left: none; padding: 0.5rem 0 0.5rem 0;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 1.45rem; font-weight: 700; line-height: 1.6; letter-spacing: -0.03em;
+  color: var(--text);
+  position: relative; padding-left: 2.6rem;
+}
+.hero-quote::before {
+  content: '“'; position: absolute; left: 0; top: -0.55rem;
+  font-family: Georgia, serif; font-size: 3.6rem; line-height: 1;
+  color: var(--accent); opacity: 0.32;
+}
+.hero-quote em { color: var(--accent); font-style: normal; }
+.hero-quote-by {
+  display: block; margin-top: 1.1rem; font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.8rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0;
+  line-height: 1.7;
+}
+
+/* ---------- MARGIN NOTE (callout) ---------- */
+.callout {
+  border-left: 2px solid var(--accent);
+  padding: 0.25rem 0 0.25rem 1.6rem;
+  background: none; border-radius: 0;
+  margin: 1.75rem 0; font-size: 0.9rem;
+  color: var(--text-secondary); line-height: 1.85;
+}
+.callout strong { color: var(--text); }
+.callout.quote {
+  font-style: normal; border-left-color: var(--accent-secondary);
+  font-size: 0.95rem; line-height: 1.85; color: var(--text);
+}
+.callout.pine { border-left-color: var(--positive); }
+
+/* ---------- STAT ROW (kpi) ---------- */
+.card-grid-4:has(.kpi-card), .card-grid-3:has(.kpi-card) {
+  display: flex; flex-wrap: wrap; gap: 0;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 0;
+}
+.card-grid-4 > .kpi-card, .card-grid-3 > .kpi-card {
+  flex: 1 1 0; min-width: 150px;
+  padding: 1.5rem 1.5rem 1.6rem 0;
+}
+.card-grid-4 > .kpi-card + .kpi-card, .card-grid-3 > .kpi-card + .kpi-card {
+  border-left: 1px solid var(--rule-soft); padding-left: 1.5rem;
+}
+.kpi-card { background: none; border: none; border-radius: 0; padding: 1.25rem 0; }
+.kpi-label {
+  font-size: 0.68rem; color: var(--text-muted); margin-bottom: 0.7rem;
+  font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
+}
+.kpi-value {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 2.2rem; font-weight: 800; color: var(--accent);
+  letter-spacing: -0.035em; line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-value.pine { color: var(--positive); }
+.kpi-note { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.7rem; line-height: 1.6; }
+
+/* ---------- CONTENTS LIST (agenda) ---------- */
+.agenda-list { display: block; border-top: 1px solid var(--rule); }
+.agenda-row {
+  display: grid; grid-template-columns: 2.6rem 1fr; align-items: baseline;
+  gap: 0; padding: 1.1rem 0; background: none; border: none; border-radius: 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.agenda-num {
+  width: auto; height: auto; border-radius: 0; background: none;
+  display: block; font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 800; font-size: 0.9rem; color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.agenda-title { font-weight: 600; font-size: 0.98rem; margin-bottom: 0.2rem; letter-spacing: -0.01em; }
+.agenda-sub { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ---------- ARTICLE BLOCKS (feature / challenge / glossary) ---------- */
+.card-grid-2, .card-grid-3, .card-grid-4 { display: grid; gap: 0; }
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); column-gap: 2.5rem; }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); column-gap: 2rem; }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); column-gap: 1.75rem; }
+
+.feature-card, .challenge-card, .glossary-card {
+  background: none; border: none; border-radius: 0;
+  border-top: 1px solid var(--rule);
+  padding: 1.35rem 0 1.75rem;
+  display: flex; flex-direction: column; gap: 0.55rem;
+}
+.feature-card:hover, .challenge-card:hover, .glossary-card:hover { box-shadow: none; background: none; }
+.feature-icon {
+  width: auto; height: auto; border-radius: 0; background: none !important;
+  display: flex; align-items: center; justify-content: flex-start;
+  color: var(--accent); font-weight: 800; font-size: 0.85rem;
+  font-family: 'Noto Sans KR', sans-serif; letter-spacing: 0.08em;
+  margin-bottom: 0.15rem;
+}
+.feature-icon.green { color: var(--positive); }
+.feature-icon svg { width: 17px; height: 17px; }
+.feature-title { font-size: 0.98rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.5; }
+.feature-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.8; }
+.pillar-tag {
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent); margin-top: -0.25rem;
+}
+
+.challenge-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.15rem; flex-wrap: wrap; }
+.challenge-badge {
+  padding: 0; border-radius: 0; background: none !important;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.badge-critical { color: var(--negative); }
+.badge-medium { color: var(--warning); }
+.badge-good { color: var(--positive); }
+.challenge-title { font-size: 0.98rem; font-weight: 700; letter-spacing: -0.01em; }
+.challenge-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.8; }
+.challenge-solution {
+  margin-top: 0.95rem; padding: 0.1rem 0 0.1rem 1.25rem;
+  background: none; border-radius: 0; border-left: 1px solid var(--rule);
+  font-size: 0.82rem; color: var(--text-secondary); line-height: 1.75;
+}
+.challenge-solution strong {
+  color: var(--text-muted); display: block; margin-bottom: 0.2rem;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
+}
+
+.glossary-card { border-top: 1px solid var(--accent); }
+
+/* 좌측 강조 바(inline border-left)가 붙은 카드 — 바와 본문 사이 여백 */
+.feature-card[style*="border-left"],
+.challenge-card[style*="border-left"],
+.glossary-card[style*="border-left"],
+.card[style*="border-left"] {
+  padding: 1.4rem 1.6rem 1.7rem 1.6rem;
+  border-top: none;
+}
+.feature-card[style*="border-left"] > *,
+.challenge-card[style*="border-left"] > *,
+.glossary-card[style*="border-left"] > * { max-width: 100%; }
+.glossary-card.alt { border-top-color: var(--positive); }
+.glossary-term {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 1.02rem; font-weight: 800; color: var(--accent); letter-spacing: -0.01em;
+}
+.glossary-card.alt .glossary-term { color: var(--positive); }
+.glossary-full {
+  font-size: 0.62rem; color: var(--text-muted); margin: 0.3rem 0 0.6rem;
+  letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+}
+.glossary-desc { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.8; }
+
+/* plain card */
+.card { background: none; border: none; border-top: 1px solid var(--rule); border-radius: 0; padding: 1.35rem 0 0.5rem; }
+.card:hover { box-shadow: none; background: none; }
+
+/* ---------- LISTS ---------- */
+.rnr-duties { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.rnr-duties li {
+  font-size: 0.9rem; color: var(--text-secondary);
+  display: flex; align-items: flex-start; gap: 0.85rem; line-height: 1.8;
+  padding: 0.65rem 0; border-bottom: 1px solid var(--rule-soft);
+}
+.rnr-duties li:last-child { border-bottom: none; }
+.rnr-dot {
+  width: 12px; height: 1px; border-radius: 0; background: var(--accent);
+  flex-shrink: 0; margin-top: 0.85rem; opacity: 0.75;
+}
+
+/* ---------- TABLE ---------- */
+.table-scroll { overflow-x: auto; }
+.scorecard {
+  width: 100%; border-collapse: collapse; background: none;
+  border: none; border-top: 2px solid var(--text); border-radius: 0; overflow: visible;
+}
+.theme-dark .scorecard { border-top-color: var(--text-secondary); }
+.scorecard th, .scorecard td {
+  text-align: left; padding: 0.85rem 1.1rem 0.85rem 0;
+  font-size: 0.86rem; border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top; line-height: 1.7;
+}
+.scorecard th {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--text-muted); font-weight: 700; background: none;
+  padding-top: 0.7rem; padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--rule);
+}
+.scorecard tr:last-child td { border-bottom: 1px solid var(--rule); }
+.scorecard td:first-child { font-weight: 700; color: var(--text); padding-right: 1.5rem; }
+.scorecard .metric-note { color: var(--text-secondary); font-weight: 400; }
+.light { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.02em; }
+.light .bulb { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; box-shadow: none !important; }
+.light.green .bulb { background: var(--positive); }
+.light.green { color: var(--positive); }
+.light.amber .bulb { background: var(--warning); }
+.light.amber { color: var(--warning); }
+
+/* ---------- TIMELINE ---------- */
+.timeline { position: relative; padding-left: 1.9rem; }
+.timeline::before {
+  content: ''; position: absolute; left: 3px; top: 8px; bottom: 8px;
+  width: 1px; background: var(--rule);
+}
+.timeline-item { position: relative; margin-bottom: 1.9rem; }
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -1.9rem; top: 8px; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--accent); border: none;
+  box-shadow: 0 0 0 4px var(--bg);
+}
+.timeline-dot.done { background: var(--positive); box-shadow: 0 0 0 4px var(--bg); }
+.timeline-dot.pending { background: var(--bg); border: 1px solid var(--accent); box-shadow: 0 0 0 4px var(--bg); }
+.timeline-period {
+  font-size: 0.62rem; font-weight: 700; color: var(--text-muted);
+  margin-bottom: 0.3rem; letter-spacing: 0.15em; text-transform: uppercase;
+}
+.timeline-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; letter-spacing: -0.01em; }
+.timeline-detail { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.8; }
+
+/* ---------- ACTION LIST ---------- */
+.action-item {
+  display: grid; grid-template-columns: 2.6rem 1fr; align-items: baseline;
+  gap: 0; padding: 1.2rem 0; background: none; border: none;
+  border-radius: 0; margin-bottom: 0; border-bottom: 1px solid var(--rule-soft);
+}
+.action-item:first-of-type { border-top: 1px solid var(--rule); }
+.action-num {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.9rem; font-weight: 800; color: var(--accent);
+  flex-shrink: 0; min-width: 0; font-variant-numeric: tabular-nums;
+}
+.action-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; }
+.action-text strong { color: var(--text); }
+.action-owner {
+  font-size: 0.68rem; color: var(--text-muted); margin-top: 0.5rem;
+  letter-spacing: 0.11em; text-transform: uppercase; font-weight: 600;
+}
+
+/* ---------- NOTE ---------- */
+.verify-note {
+  display: flex; align-items: flex-start; gap: 0.9rem;
+  padding: 1.1rem 0 0; background: none; border: none;
+  border-top: 1px solid var(--rule-soft); border-radius: 0;
+  font-size: 0.8rem; color: var(--text-muted); line-height: 1.8;
+}
+.verify-note strong { color: var(--text-secondary); }
+.verify-note svg { width: 15px; height: 15px; }
+
+/* ---------- SPEAKER ---------- */
+.speaker-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0;
+  border-radius: 0; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; background: none; color: var(--accent);
+}
+.speaker-chip .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+/* ---------- BEFORE / AFTER ---------- */
+.shift-grid {
+  display: grid; grid-template-columns: 1fr 40px 1fr;
+  align-items: stretch; gap: 0;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.shift-box { background: none; border: none; border-radius: 0; padding: 1.6rem 1.6rem 1.8rem 0; box-shadow: none; }
+.shift-box.old { opacity: 0.62; }
+.shift-box.new { border: none; box-shadow: none; padding-left: 1.6rem; border-left: 1px solid var(--rule-soft); }
+.shift-tag {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 1.1rem;
+}
+.shift-box.new .shift-tag { color: var(--accent); }
+.shift-list { list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 0.55rem; }
+.shift-list li {
+  counter-increment: s; font-size: 0.88rem; color: var(--text-secondary);
+  padding-left: 1.6rem; position: relative; line-height: 1.65;
+}
+.shift-list li::before {
+  content: counter(s, decimal-leading-zero);
+  position: absolute; left: 0; top: 0; width: auto; height: auto;
+  border-radius: 0; background: none; color: var(--accent);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.72rem; font-weight: 800; display: block; letter-spacing: 0.04em;
+}
+.shift-list li.struck { text-decoration: line-through; color: var(--negative); opacity: 0.72; }
+.shift-list li.struck::before { background: none; color: var(--negative); }
+.shift-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); opacity: 0.55; }
+.shift-arrow svg { width: 20px; height: 20px; }
+.shift-note {
+  margin-top: 1.2rem; padding: 0.75rem 0 0; background: none; border-radius: 0;
+  border-top: 1px solid var(--rule-soft); font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;
+}
+
+/* ---------- FEATURE BANNER (dcm) ---------- */
+.dcm-banner {
+  display: grid; grid-template-columns: auto 1fr; gap: 1.6rem; align-items: start;
+  background: none; border: none; border-radius: 0;
+  border-top: 2px solid var(--accent); border-bottom: 1px solid var(--rule);
+  padding: 1.5rem 0 1.6rem;
+}
+.dcm-chip {
+  flex-shrink: 0; padding: 0; border-radius: 0; background: none; color: var(--accent);
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+  writing-mode: horizontal-tb; padding-top: 0.4rem;
+}
+.dcm-title { font-family: 'Noto Sans KR', sans-serif; font-size: 1.18rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.dcm-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.85; }
+
+/* ---------- FACT ROW ---------- */
+.fact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; column-gap: 2rem; }
+.fact-card {
+  display: block; gap: 0; background: none; border: none; border-radius: 0;
+  border-top: 1px solid var(--rule); padding: 1.2rem 0 0;
+  font-size: 0.86rem; color: var(--text-secondary); line-height: 1.8;
+}
+.fact-card strong { color: var(--text); display: block; margin-bottom: 0.35rem; font-size: 0.9rem; }
+.fact-card br { display: none; }
+.fact-mark {
+  width: auto; height: auto; border-radius: 0; display: block;
+  font-weight: 700; font-size: 0.85rem; margin-bottom: 0.7rem; background: none !important;
+}
+.fact-card.yes { border-top-color: var(--positive); border-left: none; }
+.fact-card.yes .fact-mark { color: var(--positive); }
+.fact-card.no { border-top-color: var(--negative); border-left: none; }
+.fact-card.no .fact-mark { color: var(--negative); }
+
+/* ---------- GOAL LINE ---------- */
+.goal-banner {
+  display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+  background: none; border: none; border-radius: 0;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 1.5rem 0;
+}
+.goal-x { font-size: 0.95rem; font-weight: 400; color: var(--text-muted); text-decoration: line-through; }
+.goal-arrow { font-size: 1rem; color: var(--accent); font-weight: 400; opacity: 0.6; }
+.goal-o { font-family: 'Noto Sans KR', sans-serif; font-size: 1.12rem; font-weight: 700; color: var(--positive); letter-spacing: -0.02em; }
+.goal-o strong { color: var(--positive); font-weight: 600; }
+
+.role-split { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2.5rem; }
+
+/* ---------- COLOPHON ---------- */
+.footer-note { font-size: 0.76rem !important; color: var(--text-muted) !important; line-height: 1.85 !important; }
+main > section[style] {
+  background: none !important; border: none !important; border-radius: 0 !important;
+  border-top: 4px solid var(--divider) !important; padding: 2.5rem 0 0 !important;
+  text-align: left !important;
+}
+
+/* ---------- MOTION ---------- */
+[data-reveal] { opacity: 0; transform: translateY(10px); transition: opacity 0.55s ease, transform 0.55s ease; }
+[data-reveal].visible { opacity: 1; transform: none; }
+
+/* ---------- PRINT ---------- */
+@media print {
+  .viz-menu, .site-header { display: none; }
+  body { background: white; color: black; }
+  main > section { break-inside: avoid; grid-template-columns: 150px 1fr; border-top: 3px solid #72256B; }
+  .feature-card, .challenge-card, .glossary-card, .card { break-inside: avoid; }
+}
+@media (prefers-reduced-motion: reduce) { [data-reveal] { opacity: 1; transform: none; } * { transition: none !important; } }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+  main > section { grid-template-columns: 130px minmax(0,1fr); column-gap: 2.25rem; }
+  .hero { padding: 2.5rem 2rem 1.75rem; }
+  main { padding: 0 2rem 5rem; }
+  .site-header { padding: 0.85rem 2rem; }
+}
+@media (max-width: 768px) {
+  h1 { font-size: 2.15rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.05rem; margin-top: 2rem; }
+  .hero { padding: 1.75rem 1.25rem 1.25rem; }
+  main { padding: 0 1.25rem 4rem; }
+  .site-header { padding: 0.8rem 1.25rem; }
+  .header-badge { font-size: 0.6rem; padding-left: 10px; }
+  main > section {
+    grid-template-columns: 1fr; padding-top: 2.25rem; margin-bottom: 2.25rem; border-top-width: 3px;
+  }
+  main > section > *:not(.section-label) { grid-column: 1; }
+  .section-label {
+    grid-column: 1; grid-row: auto; position: static; margin-bottom: 1rem;
+  }
+  .card-grid-2, .card-grid-3, .card-grid-4,
+  .fact-grid, .role-split { grid-template-columns: 1fr; }
+  .card-grid-4:has(.kpi-card), .card-grid-3:has(.kpi-card) { display: block; }
+  .card-grid-4 > .kpi-card + .kpi-card, .card-grid-3 > .kpi-card + .kpi-card {
+    border-left: none; padding-left: 0; border-top: 1px solid var(--rule-soft);
+  }
+  .card-grid-4 > .kpi-card, .card-grid-3 > .kpi-card { padding: 1.25rem 0; }
+  .shift-grid { grid-template-columns: 1fr; }
+  .shift-box.new { border-left: none; border-top: 1px solid var(--rule-soft); padding-left: 0; padding-top: 1.6rem; }
+  .shift-arrow { transform: rotate(90deg); padding: 0.5rem 0; }
+  .dcm-banner { grid-template-columns: 1fr; gap: 0.75rem; }
+  .hero-quote { font-size: 1.2rem; padding-left: 1.9rem; }
+  .hero-quote::before { font-size: 2.8rem; }
+  .kpi-value { font-size: 2rem; }
+  .agenda-row, .action-item { grid-template-columns: 2.1rem 1fr; }
+}
+/* ================= VER.2 확장 컴포넌트 — 세션02 에디토리얼 규격에 맞춤 ================= */
+
+/* ---------- CHART ---------- */
+.chart-wrap {
+  position: relative; width: 100%;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 1.6rem 0 1.3rem;
+}
+.chart-cap {
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.11em;
+  color: var(--text-muted); line-height: 1.7; margin-bottom: 1.2rem;
+}
+
+/* ---------- FLOW (조직 3단계) ---------- */
+.solution-flow {
+  display: grid; grid-template-columns: 1fr 34px 1fr 34px 1fr;
+  align-items: stretch;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.flow-node { padding: 1.55rem 1.3rem 1.7rem 0; }
+.flow-arrow + .flow-node { border-left: 1px solid var(--rule-soft); padding-left: 1.3rem; }
+.flow-node-icon {
+  width: auto; height: auto; background: none !important; border-radius: 0;
+  display: block; font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.16em;
+  color: var(--accent); margin-bottom: 0.75rem;
+}
+.flow-node-title { font-size: 0.98rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 0.32rem; }
+.flow-node-sub { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.7; }
+.flow-arrow {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); opacity: 0.5; font-size: 1rem; font-weight: 400;
+}
+
+/* ---------- SHIFT ROW (F1 → F2) ---------- */
+.shift-row {
+  display: grid; grid-template-columns: 1fr 2.6rem 1fr;
+  align-items: baseline; gap: 0;
+  padding: 0.95rem 0; border-bottom: 1px solid var(--rule-soft);
+  font-size: 0.88rem; line-height: 1.7;
+}
+.shift-row:first-of-type { border-top: 1px solid var(--rule); }
+.shift-from { color: var(--text-muted); }
+.shift-to { font-weight: 700; color: var(--text); }
+.shift-row .shift-arrow { justify-content: flex-start; font-size: 0.9rem; }
+
+/* ---------- CHIP ROW ---------- */
+.chip-row {
+  display: flex; flex-wrap: wrap; gap: 0 1.3rem;
+  margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--rule-soft);
+}
+.mini-chip {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.mini-chip::before { content: ''; width: 10px; height: 1px; background: var(--accent); opacity: 0.75; }
+
+/* ---------- TABLE 숫자 셀 ---------- */
+.scorecard td.num {
+  font-variant-numeric: tabular-nums; font-weight: 700;
+  color: var(--text); white-space: nowrap;
+}
+.scorecard td.num.up { color: var(--positive); }
+.scorecard td.num.down { color: var(--negative); }
+
+/* 카드 내부 소제목 — 상단 여백 제거 */
+.card > h3:first-child, .card > h3.tight { margin-top: 0; }
+
+@media (max-width: 768px) {
+  .solution-flow { grid-template-columns: 1fr; }
+  .flow-node { padding: 1.3rem 0 1.4rem; }
+  .flow-arrow + .flow-node { border-left: none; padding-left: 0; border-top: 1px solid var(--rule-soft); padding-top: 1.3rem; }
+  .solution-flow .flow-arrow { transform: rotate(90deg); padding: 0.35rem 0; }
+  .shift-row { grid-template-columns: 1fr; gap: 0.25rem; }
+  .shift-row .shift-arrow { justify-content: flex-start; transform: rotate(90deg); width: 1.2rem; }
+}
+/* ================= VER.3 — 섹션 제목 상단 좌측 배치 + 중앙 열 레이아웃 ================= */
+
+/* ---------- 본문 열을 페이지 중앙으로 ---------- */
+main { max-width: 900px; margin: 0 auto; padding: 0 3rem 7rem; }
+main > section {
+  display: block;
+  padding-top: 3.25rem;
+  margin: 0 0 3.5rem;
+  border-top: 4px solid var(--divider);
+}
+main > section:first-child { border-top: none; padding-top: 1rem; }
+main > section > *:not(.section-label) { max-width: 100%; }
+
+/* ---------- 섹션 라벨: 좌측 스티키 → 상단 좌측 (바는 텍스트 왼쪽 인라인) ---------- */
+.section-label {
+  position: static; top: auto;
+  display: flex; align-items: center; gap: 0.8rem;
+  margin: 0 0 0.9rem;
+  text-align: left; line-height: 1.4;
+}
+.section-label .label-bar {
+  display: block; width: 26px; height: 2px;
+  background: var(--accent); margin: 0; flex-shrink: 0;
+}
+
+/* ---------- 섹션 헤더 좌측 정렬 ---------- */
+main > section > h2 { text-align: left; }
+main > section > h3 { text-align: left; margin-top: 3rem; }
+main > section > .section-desc {
+  text-align: left; max-width: 100%;
+  margin-left: 0; margin-right: 0;
+}
+
+/* ---------- 커버 ---------- */
+.hero { max-width: 900px; padding: 3.25rem 3rem 2.25rem; text-align: left; }
+.hero-eyebrow { max-width: 100%; margin-left: 0; margin-right: 0; }
+.hero-sub { margin-left: 0; margin-right: 0; max-width: 100%; }
+.hero-meta { justify-content: flex-start; max-width: 100%; }
+.rename-banner {
+  max-width: 100%; margin: 2.25rem 0 0;
+  border-left: 2px solid var(--accent); border-top: none;
+  padding: 0.15rem 0 0.15rem 1.4rem;
+}
+.rename-banner > div:first-child { text-align: left !important; }
+
+/* ---------- 풀 쿼트 ---------- */
+.hero-quote { text-align: left; padding-left: 2.6rem; padding-right: 0; }
+.hero-quote::before {
+  position: absolute; left: 0; top: -0.55rem;
+  display: block; line-height: 1; margin-bottom: 0;
+}
+
+/* ---------- 지표·단문 컴포넌트도 좌측 정렬 ---------- */
+.kpi-card { text-align: left; }
+.card-grid-4 > .kpi-card, .card-grid-3 > .kpi-card { padding: 1.5rem 1.5rem 1.6rem 0; }
+.card-grid-4 > .kpi-card + .kpi-card, .card-grid-3 > .kpi-card + .kpi-card { padding-left: 1.5rem; }
+.card-grid-2 > .kpi-card { padding: 1.5rem 1.5rem 1.6rem 0; }
+
+.fact-card { text-align: left; }
+.fact-mark { text-align: left; }
+
+.flow-node { text-align: left; padding: 1.55rem 1.3rem 1.7rem 0; }
+.flow-arrow + .flow-node { padding-left: 1.3rem; }
+.flow-node-icon { text-align: left; }
+
+.goal-banner { justify-content: flex-start; text-align: left; }
+
+.dcm-banner {
+  display: grid; grid-template-columns: auto 1fr; gap: 1.6rem;
+  align-items: start; text-align: left; padding: 1.5rem 0 1.6rem;
+}
+.dcm-chip { display: block; margin-bottom: 0; padding-top: 0.4rem; }
+
+.chip-row { justify-content: flex-start; }
+.chart-cap { text-align: left; }
+
+.shift-row { text-align: left; }
+.shift-row .shift-arrow { justify-content: flex-start; }
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 1024px) {
+  main { max-width: 100%; padding: 0 2rem 5rem; }
+  .hero { max-width: 100%; padding: 4.5rem 2rem 3rem; }
+}
+@media (max-width: 768px) {
+  main { padding: 0 1.25rem 4rem; }
+  .hero { padding: 1.75rem 1.25rem 1.25rem; }
+  main > section { padding-top: 2.25rem; margin-bottom: 2.25rem; border-top-width: 3px; }
+  main > section > h3 { margin-top: 2.25rem; }
+  .card-grid-4 > .kpi-card, .card-grid-3 > .kpi-card, .card-grid-2 > .kpi-card { padding: 1.25rem 0; }
+  .card-grid-4 > .kpi-card + .kpi-card, .card-grid-3 > .kpi-card + .kpi-card { padding-left: 0; }
+  .flow-node, .flow-arrow + .flow-node { padding-left: 0; padding-right: 0; }
+  .dcm-banner { grid-template-columns: 1fr; gap: 0.75rem; }
+  .hero-quote { padding-left: 1.9rem; }
+}
+/* ================= 상단 주제 탭 (ver.2) ================= */
+.topbar {
+  position: sticky; top: var(--hdr-h, 50px); z-index: 90;
+  background: var(--bg); border-bottom: 1px solid var(--rule); margin-bottom: 0.5rem;
+}
+.topbar.has-overflow::after {
+  content: ''; position: absolute; top: 0; bottom: 1px; right: 0; width: 66px;
+  background: linear-gradient(90deg, rgba(0,0,0,0), var(--bg) 72%); pointer-events: none;
+}
+.topbar-inner {
+  max-width: 900px; margin: 0 auto; padding: 0.9rem 3rem 0;
+  display: flex; gap: 3px; overflow-x: auto; scrollbar-width: none;
+}
+.topbar-inner::-webkit-scrollbar { display: none; }
+.toptab {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  padding: 0.72rem 1.25rem 0.66rem;
+  background: rgba(114,37,107,0.055);
+  border: none; border-bottom: 3px solid transparent; border-radius: 10px 10px 0 0;
+  font-family: inherit; font-size: 0.875rem; font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.3;
+  color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+}
+.toptab svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.9; }
+.toptab:hover { background: rgba(114,37,107,0.10); color: var(--text); }
+.toptab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.toptab[aria-selected="true"] {
+  background: rgba(114,37,107,0.13); color: var(--accent); border-bottom-color: var(--accent);
+}
+.theme-dark .toptab { background: rgba(205,223,215,0.06); }
+.theme-dark .toptab:hover { background: rgba(205,223,215,0.11); }
+.theme-dark .toptab[aria-selected="true"] { background: rgba(199,123,189,0.18); color: var(--accent); }
+
+.top-panel { display: none; }
+.top-panel.active { display: block; animation: topIn 0.28s ease both; }
+@keyframes topIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .top-panel.active { animation: none; } }
+.top-panel > section:first-child { border-top: none; padding-top: 1.25rem; }
+
+@media (max-width: 1024px) { .topbar-inner { padding: 0.85rem 2rem 0; } }
+@media (max-width: 1140px) { .topbar-inner { padding-right: 62px; } }
+@media (max-width: 960px)  { .toptab { padding: 0.64rem 0.95rem 0.6rem; font-size: 0.81rem; gap: 0.4rem; } .toptab svg { width: 14px; height: 14px; } }
+@media (max-width: 768px)  { .topbar-inner { padding: 0.7rem 1.25rem 0; gap: 2px; padding-right: 62px; }
+  .toptab { padding: 0.6rem 0.9rem 0.55rem; font-size: 0.8rem; gap: 0.4rem; } .toptab svg { width: 13px; height: 13px; } }
+@media print { .topbar { display: none; } .top-panel { display: block !important; animation: none !important; } }
+/* ================= TS 매출 프로세스 전용 컴포넌트 ================= */
+
+/* ---------- 8단계 스텝 ---------- */
+.phase-legend { display: flex; flex-wrap: wrap; gap: 0 1.4rem; margin-bottom: 0.9rem; }
+.pl { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-secondary); }
+.pl::before { content: ''; width: 18px; height: 3px; border-radius: 2px; }
+.pl.pre::before { background: var(--accent); }
+.pl.field::before { background: var(--positive); }
+.pl.post::before { background: var(--eucalyptus); }
+.step-grid {
+  list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 1.5rem; row-gap: 0; margin-bottom: 2.5rem;
+}
+.step { border-top: 3px solid var(--accent); padding: 1rem 0 1.5rem; }
+.step.field { border-top-color: var(--positive); }
+.step.post { border-top-color: var(--eucalyptus); }
+.step-n { font-size: 0.78rem; font-weight: 800; color: var(--accent); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; margin-bottom: 0.4rem; }
+.step.field .step-n, .step.post .step-n { color: var(--positive); }
+.step-t { font-size: 0.98rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.45; margin-bottom: 0.35rem; }
+.step-d { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ---------- 서류 카드 ---------- */
+.doc-pair { row-gap: 1.5rem; }
+.doc-card { border-top: 3px solid var(--accent); padding: 1.3rem 0 0.5rem; display: flex; flex-direction: column; }
+.doc-card.after { border-top-color: var(--positive); }
+.doc-when { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.35rem; }
+.doc-card.after .doc-when { color: var(--positive); }
+.doc-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.35; }
+.doc-why { font-size: 0.84rem; color: var(--text-secondary); margin: 0.25rem 0 0.9rem; }
+.doc-list { list-style: none; border-top: 1px solid var(--rule); }
+.doc-list li {
+  font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;
+  padding: 0.55rem 0 0.55rem 1.4rem; border-bottom: 1px solid var(--rule-soft); position: relative;
+}
+.doc-list li::before { content: '✓'; position: absolute; left: 0; top: 0.55rem; font-weight: 800; color: var(--accent); font-size: 0.8rem; }
+.doc-card.after .doc-list li::before { color: var(--positive); }
+.doc-extra { margin-top: 1rem; padding-left: 1rem; border-left: 2px solid var(--rule); font-size: 0.82rem; color: var(--text-secondary); line-height: 1.75; }
+
+/* ---------- 발급 기한 계산기 ---------- */
+.calc { border-top: 2px solid var(--accent); border-bottom: 1px solid var(--rule); padding: 1.4rem 0 1.5rem; }
+.calc-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; margin-bottom: 1.2rem; }
+.calc-field { display: flex; flex-direction: column; gap: 0.4rem; flex: 1 1 220px; }
+.calc-field span { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); }
+.calc-field input {
+  font-family: inherit; font-size: 1rem; font-weight: 600; color: var(--text);
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 0.6rem 0.8rem; min-height: 44px; width: 100%;
+}
+.calc-field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.theme-dark .calc-field input { color-scheme: dark; }
+.calc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 1.5rem; }
+.calc-grid > div { border-top: 1px solid var(--rule-soft); padding-top: 0.8rem; }
+.calc-v { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); font-variant-numeric: tabular-nums; }
+.calc-v small { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+.calc-v.due { color: var(--accent); }
+.calc-st { margin-top: 1rem; font-size: 0.88rem; font-weight: 700; padding-left: 0.9rem; border-left: 3px solid; }
+.calc-st.ok { color: var(--positive); }
+.calc-st.soon { color: var(--warning); }
+.calc-st.over { color: var(--negative); }
+.calc-tax { margin-top: 0.8rem; font-size: 0.84rem; color: var(--text-secondary); }
+.calc-empty { font-size: 0.86rem; color: var(--text-muted); }
+
+/* ---------- 체크리스트 ---------- */
+.chk-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--text); padding-bottom: 0.6rem; }
+.theme-dark .chk-head { border-bottom-color: var(--text-secondary); }
+#chkCount { font-size: 0.8rem; font-weight: 800; color: var(--accent); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+#chkCount.all { color: var(--positive); }
+.chk-reset { appearance: none; background: none; border: none; font-family: inherit; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 0.4rem 0; }
+.chk-reset:hover { color: var(--accent); }
+.chk { list-style: none; }
+.chk li { border-bottom: 1px solid var(--rule-soft); }
+.chk label { display: flex; align-items: flex-start; gap: 0.9rem; padding: 0.95rem 0; cursor: pointer; font-size: 0.92rem; color: var(--text-secondary); line-height: 1.7; }
+.chk input { width: 20px; height: 20px; margin-top: 0.2rem; flex-shrink: 0; accent-color: #105742; cursor: pointer; }
+.chk input:checked + span { color: var(--text-muted); }
+.chk input:checked + span strong { color: var(--positive); }
+
+/* ---------- FAQ ---------- */
+.faq { border-top: 1px solid var(--rule); }
+.faq details { border-bottom: 1px solid var(--rule-soft); }
+.faq summary {
+  list-style: none; cursor: pointer; padding: 1rem 2rem 1rem 0; position: relative;
+  font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.6;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::before { content: 'Q'; font-weight: 800; color: var(--accent); margin-right: 0.7rem; }
+.faq summary::after { content: '+'; position: absolute; right: 0.2rem; top: 0.9rem; font-size: 1.2rem; font-weight: 400; color: var(--accent); }
+.faq details[open] summary::after { content: '−'; }
+.faq summary:hover { color: var(--accent); }
+.faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.faq-a { padding: 0 0 1.2rem 1.6rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.85; }
+.faq-a a { color: var(--accent); font-weight: 700; }
+.faq-note { display: inline-block; margin-top: 0.4rem; font-size: 0.8rem; color: var(--text-muted); }
+
+@media (max-width: 960px) { .step-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 768px) {
+  .calc-grid { grid-template-columns: 1fr; row-gap: 0.8rem; }
+  .doc-pair { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) { .step-grid { grid-template-columns: 1fr; } }
+@media print { .calc { display: none; } .faq details { break-inside: avoid; } }
+@media (max-width: 600px) {
+  .site-header .header-title, .site-header .header-divider { display: none; }
+  .header-badge { margin-right: 44px; white-space: nowrap; font-size: 0.66rem; padding: 3px 10px; }
+}
+
+/* ---------- 버전 전환 링크 ---------- */
+.ver-link {
+  display: inline-block; margin-top: 1.4rem; font-size: 0.86rem; font-weight: 700;
+  color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px;
+}
+.ver-link:hover { color: var(--positive); }
+
+/* ---------- FSE To-Do 단계 ---------- */
+section:has(> .stage) { counter-reset: todo; }
+.stage { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); column-gap: 1.75rem; border-top: 3px solid var(--accent); padding: 1.1rem 0 0.4rem; }
+.stage + .stage { margin-top: 1.4rem; }
+.stage.s0 { border-top-color: var(--text-muted); }
+.stage.s2 { border-top-color: var(--positive); }
+.stage.s3 { border-top-color: var(--eucalyptus); }
+.stage.s4 { border-top-color: var(--text-secondary); }
+.stage-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.stage-tag { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.stage.s0 .stage-tag { color: var(--text-secondary); }
+.stage.s2 .stage-tag, .stage.s3 .stage-tag { color: var(--positive); }
+.stage.s4 .stage-tag { color: var(--text-secondary); }
+.stage-name { font-size: 0.74rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.02em; }
+.todo { list-style: none; }
+.todo li {
+  counter-increment: todo; position: relative; padding: 0 0 0.95rem 2.4rem; margin-bottom: 0.95rem;
+  border-bottom: 1px solid var(--rule-soft); display: flex; flex-direction: column; gap: 0.15rem;
+}
+.todo li:last-child { border-bottom: none; margin-bottom: 0; }
+.todo li::before {
+  content: counter(todo, decimal-leading-zero); position: absolute; left: 0; top: 0.05rem;
+  font-size: 0.82rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums;
+}
+.stage.s2 .todo li::before, .stage.s3 .todo li::before { color: var(--positive); }
+.todo-t { font-size: 0.98rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.5; }
+.todo-d { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.75; }
+.dd { list-style: none; margin-top: 0.3rem; }
+.dd li { padding: 0.4rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.88rem; color: var(--text-secondary); }
+.dd li:last-child { border-bottom: none; }
+.fact-card.no .dd li { text-decoration: none; }
+@media (max-width: 768px) {
+  .stage { grid-template-columns: 1fr; row-gap: 0.8rem; }
+  .stage-head { flex-direction: row; align-items: baseline; gap: 0.7rem; }
+}
+@media print { .stage { break-inside: avoid; } .ver-link { display: none; } }
+
+/* ================= FSE To-Do · 프로세스 맵 ================= */
+.pnode { --c: var(--accent); }
+.pnode.s0 { --c: var(--text-muted); }
+.pnode.s2 { --c: var(--positive); }
+.pnode.s3 { --c: var(--eucalyptus); }
+.pnode.s4 { --c: var(--text-secondary); }
+.pmap { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 0.5rem; }
+.pnode { position: relative; }
+/* 노드 사이 연결선 + 화살촉 */
+.pnode:not(:last-child)::after {
+  content: ''; position: absolute; top: 31px; left: calc(50% + 38px); right: calc(-50% + 38px);
+  height: 2px; background: var(--rule);
+}
+.pnode:not(:last-child)::before {
+  content: ''; position: absolute; top: 27px; right: calc(-50% + 36px);
+  border: 5px solid transparent; border-left: 7px solid var(--text-muted); border-right: none;
+}
+.pnode > button {
+  appearance: none; background: none; border: none; font-family: inherit; color: inherit; cursor: pointer;
+  width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 0.3rem; padding: 0 0.4rem 0.8rem; border-radius: 12px; transition: background 0.16s;
+}
+.pnode > button:hover { background: rgba(114,37,107,0.05); }
+.theme-dark .pnode > button:hover { background: rgba(205,223,215,0.06); }
+.pnode > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pcircle {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--c); color: #fff;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 0.45rem;
+  box-shadow: 0 0 0 5px var(--bg), 0 0 0 6px var(--c);
+}
+.theme-dark .pcircle { color: var(--bg); }
+.pcircle svg { width: 26px; height: 26px; }
+.pwhen { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; color: var(--c); }
+.pnode.s0 .pwhen { color: var(--text-secondary); }
+.pname { font-size: 1.02rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); line-height: 1.3; }
+.pkeys { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; margin-top: 0.25rem; }
+.pkeys span { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+.pdoc {
+  margin-top: 0.5rem; font-size: 0.72rem; font-weight: 700; color: var(--c);
+  border: 1.5px dashed var(--c); border-radius: 6px; padding: 0.2rem 0.55rem;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.pdoc::before { content: '📄'; font-size: 0.75rem; }
+
+/* ---------- 날짜 흐름 ---------- */
+.dline { position: relative; padding: 2.6rem 0 0.5rem; margin: 0.5rem 0 1.5rem; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dl-bar { position: absolute; top: 2.6rem; left: 0; right: 0; height: 6px; border-radius: 3px; background: var(--rule-soft); transform: translateY(5px); }
+.dl-fill { position: absolute; inset: 0; border-radius: 3px; background: linear-gradient(90deg, var(--positive), var(--eucalyptus) 60%, var(--negative)); opacity: 0.85; }
+.dl-mk { position: relative; display: flex; flex-direction: column; gap: 0.15rem; padding-top: 1.6rem; }
+.dl-mk:last-child { align-items: flex-end; text-align: right; }
+.dl-dot { position: absolute; top: 0; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 4px solid var(--positive); }
+.dl-mk:last-child .dl-dot { left: auto; right: 0; border-color: var(--negative); }
+.m-share .dl-dot { border-color: var(--eucalyptus); }
+.m-order .dl-dot { border-color: var(--text-muted); border-style: dashed; }
+.dl-d { position: absolute; top: -1.9rem; font-size: 0.95rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.dl-mk:last-child .dl-d { right: 0; color: var(--negative); }
+.m-done .dl-d { color: var(--positive); }
+.dl-t { font-size: 0.92rem; font-weight: 700; color: var(--text); }
+.dl-s { font-size: 0.78rem; color: var(--text-secondary); }
+.m-order .dl-t, .m-order .dl-d { color: var(--text-muted); text-decoration: line-through; }
+.m-order .dl-s { color: var(--negative); font-weight: 700; }
+
+/* ---------- 갈림길 ---------- */
+.branch { border-top: 1px solid var(--rule); padding: 1.3rem 0 1.5rem; }
+.branch + .branch { margin-top: 0.5rem; }
+.b-q { display: flex; align-items: center; gap: 0.9rem; font-size: 1.02rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; }
+.b-when { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); }
+.b-diamond {
+  flex-shrink: 0; width: 34px; height: 34px; transform: rotate(45deg); border-radius: 6px;
+  background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.95rem;
+}
+.theme-dark .b-diamond { color: var(--bg); }
+.b-paths { display: flex; flex-direction: column; gap: 0.55rem; margin-left: 16px; padding-left: 1.6rem; border-left: 2px solid var(--rule); }
+.b-path { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; position: relative; }
+.b-path::before { content: ''; position: absolute; left: -1.6rem; top: 50%; width: 1.2rem; height: 2px; background: var(--rule); }
+.b-lab { flex-shrink: 0; width: 3rem; text-align: center; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; border-radius: 999px; padding: 0.15rem 0; }
+.b-path.yes .b-lab { background: rgba(114,37,107,0.12); color: var(--accent); }
+.b-path.no .b-lab { background: rgba(16,87,66,0.12); color: var(--positive); }
+.theme-dark .b-path.yes .b-lab { background: rgba(199,123,189,0.18); }
+.theme-dark .b-path.no .b-lab { background: rgba(127,196,154,0.16); }
+.b-flow { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.b-step { font-size: 0.86rem; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.3rem 0.7rem; line-height: 1.4; }
+.b-step.em { color: var(--text); font-weight: 700; border-color: var(--accent); }
+.b-path.no .b-step.em { border-color: var(--positive); }
+.b-arr { color: var(--text-muted); font-weight: 700; }
+
+/* 맵에서 이동한 단계 강조 */
+.stage.flash { animation: stageFlash 1.4s ease; }
+@keyframes stageFlash { 0%, 40% { background: rgba(114,37,107,0.08); } 100% { background: transparent; } }
+
+@media (max-width: 768px) {
+  .pmap { grid-template-columns: 1fr; }
+  .pnode > button { flex-direction: row; flex-wrap: wrap; align-items: center; text-align: left; column-gap: 1rem; padding: 0.4rem 0.4rem 1.2rem; }
+  .pcircle { width: 52px; height: 52px; margin: 0; }
+  .pcircle svg { width: 22px; height: 22px; }
+  .pnode > button > .pwhen, .pnode > button > .pname { flex-basis: calc(100% - 68px); }
+  .pnode .pwhen { order: 1; } .pnode .pname { order: 2; margin-left: 68px; margin-top: -1.9rem; }
+  .pkeys, .pdoc { margin-left: 68px; }
+  .pkeys { flex-direction: row; flex-wrap: wrap; gap: 0 0.7rem; align-items: flex-start; order: 3; flex-basis: calc(100% - 68px); }
+  .pdoc { order: 4; }
+  .pnode:not(:last-child)::after { top: 64px; bottom: 0; left: 31px; right: auto; width: 2px; height: auto; }
+  .pnode:not(:last-child)::before { top: auto; bottom: -4px; right: auto; left: 27px; border: 5px solid transparent; border-top: 7px solid var(--text-muted); border-bottom: none; }
+  .dline { grid-template-columns: 1fr; padding: 0 0 0 1.8rem; row-gap: 1.1rem; }
+  .dl-bar { top: 0; bottom: 0; left: 6px; right: auto; width: 4px; height: auto; transform: none; }
+  .dl-fill { background: linear-gradient(180deg, var(--positive), var(--eucalyptus) 60%, var(--negative)); }
+  .dl-mk, .dl-mk:last-child { padding-top: 0; align-items: flex-start; text-align: left; }
+  .dl-dot, .dl-mk:last-child .dl-dot { left: -1.8rem; right: auto; top: 0.2rem; }
+  .dl-d, .dl-mk:last-child .dl-d { position: static; }
+}
+@media print { .pnode > button { break-inside: avoid; } }
+.b-diamond i { transform: rotate(-45deg); font-style: normal; display: block; }
+
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">본문으로 바로가기</a>
+
+<nav class="viz-menu" role="navigation" aria-label="문서 메뉴">
+  <button class="viz-menu-toggle" onclick="toggleMenu()" aria-expanded="false" aria-haspopup="true" aria-label="메뉴 열기">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+  </button>
+  <div class="viz-menu-dropdown" id="vizMenuDropdown" role="menu">
+    <button class="viz-menu-btn" onclick="cycleTheme()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+      테마 변경
+    </button>
+    <button class="viz-menu-btn" onclick="downloadImage()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      PNG 저장
+    </button>
+    <button class="viz-menu-btn" onclick="printAll()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      인쇄
+    </button>
+  </div>
+</nav>
+
+<header class="site-header" role="banner">
+  <div class="header-logo"><img src="data:image/png;base64,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" alt="Vantive"></div>
+  <div class="header-divider"></div>
+  <div class="header-title">TS 매출 프로세스 · 매출인식 · 세금계산서 · 수금</div>
+  <span class="header-badge">2026.10.22 Finance 교육</span>
+</header>
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-eyebrow">TECHNICAL SERVICE · SALES PROCESS · REVENUE · TAX INVOICE · COLLECTION</div>
+  <h1 id="hero-title">TS 유상수리·부품판매<br><span>매출 프로세스 가이드</span></h1>
+  <p class="hero-sub">Finance(A2R·C2C)가 정리한 <strong>매출 인식·세금계산서 발급 기준</strong>과, 이를 지키기 위한 <strong>8단계 업무 절차</strong>를 TS 업무 기준으로 옮겼습니다. 핵심은 하나입니다 — <strong>작업이 끝난 날짜와 그 증빙을 바로 공유</strong>하는 것.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">교육일 2026.10.22 (목) · 57분</div>
+    <div class="hero-meta-item">Finance A2R팀 · C2C팀</div>
+    <div class="hero-meta-item">대상 TS 매니저 · 엔지니어 전원</div>
+  </div>
+  <div class="rename-banner">
+    <div style="font-size:0.9rem; color:var(--text-secondary); line-height:1.7;">
+      <strong style="color:var(--text)">무엇이 바뀌나요?</strong> 지금까지는 가격 협의·내부 오더가 끝날 때까지 세금계산서를 기다리는 경우가 있었습니다. 앞으로는 <strong style="color:var(--text)">작업 완료일 기준으로 표준 단가에 따라 바로 발행</strong>하고, 가격 조정은 <strong style="color:var(--text)">별도 승인 절차(마이너스 세금계산서)</strong>로 처리합니다. 위 <strong style="color:var(--text)">주제 탭</strong>으로 이동하세요.
+    </div>
+    <a class="ver-link" href="TS_sales_process_FSE_todo.html">현장에서 할 일만 빠르게 보기 — FSE To-Do 버전 →</a>
+  </div>
+</section>
+
+<nav class="topbar" aria-label="주제 탭">
+  <div class="topbar-inner" role="tablist" aria-label="TS 매출 프로세스 주제">
+    <button class="toptab" id="tab-sum" role="tab" type="button" aria-selected="true" aria-controls="top-sum" tabindex="0" onclick="selectTop('sum', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>한눈에 보기</button>
+    <button class="toptab" id="tab-std" role="tab" type="button" aria-selected="false" aria-controls="top-std" tabindex="-1" onclick="selectTop('std', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>발급 기준·기한</button>
+    <button class="toptab" id="tab-proc" role="tab" type="button" aria-selected="false" aria-controls="top-proc" tabindex="-1" onclick="selectTop('proc', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>8단계 프로세스</button>
+    <button class="toptab" id="tab-docs" role="tab" type="button" aria-selected="false" aria-controls="top-docs" tabindex="-1" onclick="selectTop('docs', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>필수 서류·선입금</button>
+    <button class="toptab" id="tab-risk" role="tab" type="button" aria-selected="false" aria-controls="top-risk" tabindex="-1" onclick="selectTop('risk', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>미수·가격조정</button>
+    <button class="toptab" id="tab-act" role="tab" type="button" aria-selected="false" aria-controls="top-act" tabindex="-1" onclick="selectTop('act', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>체크리스트·Q&amp;A</button>
+  </div>
+</nav>
+
+<main id="main-content">
+
+  <!-- ================= 한눈에 보기 ================= -->
+  <div class="top-panel active" id="top-sum" role="tabpanel" aria-labelledby="tab-sum">
+  <section aria-labelledby="ov-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>OVERVIEW</div>
+    <h2 id="ov-title">한눈에 보기</h2>
+    <p class="section-desc">세법은 회사 내부 처리일(오더 생성일·가격 확정일)보다 <strong>부품이 실제로 인도된 날, 수리가 실제로 끝난 날</strong>을 더 중요하게 봅니다. 그 날짜가 매출 인식일이자 세금계산서 작성일이 되고, 발급은 <strong>늦어도 다음 달 10일</strong>까지입니다.</p>
+
+    <div class="card-grid-4">
+      <div class="kpi-card"><div class="kpi-label">기준일</div><div class="kpi-value">완료일</div><div class="kpi-note">부품 인도일 · 설치 완료일 · 수리 완료일 (내부 오더일 아님)</div></div>
+      <div class="kpi-card"><div class="kpi-label">발급 마감</div><div class="kpi-value">익월 10일</div><div class="kpi-note">10/29 완료 → 11/10까지 · 11/2 완료 → 12/10까지</div></div>
+      <div class="kpi-card"><div class="kpi-label">가산세</div><div class="kpi-value" style="color:var(--negative)">1~2%</div><div class="kpi-note">지연 발급 1% · 미발급 2% (공급가액 기준)</div></div>
+      <div class="kpi-card"><div class="kpi-label">필수 서류</div><div class="kpi-value pine">2종</div><div class="kpi-note">유상수리 고객 요청서(작업 전) · 서비스 작업 확인서(작업 후)</div></div>
+    </div>
+
+    <h3>오늘 교육에서 꼭 기억할 두 가지</h3>
+    <div class="fact-grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="fact-card yes"><span class="fact-mark">01 · 날짜</span><strong>실제 작업이 완료된 날짜</strong>엔지니어 작업이 끝난 날이 아니라, 필요한 테스트까지 마치고 <strong>고객이 장비를 정상 사용할 수 있게 된 날</strong>입니다.</div>
+      <div class="fact-card yes"><span class="fact-mark">02 · 증빙</span><strong>그 날짜를 확인할 수 있는 증빙</strong>납품확인서 · 인수증 · 서비스 리포트 · 작업 완료 확인서 · 고객 확인 이메일 — 완료 즉시 오더·세금계산서 담당자에게 공유합니다.</div>
+    </div>
+
+    <h3>업무 흐름이 이렇게 바뀝니다</h3>
+    <div class="shift-grid">
+      <div class="shift-box old">
+        <div class="shift-tag">기존 · 문제가 된 흐름</div>
+        <ul class="shift-list">
+          <li>부품 공급·수리를 먼저 완료</li>
+          <li>그 뒤에 병원과 가격 협의 시작</li>
+          <li>협의가 길어져 내부 오더 미생성</li>
+          <li class="struck">오더가 없어 매출·세금계산서도 보류</li>
+          <li class="struck">병원 확인·사후 할인 대기로 발급 지연</li>
+        </ul>
+      </div>
+      <div class="shift-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      <div class="shift-box new">
+        <div class="shift-tag">개선 · 앞으로의 흐름</div>
+        <ul class="shift-list">
+          <li>작업 전 <strong>예상 금액·범위·지급 조건</strong> 안내·동의</li>
+          <li>선입금 거래처 여부(크레딧) 확인</li>
+          <li>완료 즉시 <strong>완료일 + 증빙</strong> 공유</li>
+          <li><strong>표준 단가</strong>로 매출 인식·세금계산서 발행</li>
+          <li>가격 조정은 <strong>별도 승인</strong> → 마이너스 세금계산서</li>
+        </ul>
+      </div>
+    </div>
+    <p class="shift-note">가격 협상은 <strong>기본 프로세스를 멈추는 조건이 아닙니다</strong>. 발행 후 조정이 필요하면 승인된 예외 절차로 처리합니다.</p>
+
+    <h3>왜 이렇게 엄격한가</h3>
+    <div class="hero-quote">세금계산서는 고객에게 대금을 청구하는 종이가 아니라, <em>국세청에 우리가 매출을 인식했고 부가세를 신고한다</em>는 의미도 담고 있습니다.<span class="hero-quote-by">— C2C 파이낸스 · 교육 중 설명 요지</span></div>
+    <div class="callout">
+      기한을 넘기면 <strong>가산세</strong>만의 문제가 아닙니다. 10월에 끝난 수리가 11월 거래로 처리되면 <strong>부가세 신고 시점·월별 매출</strong>이 실제와 달라지고, 청구가 늦어져 <strong>대금 회수도 지연</strong>됩니다. 세무 감사 시 회사의 세무 리스크로도 이어집니다.
+    </div>
+
+    <h3>역할 분담</h3>
+    <div class="card-grid-3">
+      <div class="glossary-card"><div class="glossary-term">A2R</div><div class="glossary-full">Accounting to Reporting</div><div class="glossary-desc">언제 매출을 인식하고 언제 세금계산서를 발행해야 하는지 <strong>기준</strong>을 정합니다. 외부 세무감사·부가세 신고 담당.</div></div>
+      <div class="glossary-card"><div class="glossary-term">C2C</div><div class="glossary-full">Credit to Cash</div><div class="glossary-desc">기준을 실행 — <strong>오더·크레딧 체크(여신 한도·선입금 분류)·증빙 관리·분쟁 대응·수금 관리</strong>.</div></div>
+      <div class="glossary-card alt"><div class="glossary-term">TS · Commercial</div><div class="glossary-full">Business Owner</div><div class="glossary-desc">서비스·가격 정책의 <strong>비즈니스 오너</strong>. 할인·현장 판단은 TS가 결정하고, 필요한 승인과 증빙을 남깁니다.</div></div>
+    </div>
+  </section>
+  </div><!-- /top-sum -->
+
+  <!-- ================= 발급 기준·기한 ================= -->
+  <div class="top-panel" id="top-std" role="tabpanel" aria-labelledby="tab-std">
+  <section aria-labelledby="std-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>STANDARD · A2R</div>
+    <h2 id="std-title">매출 인식과 세금계산서 발급 기준</h2>
+    <p class="section-desc">회계상 매출 인식(제품·서비스의 통제가 고객에게 넘어간 시점)과 세법상 공급 시기는 판단 방식이 다르지만, TS 거래에서는 결국 <strong>같은 날짜 — 실제 완료일</strong>로 모입니다. 부품 판매는 <strong>재화의 공급(부가세법 15조)</strong>, 유상수리는 <strong>용역의 공급(16조)</strong>입니다.</p>
+
+    <h3>거래 유형별 기준일과 증빙</h3>
+    <div class="table-scroll">
+    <table class="scorecard">
+      <thead><tr><th>거래 유형</th><th>공급 시기 (= 작성일자)</th><th>TS가 확보할 증빙</th></tr></thead>
+      <tbody>
+        <tr><td>부품만 판매</td><td><strong>고객 인도일</strong><br><span class="metric-note">출고일이 아니라 실제 수령일 (예: 10/15 출고, 10/17 수령 → 10/17)</span></td><td class="metric-note">납품확인서 · 고객 인수증 · 배송 완료 자료</td></tr>
+        <tr><td>설치 포함 부품 판매</td><td><strong>설치 완료일</strong><br><span class="metric-note">고객이 실제로 사용할 수 있게 된 날 — TS 거래 대부분이 여기에 해당</span></td><td class="metric-note">배송 자료 + 작업 완료 확인서(설치 완료일·사용 가능일 기재)</td></tr>
+        <tr><td>유상수리</td><td><strong>수리 완료일</strong><br><span class="metric-note">필요한 테스트까지 마치고 장비를 정상 사용할 수 있게 된 날</span></td><td class="metric-note">서비스 리포트 · 작업 완료 확인서 · 고객 확인 이메일</td></tr>
+        <tr><td>계약상 검수 필수</td><td><strong>검수일</strong><br><span class="metric-note">계약에 고객 검수가 필수 조건으로 있는 경우에 한함</span></td><td class="metric-note">검수 확인서</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout pine"><strong>예시</strong> — 수리는 10월 20일에 끝났고 내부 오더는 11월 5일에 생성됐다면, 11월 5일은 회사 내부 처리일일 뿐입니다. 고객은 10월 20일부터 장비를 사용했으므로 공급 시기는 <strong>10월 20일</strong>입니다.</div>
+
+    <h3>세금계산서 발급 기한</h3>
+    <div class="timeline">
+      <div class="timeline-item"><div class="timeline-dot done"></div><div class="timeline-period">원칙 · 부가세법 34조</div><div class="timeline-title">공급 시기에 즉시 발급</div><div class="timeline-detail">부품은 인도 시점, 설치 거래는 설치 완료 시점, 유상수리는 수리 완료 시점에 발급합니다.</div></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-period">예외 · 법적 요건 충족 시</div><div class="timeline-title">공급한 달의 다음 달 10일까지</div><div class="timeline-detail">월 합계 세금계산서, 또는 작업 완료 확인서·납품서로 실제 거래일이 확인되고 그 날짜를 작성일로 적는 경우. TS 실무에서는 <strong>“늦어도 다음 달 10일까지는 무조건 발급”</strong>으로 기억하면 됩니다.</div></div>
+      <div class="timeline-item"><div class="timeline-dot pending"></div><div class="timeline-period">주의</div><div class="timeline-title">다음 달 10일은 ‘발급 기한’이지 ‘공급일’이 아닙니다</div><div class="timeline-detail">11월 10일에 발급하더라도 <strong>작성일자와 부가세 귀속월은 수리 완료일(10월 20일)</strong> 그대로입니다. 공급월을 11월로 바꿀 수 없습니다.</div></div>
+    </div>
+
+    <h3>발급 기한 계산기</h3>
+    <div class="calc" id="calc">
+      <div class="calc-row">
+        <label class="calc-field"><span>작업 완료일 (인도·설치·수리 완료)</span><input type="date" id="calcDate"></label>
+        <label class="calc-field"><span>공급가액 (원, 선택)</span><input type="text" id="calcAmt" inputmode="numeric" placeholder="예: 10,000,000"></label>
+      </div>
+      <div class="calc-out" id="calcOut" aria-live="polite"></div>
+    </div>
+
+    <h3>지연·미발급 가산세</h3>
+    <div class="card-grid-3">
+      <div class="kpi-card"><div class="kpi-label">늦게라도 발급</div><div class="kpi-value" style="color:var(--warning)">1%</div><div class="kpi-note">공급가액 1,000만 원 → 약 10만 원</div></div>
+      <div class="kpi-card"><div class="kpi-label">기간 경과 후 미발급</div><div class="kpi-value" style="color:var(--negative)">2%</div><div class="kpi-note">공급가액 1,000만 원 → 약 20만 원</div></div>
+      <div class="kpi-card"><div class="kpi-label">더 큰 영향</div><div class="kpi-value pine" style="font-size:1.5rem;line-height:1.3">업무 영향</div><div class="kpi-note">신고 시점·월 매출 왜곡, 청구·수금 지연, 세무감사 리스크</div></div>
+    </div>
+
+    <h3>관련 법 조항 (부가가치세법)</h3>
+    <div class="table-scroll">
+    <table class="scorecard">
+      <thead><tr><th>조항</th><th>내용</th><th>TS 해당 거래</th></tr></thead>
+      <tbody>
+        <tr><td>제15조</td><td>재화의 공급 시기</td><td class="metric-note">부품 판매</td></tr>
+        <tr><td>제16조</td><td>용역의 공급 시기</td><td class="metric-note">유상수리</td></tr>
+        <tr><td>제17조</td><td>공급 시기 특례 (선입금·선발급 등)</td><td class="metric-note">선입금 거래처</td></tr>
+        <tr><td>제32·34조</td><td>세금계산서 발급 의무와 발급 시기</td><td class="metric-note">전 거래</td></tr>
+        <tr><td>제60조</td><td>지연 발급·미발급·전송 관련 가산세</td><td class="metric-note">기한 경과 시</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+  </div><!-- /top-std -->
+
+  <!-- ================= 8단계 프로세스 ================= -->
+  <div class="top-panel" id="top-proc" role="tabpanel" aria-labelledby="tab-proc">
+  <section aria-labelledby="proc-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>PROCESS · C2C</div>
+    <h2 id="proc-title">권고 End-to-End 프로세스 8단계</h2>
+    <p class="section-desc">목적은 유상 서비스를 어렵게 만드는 것이 아니라, <strong>유상수리를 안전하게 제공하고 청구·수금이 자연스럽게 이어지게</strong> 하는 것입니다. 병원 안에서는 <strong>서비스 요청자 · 비용 승인자 · 세금계산서 수신자 · 대금 지급자</strong>가 서로 다른 경우가 많아, 한 단계라도 끊기면 수금이 멈춥니다.</p>
+
+    <div class="phase-legend">
+      <span class="pl pre">작업 전</span><span class="pl field">현장 작업</span><span class="pl post">작업 후</span>
+    </div>
+    <ol class="step-grid">
+      <li class="step pre"><div class="step-n">01</div><div class="step-t">수리 요청 접수</div><div class="step-d">장비·부품 정보와 증상, 요청자를 확인합니다.</div></li>
+      <li class="step pre"><div class="step-n">02</div><div class="step-t">ERP 오더 생성</div><div class="step-d">가능한 한 <strong>서비스 전에</strong> 오더를 만듭니다.</div></li>
+      <li class="step pre"><div class="step-n">03</div><div class="step-t">크레딧 체크</div><div class="step-d">매월 10일경 받는 <strong>선입금 거래처 리스트</strong>에 해당 병원이 있는지 확인합니다.</div></li>
+      <li class="step pre"><div class="step-n">04</div><div class="step-t">유상수리 고지·동의</div><div class="step-d">유상임을 분명히 하고 <strong>예상 금액·작업 범위·지급 조건</strong>에 서면 동의를 받습니다 (유상수리 고객 요청서).</div></li>
+      <li class="step field"><div class="step-n">05</div><div class="step-t">서비스 수행·기술적 완료</div><div class="step-d">테스트까지 마치고 장비 정상 작동을 확인한 날 = <strong>완료일</strong>.</div></li>
+      <li class="step field"><div class="step-n">06</div><div class="step-t">작업 확인·비용 담당 확인</div><div class="step-d"><strong>서비스 작업 확인서</strong> 서명, 비용 승인자·세금계산서 수신자 정보를 확보합니다.</div></li>
+      <li class="step post"><div class="step-n">07</div><div class="step-t">빌링·세금계산서 발급</div><div class="step-d">완료일·증빙을 즉시 공유 → <strong>표준 단가</strong>로 발행 (늦어도 익월 10일).</div></li>
+      <li class="step post"><div class="step-n">08</div><div class="step-t">수금 관리</div><div class="step-d">대금이 입금되어야 거래가 끝납니다. 지연 시 C2C와 함께 대응합니다.</div></li>
+    </ol>
+
+    <div class="dcm-banner">
+      <div class="dcm-chip">KEY RULE</div>
+      <div>
+        <div class="dcm-title">가격 협상 때문에 프로세스를 멈추지 않습니다</div>
+        <div class="dcm-desc">서비스를 완료했다면 <strong>표준 단가로 세금계산서를 발행하고 매출을 인식</strong>합니다. 발행 후 고객이 가격 조정을 요청하면 <strong>별도의 가격 조정 프로세스</strong>로 승인받고, 감액분만큼 <strong>마이너스 세금계산서(Credit Memo)</strong>를 별도 발행합니다. 즉시 발행은 협상을 거절한다는 뜻도, 모든 조정을 받아들인다는 뜻도 아닙니다 — 가격·서비스 정책 판단은 <strong>TS 매니지먼트</strong>가 합니다.</div>
+      </div>
+    </div>
+
+    <h3>완료 즉시 공유할 정보</h3>
+    <ul class="rnr-duties">
+      <li><span class="rnr-dot"></span><span><strong>누구에게</strong> — 오더 담당자 / 세금계산서 발행 담당자 (가격 협의·오더가 끝난 뒤가 아니라 <strong>작업 완료 시점</strong>에 먼저)</span></li>
+      <li><span class="rnr-dot"></span><span><strong>무엇을</strong> — 실제 완료일(인도·설치·수리), 증빙(작업 확인서·납품 확인서·고객 확인 이메일), 최종 작업 범위와 금액</span></li>
+      <li><span class="rnr-dot"></span><span><strong>추가로</strong> — 비용 승인자·세금계산서 수신자·지급 담당자 정보, 일회성 거래 병원이면 세금계산서 수신 정보</span></li>
+      <li><span class="rnr-dot"></span><span><strong>예외 거래</strong> — 가격 분쟁·긴급 수리·판단이 애매한 거래는 Finance에 별도로 바로 문의</span></li>
+    </ul>
+  </section>
+  </div><!-- /top-proc -->
+
+  <!-- ================= 필수 서류·선입금 ================= -->
+  <div class="top-panel" id="top-docs" role="tabpanel" aria-labelledby="tab-docs">
+  <section aria-labelledby="docs-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>DOCUMENTS</div>
+    <h2 id="docs-title">필수 서류 2종과 선입금 거래처</h2>
+    <p class="section-desc">TS 거래는 별도 계약서가 없는 경우가 대부분이라, 아래 두 서류가 <strong>매출 인식·세금계산서 발급의 기준</strong>이자 분쟁 시 <strong>법원 증거 자료</strong>가 됩니다.</p>
+
+    <div class="card-grid-2 doc-pair">
+      <div class="doc-card">
+        <div class="doc-when">작업 전 · BEFORE</div>
+        <div class="doc-name">유상수리 고객 요청서</div>
+        <div class="doc-why">무엇을 요청했고, 누가 비용을 승인·지급하는가</div>
+        <ul class="doc-list">
+          <li>장비 정보 · 부품 정보</li>
+          <li>작업 범위</li>
+          <li><strong>유상수리임을 명시</strong></li>
+          <li><strong>예상 금액</strong> (TS 표준 단가 근거)</li>
+          <li>지급 기일</li>
+          <li>추가 작업·가격 변동 시 승인·변경 기준</li>
+        </ul>
+        <div class="doc-extra"><strong>서면에 없어도 따로 확인</strong> — 요청은 간호사·인공신장실에서 해도, 세금계산서 수신과 지급은 의공과·구매과인 경우가 많습니다. <strong>세금계산서 수신 담당자</strong>와 <strong>비용 지급 담당자</strong>를 구두로라도 확인해 두세요.</div>
+      </div>
+      <div class="doc-card after">
+        <div class="doc-when">작업 후 · AFTER</div>
+        <div class="doc-name">서비스 작업 확인서</div>
+        <div class="doc-why">확정된 금액이 들어가는 문서 — 발행·매출 인식의 기준</div>
+        <ul class="doc-list">
+          <li>장비명 · 부품명 · 시리얼 넘버</li>
+          <li>작업 일자, 수행 작업 및 사용 부품</li>
+          <li>장비 작동·인계 확인</li>
+          <li>현장 사용자 또는 의료진 확인</li>
+          <li>엔지니어 서명 + 고객 서명</li>
+          <li><strong>유상 처리 확인 문구</strong>, <strong>최종 작업 범위·금액</strong></li>
+          <li>세금계산서 수신 정보, 지급 확인</li>
+        </ul>
+        <div class="doc-extra"><strong>비용 담당자 이름·연락처</strong> — 서류에 받지 못하더라도 별도로 확보해 두면 수금 문제 시 바로 확인할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <h3>세금계산서 수신 정보</h3>
+    <div class="fact-grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="fact-card yes"><span class="fact-mark">CS 보유</span><strong>HD · Acute · PD 거래 병원</strong>소모품·의약품을 공급 중인 병원은 CS 부서가 수신 정보를 갖고 있습니다.</div>
+      <div class="fact-card no"><span class="fact-mark">TS가 받아야 함</span><strong>일회성 유상수리·부품 판매 병원</strong>소모품·의약품 거래가 없는 병원은 세금계산서 수신 정보를 현장에서 받아야 합니다.</div>
+    </div>
+
+    <h3>선입금 거래처 (크레딧 체크)</h3>
+    <div class="timeline">
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-period">매월 10일경</div><div class="timeline-title">C2C가 선입금 거래처 리스트(엑셀)를 TS 엔지니어 전원에게 발송</div><div class="timeline-detail">재무 상태상 수금 리스크가 있는 병원입니다. 최근 두 달간 이미 발송 중이며, <strong>내 담당 병원이 리스트에 있는지</strong> 매달 확인합니다.</div></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-period">리스트 해당 병원에서 유상수리 요청 시</div><div class="timeline-title">“선입금 후 진행” 안내</div><div class="timeline-detail">회사 기준상 선입금 거래처로 분류되어 <strong>먼저 입금되어야 유상수리를 진행</strong>할 수 있다고 안내합니다.</div></div>
+      <div class="timeline-item"><div class="timeline-dot pending"></div><div class="timeline-period">금액(인건비 등)이 확정되지 않은 경우</div><div class="timeline-title">“7일 이내 입금” 확인을 받은 뒤 진행</div><div class="timeline-detail">유상수리 후 <strong>반드시 7일 이내에 입금</strong>하겠다는 병원의 확인을 받고 작업합니다.</div></div>
+    </div>
+    <div class="callout">교육 전날(10/21) C2C가 <strong>장기 미수 병원 3곳</strong>에 대해 담당 엔지니어에게 개별 확인을 요청했습니다. 유상수리·부품 교체 후에도 장기간 대금이 지급되지 않은 사례입니다.</div>
+  </section>
+  </div><!-- /top-docs -->
+
+  <!-- ================= 미수·가격조정 ================= -->
+  <div class="top-panel" id="top-risk" role="tabpanel" aria-labelledby="tab-risk">
+  <section aria-labelledby="risk-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>COLLECTION RISK</div>
+    <h2 id="risk-title">수금이 안 되면 생기는 일</h2>
+    <p class="section-desc">엔지니어 입장에서는 장비가 정상 작동하면 서비스가 끝난 것처럼 느껴집니다. 하지만 회사 입장에서는 <strong>병원에서 대금이 들어와야 거래가 끝납니다</strong>. 매출을 인식하면 생기는 것은 현금이 아니라 <strong>매출채권(AR)</strong>입니다.</p>
+
+    <div class="solution-flow">
+      <div class="flow-node"><div class="flow-node-icon">STEP 1</div><div class="flow-node-title">매출채권 발생</div><div class="flow-node-sub">부품·인력 비용은 이미 발생. 대금 지연 시 회사에 마이너스 현금흐름</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="flow-node-icon">STEP 2</div><div class="flow-node-title">분쟁·대손충당금</div><div class="flow-node-sub">회수 가능성이 낮아지면 대손충당금 설정 — <strong>해당 사업부(TS) 비용</strong>으로 반영</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="flow-node-icon" style="color:var(--negative)">STEP 3</div><div class="flow-node-title">병원 거래 전면 정지</div><div class="flow-node-sub">TS 미수 하나로 HD 소모품 · Acute 소모품 · PD 의약품 공급까지 함께 정지</div></div>
+    </div>
+    <div class="callout">그래서 <strong>사후 독촉보다 사전 동의와 담당자 정보 확보</strong>가 훨씬 중요합니다. 분쟁이 생기면 TS·영업·Finance 모두에 추가 업무가 생깁니다. 다른 사업부 영업 담당자도 대금 입금까지 확인해야 프로세스가 끝났다고 봅니다.</div>
+
+    <h3>가격 조정 프로세스 (예외 절차)</h3>
+    <p class="section-desc" style="margin-bottom:0">가격 조정은 고객 관계상 필요할 수 있지만, 매출 인식·세금계산서 발급을 늦추는 이유가 될 수 없습니다.</p>
+    <div class="action-list">
+      <div class="action-item"><div class="action-num">01</div><div><div class="action-text"><strong>사유를 서면으로 받습니다</strong> — 고객의 가격 조정 요청 사유</div></div></div>
+      <div class="action-item"><div class="action-num">02</div><div><div class="action-text"><strong>사전 안내가와 실제 작업 범위를 대조</strong>합니다</div></div></div>
+      <div class="action-item"><div class="action-num">03</div><div><div class="action-text"><strong>TS 내부 승인</strong> — TS가 만드는 가격 조정 기준에 따라 Approval Matrix 또는 DoA로 승인</div><div class="action-owner">TS 매니지먼트</div></div></div>
+      <div class="action-item"><div class="action-num">04</div><div><div class="action-text"><strong>승인된 방식으로 조정</strong> — 감액분만큼 마이너스 세금계산서(Credit Memo) 발행</div><div class="action-owner">Finance</div></div></div>
+      <div class="action-item"><div class="action-num">05</div><div><div class="action-text"><strong>원거래와 모든 증빙을 연결해 보관</strong>합니다</div><div class="action-owner">TS</div></div></div>
+    </div>
+
+    <h3>표준 단가와 단가 등록</h3>
+    <div class="card-grid-2">
+      <div class="feature-card"><div class="feature-icon">표준 단가</div><div class="feature-title">TS 내부에서 반드시 운영</div><div class="feature-desc">표준 단가가 없으면 공정거래와 세무감사 측면에서 문제가 됩니다. 단, 부품별 가격표 전체를 병원에 공개할 필요는 없습니다 — 회사 내부 가격 정책입니다. 요청이 오면 <strong>예상 가격과 작업 범위만 안내</strong>합니다.</div></div>
+      <div class="feature-card"><div class="feature-icon green">단가 등록</div><div class="feature-title">병원 일괄 등록 가능</div><div class="feature-desc">표준 가격 파일을 <strong>단가 등록 Power Apps</strong>에 올려 내부 승인 후 등록합니다. 병원과 협의된 변경 단가는 TS 내부 승인 후 추가 등록 — 절차 축소는 어렵지만, 정착 후에는 업무량이 크게 줄어듭니다.</div></div>
+    </div>
+  </section>
+  </div><!-- /top-risk -->
+
+  <!-- ================= 체크리스트·Q&A ================= -->
+  <div class="top-panel" id="top-act" role="tabpanel" aria-labelledby="tab-act">
+  <section aria-labelledby="act-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>FIELD CHECKLIST</div>
+    <h2 id="act-title">현장에서 기억할 6가지</h2>
+    <p class="section-desc">유상수리 건마다 확인하세요. 체크 상태는 이 브라우저에만 저장됩니다.</p>
+    <div class="chk-head"><span id="chkCount">0 / 6 확인</span><button type="button" class="chk-reset" onclick="resetChecks()">초기화</button></div>
+    <ul class="chk" id="chkList">
+      <li><label><input type="checkbox"><span><strong>유상수리임을 명확히 안내</strong>했다 — 거래처 병원에 사전 고지</span></label></li>
+      <li><label><input type="checkbox"><span><strong>병원 크레딧 상태를 확인</strong>했다 — 매월 10일경 선입금 리스트, 개별 안내된 문제 병원</span></label></li>
+      <li><label><input type="checkbox"><span><strong>예상 금액 · 작업 범위 · 지급 기일</strong>에 서면 동의를 받았다</span></label></li>
+      <li><label><input type="checkbox"><span><strong>현장 요청자와 비용 승인자를 구분</strong>해 연락처를 확보했다</span></label></li>
+      <li><label><input type="checkbox"><span><strong>작업 확인서</strong>로 작업 내용 · 장비 작동·인계 · 유상 금액 · 세금계산서 수신 정보 · 지급 확인을 받았다</span></label></li>
+      <li><label><input type="checkbox"><span><strong>긴급 수리 · 가격 조정</strong>은 예외 사유와 승인을 서면으로 남겼다</span></label></li>
+    </ul>
+    <div class="callout pine">이 절차는 엔지니어가 제공한 서비스가 <strong>정상적으로 매출과 현금으로 전환되도록 보호하는 장치</strong>입니다. 초기에는 혼선과 업무량이 있겠지만, 단가 등록·조정 절차가 정착되면 업무량과 세무·수금 리스크가 함께 줄어듭니다.</div>
+  </section>
+
+  <section aria-labelledby="faq-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>Q &amp; A</div>
+    <h2 id="faq-title">교육에서 나온 질문</h2>
+    <p class="section-desc">지난 화요일 미팅과 이번 교육에서 TS가 질문하고 Finance가 답한 내용입니다.</p>
+    <div class="faq">
+      <details><summary>병원이 <strong>역발행</strong>을 요청하면 어떻게 하나요?</summary><div class="faq-a">역발행은 <strong>공급받는 병원이 세금계산서를 국세청에 올리는 방식</strong>입니다(정발행은 공급자인 우리가 발행). ERP가 잘 갖춰진 대형 병원이 선호하며 전체의 약 10% 수준입니다. 역발행 방식 자체는 유지해도 되지만, 병원 요청을 기다리느라 <strong>매출 인식·세금계산서 관리가 무기한 멈춰서는 안 됩니다</strong>. 실제 완료 시점에 발행되도록 증빙을 보강하고 병원에 빠른 역발행을 요청하세요. 지연되면 <strong>CS(CS 담당)를 통해 병원 담당자에게 요청</strong>하거나 Finance에 공유하면 됩니다.<br><span class="faq-note">※ “병원별 단가 협의·병원 내부 절차 후 발행”은 역발행이 아니라 별개의 문제(가격 조정)입니다.</span></div></details>
+      <details><summary>금액이 크면 <strong>계약서</strong>를 써야 하나요?</summary><div class="faq-a">TS 서비스는 금액 기준의 계약서 작성 의무는 없습니다. 다만 거래 규모가 크거나 단가를 시스템에 등록해야 하는 경우에는 <strong>계약서 또는 합의서</strong>를 확보하는 것이 좋습니다.</div></details>
+      <details><summary>‘내부 매출 인식’은 TS가 CS에 세금계산서 발행을 요청하는 것을 뜻하나요?</summary><div class="faq-a">연관되어 있지만 같은 행위는 아닙니다. 매출 인식일은 원칙적으로 세금계산서 발행일이 아니라 <strong>실제 인도일·서비스 완료일</strong>입니다. 매출을 인식했다면 세금계산서는 그 날짜로 즉시, 늦어도 다음 달 10일까지 발행합니다. 역발행처럼 발행일이 달라지는 경우에도 증빙을 갖춰 완료일 기준으로 인식되도록 협조해 주세요.</div></details>
+      <details><summary><strong>크레딧 메모(Credit Memo)</strong>는 정해진 양식이 있나요?</summary><div class="faq-a">별도 양식은 없습니다. 가격 조정이 승인되어 감액분만큼 발행하는 <strong>마이너스 세금계산서</strong>가 곧 크레딧 메모입니다.</div></details>
+      <details><summary>발행 마감은 다음 달 10일인가요? (10/29 완료, 11/2 완료의 경우)</summary><div class="faq-a">네. 서비스를 완료한 달의 <strong>다음 달 10일까지 반드시</strong> 발행합니다. <strong>10월 29일 완료 → 11월 10일까지</strong>, <strong>11월 2일 완료 → 12월 10일까지</strong>. 기한을 넘기면 가산세 리스크가 있습니다. <a href="#" onclick="selectTop('std', true); return false;">발급 기한 계산기 →</a></div></details>
+      <details><summary>CS에 발행 요청한 뒤 병원이 결제했는지 어떻게 확인하나요?</summary><div class="faq-a">한국 전용 <strong>Finance 애플리케이션</strong>에서 결제·매출 정보를 볼 수 있습니다. TS 엔지니어 전원 접근 권한을 작업 중이며, <strong>교육일 기준 약 10일 이내</strong>에 가이드와 계정을 받을 예정입니다. 다만 HD·Acute·PD를 함께 거래하는 병원은 월 1회 묶어서 지급하는 경우가 많아 특정 TS 건의 입금 확인이 어려우니, 이때는 <strong>C2C 파이낸스</strong>에 문의하세요.</div></details>
+      <details><summary>협의 단가로 다음 달 10일까지 발행하기 어려운데, 단가를 두 번 등록하는 절차를 줄일 수 있나요?</summary><div class="faq-a">원칙은 <strong>출동 전 예상 견적 안내 → 완료 후 합의 단가로 발행</strong>입니다. 어려운 경우 <strong>표준 단가로 먼저 발행</strong>하고, 병원에 타당한 사유가 있으면 TS 매니지먼트의 가격 조정 기준으로 승인받아 변경 단가를 등록합니다. 단가는 <strong>Power Apps로 병원 일괄 등록</strong>이 가능합니다. 모든 단계가 내부 통제와 연결되어 있어 절차 자체를 줄이기는 어렵습니다.</div></details>
+      <details><summary>중환자실 장비 <strong>응급 수리</strong>처럼 사전에 지불 부서와 견적 협의가 어려운 경우는?</summary><div class="faq-a">표준 단가 근거로 <strong>예상 작업 범위·예상 가격을 안내</strong>하고, 급하게 요청한 간호사·의료진에게 “나중에 의공과·구매과에서 비용 집행이 되도록 협조해 달라”고 말한 뒤 진행합니다. 완료 후 <strong>표준 단가로 발행</strong>하고, 병원이 받아들이기 어려우면 이후 가격 조정 프로세스로 마이너스 발행합니다. 긴급 수리는 예외 사유와 승인을 서면으로 남기세요.</div></details>
+      <details><summary>부품 단가가 외부에 공개되지 않았는데, 영업 계약처럼 사전 공개해야 하나요?</summary><div class="faq-a">영업 계약(사전 단가 협의 → 계약 → 공급)과 달리 TS 응급 수리는 수리가 먼저 발생합니다. 그래도 <strong>표준 단가 운영은 필수</strong>이며, 부품별 가격표 전체를 공개할 필요는 없습니다. 요청이 들어오면 <strong>예상 가격과 작업 범위를 안내하고 동의를 받은 뒤</strong> 출동하고, 이후 조정은 가격 조정 프로세스로 협의합니다.</div></details>
+    </div>
+  </section>
+
+  <section data-reveal>
+    <div class="section-label"><span class="label-bar"></span>CONTACT &amp; SOURCE</div>
+    <h2>문의처와 자료 출처</h2>
+    <ul class="rnr-duties">
+      <li><span class="rnr-dot"></span><span><strong>공급 시기·세금계산서 발급 기준</strong> — Finance A2R팀 (회계 기준 · 세무감사 · 부가세 신고)</span></li>
+      <li><span class="rnr-dot"></span><span><strong>선입금·여신 한도·결제 확인·수금·분쟁</strong> — Finance C2C팀 (정재철 · 장미영)</span></li>
+      <li><span class="rnr-dot"></span><span><strong>가격 조정·표준 단가 정책</strong> — TS 매니지먼트 (승인 기준 수립 예정)</span></li>
+      <li><span class="rnr-dot"></span><span><strong>세금계산서 수신 정보·역발행 독려</strong> — CS 부서</span></li>
+      <li><span class="rnr-dot"></span><span><strong>원본</strong> — 2026 Oct 22_Training for improve to sales process of TS</span></li>
+    </ul>
+    <div class="verify-note">
+      <span style="color:var(--warning); flex-shrink:0; display:flex;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+      <span><strong>녹취 기반 정리</strong> — 교육 슬라이드 없이 음성 인식 녹취로 작성했습니다. ① 8단계의 단계명은 설명을 바탕으로 재구성했으므로 Finance 원본 슬라이드와 표현이 다를 수 있습니다. ② 녹취의 “수리 완료일인 12월 20일”은 앞뒤 예시상 <strong>10월 20일</strong>의 오인식으로 보고 반영했습니다. ③ 담당자 이름은 음성 인식 표기이므로 배포 전 확인을 권합니다. ④ 가산세율은 교육에서 설명한 수준(1%·2%)이며 세부 요건은 A2R팀 확인이 필요합니다.</span>
+    </div>
+    <p class="footer-note" style="margin-top:1.5rem;">Vantive Korea · Technical Service — TS 매출 프로세스 가이드 · 2026.10.22 Finance 교육 기반 · 작성 2026.10.26</p>
+  </section>
+  </div><!-- /top-act -->
+
+</main>
+
+<script>
+var currentTheme = 'light';
+var menuOpen = false;
+var TOP_IDS = ['sum', 'std', 'proc', 'docs', 'risk', 'act'];
+var currentTop = TOP_IDS[0];
+
+function cycleTheme() {
+  var html = document.documentElement;
+  if (currentTheme === 'light') { currentTheme = 'dark'; html.className = 'theme-dark'; }
+  else { currentTheme = 'light'; html.className = 'theme-light'; }
+}
+function syncHeaderHeight() {
+  var h = document.querySelector('.site-header');
+  if (h) { document.documentElement.style.setProperty('--hdr-h', h.offsetHeight + 'px'); }
+}
+function syncTopOverflow() {
+  var bar = document.querySelector('.topbar'), inner = document.querySelector('.topbar-inner');
+  if (!bar || !inner) return;
+  var tabs = inner.querySelectorAll('.toptab'), last = tabs[tabs.length - 1];
+  if (!last) return;
+  var pad = parseFloat(getComputedStyle(inner).paddingRight) || 0;
+  bar.classList.toggle('has-overflow',
+    last.getBoundingClientRect().right - (inner.getBoundingClientRect().right - pad) > 2);
+}
+function selectTop(id, scroll) {
+  if (TOP_IDS.indexOf(id) < 0) id = TOP_IDS[0];
+  currentTop = id;
+  TOP_IDS.forEach(function(t) {
+    var btn = document.getElementById('tab-' + t), pan = document.getElementById('top-' + t);
+    var on = (t === id);
+    if (btn) { btn.setAttribute('aria-selected', on ? 'true' : 'false'); btn.tabIndex = on ? 0 : -1; }
+    if (pan) { pan.classList.toggle('active', on); }
+  });
+  var pan = document.getElementById('top-' + id);
+  if (pan) pan.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('visible'); });
+  syncTopOverflow();
+  try { history.replaceState(null, '', '#tab-' + id); } catch (e) {}
+  if (scroll) {
+    var bar = document.querySelector('.topbar'), hdr = document.querySelector('.site-header');
+    var top = bar.getBoundingClientRect().top + window.pageYOffset - (hdr ? hdr.offsetHeight : 0);
+    if (window.pageYOffset > top) window.scrollTo({ top: top, behavior: 'smooth' });
+  }
+}
+document.addEventListener('keydown', function(e) {
+  if (!document.activeElement || !document.activeElement.classList.contains('toptab')) return;
+  var i = TOP_IDS.indexOf(currentTop);
+  if (e.key === 'ArrowLeft')  { i = (i - 1 + TOP_IDS.length) % TOP_IDS.length; }
+  else if (e.key === 'ArrowRight') { i = (i + 1) % TOP_IDS.length; }
+  else return;
+  e.preventDefault();
+  selectTop(TOP_IDS[i], false);
+  document.getElementById('tab-' + TOP_IDS[i]).focus();
+});
+window.addEventListener('resize', function() { syncHeaderHeight(); syncTopOverflow(); });
+
+function toggleMenu() {
+  menuOpen = !menuOpen;
+  document.getElementById('vizMenuDropdown').classList.toggle('open', menuOpen);
+  document.querySelector('.viz-menu-toggle').setAttribute('aria-expanded', menuOpen.toString());
+}
+function closeMenu() {
+  menuOpen = false;
+  document.getElementById('vizMenuDropdown').classList.remove('open');
+  document.querySelector('.viz-menu-toggle').setAttribute('aria-expanded', 'false');
+}
+function downloadImage() {
+  if (typeof htmlToImage === 'undefined') { alert('html-to-image 라이브러리를 로드 중입니다.'); return; }
+  htmlToImage.toPng(document.body, { quality: 0.95, pixelRatio: 1.5 })
+    .then(function(dataUrl) {
+      var link = document.createElement('a');
+      link.download = 'vantive-ts-sales-process.png';
+      link.href = dataUrl; link.click();
+    })
+    .catch(function(err) { console.error(err); alert('PNG 저장 중 오류가 발생했습니다.'); });
+}
+function printAll() {
+  closeMenu();
+  document.querySelectorAll('.faq details').forEach(function(d){ d.open = true; });
+  window.print();
+}
+document.addEventListener('click', function(e) {
+  if (menuOpen && !e.target.closest('.viz-menu')) closeMenu();
+});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && menuOpen) closeMenu(); });
+
+/* ---- 발급 기한 계산기 ---- */
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function fmtD(d) { return d.getFullYear() + '.' + pad2(d.getMonth() + 1) + '.' + pad2(d.getDate()); }
+var WD = ['일','월','화','수','목','금','토'];
+function todayLocal() { var t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); }
+function won(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
+function renderCalc() {
+  var v = document.getElementById('calcDate').value;
+  var out = document.getElementById('calcOut');
+  var amt = parseInt((document.getElementById('calcAmt').value || '').replace(/[^0-9]/g, ''), 10);
+  if (!v) { out.innerHTML = '<div class="calc-empty">완료일을 넣으면 작성일자 · 귀속월 · 발급 마감일을 계산합니다.</div>'; return; }
+  var p = v.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2]);
+  var due = new Date(d.getFullYear(), d.getMonth() + 1, 10);
+  var left = Math.round((due - todayLocal()) / 86400000);
+  var st, cls;
+  if (left < 0) { st = '마감 ' + (-left) + '일 경과 — 지연 발급 가산세 대상, 즉시 Finance에 공유하세요'; cls = 'over'; }
+  else if (left <= 5) { st = '마감까지 ' + left + '일 — 오늘 바로 완료일·증빙을 공유하세요'; cls = 'soon'; }
+  else { st = '마감까지 ' + left + '일 남음 — 그래도 완료 즉시 공유가 원칙입니다'; cls = 'ok'; }
+  var h = '<div class="calc-grid">' +
+    '<div><div class="kpi-label">세금계산서 작성일자</div><div class="calc-v">' + fmtD(d) + ' <small>(' + WD[d.getDay()] + ')</small></div></div>' +
+    '<div><div class="kpi-label">부가세 귀속월</div><div class="calc-v">' + d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월</div></div>' +
+    '<div><div class="kpi-label">발급 마감일</div><div class="calc-v due">' + fmtD(due) + ' <small>(' + WD[due.getDay()] + ')</small></div></div>' +
+    '</div><div class="calc-st ' + cls + '">' + st + '</div>';
+  if (amt > 0) {
+    h += '<div class="calc-tax">공급가액 <strong>' + won(amt) + '</strong> 기준 가산세 — 지연 발급(1%) <strong>' + won(amt * 0.01) + '</strong> · 미발급(2%) <strong>' + won(amt * 0.02) + '</strong></div>';
+  }
+  out.innerHTML = h;
+}
+
+/* ---- 체크리스트 (이 브라우저에만 저장) ---- */
+var CHK_KEY = 'ts_sales_chk_v1';
+function chkBoxes() { return Array.prototype.slice.call(document.querySelectorAll('#chkList input')); }
+function saveChecks() {
+  var s = chkBoxes().map(function(b){ return b.checked ? 1 : 0; });
+  try { localStorage.setItem(CHK_KEY, JSON.stringify(s)); } catch (e) {}
+  updateCount();
+}
+function updateCount() {
+  var b = chkBoxes(), n = b.filter(function(x){ return x.checked; }).length;
+  document.getElementById('chkCount').textContent = n + ' / ' + b.length + ' 확인';
+  document.getElementById('chkCount').classList.toggle('all', n === b.length);
+}
+function resetChecks() { chkBoxes().forEach(function(b){ b.checked = false; }); saveChecks(); }
+
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('[data-reveal]').forEach(function(el) { observer.observe(el); });
+  syncHeaderHeight(); syncTopOverflow();
+  var cd = document.getElementById('calcDate'), ca = document.getElementById('calcAmt');
+  var t = todayLocal();
+  cd.value = t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
+  cd.addEventListener('input', renderCalc);
+  ca.addEventListener('input', function() {
+    var n = ca.value.replace(/[^0-9]/g, '');
+    ca.value = n ? parseInt(n, 10).toLocaleString('ko-KR') : '';
+    renderCalc();
+  });
+  renderCalc();
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem(CHK_KEY) || 'null'); } catch (e) {}
+  chkBoxes().forEach(function(b, i) {
+    if (saved && saved[i]) b.checked = true;
+    b.addEventListener('change', saveChecks);
+  });
+  updateCount();
+  var h = (location.hash || '').replace('#tab-', '');
+  selectTop(TOP_IDS.indexOf(h) >= 0 ? h : 'sum', false);
+});
+window.addEventListener('beforeprint', function(){ document.querySelectorAll('.faq details').forEach(function(d){ d.open = true; }); });
+</script>
+
+</body>
+</html>
