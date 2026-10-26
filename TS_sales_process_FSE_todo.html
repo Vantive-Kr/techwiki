@@ -1274,6 +1274,25 @@ section:has(> .stage) { counter-reset: todo; }
 }
 #chkList li .chk-na { flex: 0 0 auto; display: inline-flex; }
 
+/* ---------- 메일 보내기 ---------- */
+.chk-meta .mail-to { grid-column: 1 / -1; }
+.chk-mail {
+  appearance: none; font-family: inherit; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--surface); color: var(--accent); border: 1.5px solid var(--accent); border-radius: 8px;
+  font-size: 0.78rem; font-weight: 700; padding: 0.4rem 0.8rem; min-height: 34px;
+}
+.chk-mail svg { width: 15px; height: 15px; }
+.chk-mail:hover { background: rgba(114,37,107,0.07); }
+.chk-mail:disabled { opacity: 0.6; cursor: wait; }
+.chk-actions { gap: 0.6rem; }
+.chk-head { flex-wrap: wrap; row-gap: 0.5rem; }
+.mail-note { margin: 0.7rem 0 0; padding: 0.7rem 0.9rem; border-radius: 8px; background: rgba(114,37,107,0.07); font-size: 0.84rem; color: var(--text); line-height: 1.6; }
+.mail-note[hidden] { display: none; }
+@media (max-width: 420px) {
+  .chk-actions { width: 100%; justify-content: flex-end; }
+}
+
 </style>
 </head>
 <body>
@@ -1296,6 +1315,10 @@ section:has(> .stage) { counter-reset: todo; }
     <button class="viz-menu-btn" onclick="closeMenu(); saveChecklistPdf()" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg>
       체크리스트 PDF 저장
+    </button>
+    <button class="viz-menu-btn" onclick="closeMenu(); sendChecklistMail()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/></svg>
+      체크리스트 메일 보내기
     </button>
     <button class="viz-menu-btn" onclick="closeMenu(); window.print()" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -1555,7 +1578,7 @@ section:has(> .stage) { counter-reset: todo; }
   <section aria-labelledby="chk-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>FIELD CHECKLIST</div>
     <h2 id="chk-title">현장에서 기억할 6가지</h2>
-    <p class="section-desc">체크 → 병원 서명 → <strong>PDF 저장</strong> → 초기화. 체크 시각은 자동 기록됩니다.</p>
+    <p class="section-desc">체크 → 병원 서명 → <strong>PDF 저장 · 메일 보내기</strong> → 초기화. 체크 시각은 자동 기록됩니다.</p>
     <div class="chk-meta">
       <label class="calc-field"><span>병원명 <em class="req">필수</em></span><input type="text" id="chkHosp" placeholder="예: ○○병원 인공신장실" autocomplete="off"></label>
       <label class="calc-field"><span>장비 · S/N</span><input type="text" id="chkDev" placeholder="예: Artis / 12345" autocomplete="off"></label>
@@ -1563,14 +1586,17 @@ section:has(> .stage) { counter-reset: todo; }
       <label class="calc-field"><span>점검일</span><input type="date" id="chkDate"></label>
       <label class="calc-field"><span>작업 완료일 (인도·설치·수리)</span><input type="date" id="chkWorkDone"></label>
       <div class="calc-field"><span>세금계산서 발급 마감</span><output class="chk-due" id="chkDue" aria-live="polite">완료일을 넣으면 자동 계산</output></div>
+      <label class="calc-field mail-to"><span>메일 받는 사람 (선택 · 여러 명은 쉼표로)</span><input type="email" id="chkMailTo" multiple placeholder="예: order@company.com, cs@company.com" autocomplete="email"></label>
     </div>
     <p class="chk-msg" id="chkMsg" role="alert" hidden></p>
     <div class="chk-head"><span id="chkCount">0 / 6 확인</span>
       <span class="chk-actions">
         <button type="button" class="chk-pdf" onclick="saveChecklistPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg>PDF 저장</button>
+        <button type="button" class="chk-mail" onclick="sendChecklistMail()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/></svg>메일 보내기</button>
         <button type="button" class="chk-reset" onclick="resetChecks()">초기화</button>
       </span>
     </div>
+    <p class="mail-note" id="mailNote" role="status" hidden></p>
     <ul class="chk" id="chkList">
       <li><label><input type="checkbox"><span><strong>유상수리임을 명확히 안내</strong>했다 — 거래처 병원에 사전 고지</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
       <li><label><input type="checkbox"><span><strong>병원 크레딧 상태를 확인</strong>했다 — 매월 10일경 선입금 리스트, 개별 안내된 문제 병원</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
@@ -1703,7 +1729,7 @@ function renderCalc() {
 /* ---- 체크리스트 (이 브라우저에만 저장, Detail 버전과 같은 키) ---- */
 var CHK_KEY = 'ts_sales_chk_v1';
 var CHK_META_KEY = 'ts_sales_chk_meta_v1';   // 날짜·병원 등 — 이 페이지 전용
-var META_IDS = ['chkDate', 'chkHosp', 'chkDev', 'chkFse', 'chkWorkDone', 'sigName'];
+var META_IDS = ['chkDate', 'chkHosp', 'chkDev', 'chkFse', 'chkWorkDone', 'sigName', 'chkMailTo'];
 var sigData = '', sigTime = '';   // 병원 확인 서명(PNG data URL)과 서명 시각
 var chkEdited = [], chkNA = [];   // 항목별: 시각을 손으로 고쳤는지 / 해당 없음인지
 function isoToday() { var t = todayLocal(); return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate()); }
@@ -1912,22 +1938,14 @@ function checkRequired() {
   first.scrollIntoView({ block: 'center' }); first.focus({ preventScroll: true });
   return false;
 }
-var pdfBusy = false;
-function saveChecklistPdf() {
-  if (pdfBusy) return;
-  if (!checkRequired()) return;
-  var btn = document.querySelector('.chk-pdf');
+/* 보고서를 A4 한 장 PDF로 만든다 — 저장·메일 보내기 공용 */
+function makeChecklistPdf() {
   var wrap = document.createElement('div');
   wrap.className = 'rp-wrap';
   wrap.appendChild(buildReport());
   document.body.appendChild(wrap);
-  pdfBusy = true; if (btn) { btn.disabled = true; btn.dataset.label = btn.lastChild.textContent; btn.lastChild.textContent = 'PDF 만드는 중…'; }
-  var done = function() {
-    pdfBusy = false; wrap.remove();
-    if (btn) { btn.disabled = false; btn.lastChild.textContent = btn.dataset.label || 'PDF 저장'; }
-  };
   var ready = window.jspdf ? Promise.resolve() : loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-  ready.then(function() {
+  return ready.then(function() {
     if (typeof htmlToImage === 'undefined') throw new Error('html-to-image 미로딩');
     var node = wrap.firstChild;
     /* PNG는 PDF 안에서 수 MB가 되므로 JPEG로 넣는다 */
@@ -1936,17 +1954,104 @@ function saveChecklistPdf() {
       var pw = 210, margin = 12, w = pw - margin * 2;
       var h = w * node.offsetHeight / node.offsetWidth;
       pdf.addImage(url, 'JPEG', margin, margin, w, h);
-      pdf.save(pdfFileName());
+      return pdf;
     });
-  }).then(done).catch(function(err) {
-    console.error(err); done();
-    /* 라이브러리를 못 불러오면 인쇄 창으로 대신한다 (대상: PDF로 저장) */
-    alert('PDF 바로 저장에 실패했습니다. 인쇄 창이 열리면 대상에서 "PDF로 저장"을 선택하세요.');
-    var w2 = document.createElement('div'); w2.className = 'rp-print'; w2.appendChild(buildReport());
-    document.body.appendChild(w2); document.body.classList.add('printing-rp');
-    window.print();
-    document.body.classList.remove('printing-rp'); w2.remove();
+  }).finally(function() { wrap.remove(); });
+}
+var pdfBusy = false;
+function busy(btnSel, label) {
+  var btn = document.querySelector(btnSel);
+  pdfBusy = true;
+  if (btn) { btn.disabled = true; btn.dataset.label = btn.lastChild.textContent; btn.lastChild.textContent = label; }
+  return function() {
+    pdfBusy = false;
+    if (btn) { btn.disabled = false; btn.lastChild.textContent = btn.dataset.label; }
+  };
+}
+/* 라이브러리를 못 불러오면 인쇄 창으로 대신한다 (대상: PDF로 저장) */
+function printFallback(err) {
+  console.error(err);
+  alert('PDF 바로 만들기에 실패했습니다. 인쇄 창이 열리면 대상에서 "PDF로 저장"을 선택하세요.');
+  var w2 = document.createElement('div'); w2.className = 'rp-print'; w2.appendChild(buildReport());
+  document.body.appendChild(w2); document.body.classList.add('printing-rp');
+  window.print();
+  document.body.classList.remove('printing-rp'); w2.remove();
+}
+function saveChecklistPdf() {
+  if (pdfBusy) return;
+  if (!checkRequired()) return;
+  var done = busy('.chk-pdf', 'PDF 만드는 중…');
+  makeChecklistPdf().then(function(pdf) { pdf.save(pdfFileName()); done(); })
+    .catch(function(err) { done(); printFallback(err); });
+}
+
+/* ---- 메일로 보내기 ----
+ * 휴대폰: 공유 시트로 PDF를 첨부해 메일 앱(Outlook·Gmail 등)으로 보낸다.
+ * PC 등 파일 공유가 안 되는 곳: PDF를 내려받고, 받는 사람·제목·본문이 채워진 메일 창을 연다(첨부는 직접). */
+function mailSubject() {
+  var h = document.getElementById('chkHosp').value.trim();
+  return '[TS Sales Checklist] ' + h + ' · ' + fmtIso(document.getElementById('chkDate').value || isoToday());
+}
+/* full=false: 메일 창(mailto)용 요약 — 한글이 인코딩되면 길어져 Outlook 등에서 잘리므로 항목 목록은 뺀다 */
+function mailBody(full) {
+  var g = function(id){ return document.getElementById(id).value.trim(); };
+  var c = countState(), boxes = chkBoxes(), dates = chkDates(), due = renderDue();
+  var lines = [
+    'TS Sales Checklist (유상수리·부품판매 매출 처리)', '',
+    '병원명: ' + g('chkHosp'),
+    '장비 · S/N: ' + (g('chkDev') || '—'),
+    '담당 FSE: ' + g('chkFse'),
+    '점검일: ' + fmtIso(g('chkDate')),
+    '작업 완료일: ' + (g('chkWorkDone') ? fmtIso(g('chkWorkDone')) : '—'),
+    '세금계산서 발급 마감: ' + (due ? fmtD(due) + ' (' + WD[due.getDay()] + ')' : '완료일 미입력'), '',
+    '[확인 ' + c.n + ' / ' + c.total + (c.na ? ' · 해당 없음 ' + c.na : '') + ']'
+  ];
+  if (full) chkItems().forEach(function(li, i) {
+    var st = chkNA[i] ? '해당 없음' : (boxes[i].checked ? '확인 ' + fmtIso(dates[i].value) + (chkEdited[i] ? ' (수정)' : '') : '미확인');
+    lines.push(pad2(i + 1) + '. ' + li.querySelector('label span').textContent.trim() + ' — ' + st);
   });
+  lines.push('', '[병원 확인] ' + (g('sigName') || '—') + ' · ' + (sigData ? '서명 ' + fmtIso(sigTime) : '서명 없음'));
+  lines.push('', '※ 상세 내역은 첨부 PDF를 확인해 주세요.');
+  return lines.join('\n');
+}
+function downloadBlob(blob, name) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+}
+function openMailto() {
+  var to = document.getElementById('chkMailTo').value.trim();
+  var href = 'mailto:' + encodeURIComponent(to).replace(/%40/g, '@').replace(/%2C/gi, ',') +
+    '?subject=' + encodeURIComponent(mailSubject()) + '&body=' + encodeURIComponent(mailBody(false));
+  var a = document.createElement('a'); a.href = href;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function sendChecklistMail() {
+  if (pdfBusy) return;
+  if (!checkRequired()) return;
+  var done = busy('.chk-mail', '준비 중…');
+  makeChecklistPdf().then(function(pdf) {
+    var name = pdfFileName(), blob = pdf.output('blob');
+    var file = (typeof File === 'function') ? new File([blob], name, { type: 'application/pdf' }) : null;
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      return navigator.share({ files: [file], title: mailSubject(), text: mailBody(true) })
+        .catch(function(err) { if (err && err.name === 'AbortError') return; throw err; });
+    }
+    downloadBlob(blob, name);
+    openMailto();
+    showMailNote('PDF를 내려받았습니다. 열린 메일 창에 <strong>' + name + '</strong> 파일을 첨부해 보내세요.');
+  }).then(done).catch(function(err) {
+    done(); console.error(err);
+    /* 공유가 막힌 환경 — 메일 창만이라도 연다 */
+    openMailto();
+    showMailNote('공유를 열 수 없어 메일 창만 열었습니다. <strong>PDF 저장</strong>으로 받은 파일을 첨부해 주세요.');
+  });
+}
+function showMailNote(html) {
+  var n = document.getElementById('mailNote');
+  n.innerHTML = html; n.hidden = false;
+  clearTimeout(showMailNote.t); showMailNote.t = setTimeout(function(){ n.hidden = true; }, 12000);
 }
 
 var observer = new IntersectionObserver(function(entries) {
