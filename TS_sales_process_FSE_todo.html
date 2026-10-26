@@ -836,6 +836,35 @@ main > section > .section-desc {
 @media print { .topbar { display: none; } .top-panel { display: block !important; animation: none !important; } }
 /* ================= TS 매출 프로세스 전용 컴포넌트 ================= */
 
+/* ---------- 병원 확인 서명 ---------- */
+.sign-box { margin-top: 1.6rem; border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 0 0 12px 12px; padding: 1.1rem 1.2rem 1.2rem; background: var(--surface); }
+.sign-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.8rem; margin-bottom: 0.9rem; }
+.sign-tag { font-size: 0.95rem; font-weight: 800; color: var(--accent); }
+.sign-stmt { font-size: 0.84rem; color: var(--text-secondary); }
+.sign-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 1rem 1.2rem; align-items: start; }
+.sig-pad { position: relative; height: 150px; border: 1.5px dashed var(--rule); border-radius: 10px; background: #FFFFFF; overflow: hidden; touch-action: none; }
+.sig-pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.sig-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; color: #9B879A; pointer-events: none; }
+.sig-pad.has .sig-hint { display: none; }
+.sig-pad.has { border-style: solid; border-color: var(--positive); }
+.sig-tools { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; margin-top: 0.45rem; }
+.sig-time { font-size: 0.76rem; font-weight: 700; color: var(--positive); font-variant-numeric: tabular-nums; }
+.sig-clear { appearance: none; background: none; border: none; font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 0.3rem 0; }
+.sig-clear:hover { color: var(--negative); }
+/* PDF 서명란 */
+.rp-sign { margin-top: 18px; }
+.rp-sign-t { font-size: 14px; font-weight: 800; color: #72256B; margin-bottom: 2px; }
+.rp-sign-s { font-size: 12.5px; color: #4A3A48; margin: 0 0 8px; }
+.rp-sign-tb { margin-bottom: 0; }
+.rp-sign-tb td.rp-sig { height: 78px; padding: 4px 10px; }
+.rp-sig img { max-height: 70px; max-width: 100%; display: block; }
+.rp-nosig { color: #9B879A; font-weight: 600; }
+@media (max-width: 768px) {
+  .sign-grid { grid-template-columns: 1fr; }
+  .sign-box { padding: 1rem 0.9rem 1.1rem; }
+  .sig-pad { height: 170px; }
+}
+
 /* ---------- 8단계 스텝 ---------- */
 .phase-legend { display: flex; flex-wrap: wrap; gap: 0 1.4rem; margin-bottom: 0.9rem; }
 .pl { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-secondary); }
@@ -1098,6 +1127,152 @@ section:has(> .stage) { counter-reset: todo; }
 .b-path { display: grid; grid-template-columns: 3rem minmax(0, 1fr); align-items: start; column-gap: 0.8rem; }
 .b-path .b-lab { margin-top: 0.3rem; }
 .b-path::before { top: 0.95rem; }
+.chk-done { margin-top: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 10px; background: rgba(16,87,66,0.08); color: var(--positive); font-size: 0.9rem; font-weight: 600; line-height: 1.7; }
+.theme-dark .chk-done { background: rgba(127,196,154,0.12); }
+.chk-done[hidden] { display: none; }
+.chk-done strong { color: var(--positive); }
+.chk-done a { color: var(--accent); font-weight: 700; margin-left: 0.3rem; }
+/* FSE To-Do: 휴대폰에서 탭 3개가 한 줄에 들어가도록 */
+@media (max-width: 600px) {
+  #tab-chk .tl-long { display: none; }
+  .topbar-inner:has(#tab-chk) { padding-left: 1rem; padding-right: 56px; gap: 2px; }
+  .topbar-inner:has(#tab-chk) .toptab { padding: 0.6rem 0.7rem 0.55rem; font-size: 0.78rem; }
+  .topbar-inner:has(#tab-chk) .toptab svg { display: none; }
+}
+
+/* ---------- 체크리스트: 기본정보·날짜·PDF ---------- */
+.chk-meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem 1.1rem; margin-bottom: 1.6rem; }
+.chk-meta .calc-field input { font-size: 0.92rem; min-height: 42px; }
+.chk-actions { display: inline-flex; align-items: center; gap: 1rem; }
+.chk-pdf {
+  appearance: none; font-family: inherit; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--accent); color: #fff; border: none; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.85rem; min-height: 34px;
+}
+.theme-dark .chk-pdf { color: var(--bg); }
+.chk-pdf svg { width: 15px; height: 15px; }
+.chk-pdf:hover { background: var(--plum-deep); }
+.chk-pdf:disabled { opacity: 0.6; cursor: wait; }
+#chkList li { display: flex; align-items: center; gap: 1rem; }
+#chkList li label { flex: 1 1 auto; min-width: 0; }
+.chk-d {
+  flex-shrink: 0; font-family: inherit; font-size: 0.82rem; font-weight: 700; color: var(--positive);
+  background: rgba(16,87,66,0.07); border: 1px solid rgba(16,87,66,0.25); border-radius: 7px;
+  padding: 0.3rem 0.5rem; min-height: 34px; font-variant-numeric: tabular-nums;
+}
+.chk-d[hidden] { display: none; }
+.theme-dark .chk-d { color-scheme: dark; background: rgba(127,196,154,0.10); border-color: rgba(127,196,154,0.3); }
+.chk-d:focus { outline: 2px solid var(--positive); outline-offset: 1px; }
+
+/* PDF용 보고서 — 화면 밖에서 그린 뒤 이미지로 변환 (테마와 무관하게 흰 바탕) */
+.rp-wrap { position: fixed; left: -10000px; top: 0; z-index: -1; }
+.rp { width: 760px; background: #FFFFFF; color: #1B1219; padding: 36px 40px 30px; font-family: 'Noto Sans KR', sans-serif; line-height: 1.6; }
+.rp-top { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid #72256B; padding-bottom: 10px; }
+.rp-brand { font-size: 13px; font-weight: 800; color: #72256B; letter-spacing: 0.04em; }
+.rp-sub { font-size: 12px; color: #6B5468; }
+.rp-title { font-size: 26px; font-weight: 800; margin: 18px 0 14px; letter-spacing: -0.02em; }
+.rp-meta { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+.rp-meta th { width: 15%; text-align: left; background: #F6F0EA; color: #6B5468; font-weight: 700; padding: 8px 10px; border: 1px solid #E4DAD8; }
+.rp-meta td { width: 35%; padding: 8px 10px; border: 1px solid #E4DAD8; font-weight: 600; }
+.rp-count { font-size: 13px; font-weight: 800; color: #105742; margin-bottom: 6px; }
+.rp-list { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rp-list th { background: #72256B; color: #fff; font-weight: 700; padding: 8px 10px; text-align: left; }
+.rp-list td { padding: 10px; border-bottom: 1px solid #E4DAD8; vertical-align: top; }
+.rp-list .rp-no { width: 42px; color: #9B879A; font-weight: 800; }
+.rp-list .rp-item { color: #4A3A48; }
+.rp-list .rp-item strong { color: #1B1219; }
+.rp-list .rp-st { width: 74px; font-weight: 800; white-space: nowrap; }
+.rp-list .rp-dt { width: 96px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rp-list tr.on .rp-st { color: #105742; }
+.rp-list tr.off .rp-st { color: #AE4048; }
+.rp-list tr.off .rp-dt { color: #9B879A; }
+.rp-note { margin-top: 16px; padding: 10px 14px; background: #EEF5F1; border-left: 3px solid #105742; font-size: 12.5px; color: #1B1219; }
+.rp-foot { margin-top: 18px; font-size: 11px; color: #9B879A; text-align: right; }
+@media print {
+  body.printing-rp > *:not(.rp-print) { display: none !important; }
+  body.printing-rp { background: #fff; }
+  .rp-print .rp { width: auto; }
+}
+@media (max-width: 768px) {
+  .chk-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #chkList li { flex-wrap: wrap; row-gap: 0; }
+  .chk-d { margin: -0.5rem 0 0.9rem 2.15rem; }
+}
+/* .chk input(체크박스 20px) 규칙이 날짜 입력에도 걸리지 않게 */
+.chk input.chk-d { width: 9.2rem; height: auto; margin-top: 0; accent-color: auto; cursor: text; }
+/* PDF 보고서 로고 — 헤더의 흰색 필터 없이 원본 색으로 */
+.rp-top { align-items: center; }
+.rp-brand { display: flex; align-items: center; gap: 12px; }
+.rp-logo { height: 26px; width: auto; display: block; }
+.rp-dept { padding-left: 12px; border-left: 1px solid #D9CED6; font-size: 13px; font-weight: 700; color: #72256B; letter-spacing: 0.02em; }
+/* 확인 일시(날짜+시간) — 입력칸·PDF 열 폭 확장 */
+.chk input.chk-d { width: 12.6rem; }
+.rp-list .rp-dt { width: 132px; }
+
+/* ---------- 체크리스트 보완: 필수·마감·해당 없음·수정 표시 ---------- */
+.chk-meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.calc-field .req { font-style: normal; font-size: 0.62rem; font-weight: 800; color: var(--negative); margin-left: 0.3rem; letter-spacing: 0.04em; }
+.calc-field.miss input { border-color: var(--negative); outline: 2px solid rgba(174,64,72,0.25); }
+.calc-field.miss > span { color: var(--negative); }
+.chk-msg { margin: -0.6rem 0 1.2rem; font-size: 0.86rem; font-weight: 700; color: var(--negative); }
+.chk-msg[hidden] { display: none; }
+.chk-due {
+  display: flex; align-items: center; min-height: 42px; padding: 0.55rem 0.8rem; border-radius: 8px;
+  font-size: 0.92rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  background: rgba(16,87,66,0.07); color: var(--positive); border: 1px solid rgba(16,87,66,0.22);
+}
+.chk-due.empty { background: none; border-style: dashed; border-color: var(--rule); color: var(--text-muted); font-weight: 600; font-size: 0.82rem; }
+.chk-due.soon { background: rgba(176,125,46,0.10); color: var(--warning); border-color: rgba(176,125,46,0.3); }
+.chk-due.over { background: rgba(174,64,72,0.08); color: var(--negative); border-color: rgba(174,64,72,0.3); }
+.chk-ed {
+  flex-shrink: 0; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.04em; color: var(--warning);
+  border: 1px solid currentColor; border-radius: 999px; padding: 0.1rem 0.45rem;
+}
+.chk-ed[hidden] { display: none; }
+.chk .chk-na {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.65rem;
+  border: 1px solid var(--rule); border-radius: 999px; font-size: 0.76rem; font-weight: 700;
+  color: var(--text-secondary); cursor: pointer; white-space: nowrap; line-height: 1.4;
+}
+.chk .chk-na input { width: 15px; height: 15px; margin: 0; accent-color: #6B5468; }
+#chkList li.na .chk-na { background: rgba(27,18,25,0.06); color: var(--text); border-color: var(--text-muted); }
+.theme-dark #chkList li.na .chk-na { background: rgba(243,239,228,0.08); }
+#chkList li.na > label:first-child { opacity: 0.45; cursor: default; }
+#chkList li.na > label:first-child span { text-decoration: line-through; }
+.chk input:disabled { cursor: not-allowed; }
+/* PDF */
+.rp-list tr.na .rp-st { color: #9B879A; }
+.rp-list tr.na .rp-item { color: #9B879A; }
+.rp-list tr.na .rp-item strong { color: #9B879A; }
+.rp-ed { display: block; font-size: 10.5px; font-weight: 800; color: #B07D2E; }
+.rp-meta td.rp-due { color: #105742; font-weight: 800; }
+@media (max-width: 768px) {
+  .chk-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chk .chk-na { margin: -0.4rem 0 0.9rem 2.15rem; }
+  .chk-ed { margin: -0.5rem 0 0.9rem 0; align-self: center; }
+}
+/* 수정 배지는 날짜 왼쪽에 두어 날짜 칸 정렬을 유지 */
+#chkList li > label:first-child { order: 0; }
+#chkList li .chk-ed { order: 1; }
+#chkList li .chk-d { order: 2; }
+#chkList li .chk-na { order: 3; }
+/* PDF 항목 문구: 화면 측정과 이미지 렌더링의 글자 폭 차이로 생기던 빈 줄 방지 */
+.rp-list .rp-item { font-size: 12.5px; letter-spacing: -0.01em; word-break: keep-all; }
+/* 항목 열을 넓혀 화면 배치와 이미지 렌더링 모두에서 같은 줄 수가 되게 */
+.rp-list .rp-no { width: 34px; }
+.rp-list .rp-st { width: 64px; }
+.rp-list .rp-dt { width: 116px; }
+.rp-list td, .rp-list th { padding-left: 8px; padding-right: 8px; }
+/* PDF 보고서는 기기 기본 폰트로 — 웹폰트는 이미지 변환 때 교차 출처로 못 넣어 배치와 렌더링 폰트가 달라졌다 */
+.rp { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; }
+.chk .chk-na { width: max-content; }
+@media (max-width: 768px) {
+  #chkList li .chk-d { order: 1; margin-left: 2.15rem; }
+  #chkList li .chk-ed { order: 2; margin: -0.5rem 0 0.9rem 0.6rem; }
+  #chkList li .chk-d:has(+ .chk-ed:not([hidden])) { margin-right: 0; }
+}
+#chkList li .chk-na { flex: 0 0 auto; display: inline-flex; }
 
 </style>
 </head>
@@ -1117,6 +1292,10 @@ section:has(> .stage) { counter-reset: todo; }
     <button class="viz-menu-btn" onclick="downloadImage()" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       PNG 저장
+    </button>
+    <button class="viz-menu-btn" onclick="closeMenu(); saveChecklistPdf()" role="menuitem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg>
+      체크리스트 PDF 저장
     </button>
     <button class="viz-menu-btn" onclick="closeMenu(); window.print()" role="menuitem">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -1147,7 +1326,8 @@ section:has(> .stage) { counter-reset: todo; }
 <nav class="topbar" aria-label="보기 전환">
   <div class="topbar-inner" role="tablist" aria-label="FSE To-Do 보기">
     <button class="toptab" id="tab-map" role="tab" type="button" aria-selected="true" aria-controls="top-map" tabindex="0" onclick="selectTop('map', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 12h4l5-5M11.5 12l5 5"/></svg>프로세스 맵</button>
-    <button class="toptab" id="tab-todo" role="tab" type="button" aria-selected="false" aria-controls="top-todo" tabindex="-1" onclick="selectTop('todo', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>단계별 To-Do</button>
+    <button class="toptab" id="tab-todo" role="tab" type="button" aria-selected="false" aria-controls="top-todo" tabindex="-1" onclick="selectTop('todo', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>단계별 To-Do</button>
+    <button class="toptab" id="tab-chk" role="tab" type="button" aria-selected="false" aria-controls="top-chk" tabindex="-1" onclick="selectTop('chk', true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span class="tl-long">현장 </span>체크리스트</button>
   </div>
 </nav>
 
@@ -1370,6 +1550,50 @@ section:has(> .stage) { counter-reset: todo; }
 
   </div><!-- /top-todo -->
 
+  <!-- ================= 현장 체크리스트 ================= -->
+  <div class="top-panel" id="top-chk" role="tabpanel" aria-labelledby="tab-chk">
+  <section aria-labelledby="chk-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>FIELD CHECKLIST</div>
+    <h2 id="chk-title">현장에서 기억할 6가지</h2>
+    <p class="section-desc">유상수리 건마다 현장을 떠나기 전에 체크하세요. 체크하면 <strong>그 시각(날짜·시간)이 자동으로 기록</strong>되고, 눌러서 고치면 <strong>‘수정’</strong>으로 표시됩니다. 해당하지 않는 항목은 <strong>‘해당 없음’</strong>으로 빼고, 아래 <strong>병원 확인</strong>란에 확인자 이름과 서명을 받은 뒤, 다 끝나면 <strong>PDF 저장</strong>(병원명·담당 FSE 필수) 후 <strong>초기화</strong>해 다음 건에 다시 씁니다. 입력 내용은 이 브라우저에만 저장됩니다.</p>
+    <div class="chk-meta">
+      <label class="calc-field"><span>병원명 <em class="req">필수</em></span><input type="text" id="chkHosp" placeholder="예: ○○병원 인공신장실" autocomplete="off"></label>
+      <label class="calc-field"><span>장비 · S/N</span><input type="text" id="chkDev" placeholder="예: Artis / 12345" autocomplete="off"></label>
+      <label class="calc-field"><span>담당 FSE <em class="req">필수</em></span><input type="text" id="chkFse" placeholder="이름" autocomplete="name"></label>
+      <label class="calc-field"><span>점검일</span><input type="date" id="chkDate"></label>
+      <label class="calc-field"><span>작업 완료일 (인도·설치·수리)</span><input type="date" id="chkWorkDone"></label>
+      <div class="calc-field"><span>세금계산서 발급 마감</span><output class="chk-due" id="chkDue" aria-live="polite">완료일을 넣으면 자동 계산</output></div>
+    </div>
+    <p class="chk-msg" id="chkMsg" role="alert" hidden></p>
+    <div class="chk-head"><span id="chkCount">0 / 6 확인</span>
+      <span class="chk-actions">
+        <button type="button" class="chk-pdf" onclick="saveChecklistPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg>PDF 저장</button>
+        <button type="button" class="chk-reset" onclick="resetChecks()">초기화</button>
+      </span>
+    </div>
+    <ul class="chk" id="chkList">
+      <li><label><input type="checkbox"><span><strong>유상수리임을 명확히 안내</strong>했다 — 거래처 병원에 사전 고지</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
+      <li><label><input type="checkbox"><span><strong>병원 크레딧 상태를 확인</strong>했다 — 매월 10일경 선입금 리스트, 개별 안내된 문제 병원</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
+      <li><label><input type="checkbox"><span><strong>예상 금액 · 작업 범위 · 지급 기일</strong>에 서면 동의를 받았다</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
+      <li><label><input type="checkbox"><span><strong>현장 요청자와 비용 승인자를 구분</strong>해 연락처를 확보했다</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
+      <li><label><input type="checkbox"><span><strong>작업 확인서</strong>로 작업 내용 · 장비 작동·인계 · 유상 금액 · 세금계산서 수신 정보 · 지급 확인을 받았다</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden></li>
+      <li><label><input type="checkbox"><span><strong>긴급 수리 · 가격 조정</strong>은 예외 사유와 승인을 서면으로 남겼다</span></label><input type="datetime-local" class="chk-d" aria-label="확인 일시" hidden><label class="chk-na"><input type="checkbox" class="na-box">해당 없음</label></li>
+    </ul>
+    <div class="sign-box">
+      <div class="sign-head"><span class="sign-tag">병원 확인</span><span class="sign-stmt">상기 일자에 유상수리·부품판매 작업이 완료되었음을 확인합니다.</span></div>
+      <div class="sign-grid">
+        <label class="calc-field"><span>확인자 이름 (정자)</span><input type="text" id="sigName" placeholder="예: 홍길순 / 의공팀" autocomplete="off"></label>
+        <div class="calc-field sign-field"><span>서명</span>
+          <div class="sig-pad" id="sigPad"><canvas id="sigCanvas" aria-label="서명 입력 영역"></canvas><span class="sig-hint">손가락이나 마우스로 서명하세요</span></div>
+          <div class="sig-tools"><span id="sigTime" class="sig-time"></span><button type="button" class="sig-clear" onclick="clearSig()">서명 지우기</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="chk-done" id="chkDone" hidden>확인할 항목을 모두 확인했습니다 — 이제 <strong>완료일과 증빙을 바로 공유</strong>하세요. <a href="#" onclick="goStage('s3'); return false;">완료 당일 할 일 보기 →</a></div>
+    <div class="callout pine">이 절차는 엔지니어가 제공한 서비스가 <strong>정상적으로 매출과 현금으로 전환되도록 보호하는 장치</strong>입니다.</div>
+  </section>
+  </div><!-- /top-chk -->
+
 </main>
 
 <script>
@@ -1404,7 +1628,7 @@ document.addEventListener('click', function(e) { if (menuOpen && !e.target.close
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && menuOpen) closeMenu(); });
 
 /* ---- 상단 탭 ---- */
-var TOP_IDS = ['map', 'todo'];
+var TOP_IDS = ['map', 'todo', 'chk'];
 var currentTop = TOP_IDS[0];
 function syncHeaderHeight() {
   var h = document.querySelector('.site-header');
@@ -1425,6 +1649,7 @@ function selectTop(id, scroll) {
   });
   var pan = document.getElementById('top-' + id);
   if (pan) pan.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('visible'); });
+  if (id === 'chk' && typeof sizeSig === 'function') sizeSig();
   try { history.replaceState(null, '', '#tab-' + id); } catch (e) {}
   if (scroll) {
     var bar = document.querySelector('.topbar'), hdr = document.querySelector('.site-header');
@@ -1443,9 +1668,12 @@ function goStage(cls) {
 }
 document.addEventListener('keydown', function(e) {
   if (!document.activeElement || !document.activeElement.classList.contains('toptab')) return;
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  var i = TOP_IDS.indexOf(currentTop);
+  if (e.key === 'ArrowLeft') { i = (i - 1 + TOP_IDS.length) % TOP_IDS.length; }
+  else if (e.key === 'ArrowRight') { i = (i + 1) % TOP_IDS.length; }
+  else return;
   e.preventDefault();
-  var next = currentTop === 'map' ? 'todo' : 'map';
+  var next = TOP_IDS[i];
   selectTop(next, false);
   document.getElementById('tab-' + next).focus();
 });
@@ -1472,6 +1700,255 @@ function renderCalc() {
     '</div><div class="calc-st ' + cls + '">' + st + '</div>';
 }
 
+/* ---- 체크리스트 (이 브라우저에만 저장, Detail 버전과 같은 키) ---- */
+var CHK_KEY = 'ts_sales_chk_v1';
+var CHK_META_KEY = 'ts_sales_chk_meta_v1';   // 날짜·병원 등 — 이 페이지 전용
+var META_IDS = ['chkDate', 'chkHosp', 'chkDev', 'chkFse', 'chkWorkDone', 'sigName'];
+var sigData = '', sigTime = '';   // 병원 확인 서명(PNG data URL)과 서명 시각
+var chkEdited = [], chkNA = [];   // 항목별: 시각을 손으로 고쳤는지 / 해당 없음인지
+function isoToday() { var t = todayLocal(); return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate()); }
+function isoNow() { var t = new Date(); return isoToday() + 'T' + pad2(t.getHours()) + ':' + pad2(t.getMinutes()); }
+function chkBoxes() { return Array.prototype.slice.call(document.querySelectorAll('#chkList li > label:first-child > input')); }
+function chkItems() { return Array.prototype.slice.call(document.querySelectorAll('#chkList li')); }
+function chkDates() { return Array.prototype.slice.call(document.querySelectorAll('#chkList .chk-d')); }
+function saveChecks() {
+  var s = chkBoxes().map(function(b){ return b.checked ? 1 : 0; });
+  var meta = { dates: chkDates().map(function(d){ return d.value; }), edited: chkEdited.slice(), na: chkNA.slice(), sig: sigData, sigTime: sigTime };
+  META_IDS.forEach(function(id){ meta[id] = document.getElementById(id).value; });
+  try {
+    localStorage.setItem(CHK_KEY, JSON.stringify(s));
+    localStorage.setItem(CHK_META_KEY, JSON.stringify(meta));
+  } catch (e) {}
+  updateCount();
+}
+/* 체크하면 현재 날짜·시간을 채우고, 해제하면 지운다 */
+function syncDate(i) {
+  var b = chkBoxes()[i], d = chkDates()[i];
+  d.hidden = !b.checked;
+  if (b.checked && !d.value) { d.value = isoNow(); chkEdited[i] = false; }
+  if (!b.checked) { d.value = ''; chkEdited[i] = false; }
+  syncItemState(i);
+}
+/* 항목 표시 상태 — 수정 배지, 해당 없음 */
+function syncItemState(i) {
+  var li = chkItems()[i], b = chkBoxes()[i];
+  var ed = li.querySelector('.chk-ed');
+  if (ed) ed.hidden = !(b.checked && chkEdited[i]);
+  li.classList.toggle('na', !!chkNA[i]);
+  b.disabled = !!chkNA[i];
+  var nb = li.querySelector('.na-box');
+  if (nb) nb.checked = !!chkNA[i];
+}
+/* 해당 없음으로 바꾸면 체크·시각을 지운다 */
+function setNA(i, on) {
+  chkNA[i] = on;
+  if (on) chkBoxes()[i].checked = false;
+  syncDate(i);
+  saveChecks();
+}
+/* 작업 완료일 → 다음 달 10일 발급 마감 */
+function renderDue() {
+  var v = document.getElementById('chkWorkDone').value, out = document.getElementById('chkDue');
+  out.classList.remove('soon', 'over');
+  if (!v) { out.textContent = '완료일을 넣으면 자동 계산'; out.classList.add('empty'); return null; }
+  out.classList.remove('empty');
+  var p = v.split('-'), due = new Date(+p[0], +p[1], 10);
+  var left = Math.round((due - todayLocal()) / 86400000);
+  out.textContent = fmtD(due) + ' (' + WD[due.getDay()] + ') · ' + (left < 0 ? '마감 ' + (-left) + '일 경과' : '마감까지 ' + left + '일');
+  out.classList.add(left < 0 ? 'over' : (left <= 5 ? 'soon' : 'ok'));
+  return due;
+}
+function countState() {
+  var b = chkBoxes(), na = b.filter(function(x, i){ return chkNA[i]; }).length;
+  return { n: b.filter(function(x){ return x.checked; }).length, total: b.length - na, na: na };
+}
+function updateCount() {
+  var c = countState();
+  document.getElementById('chkCount').textContent = c.n + ' / ' + c.total + ' 확인' + (c.na ? ' · 해당 없음 ' + c.na : '');
+  document.getElementById('chkCount').classList.toggle('all', c.n === c.total);
+  document.getElementById('chkDone').hidden = c.n !== c.total;
+}
+/* 초기화: 체크·항목 시각·해당 없음·병원·장비·완료일을 비우고 점검일은 오늘로. 담당 FSE 이름은 다음 건에도 쓰므로 남긴다 */
+function resetChecks() {
+  chkBoxes().forEach(function(b, i){ b.checked = false; chkNA[i] = false; syncDate(i); });
+  document.getElementById('chkDate').value = isoToday();
+  ['chkHosp', 'chkDev', 'chkWorkDone', 'sigName'].forEach(function(id){ document.getElementById(id).value = ''; });
+  clearSig(true);
+  clearReqMarks();
+  renderDue();
+  saveChecks();
+}
+
+/* ---- 병원 확인 서명 패드 ----
+ * 캔버스는 숨은 탭에서 폭이 0이라, 탭이 보일 때·창 크기가 바뀔 때 크기를 다시 잡고
+ * 저장해 둔 서명 이미지를 다시 그린다. */
+var sigDrawing = false;
+function sigCtx() { return document.getElementById('sigCanvas').getContext('2d'); }
+function sizeSig() {
+  var cv = document.getElementById('sigCanvas'), pad = document.getElementById('sigPad');
+  var w = pad.clientWidth, h = pad.clientHeight;
+  if (!w) return;
+  var r = window.devicePixelRatio || 1;
+  if (cv.width === Math.round(w * r) && cv.height === Math.round(h * r)) return;
+  cv.width = Math.round(w * r); cv.height = Math.round(h * r);
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  var ctx = sigCtx();
+  ctx.setTransform(r, 0, 0, r, 0, 0);
+  ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#1B1219';
+  if (sigData) {
+    var img = new Image();
+    img.onload = function() {
+      var s = Math.min(w / img.width, h / img.height);
+      ctx.drawImage(img, (w - img.width * s) / 2, (h - img.height * s) / 2, img.width * s, img.height * s);
+    };
+    img.src = sigData;
+  }
+  syncSigUi();
+}
+function syncSigUi() {
+  document.getElementById('sigPad').classList.toggle('has', !!sigData);
+  document.getElementById('sigTime').textContent = sigTime ? '서명 ' + fmtIso(sigTime) : '';
+}
+function sigPoint(e) {
+  var b = document.getElementById('sigCanvas').getBoundingClientRect();
+  return { x: e.clientX - b.left, y: e.clientY - b.top };
+}
+function initSig() {
+  var cv = document.getElementById('sigCanvas');
+  cv.addEventListener('pointerdown', function(e) {
+    sizeSig();
+    sigDrawing = true; cv.setPointerCapture(e.pointerId);
+    var p = sigPoint(e), ctx = sigCtx();
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 0.1, p.y + 0.1); ctx.stroke();
+    e.preventDefault();
+  });
+  cv.addEventListener('pointermove', function(e) {
+    if (!sigDrawing) return;
+    var p = sigPoint(e), ctx = sigCtx();
+    ctx.lineTo(p.x, p.y); ctx.stroke();
+    e.preventDefault();
+  });
+  var end = function() {
+    if (!sigDrawing) return;
+    sigDrawing = false;
+    sigData = cv.toDataURL('image/png');
+    if (!sigTime) sigTime = isoNow();
+    syncSigUi(); saveChecks();
+  };
+  cv.addEventListener('pointerup', end);
+  cv.addEventListener('pointercancel', end);
+  window.addEventListener('resize', function() { if (currentTop === 'chk') sizeSig(); });
+}
+function clearSig(silent) {
+  var cv = document.getElementById('sigCanvas');
+  sigCtx().clearRect(0, 0, cv.width, cv.height);
+  sigData = ''; sigTime = '';
+  syncSigUi();
+  if (!silent) saveChecks();
+}
+
+/* ---- 체크리스트 PDF 저장 ---- */
+function loadScript(src) {
+  return new Promise(function(res, rej) {
+    var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+function esc(t) { return String(t).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+function fmtIso(v) { return v ? v.replace(/-/g, '.').replace('T', ' ') : '—'; }
+function buildReport() {
+  var g = function(id){ return document.getElementById(id).value.trim(); };
+  var boxes = chkBoxes(), dates = chkDates(), c = countState();
+  var rows = chkItems().map(function(li, i) {
+    var on = boxes[i].checked, na = !!chkNA[i];
+    var cls = na ? 'na' : (on ? 'on' : 'off');
+    var st = na ? '해당 없음' : (on ? '✓ 확인' : '미확인');
+    var dt = on ? fmtIso(dates[i].value) + (chkEdited[i] ? '<span class="rp-ed">(수정)</span>' : '') : '—';
+    return '<tr class="' + cls + '"><td class="rp-no">' + pad2(i + 1) + '</td>' +
+      '<td class="rp-item">' + li.querySelector('label span').innerHTML + '</td>' +
+      '<td class="rp-st">' + st + '</td><td class="rp-dt">' + dt + '</td></tr>';
+  }).join('');
+  var wd = g('chkWorkDone'), due = renderDue();
+  var now = new Date();
+  var el = document.createElement('div');
+  el.className = 'rp';
+  el.innerHTML =
+    '<div class="rp-top"><div class="rp-brand"><img class="rp-logo" src="' + document.querySelector('.header-logo img').src + '" alt="Vantive"><span class="rp-dept">Technical Service</span></div><div class="rp-sub">유상수리·부품판매 매출 처리</div></div>' +
+    '<h1 class="rp-title">TS Sales Checklist</h1>' +
+    '<table class="rp-meta"><tr><th>점검일</th><td>' + fmtIso(g('chkDate')) + '</td><th>담당 FSE</th><td>' + (esc(g('chkFse')) || '—') + '</td></tr>' +
+    '<tr><th>병원명</th><td>' + (esc(g('chkHosp')) || '—') + '</td><th>장비 · S/N</th><td>' + (esc(g('chkDev')) || '—') + '</td></tr>' +
+    '<tr><th>작업 완료일</th><td>' + (wd ? fmtIso(wd) : '—') + '</td><th>발급 마감</th><td class="rp-due">' + (due ? fmtD(due) + ' (' + WD[due.getDay()] + ')' : '완료일 미입력') + '</td></tr></table>' +
+    '<div class="rp-count">확인 ' + c.n + ' / ' + c.total + (c.na ? ' · 해당 없음 ' + c.na : '') + '</div>' +
+    '<table class="rp-list"><thead><tr><th>No</th><th>확인 항목</th><th>상태</th><th>확인 일시</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="rp-sign"><div class="rp-sign-t">병원 확인</div>' +
+    '<p class="rp-sign-s">상기 일자에 유상수리·부품판매 작업이 완료되었음을 확인합니다.</p>' +
+    '<table class="rp-meta rp-sign-tb"><tr><th>확인자</th><td>' + (esc(g('sigName')) || '—') + '</td><th>서명</th><td class="rp-sig">' +
+      (sigData ? '<img src="' + sigData + '" alt="서명">' : '<span class="rp-nosig">서명 없음</span>') + '</td></tr>' +
+    '<tr><th>서명 일시</th><td colspan="3">' + (sigTime ? fmtIso(sigTime) : '—') + '</td></tr></table></div>' +
+    '<p class="rp-note">완료 후 <b>완료일과 증빙(작업 확인서 등)을 즉시</b> 오더·세금계산서 담당자에게 공유하고, 세금계산서는 <b>표준 단가로 다음 달 10일까지</b> 발행합니다.</p>' +
+    '<div class="rp-foot">' + (chkEdited.some(function(x, i){ return x && boxes[i].checked; }) ? '(수정) = 자동 기록 후 직접 고친 시각 · ' : '') + '2026.10.22 Finance(A2R·C2C) 교육 기반 · 생성 ' + fmtD(now) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div>';
+  return el;
+}
+function pdfFileName() {
+  var h = document.getElementById('chkHosp').value.trim().replace(/[\\/:*?"<>|\s]+/g, '_');
+  return 'TS_sales_checklist_' + (document.getElementById('chkDate').value || isoToday()).replace(/-/g, '') + (h ? '_' + h : '') + '.pdf';
+}
+/* PDF 저장 전 필수 입력 확인 — 어느 건인지 알 수 없는 PDF를 막는다 */
+var REQ_IDS = ['chkHosp', 'chkFse'];
+function clearReqMarks() {
+  REQ_IDS.forEach(function(id){ document.getElementById(id).closest('.calc-field').classList.remove('miss'); });
+  document.getElementById('chkMsg').hidden = true;
+}
+function checkRequired() {
+  clearReqMarks();
+  var miss = REQ_IDS.filter(function(id){ return !document.getElementById(id).value.trim(); });
+  if (!miss.length) return true;
+  miss.forEach(function(id){ document.getElementById(id).closest('.calc-field').classList.add('miss'); });
+  var msg = document.getElementById('chkMsg');
+  msg.textContent = '병원명과 담당 FSE를 입력해야 PDF를 저장할 수 있습니다.';
+  msg.hidden = false;
+  selectTop('chk', false);
+  var first = document.getElementById(miss[0]);
+  first.scrollIntoView({ block: 'center' }); first.focus({ preventScroll: true });
+  return false;
+}
+var pdfBusy = false;
+function saveChecklistPdf() {
+  if (pdfBusy) return;
+  if (!checkRequired()) return;
+  var btn = document.querySelector('.chk-pdf');
+  var wrap = document.createElement('div');
+  wrap.className = 'rp-wrap';
+  wrap.appendChild(buildReport());
+  document.body.appendChild(wrap);
+  pdfBusy = true; if (btn) { btn.disabled = true; btn.dataset.label = btn.lastChild.textContent; btn.lastChild.textContent = 'PDF 만드는 중…'; }
+  var done = function() {
+    pdfBusy = false; wrap.remove();
+    if (btn) { btn.disabled = false; btn.lastChild.textContent = btn.dataset.label || 'PDF 저장'; }
+  };
+  var ready = window.jspdf ? Promise.resolve() : loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  ready.then(function() {
+    if (typeof htmlToImage === 'undefined') throw new Error('html-to-image 미로딩');
+    var node = wrap.firstChild;
+    /* PNG는 PDF 안에서 수 MB가 되므로 JPEG로 넣는다 */
+    return htmlToImage.toJpeg(node, { pixelRatio: 2, quality: 0.9, backgroundColor: '#FFFFFF' }).then(function(url) {
+      var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+      var pw = 210, margin = 12, w = pw - margin * 2;
+      var h = w * node.offsetHeight / node.offsetWidth;
+      pdf.addImage(url, 'JPEG', margin, margin, w, h);
+      pdf.save(pdfFileName());
+    });
+  }).then(done).catch(function(err) {
+    console.error(err); done();
+    /* 라이브러리를 못 불러오면 인쇄 창으로 대신한다 (대상: PDF로 저장) */
+    alert('PDF 바로 저장에 실패했습니다. 인쇄 창이 열리면 대상에서 "PDF로 저장"을 선택하세요.');
+    var w2 = document.createElement('div'); w2.className = 'rp-print'; w2.appendChild(buildReport());
+    document.body.appendChild(w2); document.body.classList.add('printing-rp');
+    window.print();
+    document.body.classList.remove('printing-rp'); w2.remove();
+  });
+}
+
 var observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
@@ -1484,6 +1961,41 @@ document.addEventListener('DOMContentLoaded', function() {
   cd.value = t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
   cd.addEventListener('input', renderCalc);
   renderCalc();
+  var saved = null, meta = null;
+  try { saved = JSON.parse(localStorage.getItem(CHK_KEY) || 'null'); } catch (e) {}
+  try { meta = JSON.parse(localStorage.getItem(CHK_META_KEY) || 'null'); } catch (e) {}
+  META_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (meta && meta[id]) el.value = meta[id];
+    el.addEventListener('input', function() {
+      if (REQ_IDS.indexOf(id) >= 0 && el.value.trim()) {
+        el.closest('.calc-field').classList.remove('miss');
+        if (!document.querySelector('.chk-meta .miss')) document.getElementById('chkMsg').hidden = true;
+      }
+      if (id === 'chkWorkDone') renderDue();
+      saveChecks();
+    });
+  });
+  if (!document.getElementById('chkDate').value) document.getElementById('chkDate').value = isoToday();
+  renderDue();
+  if (meta && meta.sig) { sigData = meta.sig; sigTime = meta.sigTime || ''; }
+  initSig();
+  var dates = chkDates();
+  chkBoxes().forEach(function(b, i) {
+    chkEdited[i] = !!(meta && meta.edited && meta.edited[i]);
+    chkNA[i] = !!(meta && meta.na && meta.na[i]);
+    if (saved && saved[i] && !chkNA[i]) b.checked = true;
+    if (meta && meta.dates && meta.dates[i]) dates[i].value = meta.dates[i].indexOf('T') < 0 ? meta.dates[i] + 'T00:00' : meta.dates[i];
+    var ed = document.createElement('span');
+    ed.className = 'chk-ed'; ed.textContent = '수정'; ed.title = '자동 기록 후 직접 고친 시각'; ed.hidden = true;
+    dates[i].after(ed);
+    syncDate(i);
+    b.addEventListener('change', function() { syncDate(i); saveChecks(); });
+    dates[i].addEventListener('input', function() { chkEdited[i] = true; syncItemState(i); saveChecks(); });
+    var nb = chkItems()[i].querySelector('.na-box');
+    if (nb) nb.addEventListener('change', function() { setNA(i, nb.checked); });
+  });
+  updateCount();
   syncHeaderHeight();
   var h = (location.hash || '').replace('#tab-', '');
   selectTop(TOP_IDS.indexOf(h) >= 0 ? h : 'map', false);
