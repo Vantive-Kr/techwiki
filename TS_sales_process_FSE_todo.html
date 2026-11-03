@@ -1882,6 +1882,21 @@ function loadScript(src) {
 }
 function esc(t) { return String(t).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
 function fmtIso(v) { return v ? v.replace(/-/g, '.').replace('T', ' ') : '—'; }
+/* PDF용 로고 — 헤더 로고의 모양(알파)은 그대로 두고 색만 plum(#72256B)으로 칠한 사본 */
+var plumLogo = '';
+function makePlumLogo() {
+  var img = new Image();
+  img.onload = function() {
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    var x = c.getContext('2d');
+    x.drawImage(img, 0, 0);
+    x.globalCompositeOperation = 'source-in';
+    x.fillStyle = '#72256B'; x.fillRect(0, 0, c.width, c.height);
+    try { plumLogo = c.toDataURL('image/png'); } catch (e) {}
+  };
+  img.src = document.querySelector('.header-logo img').src;
+}
 function buildReport() {
   var g = function(id){ return document.getElementById(id).value.trim(); };
   var boxes = chkBoxes(), dates = chkDates(), c = countState();
@@ -1899,7 +1914,7 @@ function buildReport() {
   var el = document.createElement('div');
   el.className = 'rp';
   el.innerHTML =
-    '<div class="rp-top"><div class="rp-brand"><img class="rp-logo" src="' + document.querySelector('.header-logo img').src + '" alt="Vantive"><span class="rp-dept">Technical Service</span></div><div class="rp-sub">유상수리·부품판매 매출 처리</div></div>' +
+    '<div class="rp-top"><div class="rp-brand"><img class="rp-logo" src="' + (plumLogo || document.querySelector('.header-logo img').src) + '" alt="Vantive"><span class="rp-dept">Technical Service</span></div><div class="rp-sub">유상수리·부품판매 매출 처리</div></div>' +
     '<h1 class="rp-title">TS Sales Checklist</h1>' +
     '<table class="rp-meta"><tr><th>점검일</th><td>' + fmtIso(g('chkDate')) + '</td><th>담당 FSE</th><td>' + (esc(g('chkFse')) || '—') + '</td></tr>' +
     '<tr><th>병원명</th><td>' + (esc(g('chkHosp')) || '—') + '</td><th>장비 · S/N</th><td>' + (esc(g('chkDev')) || '—') + '</td></tr>' +
@@ -2085,6 +2100,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderDue();
   if (meta && meta.sig) { sigData = meta.sig; sigTime = meta.sigTime || ''; }
   initSig();
+  makePlumLogo();
   var dates = chkDates();
   chkBoxes().forEach(function(b, i) {
     chkEdited[i] = !!(meta && meta.edited && meta.edited[i]);
