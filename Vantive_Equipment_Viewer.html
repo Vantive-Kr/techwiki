@@ -25,7 +25,10 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;back
 .wmark-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:5px;}
 .wmark-img{height:26px;width:auto;max-width:none;align-self:flex-start;object-fit:contain;display:block;filter:brightness(0) invert(1);}
 .tagline{font-size:13px;font-weight:700;color:rgba(255,250,235,0.62);letter-spacing:1.8px;text-transform:uppercase;}
-.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.hdr-btns{display:flex;align-items:center;gap:8px;}
+.upd{font-size:10.5px;font-weight:600;color:rgba(255,250,235,0.72);letter-spacing:.3px;white-space:nowrap;padding-right:2px;}
+.upd b{color:#fff;font-weight:700;}
 .total-badge{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.32);color:#fff;font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:20px;white-space:nowrap;}
 .hbtn{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.32);color:#fff;font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:20px;cursor:pointer;font-family:inherit;}
 .hbtn:hover{background:rgba(0,0,0,0.32);}
@@ -107,6 +110,27 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;back
 .pur.r{background:var(--plum-light);color:var(--plum);}
 mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;padding:0 1px;}
 
+/* pin (select account) */
+.pin{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;margin-top:1px;padding:4px 10px;border-radius:999px;
+  border:1.5px solid var(--border);background:#fff;color:var(--plum);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .12s;}
+.pin:hover{border-color:var(--plum);background:var(--plum-light);}
+.pin.on{background:var(--plum);border-color:var(--plum);color:#fff;}
+.card.pinned{border-color:rgba(114,37,107,0.38);box-shadow:inset 3px 0 0 var(--plum),var(--shadow);}
+.selbar{display:none;margin:0 16px 10px;padding:10px 12px;border-radius:12px;background:var(--cream);border:1px solid var(--border);}
+.selbar.show{display:block;}
+.sel-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.sel-ttl{font-size:12.5px;font-weight:800;color:var(--plum-d);}
+.sel-ttl span{color:var(--text3);font-weight:600;margin-left:4px;}
+.sel-acts{display:flex;gap:6px;}
+.sel-btn{padding:5px 12px;border-radius:999px;border:1.5px solid var(--plum);background:#fff;color:var(--plum);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.sel-btn.on,.sel-btn.pri{background:var(--plum);color:#fff;}
+.sel-btn.ghost{border-color:transparent;background:none;color:var(--text2);}
+.sel-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.stag{display:inline-flex;align-items:center;gap:5px;padding:4px 6px 4px 11px;border-radius:999px;background:var(--plum);color:#fff;font-size:11.5px;font-weight:700;max-width:100%;}
+.stag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stag button{border:none;background:rgba(255,255,255,0.18);color:#fff;width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;line-height:18px;flex-shrink:0;}
+.stag button:hover{background:rgba(255,255,255,0.32);}
+
 .more{display:block;margin:6px auto 0;padding:10px 22px;border-radius:999px;border:1.5px solid var(--plum);background:#fff;color:var(--plum);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
 .more:hover{background:var(--plum-light);}
 .empty{text-align:center;padding:70px 24px;color:var(--text2);display:none;}
@@ -124,6 +148,9 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
   .cards{padding:2px 10px 32px;}
   .chead{padding:13px 13px 11px;gap:10px;}
   .cnt{min-width:46px;}
+  .selbar{margin:0 10px 10px;}
+  .pin{padding:4px 8px;}
+  .pin .pl{display:none;}
   .urow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"fam pur" "ser code" "date sw";padding:11px 14px;row-gap:6px;column-gap:10px;}
   .urow.hd{display:none;}
   .u-fam{grid-area:fam;} .u-pur{grid-area:pur;} .u-ser{grid-area:ser;}
@@ -133,7 +160,7 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
 }
 @media print{
   .hdr{position:static;box-shadow:none;}
-  .s-wrap,.s-hint,.hbtn,.filt,.sort,.chev,.more{display:none!important;}
+  .s-wrap,.s-hint,.hbtn,.filt,.sort,.chev,.more,.pin,.selbar{display:none!important;}
   body{background:#fff;}
   .card{box-shadow:none;break-inside:avoid;}
   .cdet{display:block!important;}
@@ -149,13 +176,16 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
       <div class="tagline">Equipment Viewer</div>
     </div>
     <div class="hdr-right">
-      <span class="total-badge" id="totalBadge"></span>
-      <button class="hbtn" onclick="doPrint()">PDF 저장</button>
+      <div class="hdr-btns">
+        <span class="total-badge" id="totalBadge"></span>
+        <button class="hbtn" onclick="doPrint()">PDF 저장</button>
+      </div>
+      <div class="upd">Updated <b>2026 Nov 10</b></div>
     </div>
   </div>
   <div class="s-wrap">
     <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="rgba(255,250,235,0.75)" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.2" y2="16.2"/></svg>
-    <input class="s-inp" id="q" type="search" autocomplete="off" placeholder="거래처명 · 시리얼 · 제품코드 검색..." oninput="onSearch()">
+    <input class="s-inp" id="q" type="search" autocomplete="off" placeholder="거래처 · 시리얼 · 코드 (여러 곳은 A+B)" oninput="onSearch()">
     <button class="s-clr" id="qClr" onclick="clearSearch()" aria-label="검색어 지우기">✕</button>
   </div>
   <div class="s-hint">
@@ -163,6 +193,7 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
     <button class="h-ex" onclick="setQ('구병원')">구병원</button>
     <button class="h-ex" onclick="setQ('AK080473')">AK080473</button>
     <button class="h-ex" onclick="setQ('955727')">955727</button>
+    <button class="h-ex" onclick="setQ('안동+구병원')">안동+구병원</button>
   </div>
 </header>
 
@@ -185,6 +216,7 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
   </div>
 </div>
 
+<div class="selbar" id="selbar"></div>
 <div class="cards" id="cards"></div>
 <div class="empty" id="empty"><h3>검색 결과 없음</h3><p>검색어나 필터를 바꿔보세요</p></div>
 
@@ -225,7 +257,11 @@ accList.forEach(a => a.units.sort((x, y) => {
   return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || (x.serial === '미확인') - (y.serial === '미확인') || String(x.serial).localeCompare(String(y.serial));
 }));
 
-const st = {q:'', region:'', group:'', pur:'', sort:'name', limit:60, open:new Set()};
+const st = {q:'', terms:[], region:'', group:'', pur:'', sort:'name', limit:60, open:new Set(), sel:new Set(), selOnly:false};
+const SEL_KEY = 'eqv_sel_v1';
+try { (JSON.parse(localStorage.getItem(SEL_KEY) || '[]') || []).forEach(n => { if (ACC.has(n)) st.sel.add(n); }); } catch (e) {}
+function saveSel() { try { localStorage.setItem(SEL_KEY, JSON.stringify([...st.sel])); } catch (e) {} }
+const curTerms = () => st.selOnly ? [] : st.terms;
 
 // ── filters ──
 function seg(label, val, key, n, dot) {
@@ -254,28 +290,68 @@ let tmr;
 function onSearch() {
   const v = document.getElementById('q').value;
   document.getElementById('qClr').classList.toggle('show', !!v);
-  clearTimeout(tmr); tmr = setTimeout(() => { st.q = v.trim().toLowerCase(); st.limit = 60; render(); }, 120);
+  clearTimeout(tmr); tmr = setTimeout(() => {
+    st.q = v.trim().toLowerCase();
+    st.terms = [...new Set(st.q.split(/[+,]/).map(s => s.trim()).filter(Boolean))];   // "안동+구병원" → OR
+    if (st.terms.length && st.selOnly) { st.selOnly = false; renderSel(); }
+    st.limit = 60; render();
+  }, 120);
 }
 function setQ(v) { const el = document.getElementById('q'); el.value = v; onSearch(); el.focus(); }
 function clearSearch() { setQ(''); }
-function hl(text, q) {
-  const t = String(text ?? ''); if (!q) return esc(t);
-  const i = t.toLowerCase().indexOf(q); if (i < 0) return esc(t);
-  return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length));
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function hl(text, T) {
+  const t = String(text ?? ''); if (!T || !T.length) return esc(t);
+  const re = new RegExp('(' + T.map(reEsc).join('|') + ')', 'gi');
+  return t.split(re).map((p, i) => i % 2 ? '<mark>' + esc(p) + '</mark>' : esc(p)).join('');
+}
+const anyIn = (s, T) => { const x = String(s ?? '').toLowerCase(); return T.some(t => x.includes(t)); };
+
+// ── selection (pin accounts, then view only them) ──
+function pin(i) {
+  const v = CUR[i]; if (!v) return;
+  const n = v.a.name;
+  st.sel.has(n) ? st.sel.delete(n) : st.sel.add(n);
+  saveSel(); renderSel(); render();
+}
+function unpinAt(k) { const n = [...st.sel][k]; if (n == null) return; st.sel.delete(n); saveSel(); renderSel(); render(); }
+function clearSel() { st.sel.clear(); st.selOnly = false; saveSel(); renderSel(); render(); }
+function toggleSelOnly() {
+  st.selOnly = !st.selOnly; st.limit = 60;
+  if (st.selOnly) {                       // leftover search text would be confusing in selection view
+    clearTimeout(tmr); st.q = ''; st.terms = [];
+    document.getElementById('q').value = ''; document.getElementById('qClr').classList.remove('show');
+  }
+  renderSel(); render();
+  document.getElementById('selbar').scrollIntoView({block: 'nearest'});
+}
+function renderSel() {
+  const el = document.getElementById('selbar'), names = [...st.sel];
+  el.classList.toggle('show', names.length > 0);
+  if (!names.length) { st.selOnly = false; el.innerHTML = ''; return; }
+  const mach = names.reduce((s, n) => s + ACC.get(n).units.filter(d => grpOf(d.family) !== OTHER).length, 0);
+  el.innerHTML = `<div class="sel-top">
+      <div class="sel-ttl">선택한 거래처 ${names.length}곳<span>· ${fmt(mach)}대</span></div>
+      <div class="sel-acts">
+        <button class="sel-btn${st.selOnly ? ' on' : ''}" onclick="toggleSelOnly()">${st.selOnly ? '✓ 선택만 보는 중' : '선택만 보기'}</button>
+        <button class="sel-btn ghost" onclick="clearSel()">전체 해제</button>
+      </div></div>
+    <div class="sel-tags">${names.map((n, k) => `<span class="stag"><span>${esc(n)}</span><button onclick="unpinAt(${k})" aria-label="선택 해제">✕</button></span>`).join('')}</div>`;
 }
 
 // ── compute view ──
 function view() {
-  const q = st.q, out = [];
+  const T = curTerms(), out = [];
   for (const a of accList) {
+    if (st.selOnly && !st.sel.has(a.name)) continue;
     if (st.region && a.region !== st.region) continue;
     let units = a.units.filter(d =>
       (!st.group || grpOf(d.family).k === st.group) &&
       (!st.pur || (st.pur === 'SO' ? isSold(d.purpose) : !isSold(d.purpose))));
     if (!units.length) continue;
     let hits = null;
-    if (q && !a.name.toLowerCase().includes(q)) {
-      hits = units.filter(d => String(d.serial).toLowerCase().includes(q) || String(d.code).toLowerCase().includes(q));
+    if (T.length && !anyIn(a.name, T)) {
+      hits = units.filter(d => anyIn(d.serial, T) || anyIn(d.code, T));
       if (!hits.length) continue;
       units = hits;
     }
@@ -292,7 +368,7 @@ function unitRows(units, q) {
   const none = '<span class="none">—</span>';
   return `<div class="urow hd"><div>기종</div><div>시리얼</div><div>제품코드</div><div>설치일</div><div>SW</div><div class="u-pur">구분</div></div>` +
     units.map(d => {
-      const hit = q && (String(d.serial).toLowerCase().includes(q) || String(d.code).toLowerCase().includes(q));
+      const hit = q.length && (anyIn(d.serial, q) || anyIn(d.code, q));
       const ser = d.serial === '미확인' ? '<span class="badge badge-unk" title="Customer 수량 기준 장비이나 시리얼 정보 없음">시리얼 미확인</span>' : `<span class="badge">${hl(d.serial, q)}</span>`;
       return `<div class="urow${hit ? ' hit' : ''}">
         <div class="u-fam"><span class="sdot" style="background:${grpOf(d.family).c}"></span>${esc(d.family || '—')}</div>
@@ -314,7 +390,8 @@ function card(v, i, q) {
   const machines = units.filter(d => grpOf(d.family) !== OTHER).length;
   const sold = units.filter(d => isSold(d.purpose)).length;
   const open = st.open.has(a.name) || !!hits;
-  return `<div class="card">
+  const pinned = st.sel.has(a.name);
+  return `<div class="card${pinned ? ' pinned' : ''}">
     <div class="chead" onclick="tog(${i})">
       <span class="cnt${machines ? '' : ' muted'}">${machines || units.length}<small>${machines ? '대' : '건'}</small></span>
       <div class="cbody">
@@ -325,6 +402,7 @@ function card(v, i, q) {
           <span class="pmini">Sold ${sold} · Rental ${units.length - sold}</span>
         </div>
       </div>
+      <button class="pin${pinned ? ' on' : ''}" onclick="event.stopPropagation();pin(${i})" title="${pinned ? '선택 해제' : '선택 목록에 추가'}">${pinned ? '✓' : '＋'}<span class="pl">${pinned ? ' 선택됨' : ' 선택'}</span></button>
       <span class="chev${open ? ' open' : ''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     </div>
     <div class="cdet${open ? ' open' : ''}">${open ? unitRows(units, q) : ''}</div>
@@ -333,14 +411,15 @@ function card(v, i, q) {
 let CUR = [];
 function render(all) {
   CUR = view();
-  const q = st.q;
+  const q = curTerms();
   const shown = all ? CUR : CUR.slice(0, st.limit);
   document.getElementById('cards').innerHTML = shown.map((v, i) => card(v, i, q)).join('') +
     (!all && CUR.length > shown.length ? `<button class="more" onclick="st.limit+=60;render()">더 보기 (${fmt(CUR.length - shown.length)}곳 남음)</button>` : '');
   document.getElementById('empty').style.display = CUR.length ? 'none' : 'block';
   let units = 0, mach = 0, sold = 0;
   CUR.forEach(v => v.units.forEach(d => { units++; if (grpOf(d.family) !== OTHER) mach++; if (isSold(d.purpose)) sold++; }));
-  document.getElementById('sbarL').innerHTML =
+  document.getElementById('sbarL').innerHTML = (st.selOnly ? '<b>선택</b><span class="sep">·</span>' : '') +
+    (q.length > 1 ? `검색어 ${q.length}개<span class="sep">·</span>` : '') +
     `<b>${fmt(CUR.length)}</b> 거래처<span class="sep">·</span><b>${fmt(mach)}</b>대` +
     (units > mach ? ` <span style="color:var(--text3)">(+기타·부속 ${fmt(units - mach)}건)</span>` : '') +
     `<span class="sep">·</span>Sold ${fmt(sold)} · Rental ${fmt(units - sold)}`;
@@ -354,7 +433,7 @@ function tog(i) {
   el.querySelector('.chev').classList.toggle('open', open);
   const det = el.querySelector('.cdet');
   det.classList.toggle('open', open);
-  det.innerHTML = open ? unitRows(v.units, st.q) : '';
+  det.innerHTML = open ? unitRows(v.units, curTerms()) : '';
 }
 function doPrint() {
   if (CUR.length > 80 && !confirm(`${CUR.length}개 거래처 전체를 출력합니다. 필터로 범위를 줄이면 더 빠릅니다. 계속할까요?`)) return;
@@ -367,7 +446,7 @@ function doPrint() {
 (function init() {
   const mach = DATA.filter(d => grpOf(d.family) !== OTHER).length;
   document.getElementById('totalBadge').textContent = fmt(mach) + '대';
-  renderFilters(); render();
+  renderFilters(); renderSel(); render();
 })();
 </script>
 </body>
