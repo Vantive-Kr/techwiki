@@ -153,6 +153,13 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .fav-discount-input::-webkit-outer-spin-button,.fav-discount-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .fav-discount-input:focus{border-color:rgba(255,250,235,0.75);background:rgba(255,250,235,0.2);}
 .fav-pct-symbol{font-size:15px;font-weight:700;opacity:.8;}
+.fav-discount-row{flex-wrap:wrap;row-gap:8px;}
+.fav-amt-wrap{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.fav-amt-label{font-size:13px;opacity:.75;white-space:nowrap;}
+.fav-amt-input{width:132px;border:1.5px solid rgba(255,250,235,0.4);background:rgba(255,250,235,0.12);border-radius:8px;color:var(--cream);font-size:15px;font-weight:700;text-align:right;padding:5px 8px;outline:none;font-family:inherit;}
+.fav-amt-input::placeholder{color:rgba(255,250,235,0.45);font-weight:500;}
+.fav-amt-input:focus{border-color:rgba(255,250,235,0.75);background:rgba(255,250,235,0.2);}
+.fav-adj-on{border-color:rgba(255,250,235,0.9)!important;background:rgba(255,250,235,0.22)!important;}
 .fav-final-box{background:var(--pine);border-radius:12px;padding:14px 16px 14px;margin-top:14px;}.fav-final-row{display:flex;justify-content:space-between;align-items:baseline;}
 .fav-final-label{font-size:13px;font-weight:700;}
 .fav-final-val{font-size:20px;font-weight:800;letter-spacing:-0.5px;}
@@ -466,7 +473,8 @@ function renderFavs(){
   if(svcHrs<0)svcHrs=0;
   var svcExcl=svcChecked?Math.round(svcHrs*150000):0;
   var svcIncl=svcChecked?Math.round(svcExcl*1.1):0;
-  var savings=Math.round(totalIncl*(disc/100));
+  var _adj=favDiscOf(totalIncl+svcIncl,totalIncl); disc=_adj.disc;
+  var savings=_adj.savings;
   var finalAmt=totalIncl+svcIncl-savings;
   html+='<div class="fav-summary" id="favSummaryBox">'
     +'<div class="fav-sum-title">&#128203; 견적 요약 ('+cnt+'개 품목)</div>'
@@ -490,8 +498,13 @@ function renderFavs(){
     +'<div class="fav-discount-row">'
     +'<span class="fav-discount-label">할인 / 할증율</span>'
     +'<div class="fav-discount-wrap">'
-    +'<input class="fav-discount-input" id="favDiscInput" type="number" min="-100" max="100" step="1" value="'+disc+'" oninput="calcFavTotal()" placeholder="0">'
+    +'<input class="fav-discount-input'+(_adj.mode==='pct'&&disc!==0?' fav-adj-on':'')+'" id="favDiscInput" type="number" min="-100" max="100" step="any" value="'+disc+'" oninput="onFavPct()" placeholder="0">'
     +'<span class="fav-pct-symbol">%</span>'
+    +'</div>'
+    +'<div class="fav-amt-wrap">'
+    +'<span class="fav-amt-label">제시 금액</span>'
+    +'<input class="fav-amt-input'+(_adj.mode==='amt'?' fav-adj-on':'')+'" id="favAmtInput" type="text" inputmode="numeric" autocomplete="off" value="'+(_adj.mode==='amt'?favAdj.amt.toLocaleString('ko-KR'):'')+'" placeholder="'+finalAmt.toLocaleString('ko-KR')+'" oninput="onFavAmt(this)" title="병원이 제시한 최종 금액(VAT 포함)을 넣으면 할인/할증율이 자동 계산됩니다">'
+    +'<span class="fav-pct-symbol">원</span>'
     +'</div></div>'
     +'<div class="fav-final-box">'
     +'<div class="fav-final-row"><span class="fav-final-label">&#10003; 최종 금액 (VAT 포함)</span><span class="fav-final-val" id="favFinalAmt">'+finalAmt.toLocaleString('ko-KR')+'원</span></div>'
@@ -529,10 +542,35 @@ function changeFavQty(code,delta){
   }
   calcFavTotal();
 }
-function calcFavTotal(){
+// 할인/할증: 율(%) 또는 병원 제시 금액(VAT 포함 최종) 중 마지막에 입력한 쪽 기준
+var favAdj={mode:'pct',amt:0};
+function favDiscOf(base,pctBase){
+  if(favAdj.mode==='amt'&&favAdj.amt>0){
+    var sav=base-favAdj.amt;
+    var d=pctBase?sav/pctBase*100:0;
+    return {disc:Math.round(d*100)/100,savings:sav,mode:'amt'};
+  }
   var inp=document.getElementById('favDiscInput');
   var disc=parseFloat(inp?inp.value:0)||0;
   if(disc<-100)disc=-100; if(disc>100)disc=100;
+  return {disc:disc,savings:Math.round(pctBase*(disc/100)),mode:'pct'};
+}
+function onFavPct(){favAdj={mode:'pct',amt:0};calcFavTotal();}
+function onFavAmt(el){
+  var v=parseInt(String(el.value).replace(/[^0-9]/g,''),10)||0;
+  if(v>0){favAdj={mode:'amt',amt:v};el.value=v.toLocaleString('ko-KR');}
+  else{favAdj={mode:'pct',amt:0};el.value='';var p=document.getElementById('favDiscInput');if(p)p.value=0;}
+  calcFavTotal();
+}
+function favAdjMark(mode){
+  var p=document.getElementById('favDiscInput'),a=document.getElementById('favAmtInput');
+  if(p)p.classList.toggle('fav-adj-on',mode==='pct'&&parseFloat(p.value||0)!==0);
+  if(a)a.classList.toggle('fav-adj-on',mode==='amt');
+}
+
+function calcFavTotal(){
+  var inp=document.getElementById('favDiscInput');
+  var disc=0;
   var totalIncl=0, totalExcl=0;
   favs.forEach(function(code){
     var it=ITEMS.find(function(x){return String(x.code)===String(code);});
@@ -560,8 +598,13 @@ function calcFavTotal(){
        +'<span class="fav-svc-vat-incl">VAT포함 '+svcIncl.toLocaleString('ko-KR')+'원</span>'
       :'<span class="fav-svc-vat-excl">-</span>';
   }
-  var savings=Math.round(totalIncl*(disc/100));
+  var _adj=favDiscOf(totalIncl+svcIncl,totalIncl); disc=_adj.disc;
+  var savings=_adj.savings;
   var finalAmt=totalIncl+svcIncl-savings;
+  if(_adj.mode==='amt'&&inp&&document.activeElement!==inp)inp.value=disc;
+  var amtEl=document.getElementById('favAmtInput');
+  if(amtEl&&_adj.mode==='pct'){amtEl.value='';amtEl.placeholder=finalAmt.toLocaleString('ko-KR');}
+  favAdjMark(_adj.mode);
   var finalEl=document.getElementById('favFinalAmt');
   if(finalEl)finalEl.textContent=finalAmt.toLocaleString('ko-KR')+'원';
   // update savings/detail line
@@ -650,15 +693,14 @@ function printQuote(){
   var svcHrs=parseFloat(svcHrsEl?svcHrsEl.value:0)||0;
   var svcExcl=svcChecked?Math.round(svcHrs*150000):0;
 
-  var discInp=document.getElementById('favDiscInput');
-  var disc=parseFloat(discInp?discInp.value:0)||0;
-  if(disc<-100)disc=-100;if(disc>100)disc=100;
 
   var totalIncl=Math.round(ptotalExcl*1.1);
   var subtotalExcl=ptotalExcl+svcExcl;
   var vat=Math.round(subtotalExcl*0.1);
   var subtotalIncl=subtotalExcl+vat;
-  var savings=Math.round(totalIncl*(disc/100));
+  var _adj=favDiscOf(subtotalIncl,totalIncl);
+  var disc=_adj.disc;
+  var savings=_adj.savings;
   var finalAmt=subtotalIncl-savings;
 
   var memoEl=document.getElementById('favMemoArea');
