@@ -195,6 +195,13 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .fav-qty-btn{background:none;border:1.5px solid rgba(16,87,66,0.3);border-radius:50%;width:22px;height:22px;color:#105742;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:background .15s;flex-shrink:0;}
 .fav-qty-btn:active{background:rgba(16,87,66,0.18);}
 .fav-qty-num{font-size:13px;font-weight:700;color:#105742;min-width:22px;text-align:center;}
+.fav-unit-wrap{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.fav-unit-input{width:118px;border:1.5px solid rgba(114,37,107,0.18);background:#fff;border-radius:8px;color:var(--text,#1B1219);font-size:13px;font-weight:700;text-align:right;padding:4px 8px;outline:none;font-family:inherit;}
+.fav-unit-input::placeholder{color:#B5A6B3;font-weight:500;}
+.fav-unit-input:focus{border-color:#72256B;box-shadow:0 0 0 3px rgba(114,37,107,0.09);}
+.fav-unit-input.fav-unit-on{border-color:#72256B;background:#FFFAEB;}
+.fav-unit-won{font-size:11.5px;color:var(--text3);}
+.fav-offer-old{text-decoration:line-through;opacity:.6;margin-right:4px;}
 .fav-item-subtotal{font-size:11.5px;font-weight:700;color:#105742;margin-left:auto;}
 @media(max-width:500px){
   .fav-svc-right{width:100%;margin-left:0;justify-content:flex-end;padding-left:28px;}
@@ -432,6 +439,8 @@ function renderFavs(){
   var totalIncl=0;
   var totalExcl=0;
   var cnt=0;
+  Object.keys(favUnits).forEach(function(k){if(!favs.has(k)&&!favs.has(Number(k)))delete favUnits[k];});
+  if(favAdj.mode==='unit'&&!Object.keys(favUnits).length)favAdj={mode:'pct',amt:0};
   favs.forEach(function(code){
     var it=ITEMS.find(function(x){return String(x.code)===String(code);});
     if(!it)return;
@@ -441,9 +450,8 @@ function renderFavs(){
     totalExcl+=it.excl*qty;
     var gc=GRP_CLASS[it.grp]||'g-artis';
     var gl=GRP_LABEL[it.grp]||it.grp;
-    var priceLabel=qty>1
-      ?'VAT포함 '+it.incl.toLocaleString('ko-KR')+'원 × '+qty+' = <strong>'+( it.incl*qty ).toLocaleString('ko-KR')+'원</strong>'
-      :'VAT포함 '+it.incl.toLocaleString('ko-KR')+'원';
+    var priceLabel=favPriceLabel(it,qty);
+    var uVal=favUnits[String(it.code)];
     html+='<div class="card" style="margin:0 0 9px">'
       +'<div class="chead" data-code="'+eh(it.code)+'" onclick="goSearch(this.dataset.code)">'
       +'<span class="icode">'+eh(it.code)+'</span>'
@@ -461,6 +469,11 @@ function renderFavs(){
       +'<button class="fav-qty-btn" data-code="'+eh(it.code)+'" onclick="event.stopPropagation();changeFavQty(this.dataset.code,-1)" aria-label="수량 감소">&#8722;</button>'
       +'<span class="fav-qty-num" id="favQtyNum_'+eh(it.code)+'">'+qty+'</span>'
       +'<button class="fav-qty-btn" data-code="'+eh(it.code)+'" onclick="event.stopPropagation();changeFavQty(this.dataset.code,1)" aria-label="수량 증가">&#43;</button>'
+      +'</div>'
+      +'<div class="fav-unit-wrap">'
+      +'<span class="fav-qty-label">제시 단가</span>'
+      +'<input class="fav-unit-input'+(uVal?' fav-unit-on':'')+'" type="text" inputmode="numeric" autocomplete="off" data-code="'+eh(it.code)+'" value="'+(uVal?uVal.toLocaleString('ko-KR'):'')+'" placeholder="'+it.incl.toLocaleString('ko-KR')+'" oninput="onFavUnit(this)" onclick="event.stopPropagation()" title="병원이 제시한 개당 금액(VAT 포함). 수량이 바뀌어도 단가 기준으로 할인율이 유지됩니다">'
+      +'<span class="fav-unit-won">원</span>'
       +'</div>'
       +'</div>'
       +'</div>';
@@ -536,15 +549,59 @@ function changeFavQty(code,delta){
   var priceEl=document.getElementById('favPrice_'+code);
   var it=ITEMS.find(function(x){return String(x.code)===String(code);});
   if(priceEl&&it){
-    priceEl.innerHTML=qty>1
-      ?'VAT포함 '+it.incl.toLocaleString('ko-KR')+'원 × '+qty+' = <strong>'+(it.incl*qty).toLocaleString('ko-KR')+'원</strong>'
-      :'VAT포함 '+it.incl.toLocaleString('ko-KR')+'원';
+    priceEl.innerHTML=favPriceLabel(it,qty);
   }
   calcFavTotal();
 }
-// 할인/할증: 율(%) 또는 병원 제시 금액(VAT 포함 최종) 중 마지막에 입력한 쪽 기준
+// 할인/할증 기준(마지막 입력 우선): 'pct' 율 · 'amt' 제시 총액 · 'unit' 품목별 제시 단가(VAT 포함)
 var favAdj={mode:'pct',amt:0};
+var favUnits={};   // code -> 제시 단가(VAT 포함)
+function favPriceLabel(it,qty){
+  var u=favUnits[String(it.code)];
+  if(u){
+    return '제시 <strong>'+u.toLocaleString('ko-KR')+'원</strong>'+(qty>1?' × '+qty+' = <strong>'+(u*qty).toLocaleString('ko-KR')+'원</strong>':'')
+      +' <span class="fav-offer-old">'+it.incl.toLocaleString('ko-KR')+'원</span>';
+  }
+  return qty>1
+    ?'VAT포함 '+it.incl.toLocaleString('ko-KR')+'원 × '+qty+' = <strong>'+(it.incl*qty).toLocaleString('ko-KR')+'원</strong>'
+    :'VAT포함 '+it.incl.toLocaleString('ko-KR')+'원';
+}
+function favUnitSavings(){
+  var sav=0;
+  favs.forEach(function(code){
+    var u=favUnits[String(code)]; if(!u)return;
+    var it=ITEMS.find(function(x){return String(x.code)===String(code);});
+    if(it)sav+=(it.incl-u)*getFavQty(code);
+  });
+  return sav;
+}
+function clearFavUnits(){
+  favUnits={};
+  document.querySelectorAll('.fav-unit-input').forEach(function(el){el.value='';el.classList.remove('fav-unit-on');});
+  favs.forEach(function(code){
+    var it=ITEMS.find(function(x){return String(x.code)===String(code);});
+    var pe=document.getElementById('favPrice_'+code);
+    if(it&&pe)pe.innerHTML=favPriceLabel(it,getFavQty(code));
+  });
+}
+function onFavUnit(el){
+  var code=el.dataset.code;
+  var v=parseInt(String(el.value).replace(/[^0-9]/g,''),10)||0;
+  if(v>0){favUnits[code]=v;el.value=v.toLocaleString('ko-KR');el.classList.add('fav-unit-on');}
+  else{delete favUnits[code];el.value='';el.classList.remove('fav-unit-on');}
+  var it=ITEMS.find(function(x){return String(x.code)===String(code);});
+  var pe=document.getElementById('favPrice_'+code);
+  if(it&&pe)pe.innerHTML=favPriceLabel(it,getFavQty(code));
+  if(Object.keys(favUnits).length){favAdj={mode:'unit',amt:0};}
+  else{favAdj={mode:'pct',amt:0};var p=document.getElementById('favDiscInput');if(p)p.value=0;}
+  var a=document.getElementById('favAmtInput');if(a)a.value='';
+  calcFavTotal();
+}
 function favDiscOf(base,pctBase){
+  if(favAdj.mode==='unit'){
+    var us=favUnitSavings();
+    return {disc:pctBase?Math.round(us/pctBase*10000)/100:0,savings:us,mode:'unit'};
+  }
   if(favAdj.mode==='amt'&&favAdj.amt>0){
     var sav=base-favAdj.amt;
     var d=pctBase?sav/pctBase*100:0;
@@ -555,10 +612,10 @@ function favDiscOf(base,pctBase){
   if(disc<-100)disc=-100; if(disc>100)disc=100;
   return {disc:disc,savings:Math.round(pctBase*(disc/100)),mode:'pct'};
 }
-function onFavPct(){favAdj={mode:'pct',amt:0};calcFavTotal();}
+function onFavPct(){favAdj={mode:'pct',amt:0};clearFavUnits();calcFavTotal();}
 function onFavAmt(el){
   var v=parseInt(String(el.value).replace(/[^0-9]/g,''),10)||0;
-  if(v>0){favAdj={mode:'amt',amt:v};el.value=v.toLocaleString('ko-KR');}
+  if(v>0){favAdj={mode:'amt',amt:v};el.value=v.toLocaleString('ko-KR');clearFavUnits();}
   else{favAdj={mode:'pct',amt:0};el.value='';var p=document.getElementById('favDiscInput');if(p)p.value=0;}
   calcFavTotal();
 }
@@ -601,9 +658,9 @@ function calcFavTotal(){
   var _adj=favDiscOf(totalIncl+svcIncl,totalIncl); disc=_adj.disc;
   var savings=_adj.savings;
   var finalAmt=totalIncl+svcIncl-savings;
-  if(_adj.mode==='amt'&&inp&&document.activeElement!==inp)inp.value=disc;
+  if(_adj.mode!=='pct'&&inp&&document.activeElement!==inp)inp.value=disc;
   var amtEl=document.getElementById('favAmtInput');
-  if(amtEl&&_adj.mode==='pct'){amtEl.value='';amtEl.placeholder=finalAmt.toLocaleString('ko-KR');}
+  if(amtEl&&_adj.mode!=='amt'){amtEl.value='';amtEl.placeholder=finalAmt.toLocaleString('ko-KR');}
   favAdjMark(_adj.mode);
   var finalEl=document.getElementById('favFinalAmt');
   if(finalEl)finalEl.textContent=finalAmt.toLocaleString('ko-KR')+'원';
@@ -632,6 +689,7 @@ function calcFavTotal(){
 function clearAllFavs(){
   if(!confirm('즐겨찾기를 모두 삭제하시겠습니까?'))return;
   favs.clear();
+  favUnits={}; favAdj={mode:'pct',amt:0};
   saveFavs();
   renderFavs();
   // update badge
