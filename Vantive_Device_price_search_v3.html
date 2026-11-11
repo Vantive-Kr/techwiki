@@ -169,6 +169,9 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .fav-item-price{font-size:11.5px;color:var(--text3);margin-top:2px;}
 
 .fav-memo-wrap{margin-top:12px;}
+.fav-sur-opt{display:flex;align-items:center;gap:9px;margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(255,250,235,0.08);border:1px dashed rgba(255,250,235,0.3);font-size:13px;cursor:pointer;flex-wrap:wrap;}
+.fav-sur-opt b{font-weight:700;}
+.fav-sur-opt .fav-sur-hint{font-size:11.5px;opacity:.7;flex-basis:100%;padding-left:27px;}
 .fav-memo-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;opacity:.65;margin-bottom:7px;color:var(--cream);}
 .fav-memo-textarea{width:100%;min-height:90px;border:1.5px solid rgba(255,250,235,0.3);background:rgba(255,250,235,0.1);border-radius:10px;color:var(--cream);font-size:13px;padding:10px 12px;resize:vertical;outline:none;font-family:inherit;line-height:1.6;box-sizing:border-box;}
 .fav-memo-textarea::placeholder{color:rgba(255,250,235,0.35);}
@@ -528,6 +531,11 @@ function renderFavs(){
     +'<div class="fav-memo-label">&#128221; 메모</div>'
     +'<textarea class="fav-memo-textarea" id="favMemoArea" placeholder="견적 관련 메모를 입력하세요..." oninput="saveFavMemo()">'+getFavMemo()+'</textarea>'
     +'</div>'
+    +'<label class="fav-sur-opt" id="favSurOpt"'+(savings<0?'':' style="display:none"')+'>'
+    +'<input class="fav-svc-chk" type="checkbox" id="favShowSur"'+(favShowSur?' checked':'')+' onchange="setFavShowSur(this.checked)">'
+    +'<b>견적서에 할증 표시</b>'
+    +'<span class="fav-sur-hint" id="favSurHint">'+favSurHintText()+'</span>'
+    +'</label>'
     +'<button class="fav-print-btn" onclick="printQuote()">'
     +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" stroke-linejoin="miter">'
     +'<rect x="3" y="14" width="18" height="7"/>'
@@ -556,6 +564,18 @@ function changeFavQty(code,delta){
 // 할인/할증 기준(마지막 입력 우선): 'pct' 율 · 'amt' 제시 총액 · 'unit' 품목별 제시 단가(VAT 포함)
 var favAdj={mode:'pct',amt:0};
 var favUnits={};   // code -> 제시 단가(VAT 포함)
+// 할증 시 견적서에 할증 행 표시 여부 (해제: 할증분을 품목 단가에 나눠 넣어 출력, 최종 금액 동일)
+var favShowSur=true;
+try{favShowSur=localStorage.getItem('favShowSur')!=='0';}catch(e){}
+function favSurHintText(){
+  return favShowSur?'견적서에 "할증 (+%)" 행과 특이사항 문구가 표시됩니다.'
+                   :'할증 행 없이, 할증분을 품목 단가에 포함해 출력합니다. (최종 금액 동일)';
+}
+function setFavShowSur(v){
+  favShowSur=!!v;
+  try{localStorage.setItem('favShowSur',favShowSur?'1':'0');}catch(e){}
+  var h=document.getElementById('favSurHint'); if(h)h.textContent=favSurHintText();
+}
 function favPriceLabel(it,qty){
   var u=favUnits[String(it.code)];
   if(u){
@@ -664,6 +684,8 @@ function calcFavTotal(){
   favAdjMark(_adj.mode);
   var finalEl=document.getElementById('favFinalAmt');
   if(finalEl)finalEl.textContent=finalAmt.toLocaleString('ko-KR')+'원';
+  var surOpt=document.getElementById('favSurOpt');
+  if(surOpt)surOpt.style.display=savings<0?'':'none';
   // update savings/detail line
   var box=document.getElementById('favSummaryBox');
   if(box){
@@ -761,6 +783,26 @@ function printQuote(){
   var savings=_adj.savings;
   var finalAmt=subtotalIncl-savings;
 
+  // 할증 미표시: 할증분을 품목 단가(VAT 별도)에 비례 배분 → 소계+부가세=최종 금액, 할증 행·문구 없음
+  if(savings<0&&!favShowSur){
+    var targetParts=Math.round(finalAmt/1.1)-svcExcl;
+    var wSum=0;
+    pitems.forEach(function(e){
+      var off=favAdj.mode==='unit'?favUnits[String(e.it.code)]:0;
+      e.w=off?off/1.1:e.it.excl; wSum+=e.w*e.qty;
+    });
+    var acc=0;
+    pitems.forEach(function(e){e.u=Math.floor(e.w*targetParts/wSum);acc+=e.u*e.qty;});
+    var rem=targetParts-acc;
+    pitems.slice().sort(function(a,b){return a.qty-b.qty;}).forEach(function(e){
+      var k=Math.floor(rem/e.qty); if(k>0){e.u+=k;rem-=k*e.qty;}
+    });
+    var partsAdj=0; pitems.forEach(function(e){partsAdj+=e.u*e.qty;});
+    subtotalExcl=partsAdj+svcExcl;
+    vat=finalAmt-subtotalExcl;            // 단수 차이(수 원)는 부가세에서 흡수
+    subtotalIncl=finalAmt; savings=0; disc=0;
+  }
+
   var memoEl=document.getElementById('favMemoArea');
   var memo=memoEl?memoEl.value.trim():'';
 
@@ -771,14 +813,15 @@ function printQuote(){
   var rowsH='';
   pitems.forEach(function(entry,idx){
     var it=entry.it, qty=entry.qty;
-    var lineTotal=it.excl*qty;
+    var unit=entry.u!=null?entry.u:it.excl;
+    var lineTotal=unit*qty;
     rowsH+='<tr>'
       +'<td style="text-align:center;font-size:6pt;">'+(idx+1)+'</td>'
       +'<td style="text-align:center;font-size:6pt;">'+it.code+'</td>'
       +'<td style="text-align:left;padding-left:5px;font-size:6pt;">'+it.desc+'</td>'
       +'<td style="text-align:center;font-size:6pt;">EA</td>'
       +'<td style="text-align:center;font-size:6pt;">'+qty+'</td>'
-      +'<td style="text-align:right;padding-right:5px;font-size:6pt;">'+it.excl.toLocaleString('ko-KR')+'</td>'
+      +'<td style="text-align:right;padding-right:5px;font-size:6pt;">'+unit.toLocaleString('ko-KR')+'</td>'
       +'<td style="text-align:right;padding-right:5px;font-size:6pt;">'+lineTotal.toLocaleString('ko-KR')+'</td>'
       +'<td></td></tr>';
   });
