@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Installed Base · Vantive</title>
+<script>document.documentElement.classList.add('embed');</script>
 <style>
 :root{
   --plum:#72256B; --plum-d:#58184F; --plum-soft:#A4599C; --plum-light:rgba(114,37,107,0.09);
@@ -25,6 +26,9 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;back
 .wmark-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:5px;}
 .wmark-img{height:26px;width:auto;max-width:none;align-self:flex-start;object-fit:contain;display:block;filter:brightness(0) invert(1);}
 .tagline{font-size:13px;font-weight:700;color:rgba(255,250,235,0.62);letter-spacing:1.8px;text-transform:uppercase;}
+/* Techwiki header already shows the Vantive logo → hide it on screen (kept in print/PDF), page name becomes the title */
+html.embed .wmark-img{display:none;}
+html.embed .tagline{font-size:25px;font-weight:800;color:#FFFAEB;letter-spacing:2.2px;line-height:1.15;padding-top:6px;}
 .hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
 .hdr-btns{display:flex;align-items:center;gap:8px;}
 .upd{font-size:10.5px;font-weight:600;color:rgba(255,250,235,0.72);letter-spacing:.3px;white-space:nowrap;padding-right:2px;}
@@ -152,6 +156,7 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
 @media(max-width:760px){
   .hdr{padding-left:14px;padding-right:14px;}
   .tagline{font-size:11.5px;}
+  html.embed .tagline{font-size:19px;letter-spacing:1.6px;padding-top:4px;}
   .filt{padding:12px 14px 2px;}
   .frow{flex-direction:column;align-items:flex-start;gap:6px;}
   .flbl{width:auto;}
@@ -171,6 +176,8 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
 }
 @media print{
   .hdr{position:static;box-shadow:none;}
+  html.embed .wmark-img{display:block;}
+  html.embed .tagline{font-size:13px;font-weight:700;letter-spacing:1.8px;padding-top:0;color:rgba(255,250,235,0.62);}
   .s-wrap,.s-hint,.hbtn,.filt,.sort,.chev,.more,.pin,.selbar{display:none!important;}
   body{background:#fff;}
   .card{box-shadow:none;break-inside:avoid;}
