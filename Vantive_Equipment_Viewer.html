@@ -68,6 +68,13 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;back
 .sbar-l{font-size:13px;color:var(--text2);}
 .sbar-l b{color:var(--plum);font-weight:800;}
 .sbar-l .sep{color:var(--text3);margin:0 6px;}
+.rmix{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin-top:7px;font-size:12px;}
+.rmix .rl{font-size:11px;font-weight:700;color:var(--text3);margin-right:2px;}
+.rmix button{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:5px;border:1px solid transparent;background:var(--bg);color:var(--text2);font-family:inherit;font-size:11.5px;font-weight:600;line-height:1.5;cursor:pointer;}
+.rmix button b{color:var(--text);font-weight:800;}
+.rmix button:hover{border-color:rgba(114,37,107,0.25);}
+.rmix button.on{background:#fff;border-color:var(--plum);color:var(--plum);}
+.rmix button.on b{color:var(--plum);}
 .sort{display:flex;gap:2px;background:rgba(114,37,107,0.07);border-radius:999px;padding:3px;}
 .sort button{border:none;background:none;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;font-family:inherit;}
 .sort button.on{background:#fff;color:var(--plum);box-shadow:0 1px 3px rgba(27,18,25,0.1);}
@@ -437,7 +444,23 @@ function render(all) {
     `<b>${fmt(CUR.length)}</b> 거래처<span class="sep">·</span>` +
     (mach || units === mach ? `<b>${fmt(mach)}</b>대` : '') +
     (units > mach ? (mach ? ` <span style="color:var(--text3)">(+Exalis ${fmt(units - mach)}건)</span>` : `Exalis <b>${fmt(units)}</b>건`) : '') +
-    `<span class="sep">·</span>Sold ${fmt(sold)} · Rental ${fmt(units - sold)}`;
+    `<span class="sep">·</span>Sold ${fmt(sold)} · Rental ${fmt(units - sold)}` + regionMix();
+}
+// selected region's per-device counts (region + purpose filter; device filter ignored so the whole mix stays visible)
+function regionMix() {
+  if (!st.region) return '';
+  const gc = {};
+  accList.forEach(a => {
+    if (a.region !== st.region) return;
+    a.units.forEach(d => {
+      if (st.pur && (st.pur === 'SO') !== isSold(d.purpose)) return;
+      const k = grpOf(d.family).k; gc[k] = (gc[k] || 0) + 1;
+    });
+  });
+  const gs = [...GROUPS, OTHER].filter(g => gc[g.k]);
+  if (!gs.length) return '';
+  return `<div class="rmix"><span class="rl">${esc(st.region)} 기기별${st.pur ? (st.pur === 'SO' ? ' · Sold' : ' · Rental') : ''}</span>` +
+    gs.map(g => `<button class="${st.group === g.k ? 'on' : ''}" onclick="setF('group','${st.group === g.k ? '' : g.k}')" title="${st.group === g.k ? '기기 필터 해제' : g.k + '만 보기'}"><span class="sdot" style="background:${g.c}"></span>${g.k} <b>${fmt(gc[g.k])}</b></button>`).join('') + '</div>';
 }
 function tog(i) {
   const v = CUR[i]; if (!v) return;
