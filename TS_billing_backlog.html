@@ -481,7 +481,7 @@ function renderStat() {
       '<span class="sc-l">' + label + (k === 's' ? '<span class="sub-t">Red 내 비율</span>' : '') + '</span>' +
       '<span class="sc-m">' + ring(k, arr.length) + '<span><span class="sc-v num">' + arr.length + '</span><span class="sc-p num">' +
         (k === 's' ? 'Red ' + red.length + '건 중 ' + Math.round(arr.length / Math.max(red.length, 1) * 100) + '%' : pct(arr.length) + '%') + '</span></span></span>' +
-      '<span class="sc-a num">' + man(sum(arr)) + '원</span></button>';
+      '<span class="sc-a num">' + (k === 's' ? 'Red ' + man(sum(red)) + '원 중 ' : '') + man(sum(arr)) + '원</span></button>';
   };
   var IC_ME = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   document.getElementById('stat').innerHTML =
