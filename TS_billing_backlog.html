@@ -46,7 +46,7 @@ button,select{font-family:inherit;}
 .hsel{height:42px;border-radius:12px;border:1.5px solid rgba(255,250,235,0.26);background:rgba(0,0,0,0.18);color:#fff;
   font-size:13px;font-weight:700;padding:0 30px 0 12px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 11px center;max-width:150px;}
+  background-repeat:no-repeat;background-position:right 11px center;max-width:190px;}
 .hsel option{color:#1B1219;}
 .hsel.me{background-color:rgba(255,255,255,0.16);padding-left:34px;}
 .me-w{position:relative;display:inline-flex;}
@@ -454,7 +454,7 @@ if (st.me) st.view = 'me';
 
 /* 헤더 선택 상자 */
 var meSel = document.getElementById('me');
-meSel.innerHTML = '<option value="">내 건 보기</option>' +
+meSel.innerHTML = '<option value="">FSE 개별 건 보기</option>' +
   S.map(function(s) { return s.name; }).sort(function(a, b) { return a.localeCompare(b, 'ko'); })
    .map(function(n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
 var LOCS = ['서울', '대전', '광주', '대구', '부산'], rc = {};
@@ -486,7 +486,7 @@ function renderStat() {
   var IC_ME = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   document.getElementById('stat').innerHTML =
     '<div class="sc main"><div class="sc-top"><span class="sc-l">미청구</span><span class="st-b">' +
-        (st.me ? '<button class="info" id="toMe">' + IC_ME + esc(st.me) + ' 내 건</button>' : '') + '<button class="info" id="info">기준</button></span></div>' +
+        (st.me ? '<button class="info" id="toMe">' + IC_ME + esc(st.me) + ' 건 보기</button>' : '') + '<button class="info" id="info">기준</button></span></div>' +
       '<div class="big"><span class="num">' + D.wos.length + '</span><small>건</small></div>' +
       '<div class="big-s num">' + man(sum(D.wos)) + '원 · ' + S.length + '명 · Red 보유 ' + nRS + '명</div>' +
       (infoOpen ? '<div class="info-box">' + fd(D.asof) + ' 기준, WO 생성일부터 지난 날수로 판정합니다. 부가가치세법상 세금계산서는 공급 후 30일 안에 발행 — ' +
@@ -657,7 +657,7 @@ if (MGR && D.perf.length) {
 document.getElementById('foot').innerHTML =
   '자료: ' + esc(D.src) + ' · ‘2025~’ 시트에서 SO Order#가 Pending인 건(청구 전)만 집계, WO(Service Request) 단위로 묶음. ' +
   '경과일 = 기준일 − WO Created. 실제 작업 완료일이 WO 생성일보다 늦으면 경과일이 실제보다 길게 보일 수 있습니다. ' +
-  '‘내 건 보기’에서 고른 이름은 이 기기 브라우저에만 저장됩니다.' +
+  '‘FSE 개별 건 보기’에서 고른 이름은 이 기기 브라우저에만 저장됩니다.' +
   (MGR ? '<br>참고: 법정 발급 기한은 공급일이 속한 달의 다음 달 10일입니다. 이 자료는 현장 공지를 위해 30일로 단순화했습니다.' : '');
 </script>
 </body>
