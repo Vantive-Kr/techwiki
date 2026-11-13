@@ -977,8 +977,8 @@ main > section > .section-desc {
 
 /* ---------- FSE To-Do 단계 ---------- */
 section:has(> .stage) { counter-reset: todo; }
-.stage { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); column-gap: 1.75rem; border-top: 3px solid var(--accent); padding: 1.1rem 0 0.4rem; }
-.stage + .stage { margin-top: 1.4rem; }
+.stage { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); column-gap: 1.75rem; border-top: 3px solid var(--accent); padding: 0.8rem 0 0.2rem; }
+.stage + .stage { margin-top: 1.1rem; }
 .stage.s0 { border-top-color: var(--text-muted); }
 .stage.s2 { border-top-color: var(--positive); }
 .stage.s3 { border-top-color: var(--eucalyptus); }
@@ -990,18 +990,46 @@ section:has(> .stage) { counter-reset: todo; }
 .stage.s4 .stage-tag { color: var(--text-secondary); }
 .stage-name { font-size: 0.74rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.02em; }
 .todo { list-style: none; }
-.todo li {
-  counter-increment: todo; position: relative; padding: 0 0 0.95rem 2.4rem; margin-bottom: 0.95rem;
-  border-bottom: 1px solid var(--rule-soft); display: flex; flex-direction: column; gap: 0.15rem;
+.todo li { counter-increment: todo; border-bottom: 1px solid var(--rule-soft); }
+.todo li:last-child { border-bottom: none; }
+.ti summary { list-style: none; cursor: pointer; position: relative; display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 0.75rem; row-gap: 0.1rem; padding: 0.62rem 1.6rem 0.62rem 2.2rem; }
+.ti summary::-webkit-details-marker { display: none; }
+.ti summary::before {
+  content: counter(todo, decimal-leading-zero); position: absolute; left: 0; top: 0.72rem;
+  font-size: 0.8rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums;
 }
-.todo li:last-child { border-bottom: none; margin-bottom: 0; }
-.todo li::before {
-  content: counter(todo, decimal-leading-zero); position: absolute; left: 0; top: 0.05rem;
-  font-size: 0.82rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums;
+.stage.s2 .ti summary::before, .stage.s3 .ti summary::before { color: var(--positive); }
+.ti summary::after { content: '+'; position: absolute; right: 0.2rem; top: 0.5rem; font-size: 1.05rem; font-weight: 600; color: var(--text-muted); }
+.ti[open] summary::after { content: '−'; color: var(--accent); }
+.ti summary:hover .ti-t { color: var(--accent); }
+.ti summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.ti-t { font-size: 0.97rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.45; }
+.ti-k { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 0.08rem 0.6rem; line-height: 1.5; white-space: nowrap; }
+.ti-d { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.75; padding: 0 1.6rem 0.8rem 2.2rem; }
+.todo-cnt { font-size: 0.8rem; font-weight: 700; color: var(--accent); background: rgba(114,37,107,0.08); border-radius: 999px; padding: 0.15rem 0.6rem; vertical-align: middle; margin-left: 0.4rem; letter-spacing: 0; }
+.todo-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; margin: 0.2rem 0 0.9rem; }
+.todo-all { font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--accent); background: transparent; border: 1px solid var(--accent); border-radius: 999px; padding: 0.3rem 0.85rem; cursor: pointer; }
+.todo-all[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.stage-jump { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+.sj { font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.75rem; cursor: pointer; }
+.sj b { color: var(--accent); margin-left: 0.15rem; }
+.sj.s2 b, .sj.s3 b { color: var(--positive); }
+.sj:hover { border-color: var(--accent); color: var(--text); }
+/* 참고 접이식 */
+.ref { border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); margin-top: 0.7rem; }
+.ref summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 0.8rem; padding: 0.9rem 2.6rem 0.9rem 1.1rem; position: relative; }
+.ref summary::-webkit-details-marker { display: none; }
+.ref summary::after { content: '+'; position: absolute; right: 1.1rem; top: 0.75rem; font-size: 1.15rem; font-weight: 600; color: var(--text-muted); }
+.ref[open] summary::after { content: '−'; color: var(--accent); }
+.ref-t { font-size: 1rem; font-weight: 700; color: var(--text); }
+.ref-s { font-size: 0.8rem; color: var(--text-muted); }
+.ref-b { padding: 0.2rem 1.1rem 1.1rem; }
+.ref-b > *:first-child { margin-top: 0; }
+@media (max-width: 768px) {
+  .ti summary { padding-right: 1.4rem; }
+  .ti-d { padding-left: 2.2rem; padding-right: 0.4rem; }
 }
-.stage.s2 .todo li::before, .stage.s3 .todo li::before { color: var(--positive); }
-.todo-t { font-size: 0.98rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.5; }
-.todo-d { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.75; }
+@media print { .ti-d, .ref-b { display: block !important; } .todo-all, .stage-jump { display: none; } }
 .dd { list-style: none; margin-top: 0.3rem; }
 .dd li { padding: 0.4rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.88rem; color: var(--text-secondary); }
 .dd li:last-child { border-bottom: none; }
@@ -1294,6 +1322,144 @@ section:has(> .stage) { counter-reset: todo; }
 }
 
 </style>
+<style id="modern-v2">
+/* ===== MODERN v2 (2026-11-13) — 그라데이션 헤더 + 세그먼트 탭 + 흰 카드 섹션 ===== */
+:root { --card-bd: rgba(114,37,107,0.12); --tint: rgba(114,37,107,0.045); }
+.theme-dark { --card-bd: rgba(243,239,228,0.12); --tint: rgba(243,239,228,0.05); }
+
+/* 헤더: Install Base Viewer·백로그와 같은 4-stop 그라데이션, 제목을 헤더 안에 */
+.site-header {
+  position: relative; top: auto; display: block; padding: 0; border: 0; gap: 0;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  background: linear-gradient(90deg, #58184F 0%, #72256B 35%, #105742 75%, #6CA07A 100%);
+  box-shadow: 0 4px 18px rgba(88,24,79,0.18);
+}
+.site-header .header-logo { display: none; }   /* Techwiki 헤더와 중복 — PDF 로고용으로 DOM에만 유지 */
+.hx { max-width: 900px; margin: 0 auto; padding: 1.9rem 3rem 1.5rem; color: #fff; }
+.hx-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,250,235,0.62); }
+.hx h1 { word-break: keep-all; font-size: 2rem; line-height: 1.25; letter-spacing: -0.03em; font-weight: 800; color: #fff; margin: 0.3rem 0 0.45rem; }
+.hx-sub { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+.hx-sub strong { color: #fff; }
+.hx-meta { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1rem; align-items: center; }
+.hx-chip { font-size: 0.75rem; font-weight: 600; color: #fff; background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 0.22rem 0.72rem; white-space: nowrap; }
+.hx-link { margin-left: auto; font-size: 0.78rem; font-weight: 700; color: #fff; text-decoration: none; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.38); border-radius: 999px; padding: 0.24rem 0.85rem; white-space: nowrap; }
+.hx-link:hover { background: rgba(255,255,255,0.26); }
+
+/* ⋯ 메뉴: 헤더 오른쪽 위 */
+.viz-menu { top: 0.7rem; right: 1rem; }
+.viz-menu-toggle { border-radius: 10px; }
+
+/* 탭: 세그먼트 컨트롤 (회색 트랙 + 선택 칸만 흰색) */
+.topbar {
+  position: sticky; top: 0; z-index: 90; margin: 0;
+  background: rgba(246,240,234,0.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule-soft); padding: 0.65rem 3rem;
+}
+.theme-dark .topbar { background: rgba(21,10,20,0.86); }
+.topbar.has-overflow::after { display: none; }
+.topbar-inner {
+  max-width: 804px; margin: 0 auto; padding: 4px; display: flex; gap: 4px; overflow: visible;
+  background: rgba(114,37,107,0.08); border-radius: 13px;
+}
+.theme-dark .topbar-inner { background: rgba(243,239,228,0.08); }
+.toptab, .theme-dark .toptab {
+  flex: 1 1 0; justify-content: center; gap: 0.45rem;
+  padding: 0.58rem 0.7rem; border: 0; border-radius: 10px;
+  background: transparent; color: var(--text-secondary);
+  font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.toptab svg { width: 15px; height: 15px; opacity: 0.75; }
+.toptab:hover, .theme-dark .toptab:hover { background: rgba(255,255,255,0.45); color: var(--text); }
+.toptab[aria-selected="true"], .theme-dark .toptab[aria-selected="true"] {
+  background: var(--surface); color: var(--accent); font-weight: 800;
+  box-shadow: 0 1px 3px rgba(27,18,25,0.12), 0 1px 1px rgba(27,18,25,0.05);
+}
+.toptab[aria-selected="true"] svg { opacity: 1; }
+.topbar .topbar-inner { padding: 4px !important; }
+.topbar-inner > .toptab { flex: 1 1 0 !important; min-width: 0; justify-content: center !important; }
+
+/* 본문: 섹션을 흰 카드로 */
+main { max-width: 900px; padding: 1.25rem 3rem 5rem; }
+main > section, .top-panel > section, .top-panel > section:first-child {
+  background: var(--surface); border: 1px solid var(--card-bd); border-radius: 18px;
+  padding: 1.6rem 1.75rem 1.75rem; margin: 0 0 1rem;
+  box-shadow: 0 1px 2px rgba(27,18,25,0.04);
+}
+main > section[style] {
+  background: var(--surface) !important; border: 1px solid var(--card-bd) !important; border-radius: 18px !important;
+  padding: 1.6rem 1.75rem 1.75rem !important;
+}
+
+/* 섹션 라벨: 굵은 선 → 작은 알약 */
+.section-label {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin: 0 0 0.7rem;
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.12em; color: var(--accent);
+  background: rgba(114,37,107,0.08); border-radius: 999px; padding: 0.24rem 0.7rem;
+}
+.section-label .label-bar { width: 6px; height: 6px; border-radius: 50%; }
+.theme-dark .section-label { background: rgba(199,123,189,0.14); }
+
+/* 글자 크기 정리 */
+h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.35rem; }
+h3 { font-size: 1.02rem; font-weight: 800; margin: 1.8rem 0 0.8rem; padding-bottom: 0; border-bottom: 0; }
+.section-desc { font-size: 0.92rem; line-height: 1.7; margin-bottom: 1.25rem; }
+
+/* 내부 요소: 선 위주 → 연한 면 */
+.card-grid-4:has(.kpi-card), .card-grid-3:has(.kpi-card) { gap: 0.6rem; border: 0; }
+.kpi-card, .card-grid-4 > .kpi-card, .card-grid-3 > .kpi-card,
+.card-grid-4 > .kpi-card + .kpi-card, .card-grid-3 > .kpi-card + .kpi-card {
+  background: var(--tint); border: 0; border-radius: 14px; padding: 1rem 1.1rem;
+}
+.callout { background: var(--tint); border-left-width: 3px; border-radius: 0 12px 12px 0; padding: 0.85rem 1.1rem; }
+.fact-grid { gap: 0.6rem; }
+.fact-card { background: var(--tint); border-radius: 14px; padding: 1rem 1.1rem; border-top-width: 3px; }
+.scorecard { border-radius: 12px; overflow: hidden; }
+.scorecard th { background: var(--tint); }
+.ref { background: var(--tint); border-color: transparent; }
+.ref[open] { background: var(--surface); border-color: var(--card-bd); }
+.stage { border-top-width: 2px; }
+.stage-jump .sj, .todo-all { transition: background 0.15s, border-color 0.15s; }
+
+/* 모바일 */
+@media (max-width: 900px) {
+  .hx { padding: 1.5rem 3.6rem 1.3rem 1.25rem; }
+  .topbar { padding: 0.55rem 3.6rem 0.55rem 1rem; }
+  main { padding: 1rem 1rem 4rem; }
+}
+@media (max-width: 600px) {
+  .hx { padding: 1.2rem 4rem 1.1rem 1rem; }
+  .hx-eyebrow { font-size: 0.62rem; letter-spacing: 0.12em; }
+  .hx-chip:first-child { display: none; }
+  .hx-meta { gap: 0.35rem; margin-top: 0.8rem; }
+  .hx h1 { font-size: 1.45rem; }
+  .hx-sub { font-size: 0.86rem; }
+  .hx-link { margin-left: 0; }
+  .hx-chip { font-size: 0.7rem; }
+  .topbar { padding: 0.5rem 3.3rem 0.5rem 0.75rem; }
+  .toptab { padding: 0.5rem 0.3rem; font-size: 0.8rem; }
+  main { padding: 0.75rem 0.6rem 3.5rem; }
+  main > section, .top-panel > section, .top-panel > section:first-child, main > section[style] { padding: 1.2rem 1.05rem 1.3rem !important; border-radius: 16px !important; }
+  h2 { font-size: 1.22rem; }
+}
+@media print {
+  .site-header { box-shadow: none; }
+  main > section, .top-panel > section { box-shadow: none; break-inside: avoid; }
+}
+
+/* ===== 색 띠 제거 — 심플 모던 (2026-11-13) ===== */
+.callout, .callout.pine, .callout.quote { border: 0 !important; border-radius: 12px; background: var(--tint); padding: 0.85rem 1.1rem; }
+.fact-card, .fact-card.yes, .fact-card.no { border: 0 !important; }
+.glossary-card, .glossary-card.alt { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1.1rem 1.2rem 1.2rem; }
+.step-grid, .doc-pair { gap: 0.6rem; }
+.step, .step.pre, .step.field, .step.post { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1rem 1.1rem 1.1rem; }
+.doc-card, .doc-card.after { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1.1rem 1.2rem; }
+.calc { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1.1rem 1.2rem 1.2rem; }
+.calc-st { border-left: 0 !important; padding-left: 0; }
+.sign-box { border: 1px solid var(--rule) !important; border-radius: 12px; }
+.stage, .stage.s0, .stage.s1, .stage.s2, .stage.s3, .stage.s4 { border-top: 1px solid var(--rule-soft) !important; }
+.scorecard, .theme-dark .scorecard { border-top: 0 !important; }
+</style>
 </head>
 <body>
 
@@ -1329,22 +1495,17 @@ section:has(> .stage) { counter-reset: todo; }
 
 <header class="site-header" role="banner">
   <div class="header-logo"><img src="data:image/png;base64,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" alt="Vantive"></div>
-  <div class="header-divider"></div>
-  <div class="header-title">FSE To-Do · 유상수리·부품판매 매출 처리</div>
-  <span class="header-badge">2026.10.22 Finance 교육</span>
-</header>
-
-<!-- HERO -->
-<section class="hero" aria-labelledby="hero-title">
-  <div class="hero-eyebrow">FSE TO-DO · FIELD ACTIONS · PAID REPAIR &amp; PARTS SALES</div>
-  <h1 id="hero-title">FSE To-Do<br><span>유상수리·부품판매 처리</span></h1>
-  <p class="hero-sub">유상수리·부품판매 건마다 <strong>FSE가 언제, 무엇을 해야 하는지</strong>만 순서대로 정리했습니다. 기준과 배경 설명은 Detail 버전에 있습니다.</p>
-  <div class="hero-meta">
-    <div class="hero-meta-item">대상 TS FSE 전원</div>
-    <div class="hero-meta-item">근거 2026.10.22 Finance(A2R·C2C) 교육</div>
+  <div class="hx">
+    <div class="hx-eyebrow">FSE To-Do · Paid Repair &amp; Parts Sales</div>
+    <h1 id="hero-title">유상수리·부품판매 처리</h1>
+    <p class="hx-sub">건마다 <strong>FSE가 언제, 무엇을 해야 하는지</strong>만 순서대로 정리했습니다.</p>
+    <div class="hx-meta">
+      <span class="hx-chip">대상 TS FSE 전원</span>
+      <span class="hx-chip">2026.10.22 Finance(A2R·C2C) 교육</span>
+      <a class="hx-link" href="TS_sales_process_guide.html">기준·Q&amp;A 전체 보기 — Detail →</a>
+    </div>
   </div>
-  <a class="ver-link" href="TS_sales_process_guide.html">기준·배경·Q&amp;A 전체 보기 — Detail 버전 →</a>
-</section>
+</header>
 
 <nav class="topbar" aria-label="보기 전환">
   <div class="topbar-inner" role="tablist" aria-label="FSE To-Do 보기">
@@ -1447,59 +1608,47 @@ section:has(> .stage) { counter-reset: todo; }
   <div class="top-panel" id="top-todo" role="tabpanel" aria-labelledby="tab-todo">
   <section aria-labelledby="todo-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>TO-DO BY STAGE</div>
-    <h2 id="todo-title">단계별 할 일</h2>
-    <p class="section-desc">유상수리 요청이 들어오면 위에서 아래로 진행하세요.</p>
+    <h2 id="todo-title">단계별 할 일 <span class="todo-cnt">14개</span></h2>
+    <div class="todo-bar">
+      <p class="section-desc" style="margin:0">위에서 아래로 진행 · 항목을 누르면 설명이 열립니다.</p>
+      <button type="button" class="todo-all" id="todoAll" onclick="toggleTodoAll()" aria-pressed="false">설명 모두 펼치기</button>
+    </div>
+    <div class="stage-jump" aria-label="단계 바로가기"><button type="button" class="sj s0" onclick="goStage('s0')">매월 <b>1</b></button><button type="button" class="sj s1" onclick="goStage('s1')">출동 전 <b>5</b></button><button type="button" class="sj s2" onclick="goStage('s2')">작업 완료 <b>3</b></button><button type="button" class="sj s3" onclick="goStage('s3')">완료 당일 <b>2</b></button><button type="button" class="sj s4" onclick="goStage('s4')">발행 후 <b>3</b></button></div>
 
     <div class="stage s0">
       <div class="stage-head"><span class="stage-tag">매월</span><span class="stage-name">10일경 · 정기 확인</span></div>
-      <ol class="todo">
-        <li><span class="todo-t">선입금 거래처 리스트(엑셀) 확인</span><span class="todo-d">C2C가 매월 10일경 발송 — <strong>내 담당 병원이 있는지</strong> 확인해 둡니다.</span></li>
-      </ol>
+      <ol class="todo"><li><details class="ti"><summary><span class="ti-t">선입금 거래처 리스트 확인</span><span class="ti-k">매월 10일경 C2C 발송</span></summary><div class="ti-d">C2C가 매월 10일경 엑셀로 발송 — <strong>내 담당 병원이 있는지</strong> 확인해 둡니다.</div></details></li></ol>
     </div>
 
     <div class="stage s1">
       <div class="stage-head"><span class="stage-tag">출동 전</span><span class="stage-name">요청 접수 ~ 작업 시작</span></div>
-      <ol class="todo">
-        <li><span class="todo-t">“유상수리입니다” 명확히 안내</span><span class="todo-d">요청한 병원 담당자에게 유상임을 먼저 알립니다.</span></li>
-        <li><span class="todo-t">선입금 거래처인지 확인</span><span class="todo-d">리스트에 있으면 <strong>선입금 후 진행</strong>. 금액이 확정되지 않았으면 <strong>“7일 이내 입금” 확인</strong>을 받고 진행.</span></li>
-        <li><span class="todo-t">ERP 오더 생성 (가능하면 작업 전)</span><span class="todo-d">오더가 늦어져도 공급 시기는 바뀌지 않습니다.</span></li>
-        <li><span class="todo-t">유상수리 고객 요청서 — 서면 동의</span><span class="todo-d">장비·부품 정보 · 작업 범위 · <strong>유상 명시</strong> · <strong>예상 금액</strong>(표준 단가 근거) · <strong>지급 기일</strong> · 추가 작업/가격 변동 시 기준</span></li>
-        <li><span class="todo-t">요청자와 비용 담당자를 구분해 확보</span><span class="todo-d">요청자(간호사·인공신장실)와 별도로 <strong>비용 승인자 · 세금계산서 수신자 · 지급 담당자</strong>(의공과·구매과 등)의 이름과 연락처.</span></li>
-      </ol>
+      <ol class="todo"><li><details class="ti"><summary><span class="ti-t">“유상수리입니다” 먼저 안내</span><span class="ti-k">요청 담당자에게</span></summary><div class="ti-d">요청한 병원 담당자에게 유상임을 먼저 알립니다.</div></details></li><li><details class="ti"><summary><span class="ti-t">선입금 거래처인지 확인</span><span class="ti-k">해당 시 입금 후 출동</span></summary><div class="ti-d">리스트에 있으면 <strong>선입금 후 진행</strong>. 금액이 확정되지 않았으면 <strong>“7일 이내 입금” 확인</strong>을 받고 진행.</div></details></li><li><details class="ti"><summary><span class="ti-t">ERP 오더 생성</span><span class="ti-k">가능하면 작업 전</span></summary><div class="ti-d">오더가 늦어져도 공급 시기는 바뀌지 않습니다.</div></details></li><li><details class="ti"><summary><span class="ti-t">고객 요청서로 서면 동의</span><span class="ti-k">유상 · 예상 금액 · 지급 기일</span></summary><div class="ti-d">장비·부품 정보 · 작업 범위 · <strong>유상 명시</strong> · <strong>예상 금액</strong>(표준 단가 근거) · <strong>지급 기일</strong> · 추가 작업/가격 변동 시 기준</div></details></li><li><details class="ti"><summary><span class="ti-t">비용 담당자 연락처 확보</span><span class="ti-k">요청자와 따로</span></summary><div class="ti-d">요청자(간호사·인공신장실)와 별도로 <strong>비용 승인자 · 세금계산서 수신자 · 지급 담당자</strong>(의공과·구매과 등)의 이름과 연락처.</div></details></li></ol>
     </div>
 
     <div class="stage s2">
       <div class="stage-head"><span class="stage-tag">작업 완료</span><span class="stage-name">현장에서 떠나기 전</span></div>
-      <ol class="todo">
-        <li><span class="todo-t">완료일 확정·기록</span><span class="todo-d">테스트까지 마치고 <strong>장비를 정상 사용할 수 있게 된 날</strong>. 부품만 판매했다면 고객 수령일, 설치 포함이면 설치 완료일.</span></li>
-        <li><span class="todo-t">서비스 작업 확인서 받기</span><span class="todo-d">장비명·부품명·S/N · 작업일자 · 수행 작업·사용 부품 · 작동·인계 확인 · <strong>유상 처리 문구 · 최종 범위·금액</strong> · 엔지니어+고객 서명</span></li>
-        <li><span class="todo-t">세금계산서 수신 정보 확인</span><span class="todo-d">HD·Acute·PD 거래 병원은 CS가 보유. <strong>일회성 거래 병원은 현장에서 받아야</strong> 합니다.</span></li>
-      </ol>
+      <ol class="todo"><li><details class="ti"><summary><span class="ti-t">완료일 확정·기록</span><span class="ti-k">정상 사용 가능해진 날</span></summary><div class="ti-d">테스트까지 마치고 <strong>장비를 정상 사용할 수 있게 된 날</strong>. 부품만 판매했다면 고객 수령일, 설치 포함이면 설치 완료일.</div></details></li><li><details class="ti"><summary><span class="ti-t">서비스 작업 확인서 받기</span><span class="ti-k">금액 · 유상 문구 · 서명</span></summary><div class="ti-d">장비명·부품명·S/N · 작업일자 · 수행 작업·사용 부품 · 작동·인계 확인 · <strong>유상 처리 문구 · 최종 범위·금액</strong> · 엔지니어+고객 서명</div></details></li><li><details class="ti"><summary><span class="ti-t">세금계산서 수신 정보 확인</span><span class="ti-k">일회성 병원은 현장에서</span></summary><div class="ti-d">HD·Acute·PD 거래 병원은 CS가 보유. <strong>일회성 거래 병원은 현장에서 받아야</strong> 합니다.</div></details></li></ol>
     </div>
 
     <div class="stage s3">
       <div class="stage-head"><span class="stage-tag">완료 당일</span><span class="stage-name">바로 공유</span></div>
-      <ol class="todo">
-        <li><span class="todo-t">완료일 + 증빙을 즉시 공유</span><span class="todo-d">받는 사람: 오더 담당자 / 세금계산서 발행 담당자. 보낼 것: 완료일 · 작업 확인서(또는 납품확인서·고객 확인 메일) · 최종 금액 · 비용 담당자 정보.</span></li>
-        <li><span class="todo-t">표준 단가로 발행 요청 — 가격 협의를 기다리지 않음</span><span class="todo-d">작성일자 = 완료일, <strong>발급 마감 = 다음 달 10일</strong> (예: 10/29 완료 → 11/10, 11/2 완료 → 12/10).</span></li>
-      </ol>
+      <ol class="todo"><li><details class="ti"><summary><span class="ti-t">완료일 + 증빙 즉시 공유</span><span class="ti-k">오더·발행 담당자에게</span></summary><div class="ti-d">받는 사람: 오더 담당자 / 세금계산서 발행 담당자. 보낼 것: 완료일 · 작업 확인서(또는 납품확인서·고객 확인 메일) · 최종 금액 · 비용 담당자 정보.</div></details></li><li><details class="ti"><summary><span class="ti-t">표준 단가로 발행 요청</span><span class="ti-k">마감 익월 10일</span></summary><div class="ti-d">가격 협의를 기다리지 않습니다. 작성일자 = 완료일, <strong>발급 마감 = 다음 달 10일</strong> (예: 10/29 완료 → 11/10, 11/2 완료 → 12/10).</div></details></li></ol>
     </div>
 
     <div class="stage s4">
       <div class="stage-head"><span class="stage-tag">발행 후</span><span class="stage-name">조정·수금까지</span></div>
-      <ol class="todo">
-        <li><span class="todo-t">가격 조정 요청이 오면 → 예외 절차로</span><span class="todo-d">사유를 <strong>서면</strong>으로 받기 → 사전 안내가·실제 작업 범위 대조 → <strong>TS 매니지먼트 승인</strong> → 감액분 <strong>마이너스 세금계산서</strong> → 원거래와 증빙 연결 보관.</span></li>
-        <li><span class="todo-t">역발행 병원이 늦어지면 → 빠른 발행 요청</span><span class="todo-d">“유상수리가 완료되었으니 역발행을 빨리 부탁드립니다.” 필요하면 CS를 통해 병원 담당자에게 요청.</span></li>
-        <li><span class="todo-t">입금까지 확인</span><span class="todo-d">대금이 들어와야 거래가 끝납니다. Finance 애플리케이션(권한 부여 예정) 또는 C2C 파이낸스에 문의.</span></li>
-      </ol>
+      <ol class="todo"><li><details class="ti"><summary><span class="ti-t">가격 조정은 예외 절차로</span><span class="ti-k">서면 · 승인 · 마이너스 발행</span></summary><div class="ti-d">사유를 <strong>서면</strong>으로 받기 → 사전 안내가·실제 작업 범위 대조 → <strong>TS 매니지먼트 승인</strong> → 감액분 <strong>마이너스 세금계산서</strong> → 원거래와 증빙 연결 보관.</div></details></li><li><details class="ti"><summary><span class="ti-t">역발행 지연 시 독려</span><span class="ti-k">필요하면 CS 통해</span></summary><div class="ti-d">“유상수리가 완료되었으니 역발행을 빨리 부탁드립니다.” 필요하면 CS를 통해 병원 담당자에게 요청.</div></details></li><li><details class="ti"><summary><span class="ti-t">입금까지 확인</span><span class="ti-k">입금돼야 거래 종료</span></summary><div class="ti-d">대금이 들어와야 거래가 끝납니다. Finance 애플리케이션(권한 부여 예정) 또는 C2C 파이낸스에 문의.</div></details></li></ol>
     </div>
   </section>
 
-  <!-- ================= 완료일 기준 ================= -->
-  <section aria-labelledby="date-title" data-reveal>
-    <div class="section-label"><span class="label-bar"></span>WHICH DATE</div>
-    <h2 id="date-title">어떤 날짜를 적나요?</h2>
-    <div class="table-scroll">
+  <!-- ================= 참고 (접이식) ================= -->
+  <section aria-labelledby="ref-title" data-reveal>
+    <div class="section-label"><span class="label-bar"></span>REFERENCE</div>
+    <h2 id="ref-title">필요할 때 펼쳐 보기</h2>
+    <details class="ref">
+      <summary><span class="ref-t">어떤 날짜를 적나요?</span><span class="ref-s">완료일 기준 · 마감일 계산기</span></summary>
+      <div class="ref-b">
+<div class="table-scroll">
     <table class="scorecard">
       <thead><tr><th>거래</th><th>완료일 (= 세금계산서 작성일자)</th><th>남길 증빙</th></tr></thead>
       <tbody>
@@ -1517,13 +1666,12 @@ section:has(> .stage) { counter-reset: todo; }
       </div>
       <div class="calc-out" id="calcOut" aria-live="polite"></div>
     </div>
-  </section>
-
-  <!-- ================= DO / DON'T ================= -->
-  <section aria-labelledby="dd-title" data-reveal>
-    <div class="section-label"><span class="label-bar"></span>DO &amp; DON'T</div>
-    <h2 id="dd-title">이렇게 하세요 / 이건 안 됩니다</h2>
-    <div class="fact-grid" style="grid-template-columns:repeat(2,1fr)">
+      </div>
+    </details>
+    <details class="ref">
+      <summary><span class="ref-t">이렇게 하세요 / 이건 안 됩니다</span><span class="ref-s">Do &amp; Don't 각 5가지</span></summary>
+      <div class="ref-b">
+<div class="fact-grid" style="grid-template-columns:repeat(2,1fr)">
       <div class="fact-card yes"><span class="fact-mark">DO</span>
         <ul class="dd">
           <li>작업 전에 예상 금액·범위·지급 기일 안내</li>
@@ -1543,31 +1691,31 @@ section:has(> .stage) { counter-reset: todo; }
         </ul>
       </div>
     </div>
-  </section>
-
-  <!-- ================= 응급 수리 ================= -->
-  <section aria-labelledby="em-title" data-reveal>
-    <div class="section-label"><span class="label-bar"></span>EMERGENCY</div>
-    <h2 id="em-title">응급 수리 (중환자실 등)일 때</h2>
-    <p class="section-desc">사전에 지불 부서와 견적을 협의할 시간이 없을 때의 진행 순서입니다.</p>
+      </div>
+    </details>
+    <details class="ref">
+      <summary><span class="ref-t">응급 수리 (중환자실 등)일 때</span><span class="ref-s">견적 협의 시간이 없을 때 4단계</span></summary>
+      <div class="ref-b">
+<p class="section-desc">사전에 지불 부서와 견적을 협의할 시간이 없을 때의 진행 순서입니다.</p>
     <div class="action-list">
       <div class="action-item"><div class="action-num">01</div><div><div class="action-text">표준 단가 근거로 <strong>예상 작업 범위·예상 가격을 안내</strong>합니다 (부품 가격표 전체를 공개할 필요는 없음).</div></div></div>
       <div class="action-item"><div class="action-num">02</div><div><div class="action-text">요청한 의료진에게 <strong>“의공과·구매과에서 비용 집행이 되도록 협조 부탁드립니다”</strong>라고 말한 뒤 진행합니다.</div></div></div>
       <div class="action-item"><div class="action-num">03</div><div><div class="action-text">완료 후 <strong>표준 단가로 발행</strong>, 병원이 이의를 제기하면 가격 조정 절차로 처리합니다.</div></div></div>
       <div class="action-item"><div class="action-num">04</div><div><div class="action-text">긴급 수리였다는 <strong>예외 사유와 승인을 서면</strong>으로 남깁니다.</div></div></div>
     </div>
-  </section>
-
-  <!-- ================= 문의 ================= -->
-  <section data-reveal>
-    <div class="section-label"><span class="label-bar"></span>CONTACT</div>
-    <h2>막히면 여기로</h2>
-    <ul class="rnr-duties">
+      </div>
+    </details>
+    <details class="ref">
+      <summary><span class="ref-t">막히면 여기로</span><span class="ref-s">부서별 문의처</span></summary>
+      <div class="ref-b">
+<ul class="rnr-duties">
       <li><span class="rnr-dot"></span><span><strong>공급 시기·발급 기준이 애매할 때</strong> — Finance A2R팀</span></li>
       <li><span class="rnr-dot"></span><span><strong>선입금·결제 확인·수금·분쟁</strong> — Finance C2C팀 (정재철 · 장미영)</span></li>
       <li><span class="rnr-dot"></span><span><strong>가격 조정 승인·표준 단가</strong> — TS 매니지먼트</span></li>
       <li><span class="rnr-dot"></span><span><strong>세금계산서 수신 정보·역발행 독려</strong> — CS 부서</span></li>
     </ul>
+      </div>
+    </details>
     <p class="footer-note" style="margin-top:1.5rem;">Vantive Korea · Technical Service — FSE To-Do (유상수리·부품판매 매출 처리) · 2026.10.22 Finance 교육 기반 · 작성 2026.10.26</p>
   </section>
 
@@ -1662,7 +1810,7 @@ function syncHeaderHeight() {
 }
 function stickyOffset() {
   var bar = document.querySelector('.topbar'), hdr = document.querySelector('.site-header');
-  return (hdr ? hdr.offsetHeight : 0) + (bar ? bar.offsetHeight : 0);
+  return (bar ? bar.offsetHeight : 0);
 }
 function selectTop(id, scroll) {
   if (TOP_IDS.indexOf(id) < 0) id = TOP_IDS[0];
@@ -1679,9 +1827,17 @@ function selectTop(id, scroll) {
   try { history.replaceState(null, '', '#tab-' + id); } catch (e) {}
   if (scroll) {
     var bar = document.querySelector('.topbar'), hdr = document.querySelector('.site-header');
-    var top = bar.getBoundingClientRect().top + window.pageYOffset - (hdr ? hdr.offsetHeight : 0);
+    var top = hdr ? hdr.offsetTop + hdr.offsetHeight : 0;
     if (window.pageYOffset > top) window.scrollTo({ top: top, behavior: 'smooth' });
   }
+}
+/* To-Do 설명 모두 펼치기/접기 */
+function toggleTodoAll() {
+  var btn = document.getElementById('todoAll');
+  var open = btn.getAttribute('aria-pressed') !== 'true';
+  document.querySelectorAll('#top-todo .ti').forEach(function(d) { d.open = open; });
+  btn.setAttribute('aria-pressed', open ? 'true' : 'false');
+  btn.textContent = open ? '설명 모두 접기' : '설명 모두 펼치기';
 }
 /* 맵의 단계를 누르면 To-Do 탭의 같은 단계로 이동 */
 function goStage(cls) {
@@ -2121,7 +2277,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var h = (location.hash || '').replace('#tab-', '');
   selectTop(TOP_IDS.indexOf(h) >= 0 ? h : 'map', false);
 });
-window.addEventListener('beforeprint', function(){ document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('visible'); }); });
+window.addEventListener('beforeprint', function(){ document.querySelectorAll('#top-todo details').forEach(function(d){ d.open = true; }); document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('visible'); }); });
 </script>
 
 </body>

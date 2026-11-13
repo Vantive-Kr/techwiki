@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TS Billing Backlog</title>
+<style>
+/* TS Billing Backlog v2 — 상태 막대 1개 + 내 건 모드 + 한 줄 순위표 */
+:root{
+  --plum:#72256B; --plum-light:rgba(114,37,107,0.09);
+  --pine:#105742; --pine-light:rgba(16,87,66,0.10);
+  --red:#C2313C; --red-light:rgba(194,49,60,0.10);
+  --green:#1E8A5A; --green-light:rgba(30,138,90,0.11);
+  --amber:#A8620A; --amber-dot:#E09A1F; --amber-light:rgba(224,154,31,0.15);
+  --sop:#4A4FB0; --sop-light:rgba(74,79,176,0.12);
+  --bg:#F6F0EA; --white:#FFFFFF;
+  --text:#1B1219; --text2:#6B5468; --text3:#9B879A;
+  --border:rgba(114,37,107,0.14); --rule-soft:rgba(27,18,25,0.07);
+  --shadow:0 2px 14px rgba(27,18,25,0.05); --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,"Segoe UI","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;min-height:100vh;}
+.num{font-variant-numeric:tabular-nums;}
+button,select{font-family:inherit;}
+.wrap{padding:0 16px;}   /* v1처럼 전체 폭 사용 — 좌우 여백 최소 */
+.hdr .wrap{padding:0 20px;}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(90deg,#58184F 0%,#72256B 26%,#105742 62%,#6CA07A 100%);
+  padding:calc(16px + env(safe-area-inset-top,0px)) 0 14px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(88,24,79,0.25);}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.tagline{font-size:24px;font-weight:700;color:rgba(255,250,235,0.55);letter-spacing:.13em;line-height:1.2;padding-top:2px;text-transform:uppercase;min-width:0;}
+.upd{font-size:10.5px;font-weight:600;color:rgba(255,250,235,0.72);letter-spacing:.3px;white-space:nowrap;padding-top:6px;}
+.upd b{color:#fff;font-weight:700;}
+.tools{display:flex;gap:8px;align-items:center;}
+.s-wrap{position:relative;flex:1;min-width:0;}
+.s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;width:16px;height:16px;}
+.s-inp::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none;}
+.s-inp{width:100%;height:42px;padding:0 40px;background:rgba(255,250,235,0.14);border:1.5px solid rgba(255,250,235,0.26);
+  border-radius:12px;font-size:14px;color:#fff;outline:none;font-family:inherit;}
+.s-inp:focus{background:rgba(255,250,235,0.22);border-color:rgba(255,250,235,0.55);}
+.s-inp::placeholder{color:rgba(255,250,235,0.6);}
+.s-clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,250,235,0.25);border:none;border-radius:50%;
+  width:22px;height:22px;font-size:12px;cursor:pointer;color:#fff;font-weight:700;display:none;}
+.s-clr.show{display:block;}
+.hsel{height:42px;border-radius:12px;border:1.5px solid rgba(255,250,235,0.26);background:rgba(0,0,0,0.18);color:#fff;
+  font-size:13px;font-weight:700;padding:0 30px 0 12px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;max-width:150px;}
+.hsel option{color:#1B1219;}
+.hsel.me{background-color:rgba(255,255,255,0.16);padding-left:34px;}
+.me-w{position:relative;display:inline-flex;}
+.me-ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#fff;pointer-events:none;z-index:1;}
+.me-w:has(.set) .me-ic{color:var(--plum);}
+.info{display:inline-flex;align-items:center;gap:4px;}
+.info .ic{width:13px;height:13px;}
+.hsel.me.set{background-color:#fff;color:var(--plum);border-color:#fff;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2372256B' stroke-width='1.6'/%3E%3C/svg%3E");}
+
+/* ── 공통 카드 ── */
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-top:14px;}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
+.sdot.r{background:var(--red);} .sdot.a{background:var(--amber-dot);} .sdot.g{background:var(--green);} .sdot.d{background:var(--sop);}
+.c-r{color:var(--red);} .c-a{color:var(--amber);} .c-g{color:var(--green);} .c-d{color:var(--sop);}
+
+/* ── ① 상태 막대 ── */
+.stat{padding:18px 20px 16px;}
+.st-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.st-t{font-size:15px;font-weight:700;color:var(--text2);}
+.st-t b{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.02em;margin-right:2px;}
+.st-s{font-size:12.5px;color:var(--text3);margin-left:6px;font-weight:600;}
+.info{border:0;background:var(--plum-light);color:var(--plum);font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 10px;cursor:pointer;white-space:nowrap;}
+.st-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.info-box{font-size:12px;line-height:1.7;color:var(--text2);background:var(--bg);border-radius:10px;padding:9px 12px;margin:-4px 0 12px;}
+.info-box b{color:var(--text);}
+.bar{display:flex;height:24px;border-radius:8px;overflow:hidden;gap:2px;background:var(--rule-soft);}
+.bseg{border:0;cursor:pointer;display:flex;align-items:center;padding:0 9px;font-size:12px;font-weight:800;color:#fff;min-width:0;transition:opacity .15s,filter .15s;}
+.bseg.r{background:var(--red);} .bseg.a{background:var(--amber-dot);color:#3d2400;} .bseg.g{background:var(--green);}
+.bseg:hover{filter:brightness(1.08);}
+.dim{opacity:.28;}
+.sopline{position:relative;display:block;border:0;background:none;cursor:pointer;margin-top:6px;height:20px;padding:0;text-align:left;transition:opacity .15s;}
+.sopline i{position:absolute;left:0;right:0;top:0;height:6px;border:2px solid var(--sop);border-top:0;border-radius:0 0 5px 5px;}
+.sopline span{position:absolute;left:0;top:7px;font-size:11.5px;font-weight:700;color:var(--sop);white-space:nowrap;}
+.sopline.on i{background:var(--sop-light);}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.lg{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:var(--bg);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;}
+.lg b{font-weight:800;}
+.lg em{font-style:normal;font-weight:800;font-size:11.5px;}
+.lg small{font-size:11px;color:var(--text3);}
+.lg.on{background:#fff;border-color:currentColor;}
+.lg.r.on{color:var(--red);} .lg.a.on{color:var(--amber);} .lg.g.on{color:var(--green);} .lg.d.on{color:var(--sop);}
+.filt{padding:16px 20px 2px;}   /* 패널 밖 — 페이지 배경 위 (v1 배치) */
+.frow{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.frow:last-child{margin-bottom:0;}
+.flbl{font-size:10.5px;font-weight:800;color:var(--pine);letter-spacing:1.4px;text-transform:uppercase;width:64px;flex-shrink:0;}
+.seg-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:1px 0 2px;min-width:0;}
+.seg-row::-webkit-scrollbar{display:none;}
+.seg{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:none;
+  background:rgba(114,37,107,0.07);color:var(--text2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;}
+.seg:hover{background:rgba(114,37,107,0.13);}
+.seg.on{background:var(--plum);color:#fff;}
+.seg .n{font-size:11.5px;font-weight:800;color:var(--text);}
+.seg small{font-size:11px;color:var(--text3);}
+.seg .pp{font-style:normal;font-size:11px;font-weight:800;border-radius:999px;padding:1px 6px;}
+.pp.r{background:var(--red-light);color:var(--red);} .pp.g{background:var(--green-light);color:var(--green);} .pp.d{background:var(--sop-light);color:var(--sop);}
+.seg.on .n,.seg.on small{color:#fff;opacity:.85;}
+.seg.on .pp{background:rgba(255,255,255,0.92);}
+.seg.on .sdot{box-shadow:0 0 0 1.5px #fff;}
+.lg-x{border:0;background:none;color:var(--plum);font-size:12px;font-weight:700;cursor:pointer;padding:6px 6px;}
+
+/* ── 내 건 ── */
+.mine{padding:18px 20px 6px;}
+.mn-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.mn-name{font-size:20px;font-weight:800;letter-spacing:-.02em;}
+.mn-name small{font-size:12px;font-weight:700;color:var(--pine);background:var(--pine-light);border-radius:5px;padding:2px 7px;margin-left:8px;vertical-align:3px;}
+.mn-btns{display:flex;gap:6px;}
+.btn-s{border:1px solid var(--border);background:#fff;color:var(--plum);font-size:12px;font-weight:700;border-radius:999px;padding:6px 12px;cursor:pointer;}
+.todo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px;}
+.td{border-radius:12px;padding:11px 13px;background:var(--bg);}
+.td.r{background:var(--red-light);} .td.d{background:var(--sop-light);} .td.d .td-l,.td.d .td-v{color:var(--sop);} .td.a{background:var(--amber-light);} .td.g{background:var(--green-light);}
+.td-l{font-size:11px;font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
+.td-v{font-size:22px;font-weight:800;margin-top:3px;letter-spacing:-.02em;}
+.td-v small{font-size:12px;margin-left:2px;}
+.td-n{font-size:11.5px;color:var(--text2);margin-top:1px;}
+.td.r .td-l,.td.r .td-v{color:var(--red);} .td.a .td-l,.td.a .td-v{color:var(--amber);} .td.g .td-l,.td.g .td-v{color:var(--green);}
+.td.none{opacity:.45;}
+.mine .det{margin:0 -20px;border-top:1px solid var(--border);}
+.me-empty{padding:26px 0 30px;text-align:center;color:var(--text2);font-weight:600;}
+
+/* ── ② 순위표 ── */
+.lhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px 10px;border-bottom:1px solid var(--rule-soft);flex-wrap:wrap;}
+.lh-l{font-size:13px;color:var(--text2);} .lh-l b{color:var(--plum);font-weight:800;}
+.sort{display:flex;gap:2px;background:rgba(114,37,107,0.07);border-radius:999px;padding:3px;}
+.sort button{border:none;background:none;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;}
+.sort button.on{background:#fff;color:var(--plum);box-shadow:0 1px 3px rgba(27,18,25,0.1);}
+.srow{border-bottom:1px solid var(--rule-soft);}
+.srow:last-child{border-bottom:0;}
+.shead{display:grid;grid-template-columns:150px minmax(60px,1fr) 60px 200px 112px 26px;align-items:center;gap:14px;width:100%;
+  padding:12px 20px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer;}
+.shead:hover{background:rgba(255,250,235,0.7);}
+.shead:focus-visible{outline:2px solid var(--plum);outline-offset:-2px;}
+.s-name{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-loc{font-size:10.5px;font-weight:800;color:var(--pine);background:var(--pine-light);border-radius:5px;padding:1px 6px;margin-left:7px;vertical-align:1px;}
+.s-bar{height:10px;border-radius:5px;background:transparent;}
+.s-fill{display:flex;height:100%;gap:1.5px;border-radius:5px;overflow:hidden;min-width:6px;}
+.s-fill i{display:block;height:100%;}
+.s-fill i.r{background:var(--red);} .s-fill i.a{background:var(--amber-dot);} .s-fill i.g{background:var(--green);}
+.s-cnt{justify-self:end;display:inline-flex;align-items:baseline;justify-content:center;gap:1px;min-width:54px;padding:4px 8px;border-radius:8px;border:1px solid transparent;font-size:15px;font-weight:800;}
+.s-cnt small{font-size:10.5px;font-weight:700;opacity:.75;}
+.s-cnt.r{background:var(--red-light);color:var(--red);border-color:rgba(194,49,60,0.18);}
+.s-cnt.g{background:var(--green-light);color:var(--green);border-color:rgba(30,138,90,0.18);}
+.s-key{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2);}
+.s-key .sp{color:var(--text3);margin:0 5px;font-weight:400;}
+.s-amt{font-size:13px;font-weight:700;text-align:right;white-space:nowrap;}
+.chev{color:var(--text3);width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:rgba(114,37,107,0.05);border-radius:50%;transition:transform .25s,background .15s,color .15s;}
+.srow.open .chev{transform:rotate(180deg);background:var(--plum-light);color:var(--plum);}
+.srow .det{display:none;border-top:1px solid var(--border);background:rgba(255,250,235,0.5);}
+.srow.open .det{display:block;}
+.empty{text-align:center;padding:44px 20px;color:var(--text2);display:none;}
+
+/* WO 행 */
+.urow{display:grid;grid-template-columns:116px minmax(0,1.3fr) minmax(0,1.5fr) 92px 76px 132px;align-items:center;gap:10px;padding:9px 20px;border-bottom:1px solid var(--rule-soft);font-size:12.5px;}
+.urow:last-child{border-bottom:none;}
+.urow.hd{font-size:10.5px;font-weight:800;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;padding-top:10px;padding-bottom:7px;}
+.u-st{display:flex;align-items:center;gap:7px;font-weight:800;white-space:nowrap;}
+.u-st small{font-size:10.5px;font-weight:700;opacity:.8;margin-left:2px;}
+.u-st.r{color:var(--red);} .u-st.a{color:var(--amber);} .u-st.g{color:var(--green);}
+.u-hosp{font-weight:700;} .u-part{color:var(--text2);} .u-date{color:var(--text2);white-space:nowrap;}
+.u-amt{text-align:right;font-weight:700;white-space:nowrap;}
+.pn{display:inline-block;min-width:10ch;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--text);margin-right:7px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg);color:var(--text2);border:1px solid var(--rule-soft);}
+.sop{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:800;background:var(--sop-light);color:var(--sop);vertical-align:1px;}
+mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;padding:0 1px;}
+
+/* ── ③ 접이식 ── */
+details.fold{padding:0;}
+details.fold > summary{list-style:none;cursor:pointer;padding:14px 20px;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:space-between;}
+details.fold > summary::-webkit-details-marker{display:none;}
+details.fold > summary::after{content:'+';font-size:18px;color:var(--text3);font-weight:400;}
+details.fold[open] > summary::after{content:'–';}
+.fold-b{padding:0 20px 18px;}
+.act{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+.act-c{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--text2);line-height:1.6;}
+.act-c b{display:flex;align-items:center;gap:6px;color:var(--text);font-size:13.5px;margin-bottom:4px;}
+.fold-d{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;}
+table.perf{width:100%;border-collapse:collapse;font-size:12.5px;}
+.perf th,.perf td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--rule-soft);}
+.perf th:first-child,.perf td:first-child{text-align:left;}
+.perf th{font-size:10.5px;color:var(--text3);font-weight:800;letter-spacing:.6px;}
+.perf .mini{display:inline-block;width:64px;height:6px;border-radius:3px;background:var(--rule-soft);vertical-align:middle;margin-left:8px;overflow:hidden;}
+.perf .mini i{display:block;height:100%;background:var(--plum);}
+.perf small{color:var(--text3);}
+.foot{padding:14px 4px 36px;font-size:11px;color:var(--text3);line-height:1.7;}
+
+@media(max-width:860px){
+  .shead{grid-template-columns:minmax(0,1fr) auto 26px;grid-template-areas:"name cnt chev" "bar bar bar" "key amt amt";row-gap:7px;column-gap:10px;padding:12px 14px;}
+  .s-name{grid-area:name;} .s-cnt{grid-area:cnt;} .chev{grid-area:chev;} .s-bar{grid-area:bar;height:8px;}
+  .s-key{grid-area:key;} .s-amt{grid-area:amt;}
+  .act{grid-template-columns:1fr;}
+}
+@media(max-width:760px){
+  .wrap{padding:0 10px;}
+  .hdr .wrap{padding:0 14px;}
+  .tagline{font-size:14px;letter-spacing:.09em;padding-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .upd{padding-top:5px;}
+  .tools{flex-wrap:wrap;}
+  .s-wrap{flex:1 1 100%;}
+  .hsel{flex:1;max-width:none;height:38px;}
+  .me-w{flex:1;} .me-w .hsel{width:100%;}
+  .stat{padding:16px 14px 14px;}
+  .st-t b{font-size:23px;}
+  .st-s{display:block;margin:2px 0 0;}
+  .frow{flex-direction:column;align-items:flex-start;gap:5px;}
+  .filt{padding:14px 4px 0;}
+  .seg-row{max-width:100%;}
+  .mine{padding:16px 14px 4px;}
+  .mine .det{margin:0 -14px;}
+  .todo{gap:6px;}
+  .td{padding:9px 10px;}
+  .td-v{font-size:19px;}
+  .td-n{font-size:10.5px;}
+  .td-h{display:none;}
+  .lhead{padding:12px 14px 9px;}
+  .urow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"st amt" "hosp hosp" "part part" "wo date";padding:11px 14px;row-gap:5px;column-gap:10px;}
+  .urow.hd{display:none;}
+  .u-st{grid-area:st;} .u-amt{grid-area:amt;} .u-hosp{grid-area:hosp;} .u-part{grid-area:part;}
+  .u-wo{grid-area:wo;} .u-date{grid-area:date;justify-self:end;font-size:11.5px;}
+  .u-date::before{content:'생성 ';color:var(--text3);font-size:11px;}
+  details.fold > summary{padding:13px 14px;} .fold-b{padding:0 14px 14px;}
+}
+@media print{
+  .hdr{position:static;box-shadow:none;} .tools,.sort,.chev{display:none!important;}
+  body{background:#fff;} .srow .det{display:block!important;}
+}
+
+/* ══ C · 석 Stone 스킨 (2026-11-13 후속87) ══ */
+:root{
+  --red:#B0665D; --red-t:#9A4A42; --red-light:rgba(176,102,93,0.13);
+  --green:#7C9A86; --green-t:#55755F; --green-light:rgba(124,154,134,0.17);
+  --sop:#6B7390; --sop-t:#4F5778; --sop-light:rgba(107,115,144,0.14);
+  --bg:#ECE9E2; --card:#F8F7F3; --line:#E1DDD2; --ink:#2D2B27; --mute:#625E55; --dark:#4B4A44;
+  --text:#2D2B27; --text2:#625E55; --text3:#8E897E; --border:#E1DDD2; --rule-soft:#E9E5DC;
+}
+body{background:var(--bg);color:var(--ink);}   /* 글꼴은 기존 시스템 글꼴 유지(후속88) */
+.c-r{color:var(--red-t);} .c-g{color:var(--green-t);} .c-d{color:var(--sop-t);}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:none;}
+mark{background:rgba(176,102,93,0.18);color:var(--red-t);}
+
+/* 요약 카드 4장 */
+.stone{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;}
+.sc{flex:1 1 180px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px 26px;display:flex;flex-direction:column;justify-content:space-between;gap:18px;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:opacity .15s,border-color .15s;}
+button.sc:hover{border-color:#CFC9BB;}
+.sc.on.g{border:1.5px solid var(--green);} .sc.on.r{border:1.5px solid var(--red);} .sc.on.s{border:1.5px solid var(--sop);}
+.sc.main{flex:1.5 1 300px;padding:28px 32px;cursor:default;gap:0;justify-content:flex-start;}
+.sc-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.sc-l{font-size:14px;font-weight:800;color:var(--ink);}
+.sc.s{background:#F1F0F4;border-color:#DCDBE4;}   /* SOP 카드: 옅은 슬레이트 톤 */
+button.sc.s:hover{border-color:#C9C8D6;}
+.sub-t{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:99px;font-size:10.5px;font-weight:800;color:var(--red-t);background:var(--red-light);vertical-align:1px;white-space:nowrap;}
+.sc.g .sc-l{color:var(--green-t);} .sc.r .sc-l{color:var(--red-t);} .sc.s .sc-l{color:var(--sop-t);}
+.st-b{display:flex;gap:6px;}
+.info{font-size:12px;color:var(--mute);background:var(--bg);border:0;border-radius:99px;padding:5px 12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.info .ic{width:12px;height:12px;}
+.big{display:flex;align-items:baseline;gap:8px;margin-top:14px;}
+.big .num{font-weight:800;letter-spacing:-.03em;font-size:60px;line-height:1;}
+.big small{font-size:15px;color:var(--mute);}
+.big-s{font-size:13px;color:var(--mute);margin-top:10px;}
+.info-box{font-size:12px;line-height:1.7;color:var(--mute);background:var(--bg);border-radius:12px;padding:9px 12px;margin:14px 0 0;}
+.mbar{display:flex;gap:3px;height:10px;margin-top:22px;}
+.mbar button{border:0;padding:0;cursor:pointer;min-width:4px;transition:opacity .15s;}
+.mbar .r{background:var(--red);} .mbar .g{background:var(--green);}
+.mbar button:first-child{border-radius:99px 0 0 99px;} .mbar button:last-child{border-radius:0 99px 99px 0;} .mbar button:only-child{border-radius:99px;}
+.mbar-l{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mute);margin-top:8px;}
+.clr{border:0;background:none;color:var(--ink);font-size:12px;font-weight:600;cursor:pointer;}
+.sc-m{display:flex;align-items:center;gap:16px;}
+.ring{width:64px;height:64px;flex-shrink:0;}
+.sc-v{display:block;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.sc-p{display:block;font-size:12px;color:var(--mute);margin-top:6px;}
+.sc-a{font-size:13px;color:var(--mute);}
+
+/* 지역 */
+.filt{display:flex;gap:8px;flex-wrap:wrap;padding:0;margin-top:28px;}
+.rg{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 18px;font-size:13px;color:var(--ink);cursor:pointer;font-family:inherit;}
+.rg:hover{border-color:#CFC9BB;}
+.rg.on{background:var(--dark);border-color:var(--dark);color:var(--card);}
+
+/* 순위표 */
+.lst{margin-top:30px;}
+.lhead{border:0;padding:0 4px 14px;}
+.lh-l{font-size:13px;color:var(--mute);} .lh-l b{color:var(--ink);font-weight:500;}
+.sort{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px;gap:4px;}
+.sort button{font-size:13px;font-weight:400;color:var(--mute);padding:5px 14px;}
+.sort button.on{background:var(--dark);color:var(--card);box-shadow:none;}
+.srow{background:var(--card);border:1px solid var(--line)!important;border-radius:20px;margin-bottom:10px;overflow:hidden;}
+.shead{padding:18px 28px;grid-template-columns:170px minmax(60px,1fr) 64px 170px 150px 26px;gap:24px;}
+.shead:hover{background:rgba(255,255,255,0.5);}
+.s-name{font-size:15px;font-weight:800;}
+.s-loc{font-size:11px;font-weight:400;color:var(--mute);background:var(--bg);border-radius:99px;padding:3px 9px;margin-left:10px;vertical-align:2px;}
+.s-fill{height:8px;gap:2px;border-radius:0;}
+.s-fill i:first-child{border-radius:99px 0 0 99px;} .s-fill i:last-child{border-radius:0 99px 99px 0;} .s-fill i:only-child{border-radius:99px;}
+.s-cnt{font-size:16px;font-weight:800;padding:2px 8px;border-radius:10px;}
+.s-cnt small{font-size:11px;font-weight:700;}
+.s-cnt.r{color:var(--red-t);border-color:rgba(176,102,93,0.28);} .s-cnt.g{color:var(--green-t);border-color:rgba(124,154,134,0.32);}
+.s-key{font-size:13px;font-weight:400;color:var(--mute);}
+.s-amt{font-size:15px;font-weight:700;}
+.chev{background:var(--bg);color:var(--mute);}
+.srow.open .chev{background:var(--dark);color:var(--card);}
+.srow .det{border-top:1px solid var(--line);background:transparent;}
+.urow{border-bottom-color:var(--rule-soft);}
+.u-st.r{color:var(--red-t);} .u-st.g{color:var(--green-t);}
+.sdot.r{background:var(--red);} .sdot.g{background:var(--green);} .sdot.d{background:var(--sop);}
+.sop{background:var(--sop-light);color:var(--sop-t);}
+.badge{background:var(--bg);border-color:var(--line);color:var(--mute);}
+.empty{background:var(--card);border:1px solid var(--line);border-radius:20px;}
+
+/* 내 건 */
+.td.r{background:var(--red-light);} .td.g{background:var(--green-light);} .td.d{background:var(--sop-light);}
+.td.r .td-l,.td.r .td-v{color:var(--red-t);} .td.g .td-l,.td.g .td-v{color:var(--green-t);} .td.d .td-l,.td.d .td-v{color:var(--sop-t);}
+
+.btn-s{background:var(--card);border-color:var(--line);color:var(--ink);}
+.mn-name small{color:var(--mute);background:var(--bg);font-weight:400;}
+details.fold > summary{font-weight:500;}
+.act-c{background:var(--bg);}
+
+@media(max-width:860px){
+  .shead{grid-template-columns:minmax(0,1fr) auto 26px;padding:14px 16px;gap:7px 10px;}
+  .s-amt{font-size:14px;}
+}
+@media(max-width:760px){
+  .stone{gap:8px;margin-top:12px;}
+  .sc.main{flex:1 1 100%;padding:20px 20px;}
+  .big .num{font-size:48px;}
+  .sc{flex:1 1 0;min-width:0;padding:14px 12px;border-radius:18px;gap:10px;}
+  .sc-l{font-size:11.5px;}
+  .sc-m{flex-direction:column;align-items:flex-start;gap:8px;}
+  .ring{width:44px;height:44px;}
+  .sc-v{font-size:24px;}
+  .sc-a{font-size:11.5px;}
+  .filt{margin-top:16px;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:0;}
+  .filt::-webkit-scrollbar{display:none;}
+  .rg{flex-shrink:0;padding:8px 14px;}
+  .lst{margin-top:20px;}
+  .srow{border-radius:16px;margin-bottom:8px;}
+}
+
+.u-part{display:flex;align-items:baseline;min-width:0;} .u-part .pn{flex-shrink:0;} .u-part .pt{min-width:0;}   /* 부품번호 고정 폭 + 부품명 왼쪽 정렬 */
+
+.u-amt{display:flex;align-items:center;justify-content:flex-end;gap:8px;} .u-amt .sop{margin:0 auto 0 0;} .u-amt .av{margin-left:auto;}   /* 60+ 왼쪽 일렬, 금액 오른쪽 정렬 */
+@media(max-width:760px){ .u-amt{min-width:136px;} }
+</style>
+</head>
+<body>
+
+<header class="hdr"><div class="wrap">
+  <div class="hdr-top">
+    <div class="tagline" id="tagline">TS Billing Backlog</div>
+    <div class="upd" id="upd"></div>
+  </div>
+  <div class="tools">
+    <div class="s-wrap">
+      <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="rgba(255,250,235,0.75)" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.2" y2="16.2"/></svg>
+      <input class="s-inp" id="q" type="search" autocomplete="off" placeholder="직원 · 병원 · WO 번호 · 부품명 (A+B)">
+      <button class="s-clr" id="qClr" aria-label="검색어 지우기">✕</button>
+    </div>
+    <span class="me-w"><svg class="me-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><select class="hsel me" id="me" aria-label="내 이름"></select></span>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <section class="panel mine" id="mine" hidden></section>
+  <section class="stone" id="stat"></section>
+  <section class="filt" id="filt"></section>
+  <section class="lst" id="listP">
+    <div class="lhead">
+      <div class="lh-l" id="lhL"></div>
+      <div class="sort" id="sort">
+        <button class="on" data-s="red">Red순</button><button data-s="amt">금액순</button><button data-s="name">이름순</button>
+      </div>
+    </div>
+    <div id="list"></div>
+    <div class="empty" id="empty">검색 결과가 없습니다</div>
+  </section>
+
+  <details class="panel fold">
+    <summary>처리 방법</summary>
+    <div class="fold-b"><div class="act">
+      <div class="act-c"><b><span class="sdot r"></span>Red · 오늘 바로 처리 (SOP 60+ 먼저)</b>담당 Sales·CS에 발행 요청 상태를 확인하고, 병원 요청이 왔으면 GSP Closed → JDE Approve Shipment까지 진행합니다.</div>
+      <div class="act-c"><b><span class="sdot g"></span>Green · 30일 안에 처리</b>D-day가 가까운 건부터 단가 등록(Sales)·발행 요청이 멈춰 있지 않은지 확인해 Red로 넘어가지 않게 합니다.</div>
+      <div class="act-c"><b>막혔을 때 · 사유를 남기고 공유</b>병원 사정·가격 협의 등으로 지연되면 사유를 메일로 남기고 팀장에게 공유합니다. 가격 협의를 기다리며 발행을 미루지 않습니다.</div>
+    </div></div>
+  </details>
+
+  <details class="panel fold" id="perfP" hidden open>
+    <summary>처리 실적 — WO 생성부터 청구(Approve Shipment)까지</summary>
+    <div class="fold-b">
+      <p class="fold-d">분기별로 30일·SOP 60일 안에 청구된 WO 비율입니다. 미청구 건은 기준을 넘긴 경우 '기한 내 아님'으로 포함하고, 아직 기한이 남은 건은 판정에서 뺍니다('판정 n건').</p>
+      <div style="overflow-x:auto"><table class="perf num" id="perf"></table></div>
+    </div>
+  </details>
+
+  <p class="foot" id="foot"></p>
+</main>
+
+<script>
+var D = {"asof":"2026-11-13","law":30,"sop":60,"mode":"notice","src":"2026 Nov_Vantive_BillingTracking.xlsx","wos":[{"sr":"3261913","ts":"최석원","loc":"서울","hosp":"건국대학교병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-01-28","days":289,"amt":280000,"parts":[["G5047503","SLAVE PUMP ROTORS",1,280000,"PA23842"]]},{"sr":"3279249","ts":"최석원","loc":"서울","hosp":"건국대학교병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-02-03","days":283,"amt":2800000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,2800000,"1264712"]]},{"sr":"3372124","ts":"성영주","loc":"서울","hosp":"노원을지대학교병원","cs":"김재중","sales":"-, 박영기","created":"2026-03-10","days":248,"amt":790000,"parts":[["G5002407","COMPACT FLASH SW 4.00 AND ABOVE",1,190000,"PA18249"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",2,600000,"PA18249"]]},{"sr":"3375787","ts":"최석원","loc":"서울","hosp":"건국대학교병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-03-13","days":245,"amt":250000,"parts":[["G5002601","ISOLATED RS232 BOARD",1,250000,"PA24210"]]},{"sr":"3392431","ts":"최석원","loc":"서울","hosp":"한국보훈복지의료공단(중앙보훈병원)","cs":"김재중","sales":"이충관, 박상훈","created":"2026-03-21","days":237,"amt":450000,"parts":[["G5051503","RETURN PRESSURE PORT ASSY",1,450000,"PA24890"]]},{"sr":"3426477","ts":"성영주","loc":"서울","hosp":"인제대학교부속일산백병원","cs":"김재중","sales":"이재용, 박영기","created":"2026-04-02","days":225,"amt":300000,"parts":[["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA2945"]]},{"sr":"3462814","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-04-22","days":205,"amt":1959000,"parts":[["SP01692","CONDUCTIVITY CELL N.PROBE",1,1610000,"FX011163"],["SP01389","CABL. JP3ACE TO J5-ISH NP",1,49000,"FX011163"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX011163"]]},{"sr":"3475427","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-04-28","days":199,"amt":850000,"parts":[["G5048103","POWER SUPERVISION BOARD KIT",1,850000,"PA10511"]]},{"sr":"3475484","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-04-28","days":199,"amt":405000,"parts":[["6996003","MALE CONC CONN (PPSU)",3,405000,"FX030226"]]},{"sr":"3496022","ts":"최석원","loc":"서울","hosp":"건국대학교병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-05-06","days":191,"amt":4300000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,4300000,"1258396"]]},{"sr":"3539570","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-05-26","days":171,"amt":570000,"parts":[["G5051303","EFFLUENT POD ASSY",1,570000,"PA19431"]]},{"sr":"3574559","ts":"류국환","loc":"대전","hosp":"학교법인 을지학원 대전을지대학교병원​","cs":"정지라","sales":"서찬환, 김희성","created":"2026-06-09","days":157,"amt":1818182,"parts":[["G5004703","SLAVE PUMP STEPPER MOTOR",1,1700000,"PA18051"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,118182,"PA18051"]]},{"sr":"3578609","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-06-10","days":156,"amt":650000,"parts":[["SP01887","NIDEC ABS PRESS SENSOR",1,650000,"FX013385"]]},{"sr":"3595382","ts":"권민욱","loc":"광주","hosp":"전북대학교병원","cs":"이기쁨","sales":"이경우, 김희성","created":"2026-06-15","days":151,"amt":640000,"parts":[["G5047503","SLAVE PUMP ROTORS",2,640000,"PA9955"]]},{"sr":"3603522","ts":"김영균","loc":"서울","hosp":"강북삼성병원","cs":"사공희","sales":"이재용, 박영기","created":"2026-06-17","days":149,"amt":620000,"parts":[["G5053301","OPTICAL FLUID LEAK DETECTOR",1,620000,"PA24854"]]},{"sr":"3735925","ts":"김영균","loc":"서울","hosp":"고대안암병원","cs":"사공희","sales":"서동희, 박영기","created":"2026-07-13","days":123,"amt":4300000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,4300000,"1264998"]]},{"sr":"3738678","ts":"김영균","loc":"서울","hosp":"고대안암병원","cs":"사공희","sales":"서동희, 박영기","created":"2026-07-14","days":122,"amt":274000,"parts":[["00001106","BRACKET AUTOLINE 4R/PRISMAFLEX",1,274000,"1264996"]]},{"sr":"3738697","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-14","days":122,"amt":3805000,"parts":[["6996003","MALE CONC CONN (PPSU)",1,135000,"FX013500"],["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX013500"],["6993893","CR FLUSH CERAMIC PUMP",1,2200000,"FX013500"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX013500"]]},{"sr":"3738727","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-14","days":122,"amt":4800000,"parts":[["G5008702","POWER SUPPLY",1,4800000,"PA10511"]]},{"sr":"3742930","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-16","days":120,"amt":1470000,"parts":[["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX025807"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX025807"]]},{"sr":"3743962","ts":"심민섭","loc":"서울","hosp":"고대안산병원","cs":"사공희","sales":"김주영, 박상훈","created":"2026-07-16","days":120,"amt":4300000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,4300000,"1265135"]]},{"sr":"3768031","ts":"조도현","loc":"서울","hosp":"가톨릭대학교 여의도성모병원","cs":"이유미","sales":"정다훈, 박영기","created":"2026-07-24","days":112,"amt":2800000,"parts":[["G5048304","EFFLUENT SCALE DG2, FW 5.2.11",1,2500000,"PA11908"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA11908"]]},{"sr":"3770132","ts":"김영균","loc":"서울","hosp":"강북삼성병원","cs":"사공희","sales":"이재용, 박영기","created":"2026-07-27","days":109,"amt":5100000,"parts":[["G5008702","POWER SUPPLY",1,4800000,"PA24854"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA24854"]]},{"sr":"3775514","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-29","days":107,"amt":1170000,"parts":[["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX011159"]]},{"sr":"3775528","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-29","days":107,"amt":250000,"parts":[["G5043501","BACKUP BATTERY, 24V",1,250000,"PA10511"]]},{"sr":"3775540","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-29","days":107,"amt":1170000,"parts":[["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX013508"]]},{"sr":"3775553","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-29","days":107,"amt":1610000,"parts":[["SP01692","CONDUCTIVITY CELL N.PROBE",1,1610000,"FX030070"]]},{"sr":"3775341","ts":"최석원","loc":"서울","hosp":"한국보훈복지의료공단(중앙보훈병원)","cs":"김재중","sales":"이충관, 박상훈","created":"2026-07-29","days":107,"amt":570000,"parts":[["G5051503","RETURN PRESSURE PORT ASSY",1,570000,"PA9959"]]},{"sr":"3778596","ts":"권민욱","loc":"광주","hosp":"전북대학교병원","cs":"이기쁨","sales":"이경우, 김희성","created":"2026-07-30","days":106,"amt":2000000,"parts":[["G5004703","SLAVE PUMP STEPPER MOTOR",1,1700000,"PA16345"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA16345"]]},{"sr":"3781629","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-07-31","days":105,"amt":746000,"parts":[["SP01795","3WAY SOLENOID VALVE PPSU",2,446000,"FX013508"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX013508"]]},{"sr":"3811499","ts":"김선흥","loc":"서울","hosp":"서울대병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-08-10","days":95,"amt":2340000,"parts":[["SP01706","GEAR PUMP MOTOR A/E",2,2340000,"FX019834"]]},{"sr":"3809151","ts":"최석원","loc":"서울","hosp":"한양대병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-08-10","days":95,"amt":150000,"parts":[["G5035802","HEPARIN FIXING BLOCK",1,150000,"PA16381"]]},{"sr":"3823262","ts":"조도현","loc":"서울","hosp":"가톨릭대학교 여의도성모병원","cs":"이유미","sales":"정다훈, 박영기","created":"2026-08-14","days":91,"amt":3100000,"parts":[["G5043902","SYRINGE PUMP",1,3100000,"PA24894"]]},{"sr":"3836606","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-08-19","days":86,"amt":906000,"parts":[["SP01795","3WAY SOLENOID VALVE PPSU",2,446000,"FX011110"],["6955942","T CONNECTOR (SILICONE)",10,100000,"FX011110"],["6963391","SHORT L CONN.(SILICONE)",10,60000,"FX011110"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX011110"]]},{"sr":"3842378","ts":"손성수","loc":"부산","hosp":"좋은강안병원","cs":"최보경","sales":"김종석, 박용출","created":"2026-08-21","days":84,"amt":960000,"parts":[["G5047503","SLAVE PUMP ROTORS",3,960000,"PA18272"]]},{"sr":"3853600","ts":"최석원","loc":"서울","hosp":"지샘병원","cs":"이유미","sales":"김주영, 박상훈","created":"2026-08-25","days":80,"amt":850000,"parts":[["G5048103","POWER SUPERVISION BOARD KIT",1,850000,"PA19815"]]},{"sr":"3864334","ts":"김상훈","loc":"대전","hosp":"여천전남병원","cs":"정지라","sales":"-, 김희성","created":"2026-08-28","days":77,"amt":300000,"parts":[["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA34800"]]},{"sr":"3877646","ts":"심민섭","loc":"서울","hosp":"고대안산병원","cs":"사공희","sales":"김주영, 박상훈","created":"2026-09-01","days":73,"amt":1580000,"parts":[["G5047503","SLAVE PUMP ROTORS",4,1280000,"PA24231"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA24231"]]},{"sr":"3919391","ts":"성영주","loc":"서울","hosp":"노원을지대학교병원","cs":"김재중","sales":"-, 박영기","created":"2026-09-02","days":72,"amt":2160000,"parts":[["G5044004","PC 104 BOARD PCM9375",1,1860000,"PA18249"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA18249"]]},{"sr":"3919684","ts":"최석원","loc":"서울","hosp":"한양대병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-09-07","days":67,"amt":320000,"parts":[["G5047503","SLAVE PUMP ROTORS",1,320000,"PA34929"]]},{"sr":"3949503","ts":"김진민","loc":"대구","hosp":"동산의료원","cs":"최정미","sales":"박세훈, 박용출","created":"2026-09-16","days":58,"amt":130000,"parts":[["TSFRWRO","MAINTENANCE FEE - WRO",1,130000,"15295"]]},{"sr":"3965880","ts":"김유철","loc":"대전","hosp":"의료법인목포구암의료재단목포중앙병원","cs":"정지라","sales":"김남우, 민훈기","created":"2026-09-18","days":56,"amt":500000,"parts":[["TSFRCWP","MAINTENANCE FEE - CWP",1,500000,"61015399"]]},{"sr":"3966307","ts":"조도현","loc":"서울","hosp":"이화의대부속목동병원","cs":"이기쁨","sales":"정다훈, 박영기","created":"2026-09-18","days":56,"amt":320000,"parts":[["G5047503","SLAVE PUMP ROTORS",1,320000,"PA16572"]]},{"sr":"3975807","ts":"김진민","loc":"대구","hosp":"24시알파동물메디컬센터","cs":"최정미","sales":"박세훈, 박용출","created":"2026-09-23","days":51,"amt":270000,"parts":[["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,270000,"PA24848"]]},{"sr":"3995320","ts":"G&B-1","loc":"서울","hosp":"용인세브란스병원","cs":"김재중","sales":"이충관, 박상훈","created":"2026-09-24","days":50,"amt":90000,"parts":[["G5000901","RETURN PRESSURE PORT",1,90000,"PA24568"]]},{"sr":"3985954","ts":"윤성효","loc":"대전","hosp":"충북대병원","cs":"정지라","sales":"서찬환, 김희성","created":"2026-09-26","days":48,"amt":640000,"parts":[["G5047503","SLAVE PUMP ROTORS",2,640000,"PA18655"]]},{"sr":"3991625","ts":"권민욱","loc":"광주","hosp":"전북대학교병원","cs":"이기쁨","sales":"이경우, 김희성","created":"2026-09-28","days":46,"amt":214000,"parts":[["SC6006","SCALE HANDLE",1,214000,"PX201663"]]},{"sr":"3990911","ts":"이희준","loc":"부산","hosp":"울산대학교병원","cs":"최보경","sales":"한상백, 박용출","created":"2026-09-28","days":46,"amt":4300000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,4300000,"1264586"]]},{"sr":"3992721","ts":"황석빈","loc":"대구","hosp":"경북대학병원","cs":"최정미","sales":"마정민, 박용출","created":"2026-09-28","days":46,"amt":2154000,"parts":[["SC6074","SAFETY BOARD PCBA",1,1930000,"PX201667"],["SC6079","DISCHARGE BOARD PCBA",1,224000,"PX201667"]]},{"sr":"3995438","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-09-29","days":45,"amt":4166000,"parts":[["SP01795","3WAY SOLENOID VALVE PPSU",2,446000,"FX035764"],["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX035764"],["SP01707","FLOW PUMP HEAD A/E",1,2100000,"FX035764"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,450000,"FX035764"]]},{"sr":"3995460","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-09-29","days":45,"amt":594000,"parts":[["SP01757","2WAY SOLENOID VALVE PPSU",1,144000,"FX035759"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,450000,"FX035759"]]},{"sr":"3995479","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-09-29","days":45,"amt":444000,"parts":[["SP01757","2WAY SOLENOID VALVE PPSU",1,144000,"FX011162"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX011162"]]},{"sr":"3995491","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-09-29","days":45,"amt":2200000,"parts":[["6993893","CR FLUSH CERAMIC PUMP",1,2200000,"FX035765"]]},{"sr":"3998708","ts":"신영진","loc":"서울","hosp":"(주)에이씨케이","cs":"정지라","sales":"0","created":"2026-09-30","days":44,"amt":250000,"parts":[["TSFREXALIS","FLAT RATE BILLING - EXALIS",1,250000,"ES1317C"]]},{"sr":"4028496","ts":"송원진","loc":"대전","hosp":"건국대학교충주병원","cs":"정지라","sales":"홍진표, 김희성","created":"2026-10-06","days":38,"amt":300000,"parts":[["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA13220"]]},{"sr":"4022669","ts":"정희록","loc":"서울","hosp":"서울특별시 서울의료원","cs":"이기쁨","sales":"이재용, 박영기","created":"2026-10-06","days":38,"amt":380000,"parts":[["SP00724","LEAD BATT. (2) BACK UP",1,380000,"FX030873"]]},{"sr":"4029954","ts":"조도현","loc":"서울","hosp":"이화의대부속목동병원","cs":"이기쁨","sales":"정다훈, 박영기","created":"2026-10-06","days":38,"amt":1150000,"parts":[["G5048103","POWER SUPERVISION BOARD KIT",1,850000,"PA35157"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA35157"]]},{"sr":"4030032","ts":"정희록","loc":"서울","hosp":"서울특별시 서울의료원","cs":"이기쁨","sales":"이재용, 박영기","created":"2026-10-07","days":37,"amt":1170000,"parts":[["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX030843"]]},{"sr":"4030968","ts":"심민섭","loc":"서울","hosp":"고대안산병원","cs":"사공희","sales":"김주영, 박상훈","created":"2026-10-07","days":37,"amt":940000,"parts":[["G5043501","BACKUP BATTERY, 24V",1,250000,"PA24231"],["G5058301","BLOOD LEAK DETECTOR \"BLD\"",1,390000,"PA24231"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA24231"]]},{"sr":"4045162","ts":"여승재","loc":"서울","hosp":"가톨릭대학교 부천성모병원","cs":"이기쁨","sales":"김주영, 박상훈","created":"2026-10-12","days":32,"amt":1280000,"parts":[["G5047503","SLAVE PUMP ROTORS",4,1280000,"PA11040"]]},{"sr":"4045153","ts":"여승재","loc":"서울","hosp":"가톨릭대학교 부천성모병원","cs":"이기쁨","sales":"김주영, 박상훈","created":"2026-10-12","days":32,"amt":4300000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,4300000,"1264451"]]},{"sr":"4045799","ts":"김진형","loc":"부산","hosp":"부산백병원","cs":"최보경","sales":"김종석, 박용출","created":"2026-10-12","days":32,"amt":1700000,"parts":[["G5004703","SLAVE PUMP STEPPER MOTOR",1,1700000,"PA18635"]]},{"sr":"4065731","ts":"김선흥","loc":"서울","hosp":"강남세브란스병원","cs":"이유미","sales":"이충관, 박상훈","created":"2026-10-14","days":30,"amt":2500000,"parts":[["G5048304","EFFLUENT SCALE DG2, FW 5.2.11",1,2500000,"PA6620"]]},{"sr":"4066210","ts":"정희록","loc":"서울","hosp":"서울특별시 서울의료원","cs":"이기쁨","sales":"이재용, 박영기","created":"2026-10-15","days":29,"amt":380000,"parts":[["SP00724","LEAD BATT. (2) BACK UP",1,380000,"FX030858"]]},{"sr":"4077172","ts":"황석빈","loc":"대구","hosp":"경북대학병원","cs":"최정미","sales":"마정민, 박용출","created":"2026-10-19","days":25,"amt":1700000,"parts":[["G5004703","SLAVE PUMP STEPPER MOTOR",1,1700000,"PA10959"]]},{"sr":"4077644","ts":"조정우","loc":"대전","hosp":"충남대병원","cs":"정지라","sales":"홍진표, 김희성","created":"2026-10-19","days":25,"amt":250000,"parts":[["G5043501","BACKUP BATTERY, 24V",1,250000,"PA12650"]]},{"sr":"4077510","ts":"박영근","loc":"부산","hosp":"의료법인정화의료재단(봉생병원)","cs":"최보경","sales":"김종석, 박용출","created":"2026-10-19","days":25,"amt":37000,"parts":[["G5000201","CALIBRATION TUBE",1,37000,"PA10509"]]},{"sr":"4087313","ts":"G&B-1","loc":"서울","hosp":"용인세브란스병원","cs":"김재중","sales":"이충관, 박상훈","created":"2026-10-20","days":24,"amt":90000,"parts":[["G5000901","RETURN PRESSURE PORT",1,90000,"PA24568"]]},{"sr":"4080310","ts":"윤건우","loc":"부산","hosp":"동아의료원","cs":"최보경","sales":"김종석, 박용출","created":"2026-10-20","days":24,"amt":320000,"parts":[["G5047503","SLAVE PUMP ROTORS",1,320000,"PA19849"]]},{"sr":"4080759","ts":"윤건우","loc":"부산","hosp":"동아의료원","cs":"최보경","sales":"김종석, 박용출","created":"2026-10-20","days":24,"amt":4800000,"parts":[["G5008702","POWER SUPPLY",1,4800000,"PA7979"]]},{"sr":"4084078","ts":"김진형","loc":"부산","hosp":"부산백병원","cs":"최보경","sales":"김종석, 박용출","created":"2026-10-21","days":23,"amt":620000,"parts":[["G5053301","OPTICAL FLUID LEAK DETECTOR",1,620000,"PA23932"]]},{"sr":"4084098","ts":"김진형","loc":"부산","hosp":"부산백병원","cs":"최보경","sales":"김종석, 박용출","created":"2026-10-21","days":23,"amt":4800000,"parts":[["G5008702","POWER SUPPLY",1,4800000,"PA23932"]]},{"sr":"4101207","ts":"김선흥","loc":"서울","hosp":"강남세브란스병원","cs":"이유미","sales":"이충관, 박상훈","created":"2026-10-25","days":19,"amt":110000,"parts":[["G5006001","DISCHARGER CLIP",1,110000,"PA9367"]]},{"sr":"4133226","ts":"심민섭","loc":"서울","hosp":"(의료)칠석의료재단(안산사랑의병원)","cs":"사공희","sales":"김주영, 박상훈","created":"2026-10-25","days":19,"amt":9918182,"parts":[["TSFRCWP","MAINTENANCE FEE - CWP",1,9918182,"6101551"]]},{"sr":"4133218","ts":"심민섭","loc":"서울","hosp":"(의료)칠석의료재단(안산사랑의병원)","cs":"사공희","sales":"김주영, 박상훈","created":"2026-10-25","days":19,"amt":3600000,"parts":[["TSFRCWP","MAINTENANCE FEE - CWP",1,3600000,"6101551"]]},{"sr":"4133213","ts":"심민섭","loc":"서울","hosp":"(의료)칠석의료재단(안산사랑의병원)","cs":"사공희","sales":"김주영, 박상훈","created":"2026-10-25","days":19,"amt":1800000,"parts":[["TSFRAK","MAINTENANCE FEE - AK",1,1800000,"AK075297"]]},{"sr":"4133223","ts":"심민섭","loc":"서울","hosp":"(의료)칠석의료재단(안산사랑의병원)","cs":"사공희","sales":"김주영, 박상훈","created":"2026-10-25","days":19,"amt":4500000,"parts":[["TSFRCWP","MAINTENANCE FEE - CWP",1,4500000,"6101551"]]},{"sr":"4104780","ts":"김선흥","loc":"서울","hosp":"강남세브란스병원","cs":"이유미","sales":"이충관, 박상훈","created":"2026-10-27","days":17,"amt":4300000,"parts":[["00001092","AUTOLINE 4R XPT HIGH FLOW",1,4300000,"1252988"]]},{"sr":"4106205","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-10-27","days":17,"amt":250000,"parts":[["G5043501","BACKUP BATTERY, 24V",1,250000,"PA19436"]]},{"sr":"4106219","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-10-27","days":17,"amt":3570000,"parts":[["SP01707","FLOW PUMP HEAD A/E",1,2100000,"FX035768"],["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX035768"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX035768"]]},{"sr":"4112601","ts":"G&B-1","loc":"서울","hosp":"용인세브란스병원","cs":"김재중","sales":"이충관, 박상훈","created":"2026-10-27","days":17,"amt":640000,"parts":[["G5047503","SLAVE PUMP ROTORS",2,640000,"PA24568"]]},{"sr":"4113760","ts":"정희록","loc":"서울","hosp":"삼성서울병원","cs":"김재중","sales":"이충관, 박상훈","created":"2026-10-29","days":15,"amt":110000,"parts":[["G5006001","DISCHARGER CLIP",1,110000,"PA13741"]]},{"sr":"4114037","ts":"김선호","loc":"서울","hosp":"서울특별시 서남병원","cs":"사공희","sales":"정다훈, 박영기","created":"2026-10-29","days":15,"amt":7100000,"parts":[["W515005004","MEMBRANE MODULE COMPLETE, WRO300H",1,7100000,"WR032547"]]},{"sr":"4118542","ts":"김선흥","loc":"서울","hosp":"의정부 을지대학교병원","cs":"김재중","sales":"이재용, 박영기","created":"2026-10-29","days":15,"amt":570000,"parts":[["G5051503","RETURN PRESSURE PORT ASSY",1,570000,"PA24141"]]},{"sr":"4118898","ts":"문창식","loc":"광주","hosp":"전남대병원","cs":"정지라","sales":"김남우, 김희성","created":"2026-10-30","days":14,"amt":1580000,"parts":[["SP01409","AIR BUBBLE DETECTOR",1,630000,"FX011105"],["SP01887","NIDEC ABS PRESS SENSOR",1,650000,"FX011105"],["TSFRARTIS","MAINTENANCE FEE - ARTIS",1,300000,"FX011105"]]},{"sr":"4135564","ts":"신영진","loc":"광주","hosp":"(주)에이씨케이","cs":"정지라","sales":"0","created":"2026-10-30","days":14,"amt":250000,"parts":[["TSFREXALIS","FLAT RATE BILLING - EXALIS",1,250000,"ES1317C"]]},{"sr":"4133694","ts":"최석원","loc":"서울","hosp":"강동성심병원","cs":"사공희","sales":"이충관, 박상훈","created":"2026-11-03","days":10,"amt":300000,"parts":[["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA12549"]]},{"sr":"4141447","ts":"정희록","loc":"서울","hosp":"서울특별시 서울의료원","cs":"이기쁨","sales":"이재용, 박영기","created":"2026-11-04","days":9,"amt":1170000,"parts":[["SP01706","GEAR PUMP MOTOR A/E",1,1170000,"FX031036"]]},{"sr":"4145395","ts":"윤성효","loc":"대전","hosp":"의료법인 한마음의료재단 하나병원","cs":"정지라","sales":"서찬환, 김희성","created":"2026-11-05","days":8,"amt":1700000,"parts":[["G5004703","SLAVE PUMP STEPPER MOTOR",1,1700000,"PA16563"]]},{"sr":"4148562","ts":"성영주","loc":"서울","hosp":"상계백병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-11-05","days":8,"amt":2000000,"parts":[["G5004703","SLAVE PUMP STEPPER MOTOR",1,1700000,"PA12649"],["TSFRFLEX","MAINTENANCE FEE - PRISMAFLEX",1,300000,"PA12649"]]},{"sr":"4148473","ts":"김선흥","loc":"서울","hosp":"연세대학교 의료원(신촌세브란스)","cs":"사공희","sales":"이재용, 박영기","created":"2026-11-05","days":8,"amt":370000,"parts":[["G5043101","SPEAKER, FAN ASSY.",1,370000,"PA24889"]]},{"sr":"4158548","ts":"김세훈","loc":"서울","hosp":"다솜내과의원","cs":"이기쁨","sales":"이해창, -","created":"2026-11-09","days":4,"amt":1140000,"parts":[["W622003001","OVERFLOW VALVE 7 - 10 BAR",1,840000,"6100545"],["TSFRCWP","MAINTENANCE FEE - CWP",1,300000,"6100545"]]},{"sr":"4161022","ts":"김선흥","loc":"서울","hosp":"연세대학교 의료원(신촌세브란스)","cs":"사공희","sales":"이재용, 박영기","created":"2026-11-09","days":4,"amt":1240000,"parts":[["G5040902","BAR CODE READER",1,1240000,"PA23323"]]},{"sr":"4161004","ts":"김선흥","loc":"서울","hosp":"서울대병원","cs":"김재중","sales":"정다훈, 박영기","created":"2026-11-09","days":4,"amt":570000,"parts":[["G5051303","EFFLUENT POD ASSY",1,570000,"PA24046"]]}],"perf":[]};
+var MGR = D.mode === 'manager';
+
+var esc = function(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var won = function(n) { return '₩' + Math.round(n).toLocaleString('ko-KR'); };
+var man = function(n) {
+  if (n >= 1e8) return (n / 1e8).toFixed(2).replace(/\.?0+$/, '') + '억';
+  if (n >= 1e4) return Math.round(n / 1e4).toLocaleString('ko-KR') + '만';
+  return Math.round(n).toLocaleString('ko-KR');
+};
+var fd = function(s) { return s.replace(/-/g, '.'); };
+var AMB = 7;
+var isR = function(w) { return w.days > D.law; };
+var isA = function(w) { return false; };   /* 2026-11-13 후속83: Amber 폐지 — Red(30일 초과)/Green(30일 이내)+SOP 60+ */
+var isG = function(w) { return !isR(w) && !isA(w); };
+var isS = function(w) { return w.days > D.sop; };
+var sc = function(w) { return isR(w) ? 'r' : isA(w) ? 'a' : 'g'; };
+var sum = function(a) { return a.reduce(function(t, w) { return t + w.amt; }, 0); };
+var TOT = Math.max(D.wos.length, 1);
+var pct = function(n, d) { return Math.round(n / (d || TOT) * 100); };
+var CHEV = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+var ls = { get: function(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+           set: function(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} } };
+
+/* 헤더 */
+var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], ad = D.asof.split('-');
+document.getElementById('upd').innerHTML = 'Updated <b>' + ad[0] + ' ' + MON[+ad[1] - 1] + ' ' + ad[2] + '</b>';
+if (MGR) document.getElementById('tagline').textContent = 'TS Billing Backlog · Mgr';
+
+var red = D.wos.filter(isR), amber = D.wos.filter(isA), green = D.wos.filter(isG), sop = D.wos.filter(isS);
+
+/* 직원별 */
+var staff = {};
+D.wos.forEach(function(w) {
+  var s = staff[w.ts] || (staff[w.ts] = { name: w.ts, wos: [], locs: {}, r: 0, a: 0, g: 0, s: 0, amt: 0 });
+  s.wos.push(w); s.locs[w.loc] = (s.locs[w.loc] || 0) + 1; s.amt += w.amt; s[sc(w)]++; if (isS(w)) s.s++;
+});
+var S = Object.keys(staff).map(function(k) {
+  var s = staff[k];
+  s.loc = Object.keys(s.locs).sort(function(a, b) { return s.locs[b] - s.locs[a]; })[0];
+  s.wos.sort(function(a, b) { return b.days - a.days; });
+  return s;
+});
+
+/* 상태 */
+var ME_KEY = 'tsbb_me_v1';
+var st = { status: '', region: '', terms: [], sort: 'red', open: {}, me: ls.get(ME_KEY), view: 'all' };
+if (!staff[st.me]) st.me = '';
+if (st.me) st.view = 'me';
+
+/* 헤더 선택 상자 */
+var meSel = document.getElementById('me');
+meSel.innerHTML = '<option value="">내 건 보기</option>' +
+  S.map(function(s) { return s.name; }).sort(function(a, b) { return a.localeCompare(b, 'ko'); })
+   .map(function(n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+var LOCS = ['서울', '대전', '광주', '대구', '부산'], rc = {};
+S.forEach(function(s) { rc[s.loc] = (rc[s.loc] || 0) + 1; });
+meSel.onchange = function() {
+  st.me = meSel.value; ls.set(ME_KEY, st.me); st.view = st.me ? 'me' : 'all';
+  if (st.me) { q.value = ''; st.terms = []; qClr.classList.remove('show'); }
+  renderAll(); window.scrollTo(0, 0);
+};
+
+/* ① 상태 막대 */
+var infoOpen = false;
+function renderStat() {
+  var f = st.status, nRS = S.filter(function(s) { return s.r; }).length;
+  var C = { g: '#7C9A86', r: '#B0665D', s: '#6B7390' };
+  var ring = function(k, n) {
+    var L = 163.4, d = (n / TOT * L).toFixed(1);
+    return '<svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="#E4E0D5" stroke-width="10"/>' +
+      (k === 's' ? '<circle cx="32" cy="32" r="26" fill="none" stroke="rgba(176,102,93,0.28)" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + (red.length / TOT * L).toFixed(1) + ' ' + L + '" transform="rotate(-90 32 32)"/>' : '') +
+      '<circle cx="32" cy="32" r="26" fill="none" stroke="' + C[k] + '" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + d + ' ' + L + '" transform="rotate(-90 32 32)"/></svg>';
+  };
+  var card = function(k, label, arr) {
+    return '<button class="sc ' + k + (f === k ? ' on' : '') + (f && f !== k ? ' dim' : '') + '" data-v="' + k + '">' +
+      '<span class="sc-l">' + label + (k === 's' ? '<span class="sub-t">Red 내 비율</span>' : '') + '</span>' +
+      '<span class="sc-m">' + ring(k, arr.length) + '<span><span class="sc-v num">' + arr.length + '</span><span class="sc-p num">' +
+        (k === 's' ? 'Red ' + red.length + '건 중 ' + Math.round(arr.length / Math.max(red.length, 1) * 100) + '%' : pct(arr.length) + '%') + '</span></span></span>' +
+      '<span class="sc-a num">' + man(sum(arr)) + '원</span></button>';
+  };
+  var IC_ME = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+  document.getElementById('stat').innerHTML =
+    '<div class="sc main"><div class="sc-top"><span class="sc-l">미청구</span><span class="st-b">' +
+        (st.me ? '<button class="info" id="toMe">' + IC_ME + esc(st.me) + ' 내 건</button>' : '') + '<button class="info" id="info">기준</button></span></div>' +
+      '<div class="big"><span class="num">' + D.wos.length + '</span><small>건</small></div>' +
+      '<div class="big-s num">' + man(sum(D.wos)) + '원 · ' + S.length + '명 · Red 보유 ' + nRS + '명</div>' +
+      (infoOpen ? '<div class="info-box">' + fd(D.asof) + ' 기준, WO 생성일부터 지난 날수로 판정합니다. 부가가치세법상 세금계산서는 공급 후 30일 안에 발행 — ' +
+        '<b class="c-r">Red</b> 30일 초과 · <b class="c-g">Green</b> 30일 이내 · <b class="c-d">SOP 60+</b> TS SOP 목표 60일 초과(Red에 포함).</div>' : '') +
+      '<div class="mbar">' + (red.length ? '<button class="r' + (f && f !== 'r' ? ' dim' : '') + '" style="flex:' + red.length + '" data-v="r" title="Red ' + red.length + '건"></button>' : '') +
+        (green.length ? '<button class="g' + (f && f !== 'g' ? ' dim' : '') + '" style="flex:' + green.length + '" data-v="g" title="Green ' + green.length + '건"></button>' : '') + '</div>' +
+      '<div class="mbar-l num"><span>Red ' + red.length + '</span>' + (f ? '<button class="clr" data-v="">필터 해제 ✕</button>' : '') + '<span>Green ' + green.length + '</span></div>' +
+    '</div>' +
+    card('g', 'Green · 30일 이내', green) + card('r', 'Red · 30일 초과', red) + card('s', 'SOP · 60일 초과', sop);
+  document.getElementById('filt').innerHTML =
+    '<button class="rg' + (!st.region ? ' on' : '') + '" data-reg="">전체 ' + S.length + '</button>' +
+    LOCS.filter(function(l) { return rc[l]; }).map(function(l) { return '<button class="rg' + (st.region === l ? ' on' : '') + '" data-reg="' + l + '">' + l + ' ' + rc[l] + '</button>'; }).join('');
+  document.querySelectorAll('#filt [data-reg]').forEach(function(b) {
+    b.onclick = function() { st.region = b.dataset.reg; if (st.view === 'me') st.view = 'all'; renderAll(); };
+  });
+  document.querySelectorAll('#stat [data-v]').forEach(function(b) {
+    b.onclick = function() { var v = b.dataset.v; st.status = v && st.status !== v ? v : ''; renderAll(); };
+  });
+  document.getElementById('info').onclick = function() { infoOpen = !infoOpen; renderStat(); };
+  var tm = document.getElementById('toMe'); if (tm) tm.onclick = function() { st.view = 'me'; renderAll(); window.scrollTo(0, 0); };
+}
+/* 범례의 SOP 버튼 상태(on) 표시 보정: 키 d ↔ 필터값 s */
+var _lgOn = function() { var b = document.querySelector('#stat .lg.d'); if (b) { b.classList.toggle('on', st.status === 's'); b.classList.toggle('dim', !!st.status && st.status !== 's'); } };
+
+/* 검색 */
+var reEsc = function(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+function hl(text, T) {
+  var t = String(text == null ? '' : text); if (!T.length) return esc(t);
+  var re = new RegExp('(' + T.map(reEsc).join('|') + ')', 'gi');
+  return t.split(re).map(function(p, i) { return i % 2 ? '<mark>' + esc(p) + '</mark>' : esc(p); }).join('');
+}
+var anyIn = function(s, T) { var x = String(s == null ? '' : s).toLowerCase(); return T.some(function(t) { return x.indexOf(t) >= 0; }); };
+var q = document.getElementById('q'), qClr = document.getElementById('qClr'), tmr;
+q.oninput = function() {
+  qClr.classList.toggle('show', !!q.value);
+  clearTimeout(tmr); tmr = setTimeout(function() {
+    st.terms = q.value.trim().toLowerCase().split(/[+,]/).map(function(s) { return s.trim(); }).filter(Boolean);
+    if (st.terms.length && st.view === 'me') st.view = 'all';
+    renderAll();
+  }, 120);
+};
+qClr.onclick = function() { q.value = ''; q.oninput(); q.focus(); };
+
+document.querySelectorAll('#sort button').forEach(function(b) {
+  b.onclick = function() {
+    st.sort = b.dataset.s;
+    document.querySelectorAll('#sort button').forEach(function(x) { x.classList.toggle('on', x === b); });
+    renderList();
+  };
+});
+
+/* WO 행 */
+function rows(ws, T) {
+  return '<div class="urow hd"><div>상태 · 경과</div><div>병원</div><div>부품</div><div>WO</div><div>생성일</div><div class="u-amt">금액</div></div>' +
+    ws.map(function(w) {
+      var c = sc(w), p = w.parts;
+      var stt = c === 'r' ? '<span class="sdot r"></span>' + w.days + '일<small>+' + (w.days - D.law) + '</small>'
+                          : '<span class="sdot ' + c + '"></span>D-' + (D.law - w.days) + '<small>' + w.days + '일</small>';
+      var part = (p[0][0] ? '<span class="pn">' + hl(p[0][0], T) + '</span>' : '') + '<span class="pt">' + hl(p[0][1], T) + (p[0][2] > 1 ? ' ×' + p[0][2] : '') + (p.length > 1 ? ' <span style="color:var(--text3)">외 ' + (p.length - 1) + '</span>' : '') + '</span>';
+      return '<div class="urow"><div class="u-st num ' + c + '">' + stt + '</div>' +
+        '<div class="u-hosp">' + hl(w.hosp, T) + '</div><div class="u-part">' + part + '</div>' +
+        '<div class="u-wo"><span class="badge">' + hl(w.sr, T) + '</span></div>' +
+        '<div class="u-date num">' + fd(w.created).slice(2) + '</div>' +
+        '<div class="u-amt num">' + (isS(w) ? '<span class="sop">60+</span>' : '') + '<span class="av">' + won(w.amt) + '</span></div></div>';
+    }).join('');
+}
+
+/* 내 건 */
+function renderMine() {
+  var box = document.getElementById('mine'), on = st.view === 'me' && st.me;
+  box.hidden = !on;
+  document.getElementById('stat').hidden = !!on;
+  document.getElementById('filt').hidden = !!on;
+  document.getElementById('listP').hidden = !!on;
+  meSel.value = st.me; meSel.classList.toggle('set', !!st.me);
+  if (!on) return;
+  var s = staff[st.me], ws = s.wos;
+  var left = ws.filter(function(w) { return !isR(w); }).map(function(w) { return D.law - w.days; });
+  var nS = ws.filter(isS).length;
+  var td = function(k, label, n, arr, note) {
+    return '<div class="td ' + k + (n ? '' : ' none') + '"><div class="td-l"><span class="sdot ' + k + '"></span>' + label + '</div>' +
+      '<div class="td-v num">' + n + '<small>건</small></div><div class="td-n num">' + (n ? man(sum(arr)) + '원' + (note ? ' · ' + note : '') : '없음') + '</div></div>';
+  };
+  var rA = ws.filter(isR), aA = ws.filter(isA), gA = ws.filter(isG);
+  box.innerHTML = '<div class="mn-top"><div class="mn-name">' + esc(s.name) + '<small>' + esc(s.loc) + '</small></div>' +
+      '<div class="mn-btns"><button class="btn-s" id="toAll">전체 현황 보기</button></div></div>' +
+    '<div class="todo">' +
+      td('r', 'Red<span class="td-h"> · 30일 초과</span>', rA.length, rA, '') +
+      td('d', 'SOP 60+<span class="td-h"> · 최우선</span>', nS, ws.filter(isS), '') +
+      td('g', 'Green<span class="td-h"> · 30일 이내</span>', gA.length, gA, gA.length ? 'D-' + Math.min.apply(null, gA.map(function(w) { return D.law - w.days; })) + '부터' : '') +
+    '</div>' +
+    (ws.length ? '<div class="det">' + rows(ws, []) + '</div>' : '<div class="me-empty">미청구 건이 없습니다 👍</div>');
+  document.getElementById('toAll').onclick = function() { st.view = 'all'; renderAll(); };
+}
+
+/* ② 순위표 */
+function stOk(w) { return !st.status || (st.status === 's' ? isS(w) : sc(w) === st.status); }
+function view() {
+  var T = st.terms, out = [];
+  S.forEach(function(s) {
+    if (st.region && s.loc !== st.region) return;
+    var ws = s.wos.filter(stOk);
+    if (!ws.length) return;
+    if (T.length && !anyIn(s.name, T)) {
+      ws = ws.filter(function(w) { return anyIn(w.hosp, T) || anyIn(w.sr, T) || w.parts.some(function(p) { return anyIn(p[1], T) || anyIn(p[0], T); }); });
+      if (!ws.length) return;
+    }
+    out.push({ s: s, ws: ws, r: ws.filter(isR).length, a: ws.filter(isA).length, n: ws.length });
+  });
+  var cmp = {
+    red:  function(a, b) { return (b.r - a.r) || (b.a - a.a) || (b.ws[0].days - a.ws[0].days); },
+    amt:  function(a, b) { return sum(b.ws) - sum(a.ws); },
+    name: function(a, b) { return a.s.name.localeCompare(b.s.name, 'ko'); }
+  }[st.sort];
+  return out.sort(cmp);
+}
+function renderList() {
+  var V = view(), T = st.terms, max = Math.max.apply(null, V.map(function(x) { return x.n; }).concat([1]));
+  var vw = V.reduce(function(a, x) { return a.concat(x.ws); }, []);
+  document.getElementById('lhL').innerHTML = '<b class="num">' + V.length + '</b>명 · <b class="num">' + vw.length + '</b>건 · ' + man(sum(vw)) + '원' +
+    (st.region ? ' · ' + esc(st.region) : '');
+  document.getElementById('empty').style.display = V.length ? 'none' : 'block';
+  document.getElementById('list').innerHTML = V.map(function(x) {
+    var s = x.s, ws = x.ws, g = x.n - x.r - x.a, nS = ws.filter(isS).length;
+    var left = ws.filter(function(w) { return !isR(w); }).map(function(w) { return D.law - w.days; });
+    var dmin = left.length ? Math.min.apply(null, left) : null, sp = '<span class="sp">·</span>';
+    var key = x.r ? '<span class="c-r">Red ' + x.r + '</span>' + (nS ? sp + '<span class="c-d">60+ ' + nS + '</span>' : '') + (x.a ? sp + '<span class="c-a">Amber ' + x.a + '</span>' : '')
+            : x.a ? '<span class="c-a">Amber ' + x.a + '</span>' + sp + 'D-' + dmin
+            : '<span class="c-g">Green</span>' + sp + 'D-' + dmin;
+    var open = st.open[s.name] || (T.length && !anyIn(s.name, T));
+    return '<div class="srow' + (open ? ' open' : '') + '" data-n="' + esc(s.name) + '">' +
+      '<button type="button" class="shead" aria-expanded="' + !!open + '">' +
+        '<span class="s-name">' + hl(s.name, T) + '<span class="s-loc">' + esc(s.loc) + '</span></span>' +
+        '<span class="s-bar"><span class="s-fill" style="width:' + (x.n / max * 100) + '%">' +
+          (x.r ? '<i class="r" style="flex:' + x.r + '"></i>' : '') + (x.a ? '<i class="a" style="flex:' + x.a + '"></i>' : '') + (g ? '<i class="g" style="flex:' + g + '"></i>' : '') +
+        '</span></span>' +
+        '<span class="s-cnt num ' + (x.r ? 'r' : x.a ? 'a' : 'g') + '">' + x.n + '<small>건</small></span>' +
+        '<span class="s-key num">' + key + '</span>' +
+        '<span class="s-amt num">' + won(sum(ws)) + '</span>' +
+        '<span class="chev">' + CHEV + '</span>' +
+      '</button><div class="det">' + rows(ws, T) + '</div></div>';
+  }).join('');
+  document.querySelectorAll('.srow .shead').forEach(function(b) {
+    b.onclick = function() {
+      var c = b.parentNode, on = !c.classList.contains('open');
+      c.classList.toggle('open', on); b.setAttribute('aria-expanded', on); st.open[c.dataset.n] = on;
+    };
+  });
+}
+
+function renderAll() { renderMine(); renderStat(); renderList(); }
+renderAll();
+
+/* 관리자: 처리 실적 */
+if (MGR && D.perf.length) {
+  document.getElementById('perfP').hidden = false;
+  var bar = function(p) { return '<span class="mini"><i style="width:' + p + '%"></i></span>'; };
+  var pc = function(a, b) { return b ? Math.round(a / b * 100) : null; };
+  var cell = function(p, n, tot) { return p === null ? '<td>—</td>' : '<td>' + p + '%' + bar(p) + (n < tot ? '<br><small>판정 ' + n + '건</small>' : '') + '</td>'; };
+  document.getElementById('perf').innerHTML = '<thead><tr><th>WO 생성 분기</th><th>청구 완료</th><th>미청구</th><th>30일 내 청구</th><th>SOP 60일 내 청구</th></tr></thead><tbody>' +
+    D.perf.map(function(r) {
+      var tot = r[1] + r[6];
+      return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + (r[6] ? '<b style="color:var(--red)">' + r[6] + '</b>' : '0') + '</td>' +
+        cell(pc(r[3], r[2]), r[2], tot) + cell(pc(r[5], r[4]), r[4], tot) + '</tr>';
+    }).join('') + '</tbody>';
+}
+
+document.getElementById('foot').innerHTML =
+  '자료: ' + esc(D.src) + ' · ‘2025~’ 시트에서 SO Order#가 Pending인 건(청구 전)만 집계, WO(Service Request) 단위로 묶음. ' +
+  '경과일 = 기준일 − WO Created. 실제 작업 완료일이 WO 생성일보다 늦으면 경과일이 실제보다 길게 보일 수 있습니다. ' +
+  '‘내 건 보기’에서 고른 이름은 이 기기 브라우저에만 저장됩니다.' +
+  (MGR ? '<br>참고: 법정 발급 기한은 공급일이 속한 달의 다음 달 10일입니다. 이 자료는 현장 공지를 위해 30일로 단순화했습니다.' : '');
+</script>
+</body>
+</html>

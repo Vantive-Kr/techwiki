@@ -1294,6 +1294,155 @@ section:has(> .stage) { counter-reset: todo; }
 }
 
 </style>
+<style id="modern-v2">
+/* ===== MODERN v2 (2026-11-13) — 그라데이션 헤더 + 세그먼트 탭 + 흰 카드 섹션 ===== */
+:root { --card-bd: rgba(114,37,107,0.12); --tint: rgba(114,37,107,0.045); }
+.theme-dark { --card-bd: rgba(243,239,228,0.12); --tint: rgba(243,239,228,0.05); }
+
+/* 헤더: Install Base Viewer·백로그와 같은 4-stop 그라데이션, 제목을 헤더 안에 */
+.site-header {
+  position: relative; top: auto; display: block; padding: 0; border: 0; gap: 0;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  background: linear-gradient(90deg, #58184F 0%, #72256B 35%, #105742 75%, #6CA07A 100%);
+  box-shadow: 0 4px 18px rgba(88,24,79,0.18);
+}
+.site-header .header-logo { display: none; }   /* Techwiki 헤더와 중복 — PDF 로고용으로 DOM에만 유지 */
+.hx { max-width: 900px; margin: 0 auto; padding: 1.9rem 3rem 1.5rem; color: #fff; }
+.hx-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,250,235,0.62); }
+.hx h1 { word-break: keep-all; font-size: 2rem; line-height: 1.25; letter-spacing: -0.03em; font-weight: 800; color: #fff; margin: 0.3rem 0 0.45rem; }
+.hx-sub { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+.hx-sub strong { color: #fff; }
+.hx-meta { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1rem; align-items: center; }
+.hx-chip { font-size: 0.75rem; font-weight: 600; color: #fff; background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 0.22rem 0.72rem; white-space: nowrap; }
+.hx-link { margin-left: auto; font-size: 0.78rem; font-weight: 700; color: #fff; text-decoration: none; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.38); border-radius: 999px; padding: 0.24rem 0.85rem; white-space: nowrap; }
+.hx-link:hover { background: rgba(255,255,255,0.26); }
+
+/* ⋯ 메뉴: 헤더 오른쪽 위 */
+.viz-menu { top: 0.7rem; right: 1rem; }
+.viz-menu-toggle { border-radius: 10px; }
+
+/* 탭: 세그먼트 컨트롤 (회색 트랙 + 선택 칸만 흰색) */
+.topbar {
+  position: sticky; top: 0; z-index: 90; margin: 0;
+  background: rgba(246,240,234,0.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule-soft); padding: 0.65rem 3rem;
+}
+.theme-dark .topbar { background: rgba(21,10,20,0.86); }
+.topbar.has-overflow::after { display: none; }
+.topbar-inner {
+  max-width: 804px; margin: 0 auto; padding: 4px; display: flex; gap: 4px; overflow: visible;
+  background: rgba(114,37,107,0.08); border-radius: 13px;
+}
+.theme-dark .topbar-inner { background: rgba(243,239,228,0.08); }
+.toptab, .theme-dark .toptab {
+  flex: 1 1 0; justify-content: center; gap: 0.45rem;
+  padding: 0.58rem 0.7rem; border: 0; border-radius: 10px;
+  background: transparent; color: var(--text-secondary);
+  font-size: 0.875rem; font-weight: 600; letter-spacing: -0.01em;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.toptab svg { width: 15px; height: 15px; opacity: 0.75; }
+.toptab:hover, .theme-dark .toptab:hover { background: rgba(255,255,255,0.45); color: var(--text); }
+.toptab[aria-selected="true"], .theme-dark .toptab[aria-selected="true"] {
+  background: var(--surface); color: var(--accent); font-weight: 800;
+  box-shadow: 0 1px 3px rgba(27,18,25,0.12), 0 1px 1px rgba(27,18,25,0.05);
+}
+.toptab[aria-selected="true"] svg { opacity: 1; }
+.topbar .topbar-inner { padding: 4px !important; }
+.topbar-inner > .toptab { flex: 1 1 0 !important; min-width: 0; justify-content: center !important; }
+
+/* 본문: 섹션을 흰 카드로 */
+main { max-width: 900px; padding: 1.25rem 3rem 5rem; }
+main > section, .top-panel > section, .top-panel > section:first-child {
+  background: var(--surface); border: 1px solid var(--card-bd); border-radius: 18px;
+  padding: 1.6rem 1.75rem 1.75rem; margin: 0 0 1rem;
+  box-shadow: 0 1px 2px rgba(27,18,25,0.04);
+}
+main > section[style] {
+  background: var(--surface) !important; border: 1px solid var(--card-bd) !important; border-radius: 18px !important;
+  padding: 1.6rem 1.75rem 1.75rem !important;
+}
+
+/* 섹션 라벨: 굵은 선 → 작은 알약 */
+.section-label {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin: 0 0 0.7rem;
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.12em; color: var(--accent);
+  background: rgba(114,37,107,0.08); border-radius: 999px; padding: 0.24rem 0.7rem;
+}
+.section-label .label-bar { width: 6px; height: 6px; border-radius: 50%; }
+.theme-dark .section-label { background: rgba(199,123,189,0.14); }
+
+/* 글자 크기 정리 */
+h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.35rem; }
+h3 { font-size: 1.02rem; font-weight: 800; margin: 1.8rem 0 0.8rem; padding-bottom: 0; border-bottom: 0; }
+.section-desc { font-size: 0.92rem; line-height: 1.7; margin-bottom: 1.25rem; }
+
+/* 내부 요소: 선 위주 → 연한 면 */
+.card-grid-4:has(.kpi-card), .card-grid-3:has(.kpi-card) { gap: 0.6rem; border: 0; }
+.kpi-card, .card-grid-4 > .kpi-card, .card-grid-3 > .kpi-card,
+.card-grid-4 > .kpi-card + .kpi-card, .card-grid-3 > .kpi-card + .kpi-card {
+  background: var(--tint); border: 0; border-radius: 14px; padding: 1rem 1.1rem;
+}
+.callout { background: var(--tint); border-left-width: 3px; border-radius: 0 12px 12px 0; padding: 0.85rem 1.1rem; }
+.fact-grid { gap: 0.6rem; }
+.fact-card { background: var(--tint); border-radius: 14px; padding: 1rem 1.1rem; border-top-width: 3px; }
+.scorecard { border-radius: 12px; overflow: hidden; }
+.scorecard th { background: var(--tint); }
+.ref { background: var(--tint); border-color: transparent; }
+.ref[open] { background: var(--surface); border-color: var(--card-bd); }
+.stage { border-top-width: 2px; }
+.stage-jump .sj, .todo-all { transition: background 0.15s, border-color 0.15s; }
+
+/* 모바일 */
+@media (max-width: 900px) {
+  .hx { padding: 1.5rem 3.6rem 1.3rem 1.25rem; }
+  .topbar { padding: 0.55rem 3.6rem 0.55rem 1rem; }
+  main { padding: 1rem 1rem 4rem; }
+}
+@media (max-width: 600px) {
+  .hx { padding: 1.2rem 4rem 1.1rem 1rem; }
+  .hx-eyebrow { font-size: 0.62rem; letter-spacing: 0.12em; }
+  .hx-chip:first-child { display: none; }
+  .hx-meta { gap: 0.35rem; margin-top: 0.8rem; }
+  .hx h1 { font-size: 1.45rem; }
+  .hx-sub { font-size: 0.86rem; }
+  .hx-link { margin-left: 0; }
+  .hx-chip { font-size: 0.7rem; }
+  .topbar { padding: 0.5rem 3.3rem 0.5rem 0.75rem; }
+  .toptab { padding: 0.5rem 0.3rem; font-size: 0.8rem; }
+  main { padding: 0.75rem 0.6rem 3.5rem; }
+  main > section, .top-panel > section, .top-panel > section:first-child, main > section[style] { padding: 1.2rem 1.05rem 1.3rem !important; border-radius: 16px !important; }
+  h2 { font-size: 1.22rem; }
+}
+@media print {
+  .site-header { box-shadow: none; }
+  main > section, .top-panel > section { box-shadow: none; break-inside: avoid; }
+}
+
+/* Detail 전용: 변경 요약 박스 + 탭 6개 */
+.hx-note { margin-top: 0.75rem; font-size: 0.86rem; line-height: 1.65; color: rgba(255,255,255,0.86); background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; padding: 0.6rem 0.85rem; }
+.hx-note b, .hx-note strong { color: #fff; }
+.topbar-inner > .toptab { font-size: 0.82rem; gap: 0.35rem; padding-left: 0.4rem; padding-right: 0.4rem; white-space: nowrap; }
+@media (max-width: 1100px) { .topbar-inner > .toptab svg { display: none; } }
+@media (max-width: 900px) {
+  .topbar .topbar-inner { overflow-x: auto !important; scrollbar-width: none; }
+  .topbar-inner > .toptab { flex: 0 0 auto !important; padding: 0.5rem 0.8rem !important; }
+}
+@media (max-width: 600px) { .hx-note { font-size: 0.8rem; } }
+
+/* ===== 색 띠 제거 — 심플 모던 (2026-11-13) ===== */
+.callout, .callout.pine, .callout.quote { border: 0 !important; border-radius: 12px; background: var(--tint); padding: 0.85rem 1.1rem; }
+.fact-card, .fact-card.yes, .fact-card.no { border: 0 !important; }
+.glossary-card, .glossary-card.alt { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1.1rem 1.2rem 1.2rem; }
+.step-grid, .doc-pair { gap: 0.6rem; }
+.step, .step.pre, .step.field, .step.post { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1rem 1.1rem 1.1rem; }
+.doc-card, .doc-card.after { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1.1rem 1.2rem; }
+.calc { border: 0 !important; background: var(--tint); border-radius: 14px; padding: 1.1rem 1.2rem 1.2rem; }
+.calc-st { border-left: 0 !important; padding-left: 0; }
+.sign-box { border: 1px solid var(--rule) !important; border-radius: 12px; }
+.stage, .stage.s0, .stage.s1, .stage.s2, .stage.s3, .stage.s4 { border-top: 1px solid var(--rule-soft) !important; }
+.scorecard, .theme-dark .scorecard { border-top: 0 !important; }
+</style>
 </head>
 <body>
 
@@ -1321,28 +1470,18 @@ section:has(> .stage) { counter-reset: todo; }
 
 <header class="site-header" role="banner">
   <div class="header-logo"><img src="data:image/png;base64,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" alt="Vantive"></div>
-  <div class="header-divider"></div>
-  <div class="header-title">TS 매출 프로세스 · 매출인식 · 세금계산서 · 수금</div>
-  <span class="header-badge">2026.10.22 Finance 교육</span>
-</header>
-
-<!-- HERO -->
-<section class="hero" aria-labelledby="hero-title">
-  <div class="hero-eyebrow">TECHNICAL SERVICE · SALES PROCESS · REVENUE · TAX INVOICE · COLLECTION</div>
-  <h1 id="hero-title">TS 유상수리·부품판매<br><span>매출 프로세스 가이드</span></h1>
-  <p class="hero-sub">Finance 교육의 <strong>매출 인식·세금계산서 기준</strong>과 <strong>8단계 절차</strong>를 TS 업무에 맞춰 정리했습니다. 핵심은 하나 — <strong>완료일과 증빙을 바로 공유</strong>.</p>
-  <div class="hero-meta">
-    <div class="hero-meta-item">교육일 2026.10.22 (목) · 57분</div>
-    <div class="hero-meta-item">Finance A2R팀 · C2C팀</div>
-    <div class="hero-meta-item">대상 TS 매니저 · 엔지니어 전원</div>
-  </div>
-  <div class="rename-banner">
-    <div style="font-size:0.9rem; color:var(--text-secondary); line-height:1.7;">
-      <strong style="color:var(--text)">무엇이 바뀌나요?</strong> 가격 협의·오더를 기다리지 않고 <strong style="color:var(--text)">완료일 기준·표준 단가로 바로 발행</strong>, 가격 조정은 <strong style="color:var(--text)">별도 승인(마이너스 세금계산서)</strong>.
+  <div class="hx">
+    <div class="hx-eyebrow">TS Sales Process · Detail</div>
+    <h1 id="hero-title">유상수리·부품판매 매출 프로세스 가이드</h1>
+    <p class="hx-sub">Finance 교육의 <strong>매출 인식·세금계산서 기준</strong>과 <strong>8단계 절차</strong>를 TS 업무에 맞춰 정리했습니다. 핵심은 하나 — <strong>완료일과 증빙을 바로 공유</strong>.</p>
+    <p class="hx-note"><b>무엇이 바뀌나요?</b> 가격 협의·오더를 기다리지 않고 <strong>완료일 기준·표준 단가로 바로 발행</strong>, 가격 조정은 <strong>별도 승인(마이너스 세금계산서)</strong>.</p>
+    <div class="hx-meta">
+      <span class="hx-chip">대상 TS 매니저·엔지니어 전원</span>
+      <span class="hx-chip">2026.10.22 Finance A2R·C2C 교육</span>
+      <a class="hx-link" href="TS_sales_process_FSE_todo.html">현장 할 일만 보기 — FSE To-Do →</a>
     </div>
-    <a class="ver-link" href="TS_sales_process_FSE_todo.html">현장에서 할 일만 빠르게 보기 — FSE To-Do 버전 →</a>
   </div>
-</section>
+</header>
 
 <nav class="topbar" aria-label="주제 탭">
   <div class="topbar-inner" role="tablist" aria-label="TS 매출 프로세스 주제">
@@ -1694,7 +1833,7 @@ function selectTop(id, scroll) {
   try { history.replaceState(null, '', '#tab-' + id); } catch (e) {}
   if (scroll) {
     var bar = document.querySelector('.topbar'), hdr = document.querySelector('.site-header');
-    var top = bar.getBoundingClientRect().top + window.pageYOffset - (hdr ? hdr.offsetHeight : 0);
+    var top = hdr ? hdr.offsetTop + hdr.offsetHeight : 0;
     if (window.pageYOffset > top) window.scrollTo({ top: top, behavior: 'smooth' });
   }
 }
@@ -1794,5 +1933,21 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('beforeprint', function(){ document.querySelectorAll('.faq details').forEach(function(d){ d.open = true; }); });
 </script>
 
+<script>
+/* 모바일: 가로로 넘기는 탭에서 선택한 탭이 보이도록 가운데로 스크롤 */
+(function () {
+  var orig = window.selectTop;
+  if (typeof orig !== 'function') return;
+  function center(id) {
+    var t = document.getElementById('tab-' + id), i = document.querySelector('.topbar-inner');
+    if (!t || !i || i.scrollWidth <= i.clientWidth) return;
+    var tr = t.getBoundingClientRect(), ir = i.getBoundingClientRect();
+    i.scrollLeft += (tr.left - ir.left) - (i.clientWidth - tr.width) / 2;
+  }
+  window.selectTop = function (id, scroll) { orig(id, scroll); center(id); };
+  var cur = document.querySelector('.toptab[aria-selected="true"]');
+  if (cur) center(cur.id.slice(4));
+})();
+</script>
 </body>
 </html>
