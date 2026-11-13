@@ -1476,6 +1476,18 @@ h3 { margin: 1.25rem 0 0.6rem; }
 @media (max-width: 600px) { .hx { padding: 1rem 4rem 0.9rem 1rem; } main { padding: 0.6rem 0.6rem 3rem; }
   main > section, .top-panel > section, .top-panel > section:first-child, main > section[style] { padding: 1rem 0.95rem 1.1rem !important; margin-bottom: 0.6rem !important; } }
 </style>
+<style id="chkmeta-fix">
+/* 2026-11-13 체크리스트 입력 칸 6개 크기·정렬 통일 (iOS date 입력 폭 넘침 수정) */
+.chk-meta .calc-field { min-width: 0; }
+.chk-meta .calc-field input, .chk-meta .chk-due {
+  display: flex; align-items: center; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box;
+  height: 46px; min-height: 46px; margin: 0;
+}
+.chk-meta .calc-field input[type="date"] { -webkit-appearance: none; appearance: none; text-align: left; line-height: 46px; padding-top: 0; padding-bottom: 0; }
+.chk-meta .calc-field input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+.chk-meta .chk-due { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+@media (max-width: 600px) { .chk-meta .chk-due.empty { font-size: 0.78rem; } }
+</style>
 </head>
 <body>
 
@@ -1748,7 +1760,7 @@ h3 { margin: 1.25rem 0 0.6rem; }
       <label class="calc-field"><span>담당 FSE <em class="req">필수</em></span><input type="text" id="chkFse" placeholder="이름" autocomplete="name"></label>
       <label class="calc-field"><span>점검일</span><input type="date" id="chkDate"></label>
       <label class="calc-field"><span>작업 완료일 (인도·설치·수리)</span><input type="date" id="chkWorkDone"></label>
-      <div class="calc-field"><span>세금계산서 발급 마감</span><output class="chk-due" id="chkDue" aria-live="polite">완료일을 넣으면 자동 계산</output></div>
+      <div class="calc-field"><span>세금계산서 발급 마감</span><output class="chk-due" id="chkDue" aria-live="polite">완료일 입력 시 자동</output></div>
       <label class="calc-field mail-to"><span>메일 받는 사람 (선택 · 여러 명은 쉼표로)</span><input type="email" id="chkMailTo" multiple placeholder="예: order@company.com, cs@company.com" autocomplete="email"></label>
     </div>
     <p class="chk-msg" id="chkMsg" role="alert" hidden></p>
@@ -1947,7 +1959,7 @@ function setNA(i, on) {
 function renderDue() {
   var v = document.getElementById('chkWorkDone').value, out = document.getElementById('chkDue');
   out.classList.remove('soon', 'over');
-  if (!v) { out.textContent = '완료일을 넣으면 자동 계산'; out.classList.add('empty'); return null; }
+  if (!v) { out.textContent = '완료일 입력 시 자동'; out.classList.add('empty'); return null; }
   out.classList.remove('empty');
   var p = v.split('-'), due = new Date(+p[0], +p[1], 10);
   var left = Math.round((due - todayLocal()) / 86400000);
