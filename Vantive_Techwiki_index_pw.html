@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+<meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Vantive TS Techwiki</title>
   <!-- PWA (Phase C) -->
@@ -1366,6 +1367,7 @@ function rotateBanner() {
         { group: '단가표', label: '2026년 Spare Parts Price List', file: 'Vantive_Device_price_search_v3.html' },
         { group: '매출 프로세스', label: 'FSE To-Do · 유상수리·부품판매 처리', file: 'TS_sales_process_FSE_todo.html' },
         { group: '매출 프로세스', label: 'TS 매출 프로세스 가이드 (Detail)', file: 'TS_sales_process_guide.html' },
+        { group: '미청구 현황', label: 'Billing Backlog Check', file: 'TS_billing_backlog.html' },
       ]
     },
     {
@@ -2131,6 +2133,7 @@ function rotateBanner() {
         const exp = Date.now() + SESSION_MS;
         sessionStorage.setItem(SESSION_KEY, '1');
         sessionStorage.setItem(SESSION_EXP, String(exp));
+        try { localStorage.setItem('vantive_tw_pass', String(exp)); } catch (e) {}   // 하위 페이지 직접 접근 확인용(tw-guard.js)
         gate.classList.add('hiding');
         setTimeout(() => { gate.style.display = 'none'; rotateBanner(); showNoticeIfNeeded(); }, 300);
 

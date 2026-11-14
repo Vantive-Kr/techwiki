@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<script src="tw-guard.js" data-scope="staff"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>PHOENIX Status Screen · Vantive</title>
+<style>
+:root{
+  --nav-h:64px;
+  --plum:#72256B;--plum-d:#5C1B56;--plum-light:rgba(114,37,107,0.09);
+  --cream:#FFFAEB;
+  --pine:#105742;--pine-light:rgba(16,87,66,0.10);
+  --euca:#6CA07A;--euca-light:rgba(108,160,122,0.12);
+  --amber:#D4700A;--amber-light:rgba(212,112,10,0.10);
+  --teal:#0D7377;--teal-light:rgba(13,115,119,0.10);
+  --blue:#1A5276;--blue-light:rgba(26,82,118,0.10);
+  --rose:#A93226;--rose-light:rgba(169,50,38,0.10);
+  --slate:#5D6D7E;--slate-light:rgba(93,109,126,0.10);
+  --indigo:#5B2C8D;--indigo-light:rgba(91,44,141,0.10);
+  --danger:#C0392B;--danger-light:rgba(192,57,43,0.10);
+  --white:#FFFFFF;--text:#1C1C1E;--text2:#52525B;--text3:#A1A1AA;
+  --border:rgba(0,0,0,0.07);--border-p:rgba(114,37,107,0.14);
+  --shadow:0 2px 14px rgba(0,0,0,0.06);--r:14px;--r-xs:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  background:var(--cream);color:var(--text);font-size:14px;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--nav-h) + max(env(safe-area-inset-bottom,0px),10px));}
+
+/* ── Header ── */
+.hdr{background:linear-gradient(150deg,var(--plum-d) 0%,var(--plum) 60%,#8B3080 100%);
+  padding:calc(16px + env(safe-area-inset-top,0px)) 18px 0;
+  position:sticky;top:0;z-index:200;overflow:hidden;}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:2;}
+.wmark-wrap{display:flex;flex-direction:column;gap:4px;}
+.tagline{font-size:13.5px;font-weight:700;color:rgba(255,250,235,0.55);letter-spacing:1.8px;text-transform:uppercase;}
+.total-badge{background:rgba(255,250,235,0.18);border:1px solid rgba(255,250,235,0.25);
+  color:var(--cream);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;flex-shrink:0;margin-top:2px;}
+.s-wrap{position:relative;margin-bottom:10px;z-index:2;}
+.s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.s-inp{width:100%;padding:12px 42px 12px 44px;background:rgba(255,250,235,0.13);
+  border:1.5px solid rgba(255,250,235,0.22);border-radius:12px;font-size:14px;
+  color:var(--cream);outline:none;font-family:inherit;transition:background .18s,border-color .18s;}
+.s-inp:focus{background:rgba(255,250,235,0.22);border-color:rgba(255,250,235,0.45);}
+.s-inp::placeholder{color:rgba(255,250,235,0.45);}
+.s-clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:rgba(255,250,235,0.22);border:none;border-radius:50%;
+  width:22px;height:22px;font-size:12px;cursor:pointer;color:var(--cream);
+  font-weight:700;display:none;line-height:22px;text-align:center;}
+.s-clr.show{display:block;}
+.s-hint{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:12px;
+  font-size:11px;color:rgba(255,250,235,0.58);position:relative;z-index:2;}
+.h-ex{background:rgba(255,250,235,0.14);border:1px solid rgba(255,250,235,0.18);
+  color:rgba(255,250,235,0.9);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;}
+
+/* ── Filters ── */
+.filt{background:var(--cream);padding:12px 18px;border-bottom:1px solid var(--border);}
+.flbl{font-size:9.5px;font-weight:800;color:var(--pine);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:7px;}
+.seg-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.seg-row::-webkit-scrollbar{display:none;}
+.seg{flex-shrink:0;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;
+  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(0,0,0,0.05);color:var(--text2);
+  border:1.5px solid transparent;transition:all .15s ease;font-family:inherit;display:inline-flex;align-items:center;}
+.seg.on{background:var(--plum);color:var(--cream);border-color:var(--plum);}
+.seg:active{transform:scale(0.95);}
+.sdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;flex-shrink:0;}
+.frow{margin-bottom:10px;}.frow:last-child{margin-bottom:0;}
+
+/* ── Status bar ── */
+.sbar{padding:8px 18px 6px;font-size:12px;color:var(--text2);background:var(--cream);}
+.sbar b{color:var(--plum);font-weight:700;}
+
+/* ── Cards ── */
+.cards{padding:8px 14px 32px;display:flex;flex-direction:column;gap:9px;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:0 2px 14px rgba(0,0,0,0.06);
+  border:1px solid var(--border);overflow:hidden;}
+.chead{display:flex;align-items:flex-start;gap:10px;padding:13px 13px 11px;cursor:pointer;}
+.locbadge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;padding:3px 7px;
+  border-radius:var(--r-xs);font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0;
+  margin-top:2px;font-family:monospace;background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
+.mbadge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.m-hydraulic{background:var(--pine-light);color:var(--pine);}
+.m-protection{background:var(--plum-light);color:var(--plum);}
+.m-blood{background:var(--rose-light);color:var(--rose);}
+.m-bio{background:var(--teal-light);color:var(--teal);}
+.m-misc{background:var(--amber-light);color:var(--amber);}
+.m-diascan{background:var(--blue-light);color:var(--blue);}
+.m-ccm{background:var(--slate-light);color:var(--slate);}
+.m-swtest{background:var(--indigo-light);color:var(--indigo);}
+.pbadge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;
+  background:rgba(0,0,0,0.05);color:var(--text3);}
+.cbody{flex:1;min-width:0;}
+.ctitle{font-size:13.5px;font-weight:700;line-height:1.45;margin-bottom:6px;color:var(--text);}
+.cdesc-preview{font-size:12px;color:var(--text2);line-height:1.4;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;}
+.cmeta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.chev{color:var(--text3);flex-shrink:0;margin-top:2px;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.04);border-radius:50%;transition:transform .25s ease,background .15s,color .15s;}
+.chev.open{transform:rotate(180deg);background:var(--plum-light);color:var(--plum);}
+.cdet{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
+.cdet.open{max-height:800px;border-top:1px solid var(--border);}
+.cdet-in{padding:15px 13px 18px;background:rgba(255,250,235,0.5);}
+.dsec{margin-bottom:13px;}.dsec:last-child{margin-bottom:0;}
+.dlbl{display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:800;color:var(--pine);
+  text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px;}
+.dbox,.ubox,.rbox{font-size:13.5px;line-height:1.75;border-radius:10px;padding:11px 13px;}
+.dbox{color:var(--text);background:var(--white);border:1px solid var(--border);}
+.ubox{color:#7a4800;background:var(--amber-light);border:1px solid rgba(212,112,10,0.2);font-family:monospace;font-weight:600;}
+.rbox{color:var(--pine);font-weight:500;background:var(--euca-light);border:1px solid rgba(108,160,122,0.25);}
+mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;padding:0 1px;}
+.empty{text-align:center;padding:60px 24px;color:var(--text2);display:none;}
+.empty-ico{font-size:46px;margin-bottom:12px;opacity:.4;}
+.empty h3{font-size:17px;font-weight:700;margin-bottom:6px;}
+.empty p{font-size:13px;}
+
+/* ── Bottom Navigation ── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;min-height:var(--nav-h);
+  background:#B5CFBC;border-top:1.5px solid rgba(114,37,107,0.18);
+  display:flex;align-items:flex-start;padding-top:10px;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),10px);z-index:200;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:3px 4px;cursor:pointer;border:none;background:none;
+  font-family:inherit;-webkit-tap-highlight-color:transparent;}
+.bnav-svg{width:24px;height:24px;color:rgba(114,37,107,0.4);
+  transition:color .15s,transform .18s cubic-bezier(.34,1.56,.64,1);}
+.bnav-label{font-size:10px;font-weight:600;color:rgba(114,37,107,0.5);font-family:inherit;}
+.bnav-item.on .bnav-svg{color:var(--plum);transform:scale(1.12);}
+.bnav-item.on .bnav-label{color:var(--plum);font-weight:800;}
+.bnav-item:active .bnav-svg{transform:scale(0.88);}
+
+/* ── Page Panel ── */
+.tab-panel{display:none;}
+.tab-panel.on{display:block;}
+.page-panel-inner{padding:0 12px 20px;}
+.pg-section{margin-bottom:20px;}
+.pg-section-title{font-size:13px;font-weight:800;color:var(--pine);
+  text-transform:uppercase;letter-spacing:1px;padding:14px 2px 8px;
+  border-bottom:1.5px solid var(--border);margin-bottom:10px;}
+.pg-list{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;}
+.pg-row{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;cursor:pointer;gap:8px;
+  border-bottom:1px solid var(--border);transition:background .12s;}
+.pg-row:last-child{border-bottom:none;}
+.pg-row:active{background:var(--plum-light);}
+.pg-locat{font-size:12px;font-weight:700;color:var(--plum);font-family:monospace;min-width:42px;}
+.pg-name{font-size:12px;color:var(--text);flex:1;}
+.pg-unit{font-size:11px;color:var(--text3);font-family:monospace;}
+
+/* ── Coding Panel ── */
+.code-panel-inner{padding:0 12px 20px;}
+.code-section{margin-bottom:18px;}
+.code-section-title{font-size:14px;font-weight:800;color:var(--plum);
+  padding:14px 2px 8px;border-bottom:1.5px solid var(--border-p);margin-bottom:10px;}
+.code-table{width:100%;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;border-collapse:collapse;}
+.code-table th{background:var(--plum);color:white;padding:8px 12px;font-size:11px;font-weight:700;text-align:left;}
+.code-table td{padding:8px 12px;font-size:12px;border-bottom:1px solid var(--border);color:var(--text);}
+.code-table tr:last-child td{border-bottom:none;}
+.code-table tr:nth-child(even) td{background:rgba(255,250,235,0.5);}
+.code-key{font-family:monospace;font-weight:700;color:var(--pine);}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="wmark-wrap">
+      <span class="tagline">PHOENIX · Service Manual</span>
+      <span style="font-size:18px;font-weight:900;color:var(--cream);letter-spacing:0.5px;">Status Screen</span>
+    </div>
+    <span class="total-badge" id="totalBadge">— params</span>
+  </div>
+  <div class="s-wrap">
+    <svg class="s-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,250,235,0.6)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input id="sInp" class="s-inp" type="search" placeholder="Search parameter, location code…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="s-clr" id="sClr" aria-label="Clear">✕</button>
+  </div>
+  <div class="s-hint">
+    <span>Try:</span>
+    <span class="h-ex">COND A</span>
+    <span class="h-ex">1-A</span>
+    <span class="h-ex">pressure</span>
+    <span class="h-ex">blood flow</span>
+  </div>
+</div>
+
+<!-- ── Filters ── -->
+<div class="filt" id="filtEl">
+  <div class="frow">
+    <div class="flbl">Module</div>
+    <div class="seg-row" id="modRow">
+      <button class="seg on" data-v="all"><span class="sdot" style="background:#999;"></span>All</button>
+      <button class="seg" data-v="hydraulic"><span class="sdot" style="background:var(--pine);"></span>Hydraulic</button>
+      <button class="seg" data-v="protection"><span class="sdot" style="background:var(--plum);"></span>Protection</button>
+      <button class="seg" data-v="blood"><span class="sdot" style="background:var(--rose);"></span>Blood</button>
+      <button class="seg" data-v="bio"><span class="sdot" style="background:var(--teal);"></span>Bio</button>
+      <button class="seg" data-v="misc"><span class="sdot" style="background:var(--amber);"></span>Misc</button>
+      <button class="seg" data-v="diascan"><span class="sdot" style="background:var(--blue);"></span>DiaScan</button>
+      <button class="seg" data-v="ccm"><span class="sdot" style="background:var(--slate);"></span>CCM</button>
+      <button class="seg" data-v="swtest"><span class="sdot" style="background:var(--indigo);"></span>SW Test</button>
+    </div>
+  </div>
+  <div class="frow">
+    <div class="flbl">Screen Page</div>
+    <div class="seg-row" id="pageRow">
+      <button class="seg on" data-v="all">All Pages</button>
+      <button class="seg" data-v="first">1st Page</button>
+      <button class="seg" data-v="second">2nd Page</button>
+      <button class="seg" data-v="third">3rd Page</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Status bar ── -->
+<div class="sbar" id="sbarEl">Showing all parameters</div>
+
+<!-- ── Cards (Search tab) ── -->
+<div class="cards" id="cardsEl"></div>
+<div class="empty" id="emptyEl">
+  <div class="empty-ico">🔍</div>
+  <h3>No parameters found</h3>
+  <p>Try a different search term or clear the filters.</p>
+</div>
+
+<!-- ── Page View Tab ── -->
+<div class="tab-panel" id="pagePanel">
+  <div class="page-panel-inner" id="pagePanelInner"></div>
+</div>
+
+<!-- ── Coding Reference Tab ── -->
+<div class="tab-panel" id="codePanel">
+  <div class="code-panel-inner" id="codePanelInner"></div>
+</div>
+
+<!-- ── Bottom Navigation ── -->
+<nav class="bnav">
+  <button class="bnav-item on" onclick="switchBnav('search',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <span class="bnav-label">Search</span>
+  </button>
+  <button class="bnav-item" onclick="switchBnav('page',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+    </svg>
+    <span class="bnav-label">By Page</span>
+  </button>
+  <button class="bnav-item" onclick="switchBnav('code',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+    </svg>
+    <span class="bnav-label">Coding</span>
+  </button>
+</nav>
+
+<script>
+/* ════════════════════════════════════════════
+   DATA — Phoenix Status Screen Parameters
+   ════════════════════════════════════════════ */
+var PARAMS = [
+  /* ── FIRST PAGE · Hydraulic Module (Col A) ── */
+  {locat:"1-A",  param:"COND A",       module:"hydraulic",  page:"first",  desc:"Current value of final conductivity",                                  unit:"mS/cm*100",   see:""},
+  {locat:"2-A",  param:"COND B",       module:"hydraulic",  page:"first",  desc:"Current value of bicarbonate conductivity",                             unit:"mS/cm*100",   see:""},
+  {locat:"3-A",  param:"TEMPERAT",     module:"hydraulic",  page:"first",  desc:"Current temperature value",                                             unit:"°C*10",       see:""},
+  {locat:"4-A",  param:"U.F.VALUE",    module:"hydraulic",  page:"first",  desc:"Set value of the U.F.",                                                 unit:"g/h",         see:""},
+  {locat:"5-A",  param:"TOTAL U.F.",   module:"hydraulic",  page:"first",  desc:"UF total from the start of dialysis",                                   unit:"g",           see:""},
+  {locat:"6-A",  param:"DIAL FLOW",    module:"hydraulic",  page:"first",  desc:"Dialysate flow read by the flow meter D1",                              unit:"ml/min",      see:""},
+  {locat:"7-A",  param:"PRESS In",     module:"hydraulic",  page:"first",  desc:"Hemodialyzer inlet pressure",                                           unit:"mmHg",        see:""},
+  {locat:"8-A",  param:"PRESS Out",    module:"hydraulic",  page:"first",  desc:"Hemodialyzer outlet pressure",                                          unit:"mmHg",        see:""},
+  {locat:"9-A",  param:"PRESS Dr",     module:"hydraulic",  page:"first",  desc:"Drain pressure",                                                        unit:"mmHg",        see:""},
+  {locat:"10-A", param:"PRESS FS",     module:"hydraulic",  page:"first",  desc:"Pre-filter clean dialysate pressure",                                   unit:"mmHg",        see:""},
+  {locat:"11-A", param:"TMP CD",       module:"hydraulic",  page:"first",  desc:"Clean dialysate transmembrane pressure",                                unit:"mmHg",        see:""},
+  {locat:"12-A", param:"PA FREQ",      module:"hydraulic",  page:"first",  desc:"PA pump encoder frequency value",                                       unit:"Hz",          see:""},
+  {locat:"15-A", param:"PA ACTIV",     module:"hydraulic",  page:"first",  desc:"Low part: status flag of the PA pump",                                  unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"16-A", param:"PB FREQ",      module:"hydraulic",  page:"first",  desc:"PB pump encoder frequency value",                                       unit:"Hz",          see:""},
+  {locat:"19-A", param:"PB ACTIV",     module:"hydraulic",  page:"first",  desc:"Low part: status flag of the PB pump",                                  unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"20-A", param:"PUF AUTOCAL",  module:"hydraulic",  page:"first",  desc:"PUF pump autocalibration phase",                                        unit:"N/A",         see:""},
+  {locat:"21-A", param:"PUF ACTIV",    module:"hydraulic",  page:"first",  desc:"Low part: status flag of the UF pump",                                  unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"22-A", param:"L FEEDBACK",   module:"hydraulic",  page:"first",  desc:"Speed correction of the UF pump",                                       unit:"%",           see:""},
+  {locat:"25-A", param:"UF LEV HIGH",  module:"hydraulic",  page:"first",  desc:"Low level UF burette",                                                  unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"26-A", param:"UF LEV LOW",   module:"hydraulic",  page:"first",  desc:"High level UF burette",                                                 unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"27-A", param:"PC FREQ",      module:"hydraulic",  page:"first",  desc:"Set value of the PC pump",                                              unit:"Hz",          see:""},
+  {locat:"28-A", param:"PC ACTIV",     module:"hydraulic",  page:"first",  desc:"Low part: status flag of the PC pump",                                  unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"29-A", param:"PS FREQ",      module:"hydraulic",  page:"first",  desc:"PS pump encoder frequency value",                                       unit:"Hz",          see:""},
+  {locat:"30-A", param:"PS ACTIV",     module:"hydraulic",  page:"first",  desc:"Low part: status flag of the PS pump",                                  unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"34-A", param:"Hyd Phase",    module:"hydraulic",  page:"first",  desc:"Hydraulic phase number of the current process",                         unit:"N/A (dec.)",  see:""},
+
+  /* ── FIRST PAGE · Protection Module (Col B) ── */
+  {locat:"1-B",  param:"COND A",       module:"protection", page:"first",  desc:"Value of the final conductivity on the protection sensor",              unit:"mS/cm*100",   see:""},
+  {locat:"2-B",  param:"COND B",       module:"protection", page:"first",  desc:"Value of the bicarbonate conductivity on the protection sensor",        unit:"mS/cm*100",   see:""},
+  {locat:"3-B",  param:"TEMPERAT",     module:"protection", page:"first",  desc:"Protection sensor temperature value",                                   unit:"°C*10",       see:""},
+  {locat:"4-B",  param:"U.F.VALUE",    module:"protection", page:"first",  desc:"Ultrafiltration flow measured by the protection module",                unit:"g/h",         see:""},
+  {locat:"6-B",  param:"DIAL FLOW",    module:"protection", page:"first",  desc:"Dialysate flow measured by the protection module",                      unit:"ml/min",      see:""},
+  {locat:"7-B",  param:"PRESS In",     module:"protection", page:"first",  desc:"Hemodialyzer inlet pressure measured by the prot. module",              unit:"mmHg",        see:""},
+  {locat:"8-B",  param:"PRESS Out",    module:"protection", page:"first",  desc:"Hemodialyzer outlet pressure measured by the prot. module",             unit:"mmHg",        see:""},
+  {locat:"9-B",  param:"PRESS Dr",     module:"protection", page:"first",  desc:"Drain pressure",                                                        unit:"mmHg",        see:""},
+  {locat:"13-B", param:"PA%",          module:"protection", page:"first",  desc:"Acquired speed of the PA pump in % of the calibrated value",            unit:"% of ref.",   see:""},
+  {locat:"14-B", param:"PA AUTOCAL",   module:"protection", page:"first",  desc:"PA pump autocalibration phase",                                         unit:"N/A",         see:""},
+  {locat:"17-B", param:"PB%",          module:"protection", page:"first",  desc:"Acquired speed of the PB pump in % of the calibrated value",            unit:"% of ref.",   see:""},
+  {locat:"18-B", param:"PB AUTOCAL",   module:"protection", page:"first",  desc:"PB pump autocalibration phase",                                         unit:"N/A",         see:""},
+  {locat:"20-B", param:"PUF AUTOCAL",  module:"protection", page:"first",  desc:"Request of pump activation by the protection system",                   unit:"N/A",         see:""},
+  {locat:"23-B", param:"UF VESSEL",    module:"protection", page:"first",  desc:"Measured UF volume (integral of UF flow) during drain filling of UF vessel", unit:"ml*10", see:""},
+  {locat:"24-B", param:"EMPTY TIME",   module:"protection", page:"first",  desc:"Emptying time of the UF vessel",                                        unit:"sec",         see:""},
+  {locat:"25-B", param:"UF LEV HIGH",  module:"protection", page:"first",  desc:"Low level UF burette",                                                  unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"26-B", param:"UF LEV LOW",   module:"protection", page:"first",  desc:"High level UF burette",                                                 unit:"ON/OFF",      see:"10.5.4"},
+
+  /* ── FIRST PAGE · Hydraulic Module valves (Col C) ── */
+  {locat:"1-C",  param:"EV1",          module:"hydraulic",  page:"first",  desc:"EV1 activation status",                                                 unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"2-C",  param:"EV2",          module:"hydraulic",  page:"first",  desc:"EV2 activation status",                                                 unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"3-C",  param:"EVBP",         module:"hydraulic",  page:"first",  desc:"EVBP activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"4-C",  param:"EVUFO",        module:"hydraulic",  page:"first",  desc:"EVUFO activation status",                                               unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"5-C",  param:"EVDS1",        module:"hydraulic",  page:"first",  desc:"EVDS1 activation status",                                               unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"6-C",  param:"EVR1",         module:"hydraulic",  page:"first",  desc:"EVR1 activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"7-C",  param:"EVC",          module:"hydraulic",  page:"first",  desc:"EVC activation status",                                                 unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"8-C",  param:"EVD",          module:"hydraulic",  page:"first",  desc:"EVD activation status",                                                 unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"9-C",  param:"EVP",          module:"hydraulic",  page:"first",  desc:"EVP activation status",                                                 unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"10-C", param:"EVUF",         module:"hydraulic",  page:"first",  desc:"EVUF activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"11-C", param:"EVD2",         module:"hydraulic",  page:"first",  desc:"EVD2 activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"12-C", param:"EV1S",         module:"hydraulic",  page:"first",  desc:"EV1S activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"13-C", param:"EVDEG",        module:"hydraulic",  page:"first",  desc:"EVDEG activation status",                                               unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"14-C", param:"EVD1",         module:"hydraulic",  page:"first",  desc:"EVD1 activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"15-C", param:"EVHE",         module:"hydraulic",  page:"first",  desc:"EVHE activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"16-C", param:"EVH20",        module:"hydraulic",  page:"first",  desc:"EVH20 activation status",                                               unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"17-C", param:"EVS",          module:"hydraulic",  page:"first",  desc:"EVS activation status",                                                 unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"18-C", param:"EWW1",         module:"hydraulic",  page:"first",  desc:"EWW1 activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"19-C", param:"EVW2",         module:"hydraulic",  page:"first",  desc:"EVW2 activation status",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"20-C", param:"VALVES 1",     module:"hydraulic",  page:"first",  desc:"Valves configuration (EVS, EVC, EVD bitmapped)",                        unit:"N/A (hex.)",  see:"10.5.10-2"},
+  {locat:"21-C", param:"VALVES 2",     module:"hydraulic",  page:"first",  desc:"Valves configuration (EVR1~EVH20 bitmapped)",                           unit:"N/A (hex.)",  see:"10.5.10-3"},
+  {locat:"22-C", param:"P1_FREQ",      module:"hydraulic",  page:"first",  desc:"Value of the encoder frequency of the P1 pump",                        unit:"Hz",          see:""},
+  {locat:"23-C", param:"P1_ACTIV",     module:"hydraulic",  page:"first",  desc:"Low part: status flag of the P1 pump. High part: reset flags",          unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"24-C", param:"P2_SETVALUE",  module:"hydraulic",  page:"first",  desc:"Frequency set value of the P2 pump",                                    unit:"g/h",         see:""},
+  {locat:"27-C", param:"P2_ACTIV",     module:"hydraulic",  page:"first",  desc:"Low part: status flag of the P2 pump. High part: reset flags",          unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"28-C", param:"KAPPA FM",     module:"hydraulic",  page:"first",  desc:"Ratio between the flows read by the two flow meters D1 and D2 (from hydr. slave)", unit:"N/A (dec.)", see:""},
+  {locat:"30-C", param:"D1-KD2",       module:"hydraulic",  page:"first",  desc:"Tracking error between the two flow meters",                            unit:"N/A (dec.)",  see:""},
+
+  /* ── FIRST PAGE · Protection Module (Col D — valve status) ── */
+  {locat:"1-D",  param:"EV1",          module:"protection", page:"first",  desc:"EV1 status detected by the protection system",                          unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"2-D",  param:"EV2",          module:"protection", page:"first",  desc:"EV2 status detected by the protection system",                          unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"3-D",  param:"EVBP",         module:"protection", page:"first",  desc:"EVBP status detected by the protection system",                         unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"4-D",  param:"EVUFO",        module:"protection", page:"first",  desc:"EVUFO status detected by the protection system",                        unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"5-D",  param:"EVDS1",        module:"protection", page:"first",  desc:"EVDS1 status detected by the protection system",                        unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"6-D",  param:"EVR1",         module:"protection", page:"first",  desc:"EVR1 status detected by the protection system",                         unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"25-D", param:"P2_FLOW",      module:"protection", page:"first",  desc:"P2 flow measured by the F2 pump encoder",                               unit:"ml/min",      see:""},
+  {locat:"26-D", param:"P2_FREQ",      module:"protection", page:"first",  desc:"P2 pump encoder frequency",                                             unit:"Hz",          see:""},
+  {locat:"27-D", param:"PDR-PO",       module:"protection", page:"first",  desc:"Current dial input and output pressure difference",                     unit:"mmHg",        see:""},
+  {locat:"31-D", param:"MBAL_DEV",     module:"protection", page:"first",  desc:"Information concerning the current flowmeters deviation (D1 vs D2) measured by the protective slave", unit:"‰ of ref.", see:""},
+  {locat:"32-D", param:"MBAL_LONG",    module:"protection", page:"first",  desc:"Drift of the mass balance value measured by protective slave due to flowmeters ageing", unit:"‰ of ref.", see:""},
+  {locat:"33-D", param:"MBAL_SHORT",   module:"protection", page:"first",  desc:"Drift of the mass balance value measured by protective slave due to dialysate composition", unit:"‰ of ref.", see:""},
+  {locat:"34-D", param:"D2 FLOW",      module:"protection", page:"first",  desc:"Current dial flow read by the D2 flowmeter",                            unit:"ml/min",      see:""},
+
+  /* ── FIRST PAGE · Blood Module (Col E) ── */
+  {locat:"1-E",  param:"BLOOD FLOW",   module:"blood",      page:"first",  desc:"Blood flow at the arterial pump",                                       unit:"ml/min",      see:""},
+  {locat:"2-E",  param:"BLOOD SET",    module:"blood",      page:"first",  desc:"Blood pump flow set value",                                             unit:"ml/min",      see:""},
+  {locat:"5-E",  param:"ART PRESS",    module:"blood",      page:"first",  desc:"Arterial pressure",                                                     unit:"mmHg",        see:""},
+  {locat:"6-E",  param:"ART OFFSET",   module:"blood",      page:"first",  desc:"Offset on art pressure",                                                unit:"mmHg",        see:""},
+  {locat:"7-E",  param:"VEN PRESS",    module:"blood",      page:"first",  desc:"Venous pressure",                                                       unit:"mmHg",        see:""},
+  {locat:"8-E",  param:"VEN OFFSET",   module:"blood",      page:"first",  desc:"Offset on ven pressure",                                                unit:"mmHg",        see:""},
+  {locat:"9-E",  param:"POST F PRESS", module:"blood",      page:"first",  desc:"Post dialyzer pressure value",                                          unit:"mmHg",        see:""},
+  {locat:"10-E", param:"PRE F PRESS",  module:"blood",      page:"first",  desc:"Pre dialyzer pressure value",                                           unit:"mmHg",        see:""},
+  {locat:"11-E", param:"VEN CLAMP",    module:"blood",      page:"first",  desc:"Venous clamp position sensor",                                          unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"12-E", param:"ART CLAMP",    module:"blood",      page:"first",  desc:"Arterial clamp position sensor",                                        unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"14-E", param:"HEP LINEAR",   module:"blood",      page:"first",  desc:"Heparin speed in linear mode (advancement of syringe)",                 unit:"mm/sec.",     see:""},
+  {locat:"15-E", param:"HEP BOLUS",    module:"blood",      page:"first",  desc:"Bolus quantity in bolus mode (advancement of syringe)",                 unit:"mm",          see:""},
+  {locat:"16-E", param:"HEP TOTAL",    module:"blood",      page:"first",  desc:"Totalized heparin infused (advancement of syringe)",                    unit:"mm/10",       see:""},
+  {locat:"17-E", param:"SISTOLIC PR",  module:"blood",      page:"first",  desc:"Systolic pressure value measured",                                      unit:"mmHg",        see:""},
+  {locat:"18-E", param:"DIASTOLIC PR", module:"blood",      page:"first",  desc:"Diastolic pressure value measured",                                     unit:"mmHg",        see:""},
+  {locat:"19-E", param:"H. RATE",      module:"blood",      page:"first",  desc:"Heart rate value measured",                                             unit:"pu/min",      see:""},
+  {locat:"20-E", param:"STROKE V",     module:"blood",      page:"first",  desc:"Stroke volume during single needle dial. mode",                         unit:"ml",          see:""},
+  {locat:"21-E", param:"ART CYCLE",    module:"blood",      page:"first",  desc:"Arterial cycle during single needle dial. mode",                        unit:"sec",         see:""},
+  {locat:"22-E", param:"TOT CYCLE",    module:"blood",      page:"first",  desc:"Arterial+venous phases time during single needle dial. mode",           unit:"sec",         see:""},
+  {locat:"23-E", param:"BLO P COVER",  module:"blood",      page:"first",  desc:"Cover arterial pump sensor",                                            unit:"ON/OFF",      see:"10.5.5"},
+  {locat:"24-E", param:"BLO P ACTIV",  module:"blood",      page:"first",  desc:"Status flag of arterial pump",                                          unit:"N/A",         see:"10.5.7"},
+  {locat:"27-E", param:"HEP SPEED",    module:"blood",      page:"first",  desc:"Heparin pump speed sensor",                                             unit:"ON/OFF",      see:""},
+  {locat:"28-E", param:"HEP EndRun",   module:"blood",      page:"first",  desc:"Heparin pump over load sensor",                                         unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"29-E", param:"HEP DIRECT",   module:"blood",      page:"first",  desc:"Heparin pump direction sensor",                                         unit:"ON/OFF",      see:"10.5.1"},
+  {locat:"30-E", param:"HEP ACTIV",    module:"blood",      page:"first",  desc:"Status flag of the heparin pump",                                       unit:"N/A (dec.)",  see:"10.5.7"},
+  {locat:"31-E", param:"BPM PRESS",    module:"blood",      page:"first",  desc:"Pressure value inside the cuff during the measurement with BPM",        unit:"mmHg",        see:""},
+  {locat:"32-E", param:"BPM ERROR",    module:"blood",      page:"first",  desc:"Blood pressure monitor system alarms",                                  unit:"",            see:""},
+  {locat:"33-E", param:"BPM ACTIV",    module:"blood",      page:"first",  desc:"Status flag of blood pressure monitor system",                          unit:"(hex.)",      see:"10.5.1"},
+  {locat:"34-E", param:"BLO PHASE",    module:"blood",      page:"first",  desc:"Phase of blood module",                                                 unit:"(dec.)",      see:""},
+
+  /* ══════════════════════════════════════════════
+     SECOND PAGE
+     ══════════════════════════════════════════════ */
+
+  /* ── SECOND PAGE · Hydraulic Module (Col A) ── */
+  {locat:"1-A",  param:"Hyd SW Rel",   module:"hydraulic",  page:"second", desc:"Software revision number",                                              unit:"",            see:""},
+  {locat:"2-A",  param:"Hyd CODE",     module:"hydraulic",  page:"second", desc:"High part: identification of the module. Low part: identification of the message and the process", unit:"N/A", see:"10.5.10"},
+  {locat:"3-A",  param:"Hyd Phase",    module:"hydraulic",  page:"second", desc:"Phase number of the current process",                                   unit:"N/A (dec.)",  see:""},
+  {locat:"4-A",  param:"Hyd Numes",    module:"hydraulic",  page:"second", desc:"Number of the message send to the hydraulic module",                    unit:"N/A (dec.)",  see:""},
+  {locat:"5-A",  param:"HYHWCONF",     module:"hydraulic",  page:"second", desc:"Hardware configuration (DIP switch setting)",                           unit:"N/A",         see:"10.5.10-57"},
+  {locat:"6-A",  param:"LP Sensor",    module:"hydraulic",  page:"second", desc:"Level sensor bubble trap BTP",                                          unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"7-A",  param:"LD1 Sensor",   module:"hydraulic",  page:"second", desc:"Level sensor bubble trap BTP1",                                         unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"8-A",  param:"LD2 Sensor",   module:"hydraulic",  page:"second", desc:"Level sensor bubble trap BTP2",                                         unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"9-A",  param:"END A Tank",   module:"hydraulic",  page:"second", desc:"Acetate tank empty",                                                    unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"10-A", param:"END B Tank",   module:"hydraulic",  page:"second", desc:"Bicarbonate tank empty",                                                unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"11-A", param:"END Bicart",   module:"hydraulic",  page:"second", desc:"Bicart empty",                                                          unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"12-A", param:"Dis Lev HI",   module:"hydraulic",  page:"second", desc:"High level sterilant tank",                                             unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"13-A", param:"Dis Lev Lo",   module:"hydraulic",  page:"second", desc:"Low level sterilant tank",                                              unit:"ON/OFF",      see:"10.5.4"},
+  {locat:"14-A", param:"A SWITCH",     module:"hydraulic",  page:"second", desc:"Acetate connector switch",                                              unit:"ON/OFF",      see:"10.5.6"},
+  {locat:"15-A", param:"B SWITCH",     module:"hydraulic",  page:"second", desc:"Bicarbonate connector switch",                                          unit:"ON/OFF",      see:"10.5.6"},
+  {locat:"16-A", param:"BCT Switch",   module:"hydraulic",  page:"second", desc:"Bicart switch",                                                         unit:"ON/OFF",      see:"10.5.5"},
+  {locat:"17-A", param:"DIS Switch",   module:"hydraulic",  page:"second", desc:"Sterilant connector switch",                                            unit:"ON/OFF",      see:"10.5.6"},
+  {locat:"18-A", param:"CD1 Switch",   module:"hydraulic",  page:"second", desc:"Clean dialysate upper switch",                                          unit:"ON/OFF",      see:"10.5.5"},
+  {locat:"19-A", param:"CD2 Switch",   module:"hydraulic",  page:"second", desc:"Clean dialysate lower switch",                                          unit:"ON/OFF",      see:"10.5.5"},
+  {locat:"20-A", param:"WHO Switch",   module:"hydraulic",  page:"second", desc:"WHO connector switch status",                                           unit:"ON/OFF",      see:"10.5.6"},
+  {locat:"21-A", param:"PRE Switch",   module:"hydraulic",  page:"second", desc:"Water pressure switch (SWP)",                                           unit:"ON/OFF",      see:""},
+  {locat:"22-A", param:"POST Flow",    module:"hydraulic",  page:"second", desc:"Drain pressure switch (SWP1)",                                          unit:"ON/OFF",      see:""},
+  {locat:"23-A", param:"DEG Flow",     module:"hydraulic",  page:"second", desc:"Low flow sensor (LFP)",                                                 unit:"ON/OFF",      see:""},
+  {locat:"24-A", param:"CONN Flow",    module:"hydraulic",  page:"second", desc:"Hemodialyzer flow switch (LFD)",                                        unit:"ON/OFF",      see:"10.5.3"},
+  {locat:"25-A", param:"IN Dial Pos",  module:"hydraulic",  page:"second", desc:"Inlet connector position",                                              unit:"ON/OFF",      see:"10.5.3"},
+  {locat:"26-A", param:"OUT Dial Pos", module:"hydraulic",  page:"second", desc:"Outlet connector position",                                             unit:"ON/OFF",      see:"10.5.5"},
+  {locat:"27-A", param:"HEATER ACT",   module:"hydraulic",  page:"second", desc:"Low part: status flag of the heater",                                   unit:"N/A (hex.)",  see:"10.5.7"},
+  {locat:"28-A", param:"CALIB_STAT",   module:"hydraulic",  page:"second", desc:"End of hydraulic calibration phase",                                    unit:"N/A",         see:"10.5.2"},
+  {locat:"29-A", param:"D1 COUNTER",   module:"hydraulic",  page:"second", desc:"D1 counter during flowmeter calibration",                               unit:"(dec.)",      see:""},
+  {locat:"30-A", param:"D2 COUNTER",   module:"hydraulic",  page:"second", desc:"D2 counter during flowmeter calibration",                               unit:"(dec.)",      see:""},
+
+  /* ── SECOND PAGE · Hydraulic Auto Flags (Col B) ── */
+  {locat:"1-B",  param:"Auto UFves",   module:"hydraulic",  page:"second", desc:"Fill/empty UF vessel auto flag",                                        unit:"",            see:"10.5.2"},
+  {locat:"2-B",  param:"Auto VesDia",  module:"hydraulic",  page:"second", desc:"PS on until LLUF=0 AIR auto flag",                                      unit:"",            see:"10.5.2"},
+  {locat:"3-B",  param:"Auto UFcal",   module:"hydraulic",  page:"second", desc:"UF calculation auto flag",                                              unit:"",            see:"10.5.2"},
+  {locat:"4-B",  param:"Auto TwiRes",  module:"hydraulic",  page:"second", desc:"T.W.L. reset auto flag",                                                unit:"",            see:"10.5.2"},
+  {locat:"5-B",  param:"Auto Dtank",   module:"hydraulic",  page:"second", desc:"Fill/empty disinfectant vessel auto flag",                              unit:"",            see:"10.5.2"},
+  {locat:"6-B",  param:"Auto PS LO",   module:"hydraulic",  page:"second", desc:"Stop PS on HLS=LLS=0 auto flag",                                        unit:"",            see:"10.5.2"},
+  {locat:"7-B",  param:"Auto PS HI",   module:"hydraulic",  page:"second", desc:"Stop PS on HLS=LLS=1 auto flag",                                        unit:"",            see:"10.5.2"},
+  {locat:"8-B",  param:"Auto P2-PO",   module:"hydraulic",  page:"second", desc:"P2 regulation on PO pressure auto flag",                                unit:"",            see:"10.5.2"},
+  {locat:"9-B",  param:"Auto P2:400",  module:"hydraulic",  page:"second", desc:"P2 regulation on -400 mmHg PO set auto flag",                           unit:"",            see:"10.5.2"},
+  {locat:"10-B", param:"Auto P2:300",  module:"hydraulic",  page:"second", desc:"P2 regulation on -300 mmHg PO set auto flag",                           unit:"",            see:"10.5.2"},
+  {locat:"11-B", param:"AUTO EVBP",    module:"hydraulic",  page:"second", desc:"HW automatism for EVBP on PFS",                                         unit:"",            see:"10.5.2"},
+  {locat:"12-B", param:"AUTO EVH20",   module:"hydraulic",  page:"second", desc:"HW automatism for EVH20 on PFS",                                        unit:"",            see:"10.5.2"},
+  {locat:"13-B", param:"AUTO EVP",     module:"hydraulic",  page:"second", desc:"HW automatism for EVP on LP",                                           unit:"",            see:"10.5.2"},
+  {locat:"14-B", param:"AUTO EVD1",    module:"hydraulic",  page:"second", desc:"HW automatism for EVD1 on LD1",                                         unit:"",            see:"10.5.2"},
+  {locat:"15-B", param:"AUTO EVD2",    module:"hydraulic",  page:"second", desc:"HW automatism for EVD2 on LD2",                                         unit:"",            see:"10.5.2"},
+  {locat:"16-B", param:"LP OK Air",    module:"hydraulic",  page:"second", desc:"Bubble trap level sensor LP OK on air",                                 unit:"",            see:"10.5.2"},
+  {locat:"17-B", param:"LP OK Wat",    module:"hydraulic",  page:"second", desc:"Bubble trap level sensor LP OK on water",                               unit:"",            see:"10.5.2"},
+  {locat:"18-B", param:"LD1 OK Air",   module:"hydraulic",  page:"second", desc:"Bubble trap level sensor LD1 OK on air",                                unit:"",            see:"10.5.2"},
+  {locat:"19-B", param:"LD1 OK Wat",   module:"hydraulic",  page:"second", desc:"Bubble trap level sensor LD1 OK on water",                              unit:"",            see:"10.5.2"},
+  {locat:"20-B", param:"VALVES 1",     module:"hydraulic",  page:"second", desc:"Valves configuration (bitmapped)",                                      unit:"N/A (hex.)",  see:"10.5.10-2"},
+  {locat:"21-B", param:"VALVES 2",     module:"hydraulic",  page:"second", desc:"Valves configuration (bitmapped)",                                      unit:"N/A (hex.)",  see:"10.5.10-3"},
+  {locat:"22-B", param:"SENSOR 1",     module:"hydraulic",  page:"second", desc:"Sensors status",                                                        unit:"N/A (hex.)",  see:"10.5.10-4"},
+  {locat:"23-B", param:"SENSOR 2",     module:"hydraulic",  page:"second", desc:"Sensors status",                                                        unit:"N/A (hex.)",  see:"10.5.10-5"},
+  {locat:"24-B", param:"SENSOR 3",     module:"hydraulic",  page:"second", desc:"Sensors status",                                                        unit:"N/A (hex.)",  see:"10.5.10-6"},
+  {locat:"25-B", param:"Error EEPR",   module:"hydraulic",  page:"second", desc:"Error codes related to the EEPROM error",                               unit:"N/A (hex.)",  see:"10.5.10-7"},
+  {locat:"26-B", param:"ERROR W1",     module:"hydraulic",  page:"second", desc:"Error codes",                                                           unit:"N/A (hex.)",  see:"10.5.10-8"},
+  {locat:"27-B", param:"ERROR W2",     module:"hydraulic",  page:"second", desc:"Error codes",                                                           unit:"N/A (hex.)",  see:"10.5.10-9"},
+  {locat:"28-B", param:"ERROR W3",     module:"hydraulic",  page:"second", desc:"Error codes",                                                           unit:"N/A (hex.)",  see:"10.5.10-10"},
+  {locat:"29-B", param:"ERROR W4",     module:"hydraulic",  page:"second", desc:"Error codes",                                                           unit:"N/A (hex.)",  see:"10.5.10-11"},
+  {locat:"30-B", param:"AUTOM W1",     module:"hydraulic",  page:"second", desc:"Automatic function made locally on the hydr. module",                   unit:"N/A (hex.)",  see:"10.5.10-12"},
+  {locat:"31-B", param:"AUTOM W2",     module:"hydraulic",  page:"second", desc:"Automatic function made locally on the hydr. module",                   unit:"N/A (hex.)",  see:"10.5.10-13"},
+  {locat:"32-B", param:"Battery B",    module:"hydraulic",  page:"second", desc:"Battery backup kit installed",                                          unit:"",            see:"10.5.8"},
+
+  /* ── SECOND PAGE · Blood Module (Col C) ── */
+  {locat:"1-C",  param:"BLO SW Rel",   module:"blood",      page:"second", desc:"Software revision number",                                              unit:"N/A (hex.)",  see:""},
+  {locat:"2-C",  param:"BLO CODE",     module:"blood",      page:"second", desc:"High part: identification of the module. Low part: identification of message and process", unit:"", see:"10.5.10-14"},
+  {locat:"3-C",  param:"BLO Phase",    module:"blood",      page:"second", desc:"Phase of the blood module",                                             unit:"",            see:""},
+  {locat:"4-C",  param:"BLO Numes",    module:"blood",      page:"second", desc:"Number of the message send to the blood module",                        unit:"",            see:""},
+  {locat:"5-C",  param:"BIHWConf",     module:"blood",      page:"second", desc:"Hardware configuration (DIP switch setting)",                           unit:"N/A",         see:"10.5.10-17"},
+  {locat:"6-C",  param:"Stop/Res",     module:"blood",      page:"second", desc:"Blood pump stop/resume keys activation",                                unit:"",            see:"10.5.10-16"},
+  {locat:"7-C",  param:"Bpump Info",   module:"blood",      page:"second", desc:"Operator action on blood pump (keys + and -)",                          unit:"N/A",         see:"10.5.10-15"},
+  {locat:"8-C",  param:"VAR INFO",     module:"blood",      page:"second", desc:"Miscellaneous",                                                         unit:"N/A",         see:""},
+  {locat:"9-C",  param:"BLO OVERC",    module:"blood",      page:"second", desc:"Overcurrent alarm on blood pump",                                       unit:"",            see:"10.5.1"},
+  {locat:"11-C", param:"ALINE PRES",   module:"blood",      page:"second", desc:"Arterial line presence switch",                                         unit:"",            see:"10.5.8"},
+  {locat:"12-C", param:"Auto LoReg",   module:"blood",      page:"second", desc:"Blood pump on local regulation auto flag",                              unit:"",            see:"10.5.2"},
+  {locat:"13-C", param:"Auto SN 1P",   module:"blood",      page:"second", desc:"Single needle single pump auto flag",                                   unit:"",            see:"10.5.2"},
+  {locat:"14-C", param:"Auto ReHep",   module:"blood",      page:"second", desc:"Reset of hep. totalised auto flag",                                     unit:"",            see:"10.5.2"},
+  {locat:"15-C", param:"SENSOR 1",     module:"blood",      page:"second", desc:"Sensor status",                                                         unit:"N/A",         see:"10.5.10-18"},
+  {locat:"18-C", param:"SENSOR 2",     module:"blood",      page:"second", desc:"Sensor status",                                                         unit:"N/A",         see:"10.5.10-19"},
+  {locat:"19-C", param:"Error EEPR",   module:"blood",      page:"second", desc:"Total number of corrective actions made by the blood slave on his EEPROM", unit:"N/A (DEC.)", see:"10.5.10-20"},
+  {locat:"20-C", param:"Error W1",     module:"blood",      page:"second", desc:"Error codes",                                                           unit:"N/A",         see:"10.5.10-21"},
+  {locat:"21-C", param:"Error W2",     module:"blood",      page:"second", desc:"Error codes",                                                           unit:"N/A",         see:"10.5.10-22"},
+  {locat:"22-C", param:"AUTOM W1",     module:"blood",      page:"second", desc:"Automatism functions made locally",                                     unit:"N/A (hex.)",  see:"10.5.10-23"},
+
+  /* ── SECOND PAGE · Protection Module (Col D) ── */
+  {locat:"1-D",  param:"PRO_SW_REL",   module:"protection", page:"second", desc:"Software revision number",                                              unit:"N/A",         see:""},
+  {locat:"2-D",  param:"PRO Numes",    module:"protection", page:"second", desc:"Number of message sent to the protection module",                       unit:"",            see:""},
+  {locat:"3-D",  param:"PHHWConf",     module:"protection", page:"second", desc:"Protection board DIP switches configuration",                           unit:"N/A (DEC.)",  see:"10.5.10-24"},
+  {locat:"4-D",  param:"REQ UfOnly",   module:"protection", page:"second", desc:"UF-only request by protection system",                                  unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"5-D",  param:"REQ UlMini",   module:"protection", page:"second", desc:"UF minimum speed request by protection system",                         unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"6-D",  param:"REQ UFstop",   module:"protection", page:"second", desc:"Stop UF request by protection system",                                  unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"7-D",  param:"REQ BlStop",   module:"protection", page:"second", desc:"Blood pump stop request by protection system",                          unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"8-D",  param:"REQ ClClos",   module:"protection", page:"second", desc:"Venous clamp closed request by protection system",                      unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"13-D", param:"T1T ACTIV",    module:"protection", page:"second", desc:"Current T1 test activation",                                            unit:"ON/OFF",      see:"10.5.1"},
+  {locat:"14-D", param:"T1T NEXT",     module:"protection", page:"second", desc:"Current T1 test index",                                                 unit:"(dec.)",      see:""},
+  {locat:"15-D", param:"T1T RESULT",   module:"protection", page:"second", desc:"Result of the T1 test performed by protection system (see Software Description)", unit:"(dec.)", see:""},
+  {locat:"16-D", param:"T1T LAST",     module:"protection", page:"second", desc:"Index of the last T1 test successfully done",                           unit:"(dec.)",      see:""},
+  {locat:"17-D", param:"T1T Valves",   module:"protection", page:"second", desc:"Hydraulic solenoid valves configuration request by protection system during the T1 test", unit:"N/A (hex.)", see:"10.5.10-25"},
+  {locat:"18-D", param:"T1T UF ACTIV", module:"protection", page:"second", desc:"High part: PUF pump autocalibration phase",                             unit:"OFF",         see:"10.5.1"},
+  {locat:"19-D", param:"T1T CA ACTIV", module:"protection", page:"second", desc:"High part: PA pump autocalibration phase",                              unit:"OFF",         see:"10.5.1"},
+  {locat:"20-D", param:"T1T CB ACTIV", module:"protection", page:"second", desc:"High part: PB pump autocalibration phase",                              unit:"OFF",         see:"10.5.1"},
+  {locat:"21-D", param:"T1T FAIL 1",   module:"protection", page:"second", desc:"Results of the T1 tests performed by the protection system",            unit:"(hex.)",      see:"10.5.10-26"},
+  {locat:"22-D", param:"T1T FAIL 2",   module:"protection", page:"second", desc:"Results of the T1 tests performed by the protection system",            unit:"(hex.)",      see:"10.5.10-27"},
+  {locat:"23-D", param:"PAT SENSOR",   module:"protection", page:"second", desc:"Analog value from the PAT sensor",                                      unit:"(dec.)",      see:""},
+  {locat:"24-D", param:"Blood Pres",   module:"protection", page:"second", desc:"Blood detected by the patient sensor",                                  unit:"ON/OFF",      see:"10.5.1"},
+  {locat:"25-D", param:"Safety Act",   module:"protection", page:"second", desc:"Safety system activation",                                              unit:"ON/OFF",      see:"10.5.1"},
+  {locat:"26-D", param:"Overr KEY",    module:"protection", page:"second", desc:"Override status",                                                       unit:"ON/OFF",      see:"10.5.1"},
+  {locat:"27-D", param:"Silence KEY",  module:"protection", page:"second", desc:"Silence status",                                                        unit:"ON/OFF",      see:"10.5.1"},
+  {locat:"28-D", param:"SSS Request",  module:"protection", page:"second", desc:"Specific safe states requested for the current alarm situation",         unit:"(hex.)",      see:"10.5.10-28"},
+  {locat:"29-D", param:"UNSATISF",     module:"protection", page:"second", desc:"Unsatisfied specific safe states requested for the current alarm situation", unit:"(hex.)", see:"10.5.10-29"},
+  {locat:"30-D", param:"BLD VALUE",    module:"protection", page:"second", desc:"Analog value from BLO sensor",                                          unit:"(dec.)",      see:""},
+  {locat:"31-D", param:"Ph VALUE",     module:"protection", page:"second", desc:"Present pH value of the dialysate",                                     unit:"*100",        see:""},
+  {locat:"32-D", param:"BLO TEETH",    module:"protection", page:"second", desc:"Teeth number of the blood pump",                                        unit:"(dec.)",      see:""},
+  {locat:"34-D", param:"INTER CALIB",  module:"protection", page:"second", desc:"Time interval from the start of the last flowmeters calibration",       unit:"sec",         see:""},
+
+  /* ── SECOND PAGE · Protection Module Alarms (Col E) ── */
+  {locat:"1-E",  param:"ALARM 1",      module:"protection", page:"second", desc:"Alarms set off by the protection system",                               unit:"(hex.)",      see:"10.5.10-31"},
+  {locat:"2-E",  param:"ALARM 2",      module:"protection", page:"second", desc:"Alarms set off by the protection system",                               unit:"(hex.)",      see:"10.5.10-32"},
+  {locat:"3-E",  param:"ALARM 3",      module:"protection", page:"second", desc:"Alarms set off by the protection system",                               unit:"(hex.)",      see:"10.5.10-33"},
+  {locat:"4-E",  param:"WARNING 1",    module:"protection", page:"second", desc:"Warnings set off by the protection system",                             unit:"(hex.)",      see:"10.5.10-34"},
+  {locat:"5-E",  param:"WARNING 2",    module:"protection", page:"second", desc:"Warnings set off by the protection system",                             unit:"(hex.)",      see:"10.5.10-35"},
+  {locat:"6-E",  param:"WARNING 3",    module:"protection", page:"second", desc:"Warnings set off by the protection system",                             unit:"(hex.)",      see:"10.5.10-36"},
+  {locat:"7-E",  param:"ALM OVER 1",   module:"protection", page:"second", desc:"Override status of the alarms set off by the protection system",        unit:"(hex.)",      see:"10.5.10-37"},
+  {locat:"8-E",  param:"ALM OVER 2",   module:"protection", page:"second", desc:"Override status of the alarms set off by the protection system",        unit:"(hex.)",      see:"10.5.10-38"},
+  {locat:"9-E",  param:"ALM OVER 3",   module:"protection", page:"second", desc:"Override status of the alarms set off by the protection system",        unit:"(hex.)",      see:"10.5.10-39"},
+  {locat:"10-E", param:"ALM ATTR 1",   module:"protection", page:"second", desc:"Attributes of the alarms set off by the protection system",             unit:"(hex.)",      see:"10.5.10-40"},
+  {locat:"11-E", param:"ALM ATTR 2",   module:"protection", page:"second", desc:"Attributes of the alarms set off by the protection system",             unit:"(hex.)",      see:"10.5.10-41"},
+  {locat:"12-E", param:"ALM ATTR 3",   module:"protection", page:"second", desc:"Attributes of the alarms set off by the protection system",             unit:"(hex.)",      see:"10.5.10-42"},
+  {locat:"13-E", param:"ALM ATTR 4",   module:"protection", page:"second", desc:"Attributes of the alarms set off by the protection system",             unit:"(hex.)",      see:"10.5.10-43"},
+  {locat:"14-E", param:"SENSORS",      module:"protection", page:"second", desc:"Digital sensors read by the protection system",                         unit:"(hex.)",      see:"10.5.10-30"},
+  {locat:"15-E", param:"CENTR Pres",   module:"protection", page:"second", desc:"Central concentrate distribution activation",                           unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"16-E", param:"CENTRAL A",    module:"protection", page:"second", desc:"Central acetate connector switch",                                      unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"17-E", param:"CENTRAL B",    module:"protection", page:"second", desc:"Central bicarbonate connector switch",                                  unit:"ON/OFF",      see:"10.5.2"},
+  {locat:"18-E", param:"VLINE PRES",   module:"protection", page:"second", desc:"Venous line presence switch on the venous clamp",                       unit:"YES/NO",      see:"10.5.8"},
+  {locat:"19-E", param:"VLINE ABD",    module:"protection", page:"second", desc:"Venous line presence switch on the ABD sensor",                         unit:"YES/NO",      see:"10.5.8"},
+
+  /* ══════════════════════════════════════════════
+     THIRD PAGE
+     ══════════════════════════════════════════════ */
+
+  /* ── THIRD PAGE · Bio Module (Col A) ── */
+  {locat:"1-A",  param:"BIO SW REL",   module:"bio",        page:"third",  desc:"Software revision number",                                              unit:"",            see:""},
+  {locat:"2-A",  param:"BIO Code",     module:"bio",        page:"third",  desc:"High part: Bio Slave board identifier. Low part: service message identifier", unit:"N/A (hex.)", see:"10.5.10-44"},
+  {locat:"3-A",  param:"BIO Numess",   module:"bio",        page:"third",  desc:"Number of messages sent to the Bio Slave",                              unit:"N/A (dec.)",  see:""},
+  {locat:"4-A",  param:"BIO HW CONF",  module:"bio",        page:"third",  desc:"Hardware configuration",                                                unit:"",            see:"10.5.8-57"},
+  {locat:"19-A", param:"Dscan Cond",   module:"bio",        page:"third",  desc:"DiaScan conductivity",                                                  unit:"mS/cm*1000",  see:""},
+  {locat:"20-A", param:"Dscan Volt",   module:"bio",        page:"third",  desc:"DiaScan conductivity probe voltage",                                    unit:"V*100",       see:""},
+
+  /* ── THIRD PAGE · Miscellaneous (Col B) ── */
+  {locat:"1-B",  param:"TWL ERROR",    module:"misc",       page:"third",  desc:"Difference between the theoretical and the current weight loss rate",   unit:"g",           see:""},
+  {locat:"2-B",  param:"TM PRESS",     module:"misc",       page:"third",  desc:"Transmembrane pressure",                                                unit:"mmHg",        see:""},
+  {locat:"7-B",  param:"KPS CHE",      module:"misc",       page:"third",  desc:"Autocalibration coefficients for the PS pump in chemical disinfection", unit:"N/A (dec)",   see:"10.5.11-1"},
+  {locat:"8-B",  param:"KPS CITR",     module:"misc",       page:"third",  desc:"Autocalibration coefficients for the PS pump in heat citric disinfection", unit:"N/A (dec)", see:"10.5.11-2"},
+  {locat:"10-B", param:"TOTAL UF",     module:"misc",       page:"third",  desc:"UF total from the start of dialysis",                                   unit:"g",           see:""},
+  {locat:"11-B", param:"TOT BLOOD",    module:"misc",       page:"third",  desc:"Total volume of blood totalized from the start of dialysis",            unit:"l*10",        see:""},
+  {locat:"12-B", param:"TOT HEPAR",    module:"misc",       page:"third",  desc:"Total volume of heparin totalized from the start of dialysis",          unit:"ml*10",       see:""},
+  {locat:"13-B", param:"TOT RINSE",    module:"misc",       page:"third",  desc:"Total volume totalized during line rinsing",                            unit:"ml",          see:""},
+  {locat:"14-B", param:"TOT WASHB",    module:"misc",       page:"third",  desc:"Total volume totalized during washback (rinseback)",                    unit:"ml",          see:""},
+  {locat:"25-B", param:"Integ Time",   module:"misc",       page:"third",  desc:"Internal timer",                                                        unit:"sec",         see:""},
+  {locat:"26-B", param:"Treatm Time",  module:"misc",       page:"third",  desc:"Real treatment time (visualized time — bypass operator or alarm)",       unit:"sec",         see:""},
+  {locat:"27-B", param:"Diffus Time",  module:"misc",       page:"third",  desc:"Diffusion time during treatment",                                       unit:"sec",         see:""},
+  {locat:"28-B", param:"Dialys Time",  module:"misc",       page:"third",  desc:"Current dialysis time",                                                 unit:"sec",         see:""},
+  {locat:"29-B", param:"Disinf Time",  module:"misc",       page:"third",  desc:"Current disinfection time",                                             unit:"sec",         see:""},
+  {locat:"30-B", param:"Rinse Time",   module:"misc",       page:"third",  desc:"Current rinsing time",                                                  unit:"sec",         see:""},
+  {locat:"31-B", param:"HepBol Time",  module:"misc",       page:"third",  desc:"Heparin bolus interval time",                                           unit:"sec",         see:""},
+  {locat:"32-B", param:"Recirc Time",  module:"misc",       page:"third",  desc:"Recirculation current time",                                            unit:"sec",         see:""},
+  {locat:"33-B", param:"Priming Time", module:"misc",       page:"third",  desc:"Current priming time",                                                  unit:"sec",         see:""},
+  {locat:"34-B", param:"Phase Time",   module:"misc",       page:"third",  desc:"Current phase time",                                                    unit:"sec",         see:""},
+
+  /* ── THIRD PAGE · DiaScan Task (Col C) ── */
+  {locat:"1-C",  param:"PHASE",        module:"diascan",    page:"third",  desc:"Internal DiaScan process phase (reserved)",                             unit:"(hex.)",      see:""},
+  {locat:"2-C",  param:"CALIB",        module:"diascan",    page:"third",  desc:"Debug flags related to calibration procedure",                          unit:"",            see:"10.5.10-45"},
+  {locat:"3-C",  param:"GAIN",         module:"diascan",    page:"third",  desc:"Calibration gain",                                                      unit:"N/A",         see:""},
+  {locat:"4-C",  param:"CONST",        module:"diascan",    page:"third",  desc:"Calibration offset",                                                    unit:"N/A",         see:""},
+  {locat:"5-C",  param:"FLAG",         module:"diascan",    page:"third",  desc:"Status of the measure (correct, incorrect,...)",                        unit:"(hex.)",      see:"10.5.10-46"},
+  {locat:"6-C",  param:"ALPHA",        module:"diascan",    page:"third",  desc:"Alignment gain",                                                        unit:"N/A",         see:""},
+  {locat:"7-C",  param:"BETA",         module:"diascan",    page:"third",  desc:"Alignment offset",                                                      unit:"N/A",         see:""},
+  {locat:"8-C",  param:"COND Y1",      module:"diascan",    page:"third",  desc:"Value of the outlet conductivity step 1 during the DiaScan measure",    unit:"mS/cm",       see:""},
+  {locat:"9-C",  param:"COND Y2",      module:"diascan",    page:"third",  desc:"Value of the outlet conductivity step 2 during the DiaScan measure",    unit:"mS/cm",       see:""},
+  {locat:"10-C", param:"COND Y3",      module:"diascan",    page:"third",  desc:"Value of the outlet conductivity step 3 during the DiaScan measure",    unit:"mS/cm",       see:""},
+  {locat:"11-C", param:"R HYD T",      module:"diascan",    page:"third",  desc:"Conductivity rinsing hydraulic delay",                                  unit:"sec",         see:""},
+  {locat:"12-C", param:"F HYD T",      module:"diascan",    page:"third",  desc:"Conductivity falling hydraulic delay",                                  unit:"sec",         see:""},
+  {locat:"13-C", param:"R TAU",        module:"diascan",    page:"third",  desc:"Conductivity rinsing time constant",                                    unit:"sec",         see:""},
+  {locat:"14-C", param:"F TAU",        module:"diascan",    page:"third",  desc:"Conductivity falling time constant",                                    unit:"sec",         see:""},
+  {locat:"15-C", param:"Num_Meas",     module:"diascan",    page:"third",  desc:"First two numbers: DiaScan measurements started. Second two: measurements correctly performed", unit:"", see:""},
+
+  /* ── THIRD PAGE · C.C.M. Task (Col D) ── */
+  {locat:"1-D",  param:"PC CNT",       module:"ccm",        page:"third",  desc:"PC connection",                                                         unit:"(dec.)",      see:""},
+  {locat:"2-D",  param:"CCM ID",       module:"ccm",        page:"third",  desc:"CCM identification number",                                             unit:"(dec.)",      see:""},
+  {locat:"3-D",  param:"BAUD RATE",    module:"ccm",        page:"third",  desc:"Baud rate for external communication",                                  unit:"(dec.)",      see:""},
+  {locat:"4-D",  param:"CCM CODE",     module:"ccm",        page:"third",  desc:"Fixed code to identify CCM message for service data",                   unit:"(hex.)",      see:""},
+  {locat:"5-D",  param:"CCM MESS",     module:"ccm",        page:"third",  desc:"Progressive counter to identify last message which CCM service data refers to", unit:"(hex.)", see:""},
+  {locat:"6-D",  param:"CHANNEL 1",    module:"ccm",        page:"third",  desc:"Value of first digital channel of page zero of the communication protocol", unit:"(hex.)",  see:"10.5.10-47"},
+  {locat:"7-D",  param:"CHANNEL 2",    module:"ccm",        page:"third",  desc:"Value of second digital channel of page zero of the communication protocol", unit:"(hex.)", see:"10.5.10-48"},
+  {locat:"8-D",  param:"CHANNEL 3",    module:"ccm",        page:"third",  desc:"Value of third digital channel of page zero of the communication protocol", unit:"(hex.)",  see:"10.5.10-49"},
+  {locat:"9-D",  param:"Synchro 1",    module:"ccm",        page:"third",  desc:"Programmed channels for synchronous acquisition (Ch. 1 to 15 bitmapped)", unit:"(hex.)",   see:"10.5.10-50"},
+  {locat:"10-D", param:"Synchro 2",    module:"ccm",        page:"third",  desc:"Programmed channels for synchronous acquisition (Ch. 16 to 31 bitmapped)", unit:"(hex.)",  see:"10.5.10-51"},
+  {locat:"11-D", param:"Synchro 3",    module:"ccm",        page:"third",  desc:"Programmed channels for synchronous acquisition (Ch. 32 to 47 bitmapped)", unit:"(hex.)",  see:"10.5.10-52"},
+  {locat:"12-D", param:"Synchro 4",    module:"ccm",        page:"third",  desc:"Programmed channels for synchronous acquisition (Ch. 48 to 60 bitmapped)", unit:"(hex.)",  see:"10.5.10-53"},
+  {locat:"13-D", param:"PHASE",        module:"ccm",        page:"third",  desc:"Value of page zero of the communication protocol (phase)",               unit:"(hex.)",      see:"10.5.10-54"},
+  {locat:"14-D", param:"Num Sync",     module:"ccm",        page:"third",  desc:"Number of synchronous samples in memory",                               unit:"(dec.)",      see:""},
+  {locat:"15-D", param:"Num Async",    module:"ccm",        page:"third",  desc:"Number of asynchronous records in memory",                              unit:"(dec.)",      see:""},
+  {locat:"16-D", param:"NUM Alarm",    module:"ccm",        page:"third",  desc:"Number of alarm records in memory",                                     unit:"(dec.)",      see:""},
+  {locat:"17-D", param:"NUM Phase",    module:"ccm",        page:"third",  desc:"Number of phase records in memory",                                     unit:"(dec.)",      see:""},
+  {locat:"18-D", param:"NUM Dialys",   module:"ccm",        page:"third",  desc:"Number of multiple sessions stored in backup memory",                   unit:"(dec.)",      see:""},
+  {locat:"19-D", param:"OFFSET",       module:"ccm",        page:"third",  desc:"Total size of multiple sessions stored in backup memory",               unit:"(dec.)",      see:""},
+  {locat:"20-D", param:"Sync ACQ",     module:"ccm",        page:"third",  desc:"Synchronous set-up presence signature",                                 unit:"(dec.)",      see:"10.5.10-56"},
+  {locat:"21-D", param:"Async ACQ",    module:"ccm",        page:"third",  desc:"Asynchronous set-up presence signature",                                unit:"(dec.)",      see:"10.5.10-57"},
+  {locat:"22-D", param:"SAVE MODE",    module:"ccm",        page:"third",  desc:"End of session storage mode of acquired data",                          unit:"(dec.)",      see:""},
+
+  /* ── THIRD PAGE · SW Test Points (Col E) ── */
+  {locat:"1-E",  param:"Hyd SW Rel",   module:"swtest",     page:"third",  desc:"Hydraulic slave SW revision",                                           unit:"N/A (hex.)",  see:""},
+  {locat:"2-E",  param:"Hyd CRC",      module:"swtest",     page:"third",  desc:"Hydraulic slave application CRC",                                       unit:"N/A (hex.)",  see:""},
+  {locat:"3-E",  param:"HydBoot Rel",  module:"swtest",     page:"third",  desc:"Hydraulic slave booter release",                                        unit:"N/A (hex.)",  see:""},
+  {locat:"5-E",  param:"BLO SW Rel",   module:"swtest",     page:"third",  desc:"Blood slave SW revision",                                               unit:"N/A (hex.)",  see:""},
+  {locat:"6-E",  param:"BLO CRC",      module:"swtest",     page:"third",  desc:"Blood slave application CRC",                                           unit:"N/A (hex.)",  see:""},
+  {locat:"7-E",  param:"BloBoot Rel",  module:"swtest",     page:"third",  desc:"Blood slave booter release",                                            unit:"N/A (hex.)",  see:""},
+  {locat:"9-E",  param:"Pro SW Rel",   module:"swtest",     page:"third",  desc:"Protective slave SW revision",                                          unit:"N/A (hex.)",  see:""},
+  {locat:"10-E", param:"Pro CRC",      module:"swtest",     page:"third",  desc:"Protective slave application CRC",                                      unit:"N/A (hex.)",  see:""},
+  {locat:"11-E", param:"ProBoot Rel",  module:"swtest",     page:"third",  desc:"Protective slave booter release",                                       unit:"N/A (hex.)",  see:""},
+  {locat:"12-E", param:"PRO BOOT CRC", module:"swtest",     page:"third",  desc:"Protective slave booter CRC",                                           unit:"N/A (hex.)",  see:""},
+  {locat:"14-E", param:"BIO SW Rel",   module:"swtest",     page:"third",  desc:"BioSlave SW revision",                                                  unit:"N/A (hex.)",  see:""},
+  {locat:"15-E", param:"BIO CRC",      module:"swtest",     page:"third",  desc:"BioSlave application CRC",                                              unit:"N/A (hex.)",  see:""},
+  {locat:"16-E", param:"BioBoot Rel",  module:"swtest",     page:"third",  desc:"BioSlave booter release",                                               unit:"N/A (hex.)",  see:""},
+  {locat:"18-E", param:"PLD Rel",      module:"swtest",     page:"third",  desc:"PLD SW revision",                                                       unit:"N/A (hex.)",  see:""},
+  {locat:"19-E", param:"BPM Rel",      module:"swtest",     page:"third",  desc:"BPM SW revision",                                                       unit:"N/A (hex.)",  see:""}
+];
+
+/* ════════════════════════════════════════════
+   CODING REFERENCE DATA
+   ════════════════════════════════════════════ */
+var CODING = [
+  {title:"10.5.1 — Vismode FLAG / ONOFF / REVONOFF", rows:[
+    {key:"ON",    val:"Device Active"},
+    {key:"OFF",   val:"Device Not Active"}
+  ]},
+  {title:"10.5.3 — Vismode REVONOFF (Reversed)", rows:[
+    {key:"ON",    val:"Device Active"},
+    {key:"OFF",   val:"Device Not Active"}
+  ]},
+  {title:"10.5.4 — Vismode LEVEL", rows:[
+    {key:"AIR",   val:"Level Sensor has detected Air"},
+    {key:"WATER", val:"Level Sensor has detected Water"}
+  ]},
+  {title:"10.5.5 — Vismode DOOR", rows:[
+    {key:"OPENED", val:"Signals the opening state of the switch related to the device"},
+    {key:"CLOSED", val:"Signals the closing state of the switch related to the device"}
+  ]},
+  {title:"10.5.7 — Vismode SET PUMPS", rows:[
+    {key:"OFF",    val:"Status of the pump: OFF"},
+    {key:"ON-OL",  val:"Pump driven in Open Loop"},
+    {key:"Cl-Enc", val:"Pump driven in Closed Loop Encoder"},
+    {key:"Cl-Sen", val:"Pump driven in Closed on its sensor"},
+    {key:"Cl-PO",  val:"Pump driven in Closed Loop on Pressure PO"},
+    {key:"Ol-Fw",  val:"Pump driven in Open Loop in Forward Rotation"},
+    {key:"Ol-Bw",  val:"Pump driven in Open Loop in Backward Rotation"}
+  ]},
+  {title:"10.5.8 — Vismode YESNO", rows:[
+    {key:"YES", val:"Present"},
+    {key:"NO",  val:"Not Present"}
+  ]},
+  {title:"10.5.10-2 — VALVES 1 Bitmap", rows:[
+    {key:"Bit 0 (1)", val:"EVS"},
+    {key:"Bit 1 (2)", val:"EVC"},
+    {key:"Bit 2 (4)", val:"EVD"},
+    {key:"0", val:"Valve Closed"},
+    {key:"1", val:"Valve Opened"},
+    {key:"/", val:"Free (not used)"}
+  ]},
+  {title:"10.5.10-3 — VALVES 2 Bitmap", rows:[
+    {key:"Bit 0 (1)",  val:"EVR1"},
+    {key:"Bit 1 (2)",  val:"EV2"},
+    {key:"Bit 2 (4)",  val:"EV1"},
+    {key:"Bit 3 (8)",  val:"EVBP"},
+    {key:"Bit 4 (16)", val:"EVUFO"},
+    {key:"Bit 5 (32)", val:"EVDS2"},
+    {key:"Bit 6 (64)", val:"EVD1"},
+    {key:"Bit 7 (128)",val:"EVP"},
+    {key:"Bit 8",      val:"EV1S"},
+    {key:"Bit 9",      val:"EVD2"},
+    {key:"Bit 10",     val:"EVUF"},
+    {key:"Bit 11",     val:"EVW2"},
+    {key:"Bit 12",     val:"EV2"},
+    {key:"Bit 13",     val:"EVR1"},
+    {key:"Bit 14",     val:"EVH20"},
+    {key:"Bit 15",     val:"EVHE"},
+    {key:"0", val:"Valve Closed"},
+    {key:"1", val:"Valve Opened"}
+  ]},
+  {title:"10.5.10-4 — SENSOR 1 Bitmap", rows:[
+    {key:"B tank empty",    val:"Bit 0"},
+    {key:"BT level sens. LP", val:"Bit 1"},
+    {key:"BT1 level sens. LD1", val:"Bit 2"},
+    {key:"BT2 level sens. LD2", val:"Bit 3"},
+    {key:"PI sens.",        val:"Bit 4"},
+    {key:"PO sens.",        val:"Bit 5"},
+    {key:"PFS press. transduc.", val:"Bit 6"},
+    {key:"Clean Dialys.",   val:"Bit 7"},
+    {key:"WHF port",        val:"Bit 8"},
+    {key:"BT2 level",       val:"Bit 9"},
+    {key:"HD flow swit. LFD", val:"Bit 11"},
+    {key:"Drain press. switch OPD", val:"Bit 13"},
+    {key:"Bicart empty",    val:"Bit 15"},
+    {key:"Level Sensors: 0", val:"Air"},
+    {key:"Level Sensors: 1", val:"Water"},
+    {key:"Flow switches: 0", val:"Flow"},
+    {key:"Flow switches: 1", val:"No flow"}
+  ]},
+  {title:"10.5.10-31/32/33 — ALARM 1/2/3 (Protection)", rows:[
+    {key:"ALARM 1 — Bit 0 (1)",  val:"Cond A alarm"},
+    {key:"ALARM 1 — Bit 1 (2)",  val:"Cond B alarm"},
+    {key:"ALARM 1 — Bit 2 (4)",  val:"Temperature alarm"},
+    {key:"ALARM 1 — Bit 3 (8)",  val:"UF rate alarm"},
+    {key:"ALARM 1 — Bit 4 (16)", val:"Mass balance alarm"},
+    {key:"ALARM 1 — Bit 5 (32)", val:"Venous pressure alarm"},
+    {key:"ALARM 1 — Bit 6 (64)", val:"Venous max press."},
+    {key:"ALARM 1 — Bit 7",      val:"Air foam"},
+    {key:"ALARM 1 — Bit 8",      val:"Dial. flow"},
+    {key:"ALARM 1 — Bit 9",      val:"Art. flow"},
+    {key:"ALARM 1 — Bit 11",     val:"Blood leak"},
+    {key:"ALARM 1 — Bit 12",     val:"Reserve"},
+    {key:"ALARM 1 — Bit 13",     val:"Conc. tank"},
+    {key:"ALARM 1 — Bit 14",     val:"Pi Po min press."},
+    {key:"ALARM 2 — Bit 0 (1)",  val:"PI PO max press."},
+    {key:"ALARM 2 — Bit 1",      val:"Reserve"},
+    {key:"ALARM 2 — Bit 2",      val:"Single need."},
+    {key:"ALARM 2 — Bit 3",      val:"long pw fail"},
+    {key:"ALARM 2 — Bit 4",      val:"short pw fail"},
+    {key:"ALARM 2 — Bit 5",      val:"T1 test"},
+    {key:"ALARM 2 — Bit 6",      val:"Reserve"},
+    {key:"ALARM 2 — Bit 7",      val:"ext BLP stop"},
+    {key:"ALARM 2 — Bit 8",      val:"Voltages"},
+    {key:"ALARM 2 — Bit 9",      val:"Reserve"},
+    {key:"ALARM 2 — Bit 10",     val:"temp. max"},
+    {key:"ALARM 2 — Bit 11",     val:"prof. cond. A"},
+    {key:"ALARM 2 — Bit 12",     val:"Reserve"},
+    {key:"ALARM 2 — Bit 13",     val:"prof. WLR"},
+    {key:"ALARM 2 — Bit 14",     val:"Clear. Measure"},
+    {key:"ALARM 2 — Bit 15",     val:"PS out of order"},
+    {key:"ALARM 3 — Bit 0",      val:"Watch dog"},
+    {key:"ALARM 3 — Bit 1",      val:"Dry dialysis"},
+    {key:"ALARM 3 — Bit 5",      val:"Auto Emtying"},
+    {key:"ALARM 3 — Bit 6",      val:"Art. press."},
+    {key:"ALARM 3 — Bit 7",      val:"Long Bypass"},
+    {key:"ALARM 3 — Bit 8",      val:"Art. min. press."},
+    {key:"ALARM 3 — Bit 9",      val:"Blood pump direction"},
+    {key:"ALARM 3 — Bit 10",     val:"Blood in hydr. prime"},
+    {key:"ALARM 3 — Bit 11",     val:"Check hydr. prime"},
+    {key:"0", val:"Alarm not active"},
+    {key:"1", val:"Alarm active"}
+  ]},
+  {title:"10.5.10-34/35/36 — WARNING 1/2/3 (Protection)", rows:[
+    {key:"WARNING 1 — Bit 0",  val:"SW strange exec"},
+    {key:"WARNING 1 — Bit 1",  val:"mess type unkn."},
+    {key:"WARNING 1 — Bit 2",  val:"AD conv."},
+    {key:"WARNING 1 — Bit 3",  val:"Analog high var."},
+    {key:"WARNING 1 — Bit 4",  val:"DAC range"},
+    {key:"WARNING 1 — Bit 5",  val:"BLD Led high"},
+    {key:"WARNING 1 — Bit 6",  val:"EEprom CRC"},
+    {key:"WARNING 1 — Bit 7",  val:"Pi press. sensor"},
+    {key:"WARNING 1 — Bit 8",  val:"Po press. sensor"},
+    {key:"WARNING 1 — Bit 9",  val:"PV press. sensor"},
+    {key:"WARNING 1 — Bit 10", val:"temp. sensor"},
+    {key:"WARNING 1 — Bit 11", val:"BLD cal. phase"},
+    {key:"WARNING 1 — Bit 12", val:"BLD receiv. high"},
+    {key:"WARNING 1 — Bit 13", val:"Pat. Sens. saturat."},
+    {key:"WARNING 1 — Bit 14", val:"error in RAM"},
+    {key:"WARNING 1 — Bit 15", val:"error in EPROM"},
+    {key:"WARNING 2 — Bit 0",  val:"volt. not ok"},
+    {key:"WARNING 2 — Bit 1",  val:"long bypass"},
+    {key:"WARNING 2 — Bit 2",  val:"T1 test warn."},
+    {key:"WARNING 2 — Bit 3",  val:"T1 test wait oper."},
+    {key:"WARNING 2 — Bit 4",  val:"Ven line absent"},
+    {key:"WARNING 2 — Bit 5",  val:"long WLR fail"},
+    {key:"WARNING 2 — Bit 6",  val:"PA autoc. fail"},
+    {key:"WARNING 2 — Bit 7",  val:"PB autoc. fail"},
+    {key:"WARNING 2 — Bit 8",  val:"UF emerg."},
+    {key:"WARNING 2 — Bit 9",  val:"BLD disab."},
+    {key:"WARNING 2 — Bit 10", val:"T1 TEST"},
+    {key:"WARNING 2 — Bit 11", val:"art pump stopp."},
+    {key:"WARNING 2 — Bit 12", val:"Reserved"},
+    {key:"WARNING 2 — Bit 13", val:"Reapet. UF Vessel alarm"},
+    {key:"WARNING 2 — Bit 14", val:"set value range"},
+    {key:"WARNING 2 — Bit 15", val:"Warning ABD"},
+    {key:"WARNING 3 — Bit 0",  val:"Pdrain press. sens"},
+    {key:"WARNING 3 — Bit 1",  val:"ABD blood pump stop"},
+    {key:"WARNING 3 — Bit 2",  val:"PA press. sens."},
+    {key:"WARNING 3 — Bit 3",  val:"Blood on PTS"},
+    {key:"WARNING 3 — Bit 4",  val:"Repeat. Mass Balance Alarm"},
+    {key:"WARNING 3 — Bit 5",  val:"CRC mess."},
+    {key:"WARNING 3 — Bit 6",  val:"Wrong zero press."},
+    {key:"WARNING 3 — Bit 7",  val:"Long pause therapy"},
+    {key:"WARNING 3 — Bit 8",  val:"Flowmeter drift"},
+    {key:"WARNING 3 — Bit 9",  val:"Blood in prime"},
+    {key:"0", val:"Warning not active"},
+    {key:"1", val:"Warning active"}
+  ]}
+];
+
+/* ════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════ */
+var SQ = '', MF = 'all', PF = 'all';
+var OS = {};
+
+document.getElementById('totalBadge').textContent = PARAMS.length + ' params';
+
+/* ════════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════════ */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function hi(s, ws){
+  if(!ws||!ws.length) return esc(s);
+  var r = esc(s);
+  ws.forEach(function(w){
+    if(!w) return;
+    r = r.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+  });
+  return r;
+}
+
+function moduleLabel(m){
+  var map = {hydraulic:'Hydraulic',protection:'Protection',blood:'Blood',
+    bio:'Bio',misc:'Misc',diascan:'DiaScan',ccm:'CCM',swtest:'SW Test'};
+  return map[m]||m;
+}
+
+function pageLabel(p){
+  var map = {first:'1st Page',second:'2nd Page',third:'3rd Page'};
+  return map[p]||p;
+}
+
+/* ════════════════════════════════════════════
+   RENDER CARDS
+   ════════════════════════════════════════════ */
+function render(list){
+  var ws = SQ ? SQ.trim().toLowerCase().split(/\s+/) : [];
+  var cards = document.getElementById('cardsEl');
+  var empty = document.getElementById('emptyEl');
+  var sbar  = document.getElementById('sbarEl');
+
+  if(!list.length){
+    cards.innerHTML=''; cards.style.display='none'; empty.style.display='block';
+    sbar.innerHTML = 'No results found';
+    return;
+  }
+  cards.style.display=''; empty.style.display='none';
+
+  var filtered = (MF!=='all'||PF!=='all'||SQ) ? list.length : PARAMS.length;
+  if(SQ||MF!=='all'||PF!=='all'){
+    sbar.innerHTML = 'Showing <b>' + list.length + '</b> of ' + PARAMS.length + ' parameters';
+  } else {
+    sbar.innerHTML = 'Showing all <b>' + PARAMS.length + '</b> parameters';
+  }
+
+  cards.innerHTML = list.map(function(p, i){
+    var key = p.locat + '_' + p.page;
+    var isOpen = OS[key];
+    return '<div class="card">' +
+      '<div class="chead" onclick="toggle(\''+key+'\')">' +
+        '<span class="locbadge">' + esc(p.locat) + '</span>' +
+        '<div class="cbody">' +
+          '<div class="ctitle">' + hi(p.param, ws) + '</div>' +
+          '<div class="cdesc-preview">' + hi(p.desc, ws) + '</div>' +
+          '<div class="cmeta">' +
+            '<span class="mbadge m-'+p.module+'">' + moduleLabel(p.module) + '</span>' +
+            '<span class="pbadge">' + pageLabel(p.page) + '</span>' +
+            (p.unit ? '<span class="pbadge" style="background:var(--amber-light);color:var(--amber);">' + esc(p.unit) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="chev' + (isOpen?' open':'') + '" id="chev_'+key+'">▾</div>' +
+      '</div>' +
+      '<div class="cdet' + (isOpen?' open':'') + '" id="det_'+key+'">' +
+        '<div class="cdet-in">' +
+          '<div class="dsec">' +
+            '<div class="dlbl">▸ Description</div>' +
+            '<div class="dbox">' + hi(p.desc, ws) + '</div>' +
+          '</div>' +
+          (p.unit ? '<div class="dsec"><div class="dlbl">▸ Unit</div><div class="ubox">' + esc(p.unit) + '</div></div>' : '') +
+          (p.see  ? '<div class="dsec"><div class="dlbl">▸ See Paragraph</div><div class="rbox">§ ' + esc(p.see) + '</div></div>' : '') +
+          '<div class="dsec"><div class="dlbl">▸ Location</div>' +
+            '<div class="dbox">Screen Page: <b>' + pageLabel(p.page) + '</b> &nbsp;|&nbsp; Column: <b>' + esc(p.locat.split('-')[1]) + '</b> &nbsp;|&nbsp; Row: <b>' + esc(p.locat.split('-')[0]) + '</b></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggle(key){
+  var det  = document.getElementById('det_'+key);
+  var chev = document.getElementById('chev_'+key);
+  if(!det) return;
+  if(OS[key]){OS[key]=0;det.classList.remove('open');if(chev)chev.classList.remove('open');}
+  else{OS[key]=1;det.classList.add('open');if(chev)chev.classList.add('open');}
+}
+
+/* ════════════════════════════════════════════
+   SEARCH + FILTER
+   ════════════════════════════════════════════ */
+function go(){
+  var ws = SQ ? SQ.trim().toLowerCase().split(/\s+/) : [];
+  var list = PARAMS.slice();
+  if(MF !== 'all') list = list.filter(function(p){ return p.module === MF; });
+  if(PF !== 'all') list = list.filter(function(p){ return p.page   === PF; });
+  if(ws.length) list = list.filter(function(p){
+    var h = [p.locat, p.param, p.desc, p.unit, p.see].join(' ').toLowerCase();
+    return ws.every(function(w){ return h.indexOf(w) >= 0; });
+  });
+  OS = {};
+  render(list);
+}
+
+var sInp = document.getElementById('sInp');
+var sClr = document.getElementById('sClr');
+sInp.addEventListener('input', function(){ SQ = sInp.value; sClr.className = SQ.length ? 's-clr show' : 's-clr'; go(); });
+sClr.addEventListener('click', function(){ sInp.value=''; SQ=''; sClr.className='s-clr'; go(); });
+
+document.getElementById('modRow').addEventListener('click', function(e){
+  var b = e.target; while(b && !b.classList.contains('seg')) b = b.parentElement;
+  if(!b) return;
+  document.querySelectorAll('#modRow .seg').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on'); MF = b.getAttribute('data-v'); go();
+});
+
+document.getElementById('pageRow').addEventListener('click', function(e){
+  var b = e.target; while(b && !b.classList.contains('seg')) b = b.parentElement;
+  if(!b) return;
+  document.querySelectorAll('#pageRow .seg').forEach(function(x){ x.classList.remove('on'); });
+  b.classList.add('on'); PF = b.getAttribute('data-v'); go();
+});
+
+/* ════════════════════════════════════════════
+   BY PAGE VIEW
+   ════════════════════════════════════════════ */
+function renderPageView(){
+  var sections = [
+    {key:'first',  label:'Status Screen — 1st Page'},
+    {key:'second', label:'Status Screen — 2nd Page'},
+    {key:'third',  label:'Status Screen — 3rd Page'}
+  ];
+  var modules_order = ['hydraulic','protection','blood','bio','misc','diascan','ccm','swtest'];
+
+  var html = '';
+  sections.forEach(function(sec){
+    html += '<div class="pg-section"><div class="pg-section-title">' + sec.label + '</div>';
+    modules_order.forEach(function(mod){
+      var rows = PARAMS.filter(function(p){ return p.page===sec.key && p.module===mod; });
+      if(!rows.length) return;
+      html += '<div style="font-size:10px;font-weight:800;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:8px 2px 4px;">' + moduleLabel(mod) + ' Module</div>';
+      html += '<div class="pg-list">';
+      rows.forEach(function(p){
+        html += '<div class="pg-row" onclick="jumpToParam(\''+p.locat+'_'+p.page+'\')">' +
+          '<span class="pg-locat">' + esc(p.locat) + '</span>' +
+          '<span class="pg-name">' + esc(p.param) + ' <span style="font-size:11px;color:var(--text3);">— '+esc(p.desc.substring(0,50))+(p.desc.length>50?'…':'')+'</span></span>' +
+          '<span class="pg-unit">' + esc(p.unit||'') + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('pagePanelInner').innerHTML = html;
+}
+
+function jumpToParam(key){
+  switchBnav('search', document.querySelector('.bnav-item'));
+  setTimeout(function(){
+    var el = document.getElementById('det_'+key);
+    if(el){ el.closest('.card').scrollIntoView({behavior:'smooth',block:'center'}); }
+    else{
+      // open that key
+      OS[key]=1; go();
+      setTimeout(function(){
+        var el2 = document.getElementById('det_'+key);
+        if(el2) el2.closest('.card').scrollIntoView({behavior:'smooth',block:'center'});
+      },400);
+    }
+  },100);
+}
+
+/* ════════════════════════════════════════════
+   CODING REFERENCE VIEW
+   ════════════════════════════════════════════ */
+function renderCodeView(){
+  var html = '';
+  CODING.forEach(function(sec){
+    html += '<div class="code-section">';
+    html += '<div class="code-section-title">' + esc(sec.title) + '</div>';
+    html += '<table class="code-table"><thead><tr><th style="width:35%">Value / Key</th><th>Meaning</th></tr></thead><tbody>';
+    sec.rows.forEach(function(row){
+      html += '<tr><td class="code-key">' + esc(row.key) + '</td><td>' + esc(row.val) + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+  document.getElementById('codePanelInner').innerHTML = html;
+}
+
+/* ════════════════════════════════════════════
+   TAB SWITCH
+   ════════════════════════════════════════════ */
+function switchBnav(tab, el){
+  document.querySelectorAll('.bnav-item').forEach(function(b){ b.classList.remove('on'); });
+  if(el) el.classList.add('on');
+
+  var isSearch = (tab === 'search');
+  var filtEl   = document.getElementById('filtEl');
+  var sbarEl   = document.getElementById('sbarEl');
+  var cardsEl  = document.getElementById('cardsEl');
+  var emptyEl  = document.getElementById('emptyEl');
+
+  filtEl.style.display  = isSearch ? '' : 'none';
+  sbarEl.style.display  = isSearch ? '' : 'none';
+  cardsEl.style.display = isSearch ? '' : 'none';
+  emptyEl.style.display = 'none';
+
+  document.getElementById('pagePanel').classList.toggle('on', tab==='page');
+  document.getElementById('codePanel').classList.toggle('on', tab==='code');
+
+  if(tab === 'page')   renderPageView();
+  if(tab === 'code')   renderCodeView();
+  if(tab === 'search'){ cardsEl.style.display=''; go(); }
+}
+
+/* ════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════ */
+go();
+</script>
+</body>
+</html>
