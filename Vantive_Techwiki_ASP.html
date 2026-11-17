@@ -1146,7 +1146,7 @@
 
       <!-- Brand banner: Champion of Positive Change (주 1회 자동 교체 — 아래 rotateBanner 참조) -->
       <div class="welcome-brand-banner">
-        <img id="brand-banner-img" src="vantive_image01.png"
+        <img id="brand-banner-img"
              alt="Vantive — Champion of Positive Change">
       </div>
     </div>
@@ -1314,6 +1314,7 @@ function rotateBanner() {
   };
   if (img.getAttribute('src') !== nextSrc) img.src = nextSrc;
 }
+rotateBanner();   // 페이지 읽는 즉시 이번 주 이미지로 (로그인 전 예전 이미지가 잠깐 보이던 문제)
 
   /* ── SVG Icons (CRRT bottom-nav style: outline, stroke-width 2, round caps) ── */
   const SVG = {
