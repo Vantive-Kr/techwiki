@@ -354,6 +354,23 @@ details.fold > summary{font-weight:500;}
 .u-amt{display:flex;align-items:center;justify-content:flex-end;gap:8px;} .u-amt .sop{margin:0 auto 0 0;} .u-amt .av{margin-left:auto;}   /* 60+ 왼쪽 일렬, 금액 오른쪽 정렬 */
 @media(max-width:760px){ .u-amt{min-width:136px;} }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="plex-v3">
+/* 2026-11-15 v3: IBM Plex Sans KR(본문·큰 숫자) + IBM Plex Mono(금액·WO·날짜·파트넘버) */
+:root{--sans:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;--mono:"IBM Plex Mono","IBM Plex Sans KR",ui-monospace,Menlo,monospace;}
+body,button,select,input{font-family:var(--sans);}
+body{letter-spacing:-.005em;}
+.big .num,.sc-v,.st-t b,.td-v,.s-cnt{font-family:var(--sans);font-weight:700;letter-spacing:-.02em;}
+.sc-a,.s-amt,.u-amt,.u-date,.pn,.badge,.sop,.lh-l b{font-family:var(--mono);letter-spacing:0;}
+.sc-a,.s-amt,.u-amt{font-weight:600;}
+.sc-a{white-space:nowrap;}
+.sc-of{font-family:var(--sans);display:block;font-size:15px;white-space:nowrap;margin-bottom:2px;}
+@media (max-width:760px){.sc-of{font-size:11px;}}
+@media (max-width:340px){.sub-t{display:block;width:max-content;margin:4px 0 0;}}
+.tagline{font-family:var(--sans);}
+</style>
 </head>
 <body>
 
