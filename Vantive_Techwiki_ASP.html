@@ -933,6 +933,53 @@
       cursor: pointer; transition: background .15s;
     }
     #notice-ok:hover { background: var(--plum-dark); }
+
+    /* ── Sidebar v2: Sidebar collapse motion (2026-11-17) ─────────────
+       데스크톱: 접으면 아이콘 레일(64px)로 줄어들고, 펼치면 이름이 위에서부터 차례로 나타남.
+       폭·화살표·강조 막대·글자는 스프링(강성 / 감쇠)으로 움직임 — designbookmark Sidebar collapse 값 그대로.
+       모바일(700px 이하)은 기존 햄버거 서랍 그대로. */
+    .sb-toggle { display: none !important; }            /* 예전 가장자리 손잡이 버튼 */
+    .sidebar { transition: transform var(--transition); will-change: width; }
+    .sidebar-section {
+      position: sticky; top: 0; z-index: 3;
+      display: flex; align-items: center; height: 60px;
+      padding: 12px 14px 4px; background: var(--pine-light);
+    }
+    .sidebar-section-label { white-space: nowrap; will-change: opacity, transform; }
+    .sb-col {
+      position: absolute; right: 14px; top: 14px;
+      width: 36px; height: 36px; border: 0; border-radius: var(--radius);
+      background: rgba(255,250,235,0.12); color: rgba(255,250,235,0.92);
+      display: grid; place-items: center; cursor: pointer; padding: 0;
+      transition: background var(--transition);
+    }
+    .sb-col:hover { background: rgba(255,250,235,0.2); }
+    .sb-col:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+    .sb-col svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9;
+                  stroke-linecap: round; stroke-linejoin: round; will-change: transform; }
+    #tree { position: relative; }
+    .sb-hl {
+      position: absolute; left: 14px; right: 14px; top: 0; height: 34px; z-index: 0;
+      border-radius: var(--radius); background: rgba(255,255,255,0.16);
+      pointer-events: none; opacity: 0; will-change: transform, height, opacity;
+    }
+    .nav-group, .sidebar-divider { position: relative; z-index: 1; }
+    .nav-item.active { background: none; }               /* 강조는 미끄러지는 막대(.sb-hl)가 담당 */
+    .nav-item.active:hover { background: rgba(255,255,255,0.06); }
+    .nav-group-toggle .ng-label, .nav-group-toggle .ng-chevron { white-space: nowrap; }
+    .ng-fade { will-change: opacity, transform; }
+    @media (min-width: 701px) {
+      .sidebar.rail .nav-group-items,
+      .sidebar.rail .sidebar-divider { display: none; }
+      .sidebar.rail .nav-group { margin-bottom: 2px; }
+      .sidebar.rail .nav-group-toggle { height: 40px; padding: 0 9px; }
+      .sidebar.rail .nav-group-toggle.has-active { background: rgba(255,255,255,0.16); }
+      .sidebar.rail #tree { padding-top: 10px !important; }
+    }
+    @media (max-width: 700px) {
+      .sb-col { display: none; }
+      .sidebar-section { position: static; height: auto; padding: 20px 14px 6px; }
+    }
   </style>
 </head>
 <body>
@@ -1019,6 +1066,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-section">
       <p class="sidebar-section-label">Navigation</p>
+      <button class="sb-col" id="sb-col" type="button" aria-label="사이드바 접기" aria-expanded="true" title="사이드바 접기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5 9 12l5.5 5.5"/></svg></button>
     </div>
     <nav id="tree" style="padding: 4px 14px 24px;"></nav>
   </aside>
@@ -1346,19 +1394,6 @@ function rotateBanner() {
 
   let activeLink = null;
 
-  /* ── Sidebar desktop toggle ───────────────────── */
-  (function initSbToggle() {
-    // 저장된 상태 복원 (localStorage)
-    const stored = localStorage.getItem('vt_sb_collapsed');
-    if (stored === 'true') appShell.classList.add('sb-collapsed');
-
-    sbToggle.addEventListener('click', () => {
-      const isCollapsed = appShell.classList.toggle('sb-collapsed');
-      localStorage.setItem('vt_sb_collapsed', isCollapsed ? 'true' : 'false');
-      sbToggle.title = isCollapsed ? '사이드바 펼치기' : '사이드바 접기';
-    });
-  })();
-
   // Chevron SVG
   const chevronSVG = `<svg viewBox="0 0 10 10"><polyline points="3,2 7,5 3,8"/></svg>`;
 
@@ -1404,7 +1439,13 @@ function rotateBanner() {
       items.appendChild(btn);
     });
 
+    toggle.title = cat.label.replace(/&amp;/g, '&');
     toggle.addEventListener('click', () => {
+      if (window.SB && SB.isRail()) {            // 아이콘 레일: 펼치고 그 메뉴 열기
+        toggle.classList.add('open'); items.classList.add('open');
+        SB.setOpen(true);
+        return;
+      }
       const isOpen = toggle.classList.toggle('open');
       items.classList.toggle('open', isOpen);
     });
@@ -1424,6 +1465,122 @@ function rotateBanner() {
     item.addEventListener('click', () => toggleTab(item, () => buildSubItems(cat)));
     wcCards.appendChild(item);
   });
+
+
+  /* ── Sidebar v2: Sidebar collapse motion ─────────────────────────
+     스프링 S(x, 강성, 감쇠) — 폭 260/24 · 화살표 300/22 · 강조 막대 380/28 · 글자 300/26,
+     펼칠 때 글자는 위 메뉴부터 .06s + 순번×.04s 간격으로 차례로 등장. */
+  window.SB = (() => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const S = (x, k, c) => ({ x, v: 0, t: x, k, c: reduce ? 2 * Math.sqrt(k) : c });
+    const step = (s, dt) => { const a = -s.k * (s.x - s.t) - s.c * s.v; s.v += a * dt; s.x += s.v * dt; };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const timers = [];
+    const after = (sec, fn) => timers.push({ t: sec, fn });
+
+    const OPEN_W = 250, RAIL_W = 64;
+    const col = document.getElementById('sb-col');
+    const secLabel = sidebar.querySelector('.sidebar-section-label');
+    const hl = document.createElement('span');
+    hl.className = 'sb-hl';
+    treeEl.prepend(hl);
+
+    // 글자 묶음: 'Navigation' + 메뉴 그룹마다(이름·화살표·하위 목록) 하나씩
+    const groups = [...treeEl.querySelectorAll('.nav-group')];
+    const fades = [{ els: [secLabel], s: S(1, 300, 26) }].concat(groups.map(g => ({
+      els: [g.querySelector('.ng-label'), g.querySelector('.ng-chevron'), g.querySelector('.nav-group-items')],
+      s: S(1, 300, 26),
+    })));
+    fades.forEach(f => f.els.forEach(el => el && el.classList.add('ng-fade')));
+
+    const W = S(OPEN_W, 260, 24), R = S(0, 300, 22), Y = S(0, 380, 28), H = S(34, 380, 28), HO = S(0, 420, 32);
+    let open = true, run = 0;
+    const mobile = () => window.innerWidth <= 700;
+
+    function setOpen(o, instant) {
+      const me = ++run;
+      open = o;
+      col.setAttribute('aria-expanded', o);
+      col.setAttribute('aria-label', o ? '사이드바 접기' : '사이드바 펼치기');
+      col.title = o ? '사이드바 접기' : '사이드바 펼치기';
+      try { localStorage.setItem('vt_sb_collapsed', o ? 'false' : 'true'); } catch (e) {}
+      W.t = o ? OPEN_W : RAIL_W; R.t = o ? 0 : 1;
+      if (o) {
+        sidebar.classList.remove('rail');
+        fades.forEach((f, i) => after(.06 + i * .04, () => { if (open && me === run) f.s.t = 1; }));
+      } else {
+        fades.forEach(f => f.s.t = 0);
+        // 글자가 다 사라진 뒤 하위 목록을 접어 아이콘만 세로로 모음
+        after(.16, () => { if (!open && me === run) sidebar.classList.add('rail'); });
+      }
+      if (instant) {
+        W.x = W.t; R.x = R.t; W.v = R.v = 0;
+        fades.forEach(f => { f.s.x = f.s.t = o ? 1 : 0; f.s.v = 0; });
+        timers.length = 0;
+        sidebar.classList.toggle('rail', !o);
+      }
+    }
+    col.addEventListener('click', () => setOpen(!open));
+
+    // 저장된 상태 복원 (애니메이션 없이)
+    let stored = null;
+    try { stored = localStorage.getItem('vt_sb_collapsed'); } catch (e) {}
+    if (stored === 'true') setOpen(false, true);
+
+    // 레일에서 현재 페이지가 속한 메뉴 아이콘 표시
+    let lastActive = null;
+    function markGroup() {
+      if (activeLink === lastActive) return;
+      lastActive = activeLink;
+      groups.forEach(g => g.querySelector('.nav-group-toggle').classList.toggle('has-active', !!(activeLink && g.contains(activeLink))));
+    }
+
+    function frame(dt) {
+      // 강조 막대: 선택한 메뉴 위치·높이를 따라감 (접힌 메뉴 안이면 사라짐)
+      const a = activeLink && treeEl.contains(activeLink) ? activeLink : null;
+      const visible = a && a.offsetParent && a.closest('.nav-group-items.open') && open && !sidebar.classList.contains('rail');
+      if (a && a.offsetParent) {
+        const tr = treeEl.getBoundingClientRect(), r = a.getBoundingClientRect();
+        const top = r.top - tr.top;
+        const box = a.closest('.nav-group-items').getBoundingClientRect();
+        const shown = r.bottom <= box.bottom + 1;            // 아코디언이 접히는 중이면 가려진 것으로
+        if (HO.x < .02 && HO.t === 0) { Y.x = top; H.x = r.height; }   // 처음 나타날 땐 그 자리에서
+        Y.t = top; H.t = r.height;
+        HO.t = visible && shown ? 1 : 0;
+      } else HO.t = 0;
+      [W, R, Y, H, HO].forEach(s => step(s, dt));
+      fades.forEach(f => step(f.s, dt));
+    }
+    function render() {
+      markGroup();
+      const m = mobile();
+      sidebar.style.width = m ? '' : W.x.toFixed(2) + 'px';
+      col.firstElementChild.style.transform = `rotate(${(180 * R.x).toFixed(2)}deg)`;
+      col.style.right = (14 - clamp(R.x, 0, 1) * 0).toFixed(2) + 'px';
+      fades.forEach(f => {
+        const o = m ? 1 : clamp(f.s.x, 0, 1);
+        f.els.forEach(el => {
+          if (!el) return;
+          el.style.opacity = o.toFixed(3);
+          el.style.transform = o > .999 ? '' : `translateX(${((1 - o) * -10).toFixed(2)}px)`;
+        });
+      });
+      hl.style.opacity = clamp(HO.x, 0, 1).toFixed(3);
+      hl.style.transform = `translateY(${Y.x.toFixed(2)}px)`;
+      hl.style.height = Math.max(0, H.x).toFixed(2) + 'px';
+    }
+
+    let last = performance.now();
+    (function loop(now) {
+      const dt = Math.min((now - last) / 1000, 1 / 30); last = now;
+      for (let i = timers.length - 1; i >= 0; i--) if ((timers[i].t -= dt) <= 0) timers.splice(i, 1)[0].fn();
+      for (let k = 0; k < 4; k++) frame(dt / 4);
+      render();
+      requestAnimationFrame(loop);
+    })(last);
+
+    return { setOpen, isRail: () => !open && !mobile() };
+  })();
 
   /* ── Tab accordion (가운데 메뉴: 호버 강조 + 클릭 시 아래로 펼침) ── */
   const wcExpand      = document.getElementById('welcome-expand');
@@ -1833,5 +1990,6 @@ function rotateBanner() {
     });
   }
 </script>
+<script src="tw-updates.js" data-audience="asp"></script>
 </body>
 </html>

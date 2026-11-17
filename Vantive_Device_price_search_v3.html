@@ -221,6 +221,27 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .fav-print-btn{width:100%;margin-top:14px;background:linear-gradient(135deg,#1a6b52 0%,#105742 100%);border:2px solid rgba(255,250,235,0.25);border-radius:12px;color:var(--cream);font-size:13.5px;font-weight:700;padding:13px 16px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:9px;letter-spacing:.4px;box-shadow:0 3px 10px rgba(0,0,0,0.25);}
 .fav-print-btn:active{transform:scale(0.97);box-shadow:0 1px 4px rgba(0,0,0,0.2);}
 .fav-print-btn svg{width:19px;height:19px;flex-shrink:0;}
+
+/* ── 금액 범위 슬라이더 (designbookmark Range slider, 2026-11-17) ──
+   두 손잡이로 금액 범위 지정(부가세 별도 기준, 로그 눈금), 말풍선이 손잡이를 따라가며 속도만큼 기울고,
+   가까워지면 하나로 합쳐져 전체 범위를 보여줌. 스프링 강성/감쇠: 손잡이 260/24, 합쳐짐 300/26. */
+.prow-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:0;}
+.prow-head .flbl{margin-bottom:0;}
+.prng-sub{font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums;}
+.prng-reset{border:0;background:var(--plum-light);color:var(--plum);border-radius:20px;padding:3px 10px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;margin-left:auto;transition:opacity .15s;}
+.prng-reset[hidden]{display:inline-block;visibility:hidden;}
+.prng{position:relative;height:28px;margin:44px 14px 2px;max-width:560px;touch-action:none;user-select:none;-webkit-user-select:none;}
+.prng-track{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:rgba(114,37,107,0.14);}
+.prng-fill{position:absolute;top:0;height:4px;border-radius:2px;background:var(--plum);}
+.prng-th{position:absolute;top:0;left:0;width:28px;height:28px;margin-left:-14px;padding:0;border:3px solid var(--white);border-radius:50%;background:var(--plum);box-shadow:0 2px 8px rgba(88,24,79,0.28);cursor:grab;touch-action:none;will-change:transform;}
+.prng-th:active{cursor:grabbing;}
+.prng-th:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(114,37,107,0.35),0 2px 8px rgba(88,24,79,0.28);}
+.prng-tip{position:absolute;left:0;bottom:38px;padding:5px 10px;border-radius:10px;background:var(--plum);color:var(--cream);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;transform-origin:50% 100%;will-change:transform,opacity;pointer-events:none;}
+.prng-ticks{position:relative;height:14px;margin:4px 14px 0;max-width:560px;font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums;}
+.prng-ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;}
+.prng-ticks span:first-child{transform:none;}
+.prng-ticks span:last-child{transform:translateX(-100%);}
+.sbar .prng-on{color:var(--plum);font-weight:600;}
 </style>
 </head>
 <body>
@@ -264,9 +285,19 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
     <button class="seg" data-v="mars"><span class="sdot" style="background:var(--danger)"></span>MARS</button>
   </div>
 </div>
+<div class="frow" id="priceRow">
+  <div class="prow-head"><div class="flbl">Price Range</div><span class="prng-sub" id="prngSub">부가세 별도 · 전체 금액</span><button type="button" class="prng-reset" id="prngReset" hidden>전체</button></div>
+  <div class="prng" id="prng">
+    <span class="prng-tip" id="prngTa"></span><span class="prng-tip" id="prngTb"></span><span class="prng-tip" id="prngTm"></span>
+    <div class="prng-track"><span class="prng-fill" id="prngFill"></span></div>
+    <button type="button" class="prng-th" id="prngA" role="slider" aria-label="최소 금액 (부가세 별도)"></button>
+    <button type="button" class="prng-th" id="prngB" role="slider" aria-label="최대 금액 (부가세 별도)"></button>
+  </div>
+  <div class="prng-ticks" id="prngTicks"></div>
+</div>
 </div>
 
-<div class="sbar"><b id="mCnt">0</b> items &middot; 2026 Standard Price</div>
+<div class="sbar"><b id="mCnt">0</b> items &middot; 2026 Standard Price<span id="prngSbar"></span></div>
 <div class="cards" id="cardsEl"></div>
 <div class="empty" id="emptyEl">
   <div class="empty-ico">&#x1F50D;</div>
@@ -325,6 +356,7 @@ function go(){
   var q=SQ.trim().toLowerCase();
   var filtered=ITEMS.filter(function(it){
     if(GF!=='all' && it.grp!==GF)return false;
+    if(typeof PR_LO!=='undefined' && (it.excl<PR_LO || it.excl>PR_HI))return false;
     if(!q)return true;
     return String(it.code).toLowerCase().indexOf(q)>=0 ||
            String(it.desc).toLowerCase().indexOf(q)>=0;
@@ -398,6 +430,121 @@ document.querySelectorAll('#grpRow .seg').forEach(function(b){
     go();
   });
 });
+
+
+/* ── 금액 범위 슬라이더 ─────────────────────────────────────────────
+   값 0~1000을 로그 눈금으로 1,000원 ~ 7,000만원에 대응. 손잡이를 놓거나 잠시 멈추면 목록이 걸러짐. */
+var PR_MIN=1000, PR_MAX=70000000, PR_LO=PR_MIN, PR_HI=PR_MAX;
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var S=function(x,k,c){return {x:x,v:0,t:x,k:k,c:reduce?2*Math.sqrt(k):c};};
+  var step=function(s,dt){var a=-s.k*(s.x-s.t)-s.c*s.v;s.v+=a*dt;s.x+=s.v*dt;};
+  var clamp=function(v,a,b){return Math.max(a,Math.min(b,v));};
+  var $=function(id){return document.getElementById(id);};
+  var area=$('prng'),fill=$('prngFill'),A=$('prngA'),B=$('prngB'),ta=$('prngTa'),tb=$('prngTb'),tm=$('prngTm');
+  var sub=$('prngSub'),reset=$('prngReset'),sbarEl=$('prngSbar'),ticks=$('prngTicks');
+  var MAX=1000, LOG=Math.log10(PR_MAX/PR_MIN);
+  // 1-2-3-5 눈금으로 반올림: 1천·2천·3천·5천·1만·2만·3만·5만·…·5,000만·7,000만
+  var NICE=[1,1.5,2,3,5,7];
+  function snapWon(w){
+    var e=Math.floor(Math.log10(w)), m=w/Math.pow(10,e), best=NICE[0];
+    NICE.concat([10]).forEach(function(n){if(Math.abs(Math.log10(n/m))<Math.abs(Math.log10(best/m)))best=n;});
+    return clamp(Math.round(best*Math.pow(10,e)),PR_MIN,PR_MAX);
+  }
+  var toWon=function(v){return snapWon(PR_MIN*Math.pow(10,clamp(v,0,MAX)/MAX*LOG));};
+  var toV=function(w){return Math.log10(w/PR_MIN)/LOG*MAX;};
+  function won(w){
+    if(w>=10000){var m=w/10000;return (m>=100?Math.round(m).toLocaleString('ko-KR'):String(+m.toFixed(1)))+'만원';}
+    return w.toLocaleString('ko-KR')+'원';
+  }
+  var gapV=function(){return 34/Math.max(1,area.clientWidth)*MAX;};
+  var va=S(0,260,24), vb=S(MAX,260,24), M=S(0,300,26);
+  var drag=null, timer=null, lastKey='';
+
+  // 눈금 라벨
+  [1000,10000,100000,1000000,10000000,PR_MAX].forEach(function(w){
+    var s=document.createElement('span');s.style.left=(toV(w)/MAX*100)+'%';s.textContent=won(w).replace('원','');ticks.appendChild(s);
+  });
+
+  function apply(){
+    var lo=va.t<=0.5?PR_MIN:toWon(va.t), hi=vb.t>=MAX-0.5?PR_MAX:toWon(vb.t);
+    var key=lo+'-'+hi; if(key===lastKey)return; lastKey=key;
+    PR_LO=lo<=PR_MIN?0:lo; PR_HI=hi>=PR_MAX?Infinity:hi;
+    var full=PR_LO===0&&PR_HI===Infinity;
+    reset.hidden=full;
+    var txt=full?'':(PR_LO===0?won(hi)+' 이하':PR_HI===Infinity?won(lo)+' 이상':won(lo)+' – '+won(hi));
+    sub.textContent='부가세 별도 · '+(full?'전체 금액':txt);
+    sbarEl.innerHTML=full?'':' &middot; <span class="prng-on">'+txt+'</span>';
+    go();
+  }
+  function schedule(delay){clearTimeout(timer);timer=setTimeout(apply,delay);}
+
+  function bind(el,s,isA){
+    el.addEventListener('pointerdown',function(e){drag={s:s};el.setPointerCapture(e.pointerId);e.preventDefault();});
+    el.addEventListener('pointermove',function(e){
+      if(!drag||drag.s!==s)return;
+      var r=area.getBoundingClientRect();
+      var v=clamp((e.clientX-r.left)/r.width*MAX,0,MAX);
+      v=isA?Math.min(v,vb.t-gapV()):Math.max(v,va.t+gapV());
+      s.t=v; schedule(180);
+    });
+    var end=function(){if(drag&&drag.s===s){drag=null;schedule(0);}};
+    el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+    el.addEventListener('keydown',function(e){
+      var d=e.key==='ArrowRight'||e.key==='ArrowUp'?20:e.key==='ArrowLeft'||e.key==='ArrowDown'?-20:0;
+      if(e.key==='Home')d=-MAX; if(e.key==='End')d=MAX;
+      if(!d)return; e.preventDefault();
+      s.t=isA?clamp(s.t+d,0,vb.t-gapV()):clamp(s.t+d,va.t+gapV(),MAX);
+      schedule(250);
+    });
+  }
+  bind(A,va,true);bind(B,vb,false);
+  // 트랙을 누르면 가까운 손잡이가 그 자리로
+  area.addEventListener('pointerdown',function(e){
+    if(e.target===A||e.target===B)return;
+    var r=area.getBoundingClientRect(), v=clamp((e.clientX-r.left)/r.width*MAX,0,MAX);
+    if(Math.abs(v-va.t)<=Math.abs(v-vb.t))va.t=Math.min(v,vb.t-gapV()); else vb.t=Math.max(v,va.t+gapV());
+    schedule(0);
+  });
+  reset.addEventListener('click',function(){va.t=0;vb.t=MAX;schedule(0);});
+
+  function label(s,isA){
+    if(isA&&s<=2)return '최소';            // 스프링이 끝까지 오기 직전 값도 '최소'/'최대'로
+    if(!isA&&s>=MAX-2)return '최대';
+    return won(toWon(s));
+  }
+  var lastT=performance.now();
+  (function loop(now){
+    var dt=Math.min((now-lastT)/1000,1/30); lastT=now;
+    for(var k=0;k<4;k++){[va,vb,M].forEach(function(s){step(s,dt/4);});}
+    if(area.offsetParent!==null){
+      var w=area.clientWidth, xa=clamp(va.x,0,MAX)/MAX*w, xb=clamp(vb.x,0,MAX)/MAX*w;
+      A.style.transform='translateX('+xa.toFixed(2)+'px)';
+      B.style.transform='translateX('+xb.toFixed(2)+'px)';
+      var la=label(va.t,true), lb=label(vb.t,false);
+      A.setAttribute('aria-valuetext',la);B.setAttribute('aria-valuetext',lb);
+      fill.style.left=xa.toFixed(2)+'px';fill.style.width=Math.max(0,xb-xa).toFixed(2)+'px';
+      var sa=label(va.x,true), sb=label(vb.x,false);
+      if(ta.textContent!==sa)ta.textContent=sa;
+      if(tb.textContent!==sb)tb.textContent=sb;
+      var smv=sa+' – '+sb; if(tm.textContent!==smv)tm.textContent=smv;
+      var need=(ta.offsetWidth+tb.offsetWidth)/2+8;
+      M.t=xb-xa<need?1:0;
+      var m=clamp(M.x,0,1), mid=(xa+xb)/2;
+      var tipAt=function(el,x,vel,o,sc){
+        var tilt=clamp(vel/MAX*w*-.02,-12,12);
+        // 말풍선이 화면 밖으로 나가지 않게
+        var left=clamp(x-el.offsetWidth/2,-14,w+14-el.offsetWidth);
+        el.style.opacity=o.toFixed(3);
+        el.style.transform='translateX('+left.toFixed(2)+'px) rotate('+tilt.toFixed(2)+'deg) scale('+sc.toFixed(3)+')';
+      };
+      tipAt(ta,xa+(mid-xa)*m,va.v,1-m,1-.2*m);
+      tipAt(tb,xb+(mid-xb)*m,vb.v,1-m,1-.2*m);
+      tipAt(tm,mid,(va.v+vb.v)/2,m,.8+.2*m);
+    }
+    requestAnimationFrame(loop);
+  })(lastT);
+})();
 
 function switchBnav(tab,el){
   document.querySelectorAll('.bnav-item').forEach(function(b){b.classList.remove('on');});
