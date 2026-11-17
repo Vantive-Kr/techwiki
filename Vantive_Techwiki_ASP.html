@@ -980,6 +980,35 @@
       .sb-col { display: none; }
       .sidebar-section { position: static; height: auto; padding: 20px 14px 6px; }
     }
+
+    /* ── 레일 Dynamic menu (designbookmark 'Dynamic menu', 2026-11-18) ──
+       접힌 사이드바 아이콘을 누르면 옆에서 알약이 패널로 펼쳐짐: 폭 320/26 · 높이 240/22(조금 부드럽게, 넓어진 뒤 내려앉음)
+       · 두 줄 토글→✕ 380/24 · 항목 260/22(.08s + 순번×.05s 차례로 올라옴, 닫을 땐 역순 .03s) · 투명도 420/32. */
+    .dm { position: fixed; z-index: 260; left: 0; top: 0; width: 52px; height: 52px; overflow: hidden;
+          border-radius: 26px; background: #fff; color: #1d1d1f;
+          box-shadow: 0 12px 32px rgba(16,87,66,0.22), 0 2px 8px rgba(0,0,0,0.08);
+          will-change: width, height, opacity; }
+    .dm[hidden] { display: none; }
+    .dm-head { position: absolute; left: 0; top: 0; width: 290px; height: 52px; display: flex; align-items: center; gap: 10px;
+               padding: 0 14px 0 16px; border: 0; background: none; color: var(--plum); cursor: pointer; font: inherit; text-align: left; }
+    .dm-head:focus-visible { outline: 2px solid var(--plum); outline-offset: -4px; border-radius: 22px; }
+    .dm-ic { width: 20px; height: 20px; flex: none; display: grid; place-items: center; }
+    .dm-ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .dm-brand { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dm-tog { position: relative; width: 24px; height: 24px; flex: none; }
+    .dm-tog i { position: absolute; left: 4px; right: 4px; top: 11px; height: 2px; border-radius: 2px; background: currentColor; will-change: transform; }
+    .dm-links { position: absolute; left: 0; top: 52px; width: 290px; padding: 2px 10px 10px; overflow-y: auto; overscroll-behavior: contain; }
+    .dm-row { will-change: transform, opacity; opacity: 0; }
+    .dm-sub { padding: 10px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a7a88; }
+    .dm-a { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 8px 10px;
+            border: 0; border-radius: var(--radius); background: none; color: #1d1d1f; font: inherit; font-size: 14px; font-weight: 600;
+            line-height: 1.35; text-align: left; cursor: pointer; }
+    .dm-a:hover { background: rgba(114,37,107,0.07); color: var(--plum); }
+    .dm-a:focus-visible { outline: 2px solid var(--plum); outline-offset: -2px; }
+    .dm-a.cur { color: var(--plum); }
+    .dm-a span { flex: none; font-size: 11px; font-weight: 600; color: var(--pine-dark); padding: 2px 8px; border-radius: 999px; background: var(--sage); }
+    .sidebar.rail .nav-group-toggle.dm-on { background: rgba(255,255,255,0.22); }
+    @media (max-width: 700px) { .dm { display: none !important; } }
   </style>
 </head>
 <body>
@@ -1441,7 +1470,8 @@ function rotateBanner() {
 
     toggle.title = cat.label.replace(/&amp;/g, '&');
     toggle.addEventListener('click', () => {
-      if (window.SB && SB.isRail()) {            // 아이콘 레일: 펼치고 그 메뉴 열기
+      if (window.SB && SB.isRail()) {            // 아이콘 레일: 옆에 Dynamic menu 패널로 그 메뉴 열기
+        if (window.DM) { DM.toggle(group); return; }
         toggle.classList.add('open'); items.classList.add('open');
         SB.setOpen(true);
         return;
@@ -1581,6 +1611,139 @@ function rotateBanner() {
 
     return { setOpen, isRail: () => !open && !mobile() };
   })();
+
+  /* ── 레일 Dynamic menu ─────────────────────────────────────────
+     원본 스프링: 폭 W 320/26 · 높이 H 240/22 · 토글 X 380/24 · 항목 260/22, 투명도 420/32(tokens --spring-fade).
+     상태는 클릭 즉시 확정, 그리기만 requestAnimationFrame — 탭이 가려져도 1.6초 뒤 최종 모습으로 맞춤. */
+  window.DM = (() => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const S = (x, k, c) => ({ x, v: 0, t: x, k, c: reduce ? 2 * Math.sqrt(k) : c });
+    const step = (s, dt) => { const a = -s.k * (s.x - s.t) - s.c * s.v; s.v += a * dt; s.x += s.v * dt; };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const still = s => Math.abs(s.x - s.t) < 0.002 && Math.abs(s.v) < 0.002;
+    const PILL = 52, BIG = 290, HEAD = 52;
+
+    const panel = document.createElement('div');
+    panel.className = 'dm'; panel.hidden = true;
+    panel.innerHTML = '<button class="dm-head" type="button" aria-expanded="false" aria-label="메뉴 닫기"><span class="dm-ic"></span>' +
+      '<span class="dm-brand"></span><span class="dm-tog" aria-hidden="true"><i></i><i></i></span></button><div class="dm-links" role="menu"></div>';
+    document.body.appendChild(panel);
+    const head = panel.querySelector('.dm-head'), ic = panel.querySelector('.dm-ic'), brand = panel.querySelector('.dm-brand');
+    const links = panel.querySelector('.dm-links'), [b1, b2] = panel.querySelectorAll('.dm-tog i');
+
+    const W = S(PILL, 320, 26), H = S(PILL, 240, 22), X = S(0, 380, 24), O = S(0, 420, 32);
+    let rows = [], cur = null, open = false, running = false, last = 0, timers = [], fb = 0;
+    const later = (ms, f) => timers.push(setTimeout(f, ms));
+    const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+    function build(group) {
+      const tg = group.querySelector('.nav-group-toggle');
+      ic.innerHTML = tg.querySelector('.ng-icon').innerHTML;
+      brand.textContent = tg.title || tg.querySelector('.ng-label').textContent.trim();
+      links.innerHTML = ''; links.scrollTop = 0;
+      rows = [...group.querySelectorAll('.nav-group-subhead, .nav-item')].map(src => {
+        let el;
+        if (src.classList.contains('nav-group-subhead')) {
+          el = document.createElement('div'); el.className = 'dm-row dm-sub'; el.textContent = src.textContent;
+        } else {
+          el = document.createElement('button'); el.type = 'button'; el.className = 'dm-row dm-a'; el.setAttribute('role', 'menuitem');
+          el.textContent = src.textContent.trim();
+          if (src.classList.contains('active')) { el.classList.add('cur'); el.insertAdjacentHTML('beforeend', '<span>현재</span>'); }
+          el.addEventListener('click', () => { src.click(); close(); });
+        }
+        links.appendChild(el);
+        return { el, s: S(0, 260, 22) };
+      });
+    }
+    function place(tg) {
+      const r = tg.getBoundingClientRect(), sb = sidebar.getBoundingClientRect();
+      const full = HEAD + links.scrollHeight;                       // 머리 + 항목 전체 높이
+      const topMin = (document.querySelector('header') || sidebar).getBoundingClientRect().bottom + 8;
+      const maxH = window.innerHeight - topMin - 12;
+      const h = Math.min(full, maxH);
+      let top = r.top + r.height / 2 - HEAD / 2;
+      top = clamp(top, topMin, window.innerHeight - 12 - h);
+      panel.style.left = (sb.right + 10).toFixed(0) + 'px';
+      panel.style.top = top.toFixed(0) + 'px';
+      links.style.maxHeight = (h - HEAD) + 'px';
+      return h;
+    }
+    function openFor(group) {
+      clearTimers();
+      const tg = group.querySelector('.nav-group-toggle');
+      if (cur && cur !== group) cur.querySelector('.nav-group-toggle').classList.remove('dm-on');
+      const fresh = !open;
+      cur = group; open = true;
+      build(group);
+      panel.hidden = false;
+      const h = place(tg);
+      tg.classList.add('dm-on');
+      head.setAttribute('aria-expanded', 'true');
+      if (fresh) { W.x = PILL; H.x = PILL; X.x = 0; O.x = Math.max(O.x, 0); [W, H, X].forEach(s => s.v = 0); }
+      W.t = BIG; H.t = h; X.t = 1; O.t = 1;
+      const n = rows.length;
+      rows.forEach((r, i) => later((80 + Math.min(i, 12) * 50), () => { if (open && cur === group) { r.s.t = 1; kick(); } }));
+      kick();
+      setTimeout(() => { const f = links.querySelector('.dm-a.cur') || links.querySelector('.dm-a'); f && f.focus({ preventScroll: true }); }, 60);
+    }
+    function close() {
+      if (!open) return;
+      clearTimers(); open = false;
+      head.setAttribute('aria-expanded', 'false');
+      if (cur) cur.querySelector('.nav-group-toggle').classList.remove('dm-on');
+      const n = rows.length;
+      rows.forEach((r, i) => later((n - 1 - i) * 30 > 300 ? 300 : (n - 1 - i) * 30, () => { r.s.t = 0; kick(); }));
+      later(Math.min(300, (n - 1) * 30) + 40, () => { W.t = PILL; H.t = PILL; X.t = 0; kick(); });
+      later(Math.min(300, (n - 1) * 30) + 160, () => { O.t = 0; kick(); });
+      kick();
+    }
+    function render() {
+      panel.style.width = W.x.toFixed(2) + 'px';
+      panel.style.height = Math.max(0, H.x).toFixed(2) + 'px';
+      panel.style.borderRadius = (26 - 4 * clamp(X.x, 0, 1)).toFixed(2) + 'px';
+      panel.style.opacity = clamp(O.x, 0, 1).toFixed(3);
+      const x = clamp(X.x, -.1, 1.1);
+      b1.style.transform = `translateY(${(-4 * (1 - x)).toFixed(2)}px) rotate(${(45 * x).toFixed(2)}deg)`;
+      b2.style.transform = `translateY(${(4 * (1 - x)).toFixed(2)}px) rotate(${(-45 * x).toFixed(2)}deg)`;
+      rows.forEach(r => {
+        r.el.style.opacity = clamp(r.s.x, 0, 1).toFixed(3);
+        r.el.style.transform = `translateY(${((1 - r.s.x) * 18).toFixed(2)}px)`;
+      });
+    }
+    const springs = () => [W, H, X, O].concat(rows.map(r => r.s));
+    function settled() { return springs().every(still); }
+    function finish() { if (!open && O.x < 0.01) { panel.hidden = true; rows = []; links.innerHTML = ''; } }
+    function loop(now) {
+      const dt = Math.max(0, Math.min((now - last) / 1000, 1 / 30)); last = now;
+      for (let k = 0; k < 4; k++) springs().forEach(s => step(s, dt / 4));
+      render();
+      if (!settled() || timers.length && open) requestAnimationFrame(loop);
+      else { running = false; finish(); }
+    }
+    function kick() {
+      if (!running) { running = true; last = performance.now(); requestAnimationFrame(loop); }
+      clearTimeout(fb);
+      fb = setTimeout(() => {                                      // 그리기가 멈춘 탭: 최종 모습으로
+        springs().forEach(s => { s.x = s.t; s.v = 0; }); render(); finish();
+      }, 1600 + rows.length * 50);
+    }
+
+    head.addEventListener('click', close);
+    document.addEventListener('pointerdown', e => {
+      if (!open || panel.contains(e.target)) return;
+      if (e.target.closest && e.target.closest('.sidebar.rail .nav-group-toggle')) return;   // 아이콘 클릭은 toggle이 처리
+      close();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) { const tg = cur && cur.querySelector('.nav-group-toggle'); close(); tg && tg.focus(); } });
+    window.addEventListener('resize', () => { if (open && !(window.SB && SB.isRail())) close(); else if (open) H.t = place(cur.querySelector('.nav-group-toggle')); });
+
+    return {
+      toggle(group) { if (open && cur === group) close(); else openFor(group); },
+      close,
+    };
+  })();
+  /* 사이드바를 펼치면 패널은 닫힘 */
+  document.getElementById('sb-col').addEventListener('click', () => window.DM && DM.close());
 
   /* ── Tab accordion (가운데 메뉴: 호버 강조 + 클릭 시 아래로 펼침) ── */
   const wcExpand      = document.getElementById('welcome-expand');
