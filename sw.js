@@ -1,5 +1,5 @@
 /* Vantive Techwiki Service Worker
- * 전략: 같은 출처(same-origin) 정적 자산만 stale-while-revalidate.
+ * 전략: 같은 출처 HTML 문서는 network-first(오프라인 시 캐시), 그 외 정적 자산은 stale-while-revalidate.
  * 교차 출처(Firestore firestore.googleapis.com / Firebase·gstatic CDN /
  * Google Fonts / vantive-annual-leave.web.app 등)는 fetch 핸들러가
  * 가로채지 않으므로 절대 캐시되지 않는다.
@@ -7,7 +7,7 @@
  */
 'use strict';
 
-const CACHE_NAME = 'vantive-techwiki-v2';
+const CACHE_NAME = 'vantive-techwiki-v3';
 
 /* 설치 시 미리 캐시할 핵심 자산 (모두 상대경로 → scope 기준으로 해석됨) */
 const PRECACHE_URLS = [
@@ -61,6 +61,33 @@ self.addEventListener('fetch', (event) => {
    * 붙여도 같은 파일 하나로 캐시된다 (지역 파싱은 문서 내 클라이언트 코드 몫). */
   const cacheKey = url.origin + url.pathname;
 
+  /* HTML 문서(메인·iframe 페이지)는 network-first.
+   * stale-while-revalidate로 두면 GitHub에 새 페이지를 올려도 첫 열람은
+   * 항상 이전 캐시본이 뜨고(키가 쿼리 제거라 index의 ?v=타임스탬프도 무력화),
+   * 1.7MB 같은 큰 페이지는 백그라운드 갱신이 끝나기 전에 닫히면 계속 옛 버전이 남는다.
+   * 온라인이면 항상 서버 최신본(cache:'no-cache' → ETag 재검증, 변경 없으면 304로 가벼움),
+   * 오프라인일 때만 캐시본 → index 폴백. */
+  const isDoc = req.mode === 'navigate' || req.destination === 'document' ||
+                req.destination === 'iframe' || /\.html?$/i.test(url.pathname) || url.pathname.endsWith('/');
+  if (isDoc) {
+    event.respondWith(
+      fetch(url.href, { cache: 'no-cache', credentials: 'same-origin' })
+        .then((resp) => {
+          if (resp && resp.ok && (resp.type === 'basic' || resp.type === 'default')) {
+            const copy = resp.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(cacheKey, copy));
+          }
+          return resp;
+        })
+        .catch(() => caches.open(CACHE_NAME).then((cache) =>
+          cache.match(cacheKey).then((cached) =>
+            cached || cache.match(new URL('./Vantive_Techwiki_index_pw.html', self.location.href).href)
+                   || Response.error())))
+    );
+    return;
+  }
+
+  /* 그 외 정적 자산(이미지·아이콘·manifest 등): stale-while-revalidate 유지 */
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) =>
       cache.match(cacheKey).then((cached) => {

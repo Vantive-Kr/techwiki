@@ -1490,6 +1490,22 @@ h3 { margin: 1.25rem 0 0.6rem; }
 .chk-meta .chk-due { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 @media (max-width: 600px) { .chk-meta .chk-due.empty { font-size: 0.78rem; } }
 </style>
+<style id="ls-btn">
+/* ===== Loading → Success 버튼 (designbookmark 'Loading to success', 2026-11-17 후속126) =====
+   PDF 저장·메일 보내기: 누르면 원으로 닫히며 스피너 → 실제로 끝나면 Pine 녹색 알약 + 체크가 그려짐 → 2초 뒤 원래대로. */
+.chk-pdf, .chk-mail { position: relative; overflow: hidden; justify-content: center; white-space: nowrap; }
+.ls-txt { display: inline-flex; align-items: center; gap: 0.4rem; will-change: transform, opacity; }
+.ls-spin { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(0,0,0,0) 0 10%, currentColor 85%, rgba(0,0,0,0) 85%);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 66%, #000 70%); mask: radial-gradient(circle closest-side, transparent 66%, #000 70%);
+  opacity: 0; pointer-events: none; will-change: transform, opacity; }
+.ls-done { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 6px; color: #fff;
+  opacity: 0; white-space: nowrap; pointer-events: none; will-change: transform, opacity; }
+.ls-done svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 22; stroke-dashoffset: 22; }
+.ls-done b { font-weight: 700; }
+.chk-pdf.ls-on, .chk-mail.ls-on { opacity: 1; cursor: progress; }
+.chk-actions .chk-reset { white-space: nowrap; }
+</style>
 </head>
 <body>
 
@@ -2178,12 +2194,113 @@ function printFallback(err) {
   window.print();
   document.body.classList.remove('printing-rp'); w2.remove();
 }
+/* ---- Loading → Success 버튼 모션 (designbookmark 'Loading to success', 2026-11-17 후속126) ----
+ * 원본과 같은 스프링: 폭 300/22 · 글자 400/30 · 스피너 300/28 · 완료 문구 220/20 · 녹색 200/30 · 체크 120/20, 스피너 초당 1.4바퀴.
+ * 상태 전환(완료·복귀)은 실제 작업 결과와 setTimeout으로 — 화면 그리기만 requestAnimationFrame. */
+var LSB = (function() {
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var Sp = function(x, k, c) { return { x: x, v: 0, t: x, k: k, c: reduce ? 2 * Math.sqrt(k) : c }; };
+  var step = function(s, dt) { var a = -s.k * (s.x - s.t) - s.c * s.v; s.v += a * dt; s.x += s.v * dt; };
+  var cl = function(v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var still = function(s) { return Math.abs(s.x - s.t) < 0.002 && Math.abs(s.v) < 0.002; };
+  var list = [], running = false, last = 0;
+  function loop(now) {
+    var dt = Math.max(0, Math.min((now - last) / 1000, 1 / 30)); last = now;
+    var moving = false;
+    list.forEach(function(b) { if (b.frame(dt)) moving = true; });
+    if (moving) requestAnimationFrame(loop); else running = false;
+  }
+  function kick() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(loop); } }
+  var OK = '#105742';   /* Pine — 완료 색 */
+
+  function make(btn, doneText) {
+    var txt = document.createElement('span'); txt.className = 'ls-txt';
+    while (btn.firstChild) txt.appendChild(btn.firstChild);
+    btn.appendChild(txt);
+    btn.insertAdjacentHTML('beforeend', '<span class="ls-spin" aria-hidden="true"></span>' +
+      '<span class="ls-done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b></b></span>');
+    var spin = btn.querySelector('.ls-spin'), done = btn.querySelector('.ls-done'), tick = done.querySelector('path'), dtx = done.querySelector('b');
+    var W = Sp(0, 300, 22), T = Sp(1, 400, 30), P = Sp(0, 300, 28), D = Sp(0, 220, 20), G = Sp(0, 200, 30), K = Sp(0, 120, 20);
+    var springs = [W, T, P, D, G, K];
+    var state = 'idle', rot = 0, w0 = 0, h0 = 0, r0 = 8, bg0 = '', bd0 = '', timers = [];
+    var later = function(ms, f) { timers.push(setTimeout(f, ms)); };
+    var clearTimers = function() { timers.forEach(clearTimeout); timers = []; };
+    function cleanup() {
+      clearTimers(); state = 'idle';
+      ['width', 'borderRadius', 'background', 'borderColor'].forEach(function(p) { btn.style[p] = ''; });
+      txt.style.opacity = txt.style.transform = spin.style.opacity = done.style.opacity = done.style.transform = '';
+      btn.classList.remove('ls-on'); btn.disabled = false;
+      btn.removeAttribute('aria-busy'); btn.removeAttribute('aria-label');
+    }
+    function back(green) {
+      state = 'back';
+      P.t = 0; D.t = 0; G.t = 0; K.t = 0; W.t = w0;
+      later(green ? 120 : 0, function() { T.t = 1; kick(); });
+      later(1400, cleanup);   /* 탭이 가려져 그리기가 멈춰도 버튼은 반드시 돌아옴 */
+      kick();
+    }
+    var api = {
+      start: function() {
+        if (state !== 'idle') return false;
+        clearTimers();
+        var cs = getComputedStyle(btn);
+        w0 = btn.offsetWidth; h0 = btn.offsetHeight; r0 = parseFloat(cs.borderTopLeftRadius) || 8;
+        bg0 = cs.backgroundColor; bd0 = cs.borderTopColor;
+        W.x = W.t = w0; springs.forEach(function(s) { s.v = 0; });
+        T.x = 1; P.x = D.x = G.x = K.x = 0;
+        state = 'load'; btn.classList.add('ls-on'); btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+        T.t = 0; W.t = h0; P.t = 1;
+        kick(); return true;
+      },
+      success: function(text) {
+        if (state !== 'load') return;
+        state = 'done';
+        dtx.textContent = text || doneText;
+        btn.removeAttribute('aria-busy'); btn.setAttribute('aria-label', dtx.textContent);
+        P.t = 0; W.t = Math.max(h0, Math.ceil(dtx.offsetWidth + 16 + 6 + 28)); G.t = 1; D.t = 1;
+        later(150, function() { K.t = 1; kick(); });
+        later(2200, function() { back(true); });
+        kick();
+      },
+      fail: function() { if (state === 'load') back(false); },
+      frame: function(dt) {
+        if (state === 'idle') return false;
+        rot = (rot + dt * 360 * 1.4) % 360;
+        for (var i = 0; i < 4; i++) springs.forEach(function(s) { step(s, dt / 4); });
+        var c = cl((w0 - W.x) / Math.max(1, w0 - h0), 0, 1), g = cl(G.x, 0, 1);
+        btn.style.width = W.x.toFixed(2) + 'px';
+        btn.style.borderRadius = (r0 + (h0 / 2 - r0) * c).toFixed(2) + 'px';
+        btn.style.background = g > 0.01 ? 'color-mix(in srgb, ' + OK + ' ' + (g * 100).toFixed(1) + '%, ' + bg0 + ')' : '';
+        btn.style.borderColor = g > 0.01 ? 'color-mix(in srgb, ' + OK + ' ' + (g * 100).toFixed(1) + '%, ' + bd0 + ')' : '';
+        txt.style.opacity = cl(T.x, 0, 1).toFixed(3);
+        txt.style.transform = 'translateY(' + ((1 - T.x) * 14).toFixed(2) + 'px)';
+        spin.style.opacity = cl(P.x, 0, 1).toFixed(3);
+        spin.style.transform = 'rotate(' + rot.toFixed(1) + 'deg) scale(' + (0.6 + 0.4 * cl(P.x, 0, 1.2)).toFixed(3) + ')';
+        done.style.opacity = cl(D.x, 0, 1).toFixed(3);
+        done.style.transform = 'translateY(' + ((1 - D.x) * 12).toFixed(2) + 'px)';
+        tick.style.strokeDashoffset = (22 * (1 - cl(K.x, 0, 1))).toFixed(2);
+        if (state === 'back' && springs.every(still)) { cleanup(); return false; }
+        return state === 'load' || !springs.every(still);
+      }
+    };
+    list.push(api);
+    return api;
+  }
+  return { make: make };
+})();
+var LS_PDF = LSB.make(document.querySelector('.chk-pdf'), '저장 완료');
+var LS_MAIL = LSB.make(document.querySelector('.chk-mail'), '메일 창 열림');
+/* 스피너가 너무 짧게 깜빡이지 않도록 최소 0.9초는 보여준다 */
+function lsMinWait(t0, v) { return new Promise(function(r) { setTimeout(function() { r(v); }, Math.max(0, 900 - (Date.now() - t0))); }); }
+
 function saveChecklistPdf() {
   if (pdfBusy) return;
   if (!checkRequired()) return;
-  var done = busy('.chk-pdf', 'PDF 만드는 중…');
-  makeChecklistPdf().then(function(pdf) { pdf.save(pdfFileName()); done(); })
-    .catch(function(err) { done(); printFallback(err); });
+  pdfBusy = true; LS_PDF.start();
+  var t0 = Date.now();
+  makeChecklistPdf().then(function(pdf) { pdf.save(pdfFileName()); return lsMinWait(t0); })
+    .then(function() { pdfBusy = false; LS_PDF.success(); })
+    .catch(function(err) { pdfBusy = false; LS_PDF.fail(); printFallback(err); });
 }
 
 /* ---- 메일로 보내기 ----
@@ -2231,19 +2348,25 @@ function openMailto() {
 function sendChecklistMail() {
   if (pdfBusy) return;
   if (!checkRequired()) return;
-  var done = busy('.chk-mail', '준비 중…');
+  pdfBusy = true; LS_MAIL.start();
+  var t0 = Date.now();
   makeChecklistPdf().then(function(pdf) {
     var name = pdfFileName(), blob = pdf.output('blob');
     var file = (typeof File === 'function') ? new File([blob], name, { type: 'application/pdf' }) : null;
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
       return navigator.share({ files: [file], title: mailSubject(), text: mailBody(true) })
-        .catch(function(err) { if (err && err.name === 'AbortError') return; throw err; });
+        .then(function() { return '공유 완료'; })
+        .catch(function(err) { if (err && err.name === 'AbortError') return 'cancel'; throw err; });
     }
     downloadBlob(blob, name);
     openMailto();
     showMailNote('PDF를 내려받았습니다. 열린 메일 창에 <strong>' + name + '</strong> 파일을 첨부해 보내세요.');
-  }).then(done).catch(function(err) {
-    done(); console.error(err);
+    return '메일 창 열림';
+  }).then(function(r) { return lsMinWait(t0, r); }).then(function(r) {
+    pdfBusy = false;
+    if (r === 'cancel') LS_MAIL.fail(); else LS_MAIL.success(r);   /* 공유 취소는 녹색 없이 원래대로 */
+  }).catch(function(err) {
+    pdfBusy = false; LS_MAIL.fail(); console.error(err);
     /* 공유가 막힌 환경 — 메일 창만이라도 연다 */
     openMailto();
     showMailNote('공유를 열 수 없어 메일 창만 열었습니다. <strong>PDF 저장</strong>으로 받은 파일을 첨부해 주세요.');
