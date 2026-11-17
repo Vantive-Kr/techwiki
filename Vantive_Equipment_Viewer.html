@@ -185,6 +185,30 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
   .card{box-shadow:none;break-inside:avoid;}
   .cdet{display:block!important;}
 }
+
+/* ── 설치 연도 범위 슬라이더 (designbookmark Range slider, 2026-11-17) ──
+   최초 설치일 기준 연도 범위. 손잡이 스프링 260/24, 말풍선 합쳐짐 300/26(원본 값).
+   트랙 위 막대 = 연도별 장비 수(범위 안은 Plum, 밖은 흐리게). */
+.yrow{align-items:flex-start;}
+.ywrap{flex:1;min-width:0;max-width:640px;}
+.yhead{display:flex;align-items:center;gap:8px;min-height:20px;}
+.ysub{font-size:11.5px;color:var(--text3);font-variant-numeric:tabular-nums;}
+.yreset{border:0;background:var(--plum-light);color:var(--plum);border-radius:999px;padding:3px 10px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;}
+.yreset[hidden]{display:none;}
+.yarea{position:relative;height:28px;margin:64px 14px 0;touch-action:none;user-select:none;-webkit-user-select:none;}
+.yhist{position:absolute;left:0;right:0;bottom:16px;height:30px;display:flex;align-items:flex-end;gap:1px;pointer-events:none;}
+.yhist i{flex:1;min-height:1px;border-radius:2px 2px 0 0;background:rgba(114,37,107,0.12);transition:background .2s;}
+.yhist i.in{background:rgba(114,37,107,0.38);}
+.ytrack{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:rgba(114,37,107,0.14);}
+.yfill{position:absolute;top:0;height:4px;border-radius:2px;background:var(--plum);}
+.yth{position:absolute;top:0;left:0;width:28px;height:28px;margin-left:-14px;padding:0;border:3px solid var(--white);border-radius:50%;background:var(--plum);box-shadow:0 2px 8px rgba(88,24,79,0.28);cursor:grab;touch-action:none;will-change:transform;z-index:2;}
+.yth:active{cursor:grabbing;}
+.yth:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(114,37,107,0.35),0 2px 8px rgba(88,24,79,0.28);}
+.ytip{position:absolute;left:0;bottom:62px;padding:5px 10px;border-radius:10px;background:var(--plum);color:var(--cream);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;transform-origin:50% 100%;will-change:transform,opacity;pointer-events:none;z-index:3;}
+.yticks{position:relative;height:14px;margin:4px 14px 2px;font-size:10px;color:var(--text3);font-variant-numeric:tabular-nums;}
+.yticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;}
+@media (max-width:700px){.ywrap{width:100%;max-width:none;}}
+@media print{.yrow{display:none;}}
 </style>
 </head>
 <body>
@@ -226,6 +250,19 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
   <div class="frow"><div class="flbl">Region</div><div class="seg-row" id="fRegion"></div></div>
   <div class="frow"><div class="flbl">Device</div><div class="seg-row" id="fGroup"></div></div>
   <div class="frow"><div class="flbl">Purpose</div><div class="seg-row" id="fPur"></div></div>
+  <div class="frow yrow"><div class="flbl">Install Year</div>
+    <div class="ywrap">
+      <div class="yhead"><span class="ysub" id="ySub">최초 설치일 기준 · 전체 연도</span><button type="button" class="yreset" id="yReset" hidden>전체</button></div>
+      <div class="yarea" id="yArea">
+        <div class="yhist" id="yHist"></div>
+        <span class="ytip" id="yTa"></span><span class="ytip" id="yTb"></span><span class="ytip" id="yTm"></span>
+        <div class="ytrack"><span class="yfill" id="yFill"></span></div>
+        <button type="button" class="yth" id="yA" role="slider" aria-label="설치 연도 시작"></button>
+        <button type="button" class="yth" id="yB" role="slider" aria-label="설치 연도 끝"></button>
+      </div>
+      <div class="yticks" id="yTicks"></div>
+    </div>
+  </div>
 </div>
 
 <div class="sbar">
@@ -279,7 +316,12 @@ accList.forEach(a => a.units.sort((x, y) => {
   return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || (x.serial === '미확인') - (y.serial === '미확인') || String(x.serial).localeCompare(String(y.serial));
 }));
 
-const st = {q:'', terms:[], region:'', group:'', pur:'', sort:'name', limit:60, open:new Set(), sel:new Set(), selOnly:false};
+// 최초 설치 연도 ('2021. 6. 26' → 2021)
+const yearOf = d => { const m = /^(\d{4})/.exec(d.date || ''); return m ? +m[1] : null; };
+const YEARS = DATA.map(yearOf).filter(y => y);
+const Y_MIN = Math.min(...YEARS), Y_MAX = Math.max(...YEARS);
+const inYear = d => { if (st.y0 <= Y_MIN && st.y1 >= Y_MAX) return true; const y = yearOf(d); return y != null && y >= st.y0 && y <= st.y1; };
+const st = {y0:Y_MIN, y1:Y_MAX, q:'', terms:[], region:'', group:'', pur:'', sort:'name', limit:60, open:new Set(), sel:new Set(), selOnly:false};
 const SEL_KEY = 'eqv_sel_v1';
 try { (JSON.parse(localStorage.getItem(SEL_KEY) || '[]') || []).forEach(n => { if (ACC.has(n)) st.sel.add(n); }); } catch (e) {}
 function saveSel() { try { localStorage.setItem(SEL_KEY, JSON.stringify([...st.sel])); } catch (e) {} }
@@ -369,7 +411,8 @@ function view() {
     if (st.region && a.region !== st.region) continue;
     let units = a.units.filter(d =>
       (!st.group || grpOf(d.family).k === st.group) &&
-      (!st.pur || (st.pur === 'SO' ? isSold(d.purpose) : !isSold(d.purpose))));
+      (!st.pur || (st.pur === 'SO' ? isSold(d.purpose) : !isSold(d.purpose))) &&
+      inYear(d));
     if (!units.length) continue;
     let hits = null;
     if (T.length && !anyIn(a.name, T)) {
@@ -489,6 +532,113 @@ function doPrint() {
   render(true);
   setTimeout(() => { window.print(); st.open = keep; render(); }, 60);
 }
+
+
+// ── 설치 연도 범위 슬라이더 ──
+(function yearSlider() {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const S = (x, k, c) => ({x, v:0, t:x, k, c: reduce ? 2 * Math.sqrt(k) : c});
+  const step = (s, dt) => { const a = -s.k * (s.x - s.t) - s.c * s.v; s.v += a * dt; s.x += s.v * dt; };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const $ = id => document.getElementById(id);
+  const area = $('yArea'), fill = $('yFill'), A = $('yA'), B = $('yB'), ta = $('yTa'), tb = $('yTb'), tm = $('yTm');
+  const SPAN = Math.max(1, Y_MAX - Y_MIN);
+  const yr = v => Math.round(Y_MIN + clamp(v, 0, 1) * SPAN);
+  const pos = y => (y - Y_MIN) / SPAN;
+  const gapV = () => Math.max(1 / SPAN, 34 / Math.max(1, area.clientWidth));
+  const va = S(0, 260, 24), vb = S(1, 260, 24), M = S(0, 300, 26);
+  let drag = null, timer = null, lastKey = '';
+
+  // 연도별 장비 수 막대 + 눈금
+  const cnt = {}; YEARS.forEach(y => cnt[y] = (cnt[y] || 0) + 1);
+  const peak = Math.max(...Object.values(cnt));
+  const bars = [];
+  for (let y = Y_MIN; y <= Y_MAX; y++) {
+    const b = document.createElement('i');
+    b.style.height = Math.max(3, (cnt[y] || 0) / peak * 100) + '%';
+    b.title = y + '년 ' + fmt(cnt[y] || 0) + '대';
+    $('yHist').appendChild(b); bars.push({y, b});
+  }
+  // 막대 칸과 손잡이 위치를 맞추려고 히스토그램을 반 칸씩 바깥으로
+  // 막대 i의 가운데 = 연도 i 위치(i/SPAN) → 히스토그램을 양쪽으로 반 칸(1/(2·SPAN))씩 넓힘
+  const hist = $('yHist');
+  hist.style.left = hist.style.right = (-100 / (2 * SPAN)).toFixed(3) + '%';
+  const tickYears = []; for (let y = Math.ceil(Y_MIN / 5) * 5; y <= Y_MAX; y += 5) tickYears.push(y);
+  if (tickYears[0] - Y_MIN > 1) tickYears.unshift(Y_MIN);
+  if (Y_MAX - tickYears[tickYears.length - 1] > 1) tickYears.push(Y_MAX);
+  tickYears.forEach(y => { const s = document.createElement('span'); s.style.left = pos(y) * 100 + '%'; s.textContent = y; $('yTicks').appendChild(s); });
+
+  function apply() {
+    const y0 = yr(va.t), y1 = yr(vb.t), key = y0 + '-' + y1;
+    if (key === lastKey) return; lastKey = key;
+    st.y0 = y0; st.y1 = y1; st.limit = 60;
+    const full = y0 <= Y_MIN && y1 >= Y_MAX;
+    $('yReset').hidden = full;
+    $('ySub').textContent = '최초 설치일 기준 · ' + (full ? '전체 연도' : y0 === y1 ? y0 + '년' : y0 + '–' + y1 + '년');
+    bars.forEach(o => o.b.classList.toggle('in', !full && o.y >= y0 && o.y <= y1));
+    render();
+  }
+  const schedule = d => { clearTimeout(timer); timer = setTimeout(apply, d); };
+
+  function bind(el, s, isA) {
+    el.addEventListener('pointerdown', e => { drag = {s}; el.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation(); });
+    el.addEventListener('pointermove', e => {
+      if (!drag || drag.s !== s) return;
+      const r = area.getBoundingClientRect();
+      let v = clamp((e.clientX - r.left) / r.width, 0, 1);
+      v = isA ? Math.min(v, vb.t - gapV()) : Math.max(v, va.t + gapV());
+      s.t = v; schedule(180);
+    });
+    const end = () => { if (drag && drag.s === s) { drag = null; s.t = pos(yr(s.t)); schedule(0); } };   // 놓으면 해당 연도 칸에 맞춤
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    el.addEventListener('keydown', e => {
+      let d = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -1 : 0;
+      if (e.key === 'Home') d = -SPAN; if (e.key === 'End') d = SPAN;
+      if (!d) return; e.preventDefault();
+      const ny = clamp(yr(s.t) + d, Y_MIN, Y_MAX);
+      if (isA && ny > yr(vb.t)) return; if (!isA && ny < yr(va.t)) return;
+      s.t = pos(ny); schedule(200);
+    });
+  }
+  bind(A, va, true); bind(B, vb, false);
+  area.addEventListener('pointerdown', e => {
+    if (e.target === A || e.target === B) return;
+    const r = area.getBoundingClientRect(), v = pos(yr(clamp((e.clientX - r.left) / r.width, 0, 1)));
+    if (Math.abs(v - va.t) <= Math.abs(v - vb.t)) va.t = Math.min(v, vb.t); else vb.t = Math.max(v, va.t);
+    schedule(0);
+  });
+  $('yReset').addEventListener('click', () => { va.t = 0; vb.t = 1; schedule(0); });
+
+  const lab = v => yr(v) + '년';
+  let last = performance.now();
+  (function loop(now) {
+    const dt = Math.min((now - last) / 1000, 1 / 30); last = now;
+    for (let k = 0; k < 4; k++) [va, vb, M].forEach(s => step(s, dt / 4));
+    if (area.offsetParent !== null) {
+      const w = area.clientWidth, xa = clamp(va.x, 0, 1) * w, xb = clamp(vb.x, 0, 1) * w;
+      A.style.transform = `translateX(${xa.toFixed(2)}px)`;
+      B.style.transform = `translateX(${xb.toFixed(2)}px)`;
+      A.setAttribute('aria-valuetext', lab(va.t)); B.setAttribute('aria-valuetext', lab(vb.t));
+      fill.style.left = xa.toFixed(2) + 'px'; fill.style.width = Math.max(0, xb - xa).toFixed(2) + 'px';
+      const sa = lab(va.x), sb = lab(vb.x), sm = yr(va.x) === yr(vb.x) ? sa : sa + ' – ' + sb;
+      if (ta.textContent !== sa) ta.textContent = sa;
+      if (tb.textContent !== sb) tb.textContent = sb;
+      if (tm.textContent !== sm) tm.textContent = sm;
+      M.t = xb - xa < (ta.offsetWidth + tb.offsetWidth) / 2 + 8 ? 1 : 0;
+      const m = clamp(M.x, 0, 1), mid = (xa + xb) / 2;
+      const tipAt = (el, x, vel, o, sc) => {
+        const tilt = clamp(vel * w * -.02, -12, 12);
+        const left = clamp(x - el.offsetWidth / 2, -14, w + 14 - el.offsetWidth);
+        el.style.opacity = o.toFixed(3);
+        el.style.transform = `translateX(${left.toFixed(2)}px) rotate(${tilt.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      };
+      tipAt(ta, xa + (mid - xa) * m, va.v, 1 - m, 1 - .2 * m);
+      tipAt(tb, xb + (mid - xb) * m, vb.v, 1 - m, 1 - .2 * m);
+      tipAt(tm, mid, (va.v + vb.v) / 2, m, .8 + .2 * m);
+    }
+    requestAnimationFrame(loop);
+  })(last);
+})();
 
 (function init() {
   const mach = DATA.filter(d => isMach(d)).length;
