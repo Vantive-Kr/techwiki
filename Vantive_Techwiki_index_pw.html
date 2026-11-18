@@ -125,58 +125,6 @@
     }
     .sidebar::-webkit-scrollbar { width: 0; }
 
-    /* ── Sidebar collapsed (desktop) ──────────────── */
-    .app.sb-collapsed {
-      --sidebar-w: 0px;
-    }
-    .app.sb-collapsed .sidebar {
-      width: 0;
-      overflow: hidden;
-    }
-
-    /* ── Sidebar toggle button ────────────────────── */
-    .sb-toggle {
-      position: fixed;
-      top: 50vh;
-      left: calc(var(--sidebar-w) - 7px);
-      transform: translateY(-50%);
-      z-index: 195;
-      width: 14px;
-      height: 137px;
-      background: rgba(92,27,86,0.43);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1.5px solid rgba(255,250,235,0.17);
-      border-radius: 0 8px 8px 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,250,235,0.53);
-      transition: left .26s cubic-bezier(.4,0,.2,1),
-                  background .15s, opacity .15s, border-color .15s, color .15s;
-      box-shadow: 2px 0 12px rgba(0,0,0,0.11);
-      padding: 0;
-    }
-    .sb-toggle:hover {
-      background: rgba(114,37,107,0.55);
-      color: rgba(255,250,235,0.9);
-      border-color: rgba(255,250,235,0.35);
-    }
-    .sb-toggle:active { transform: translateY(-50%) scale(0.93); }
-    .sb-toggle svg {
-      width: 7px; height: 7px;
-      transition: transform .26s cubic-bezier(.4,0,.2,1);
-      flex-shrink: 0;
-    }
-    /* When collapsed: button at left edge, arrow flips */
-    .app.sb-collapsed .sb-toggle {
-      left: 0px;
-    }
-    .app.sb-collapsed .sb-toggle svg {
-      transform: rotate(180deg);
-    }
-
     .sidebar-section {
       padding: 20px 14px 6px;
     }
@@ -484,8 +432,6 @@
     /* ── Mobile ──────────────────────────────────── */
     @media (max-width: 700px) {
       .hamburger { display: flex; }
-      /* 모바일에서 sb-toggle 버튼 숨김 (햄버거 메뉴 사용) */
-      .sb-toggle { display: none; }
       .sidebar {
         position: fixed; top: var(--header-h); left: 0; bottom: 0; z-index: 180;
         transform: translateX(-100%);
@@ -495,8 +441,6 @@
         overflow-y: auto !important;
       }
       .sidebar.open { transform: translateX(0); }
-      /* 모바일에서 collapsed 상태 무효화 */
-      .app.sb-collapsed .sidebar { width: var(--sidebar-w) !important; overflow-y: auto !important; }
       /* 헤더 모바일 최적화 */
       .header-brand { flex-shrink: 1; min-width: 0; gap: 7px; align-items: flex-end; }
       .header-brand img.vantive-logo-img { height: 29px; }
@@ -939,7 +883,6 @@
        데스크톱: 접으면 아이콘 레일(64px)로 줄어들고, 펼치면 이름이 위에서부터 차례로 나타남.
        폭·화살표·강조 막대·글자는 스프링(강성 / 감쇠)으로 움직임 — designbookmark Sidebar collapse 값 그대로.
        모바일(700px 이하)은 기존 햄버거 서랍 그대로. */
-    .sb-toggle { display: none !important; }            /* 예전 가장자리 손잡이 버튼 */
     .sidebar { transition: transform var(--transition); will-change: width; }
     .sidebar-section {
       position: sticky; top: 0; z-index: 3;
@@ -995,14 +938,14 @@
     .dm-head:focus-visible { outline: 2px solid var(--plum); outline-offset: -4px; border-radius: 22px; }
     .dm-ic { width: 20px; height: 20px; flex: none; display: grid; place-items: center; }
     .dm-ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .dm-brand { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dm-brand { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dm-tog { position: relative; width: 24px; height: 24px; flex: none; }
     .dm-tog i { position: absolute; left: 4px; right: 4px; top: 11px; height: 2px; border-radius: 2px; background: currentColor; will-change: transform; }
     .dm-links { position: absolute; left: 0; top: 52px; width: 290px; padding: 2px 10px 10px; overflow-y: auto; overscroll-behavior: contain; }
     .dm-row { will-change: transform, opacity; opacity: 0; }
-    .dm-sub { padding: 10px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a7a88; }
-    .dm-a { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 8px 10px;
-            border: 0; border-radius: var(--radius); background: none; color: #1d1d1f; font: inherit; font-size: 14px; font-weight: 600;
+    .dm-sub { padding: 10px 10px 3px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--plum); }   /* 상단 메뉴 소제목과 같은 Plum */
+    .dm-a { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 34px; padding: 7px 10px;
+            border: 0; border-radius: var(--radius); background: none; color: var(--pine-dark); font: inherit; font-size: 11.5px; font-weight: 700; letter-spacing: -0.2px;   /* 상단 메뉴 항목과 같은 Pine·크기 */
             line-height: 1.35; text-align: left; cursor: pointer; }
     .dm-a:hover { background: rgba(114,37,107,0.07); color: var(--plum); }
     .dm-a:focus-visible { outline: 2px solid var(--plum); outline-offset: -2px; }
@@ -1083,14 +1026,6 @@
 
 <!-- ── App shell ──────────────────────────────── -->
 <div class="app" id="app-shell">
-
-  <!-- Sidebar toggle button -->
-  <button class="sb-toggle" id="sb-toggle" aria-label="사이드바 접기/펼치기" title="사이드바 접기/펼치기">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-  </button>
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -1196,28 +1131,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- *  💬 의견·제안 게시판 설정  ← 여기에 Firebase 설정 붙여넣기
- *
- *  사용법 (1회만 설정):
- *   1) https://console.firebase.google.com 에서 프로젝트 생성
- *   2) 좌측 "빌드 → Firestore Database" → 데이터베이스 만들기(프로덕션 모드)
- *   3) 프로젝트 설정(⚙️) → "내 앱" → 웹앱(</>) 추가 → firebaseConfig 복사
- *   4) 아래 FIREBASE_CONFIG 에 그대로 붙여넣기
- *   5) Firestore "규칙(Rules)" 탭에 아래 규칙 붙여넣고 게시:
- *        rules_version = '2';
- *        service cloud.firestore {
- *          match /databases/{db}/documents {
- *            match /techwiki_feedback/{doc} {
- *              allow read: if true;
- *              allow create: if request.resource.data.msg is string
- *                            && request.resource.data.msg.size() <= 200;
- *              allow update, delete: if false;
- *            }
- *          }
- *        }
- *   ※ 설정 전에는 "내 브라우저 임시 저장(localStorage)"으로 동작합니다.
- * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ── 💬 Feedback 게시판 Firebase 설정 (컬렉션 techwiki_feedback) ──
+ *  보안 규칙은 Firebase 콘솔(techwiki-opinion-board › Firestore › 규칙)에서 관리합니다.
+ *  설정이 없으면 내 브라우저 임시 저장(localStorage)으로 동작합니다. */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCmETRzolNXQP0kudESHsRrxzaGScaO18Y",
   authDomain: "techwiki-opinion-board.firebaseapp.com",
@@ -1227,6 +1143,11 @@ const FIREBASE_CONFIG = {
   appId: "1:403848657716:web:09fc892ddcfbb63b9a4361"
 };
 const FB_COLLECTION = 'techwiki_feedback';
+
+/* 🔑 게시판 관리자 비밀번호 (사이트 접속 비밀번호와 별개, SHA-256 해시 — 소스에 평문 없음)
+ *  변경: 터미널에서  bash 05_Techwiki/_tools/set_admin_password.sh  실행 → 새 비밀번호 입력하면 이 줄이 자동으로 바뀝니다.
+ *  비어 있으면 관리자 모드가 꺼져 있습니다. */
+const FB_ADMIN_HASH = '';
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *  📢 공지 팝업 설정  ← 여기만 수정하세요
@@ -1238,22 +1159,11 @@ const FB_COLLECTION = 'techwiki_feedback';
  *  NOTICE_TITLE   : 팝업 제목
  *  NOTICE_BODY    : 팝업 본문 (HTML 가능)
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const NOTICE_ENABLED = true;
-const NOTICE_UNTIL   = '2026-11-04';          // 이 날짜까지 표시 (2026-10-26 ~ 10일간)
-const NOTICE_TITLE   = 'Price & Billing 메뉴 변경 안내';
+const NOTICE_ENABLED = false;               // 새 공지가 있을 때 true로
+const NOTICE_UNTIL   = '2026-11-04';          // 이 날짜까지 표시
+const NOTICE_TITLE   = '공지 제목';
 const NOTICE_BODY    = `
-  <p>상단 메뉴 <b>Spare Parts Price</b>가 <b>Price &amp; Billing</b>으로 이름이 바뀌었습니다. 부품 가격표와 함께, Finance 부서가 진행한 <b>TS 유상수리·부품판매 매출 프로세스 개선 교육</b>(10/22) 내용을 추가했습니다.</p>
-  <ul>
-    <li><b>단가표</b> — 2026년 Spare Parts Price List (기존 메뉴 그대로)</li>
-    <li><b>매출 프로세스 › FSE To-Do</b> — 현장에서 할 일만 단계별로 정리 (프로세스 맵 포함)</li>
-    <li><b>매출 프로세스 › TS 매출 프로세스 가이드 (Detail)</b> — 매출 인식·세금계산서 기준, 필수 서류, Q&amp;A</li>
-  </ul>
-  <p style="margin-top:12px; padding:10px 14px; background:#F3ECF2; border-radius:8px; color:inherit;">
-    핵심: 기준일은 <b>작업 완료일</b>, 완료일과 증빙은 <b>즉시 공유</b>, 세금계산서는 <b>표준 단가로 다음 달 10일까지</b> 발행합니다.
-  </p>
-  <p style="margin-top:12px; font-size:13px; color:#999;">
-    문의사항 및 요청사항은 관리자에게 문의하세요
-  </p>
+  <p>공지 내용을 여기에 적습니다. <b>굵게</b>, <ul><li>목록</li></ul> 등 HTML 사용 가능.</p>
 `;
 
 /* ── 공지 팝업 로직 (수정 불필요) ─────────────── */
@@ -1504,7 +1414,6 @@ rotateBanner();   // 페이지 읽는 즉시 이번 주 이미지로 (로그인 
   const overlay  = document.getElementById('overlay');
   const wcCards  = document.getElementById('welcome-cards');
   const appShell = document.getElementById('app-shell');
-  const sbToggle = document.getElementById('sb-toggle');
 
   let activeLink = null;
 
@@ -2139,11 +2048,12 @@ rotateBanner();   // 페이지 읽는 즉시 이번 주 이미지로 (로그인 
       fbLoad(); // 목록 재렌더
       return;
     }
+    if (!FB_ADMIN_HASH) { alert('관리자 비밀번호가 아직 설정되지 않았습니다.'); return; }
     const pw = prompt('관리자 비밀번호를 입력하세요:');
     if (!pw) return;
-    if (!window._tw_sha256 || !window._tw_ch) { alert('초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    if (!window._tw_sha256) { alert('초기화 중입니다. 잠시 후 다시 시도해주세요.'); return; }
     const hash = await window._tw_sha256(pw.trim());
-    if (hash !== window._tw_ch) {
+    if (hash !== FB_ADMIN_HASH) {
       alert('비밀번호가 올바르지 않습니다.');
       return;
     }
@@ -2295,6 +2205,11 @@ rotateBanner();   // 페이지 읽는 즉시 이번 주 이미지로 (로그인 
    *    https://emn178.github.io/online-tools/sha256.html 에서
    *    새 비밀번호의 SHA-256 해시 값을 구해 CORRECT_HASH를 교체하세요.
    * ─────────────────────────────────────────────── */
+  /* 관리자 모드용 SHA-256 — 이미 로그인된 상태(새로고침)에서도 쓰이도록 비밀번호 화면 밖에서 준비 */
+  window._tw_sha256 = async (message) => {
+    const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message));
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+  };
   (function initPasswordGate() {
     // ① 비밀번호 해시 (SHA-256) — 원문: 관리자에게 문의
     const CORRECT_HASH   = 'c49c8147669d7b84cdc3f75f118fd1df5552348966c407dddf077df7ed686848';
@@ -2398,9 +2313,8 @@ rotateBanner();   // 페이지 읽는 즉시 이번 주 이미지로 (로그인 
       return Array.from(new Uint8Array(hash))
                   .map(b => b.toString(16).padStart(2, '0')).join('');
     }
-    // 관리자 모드에서도 sha256·CORRECT_HASH 사용 가능하도록 외부 노출
+    // 관리자 모드에서도 sha256 사용 가능하도록 외부 노출 (관리자 해시는 FB_ADMIN_HASH, 접속 해시와 별개)
     window._tw_sha256 = sha256;
-    window._tw_ch     = CORRECT_HASH;
 
     // ── ② 잠금 UI ───────────────────────────────────
     function startLockoutUI(lockUntil) {

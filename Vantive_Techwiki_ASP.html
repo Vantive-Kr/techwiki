@@ -124,58 +124,6 @@
     }
     .sidebar::-webkit-scrollbar { width: 0; }
 
-    /* ── Sidebar collapsed (desktop) ──────────────── */
-    .app.sb-collapsed {
-      --sidebar-w: 0px;
-    }
-    .app.sb-collapsed .sidebar {
-      width: 0;
-      overflow: hidden;
-    }
-
-    /* ── Sidebar toggle button ────────────────────── */
-    .sb-toggle {
-      position: fixed;
-      top: 50vh;
-      left: calc(var(--sidebar-w) - 7px);
-      transform: translateY(-50%);
-      z-index: 195;
-      width: 14px;
-      height: 137px;
-      background: rgba(92,27,86,0.43);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1.5px solid rgba(255,250,235,0.17);
-      border-radius: 0 8px 8px 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,250,235,0.53);
-      transition: left .26s cubic-bezier(.4,0,.2,1),
-                  background .15s, opacity .15s, border-color .15s, color .15s;
-      box-shadow: 2px 0 12px rgba(0,0,0,0.11);
-      padding: 0;
-    }
-    .sb-toggle:hover {
-      background: rgba(114,37,107,0.55);
-      color: rgba(255,250,235,0.9);
-      border-color: rgba(255,250,235,0.35);
-    }
-    .sb-toggle:active { transform: translateY(-50%) scale(0.93); }
-    .sb-toggle svg {
-      width: 7px; height: 7px;
-      transition: transform .26s cubic-bezier(.4,0,.2,1);
-      flex-shrink: 0;
-    }
-    /* When collapsed: button at left edge, arrow flips */
-    .app.sb-collapsed .sb-toggle {
-      left: 0px;
-    }
-    .app.sb-collapsed .sb-toggle svg {
-      transform: rotate(180deg);
-    }
-
     .sidebar-section {
       padding: 20px 14px 6px;
     }
@@ -483,8 +431,6 @@
     /* ── Mobile ──────────────────────────────────── */
     @media (max-width: 700px) {
       .hamburger { display: flex; }
-      /* 모바일에서 sb-toggle 버튼 숨김 (햄버거 메뉴 사용) */
-      .sb-toggle { display: none; }
       .sidebar {
         position: fixed; top: var(--header-h); left: 0; bottom: 0; z-index: 180;
         transform: translateX(-100%);
@@ -494,8 +440,6 @@
         overflow-y: auto !important;
       }
       .sidebar.open { transform: translateX(0); }
-      /* 모바일에서 collapsed 상태 무효화 */
-      .app.sb-collapsed .sidebar { width: var(--sidebar-w) !important; overflow-y: auto !important; }
       /* 헤더 모바일 최적화 */
       .header-brand { flex-shrink: 1; min-width: 0; gap: 7px; align-items: flex-end; }
       .header-brand img.vantive-logo-img { height: 29px; }
@@ -938,7 +882,6 @@
        데스크톱: 접으면 아이콘 레일(64px)로 줄어들고, 펼치면 이름이 위에서부터 차례로 나타남.
        폭·화살표·강조 막대·글자는 스프링(강성 / 감쇠)으로 움직임 — designbookmark Sidebar collapse 값 그대로.
        모바일(700px 이하)은 기존 햄버거 서랍 그대로. */
-    .sb-toggle { display: none !important; }            /* 예전 가장자리 손잡이 버튼 */
     .sidebar { transition: transform var(--transition); will-change: width; }
     .sidebar-section {
       position: sticky; top: 0; z-index: 3;
@@ -994,14 +937,14 @@
     .dm-head:focus-visible { outline: 2px solid var(--plum); outline-offset: -4px; border-radius: 22px; }
     .dm-ic { width: 20px; height: 20px; flex: none; display: grid; place-items: center; }
     .dm-ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .dm-brand { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dm-brand { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dm-tog { position: relative; width: 24px; height: 24px; flex: none; }
     .dm-tog i { position: absolute; left: 4px; right: 4px; top: 11px; height: 2px; border-radius: 2px; background: currentColor; will-change: transform; }
     .dm-links { position: absolute; left: 0; top: 52px; width: 290px; padding: 2px 10px 10px; overflow-y: auto; overscroll-behavior: contain; }
     .dm-row { will-change: transform, opacity; opacity: 0; }
-    .dm-sub { padding: 10px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a7a88; }
-    .dm-a { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 8px 10px;
-            border: 0; border-radius: var(--radius); background: none; color: #1d1d1f; font: inherit; font-size: 14px; font-weight: 600;
+    .dm-sub { padding: 10px 10px 3px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--plum); }   /* 상단 메뉴 소제목과 같은 Plum */
+    .dm-a { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 34px; padding: 7px 10px;
+            border: 0; border-radius: var(--radius); background: none; color: var(--pine-dark); font: inherit; font-size: 11.5px; font-weight: 700; letter-spacing: -0.2px;   /* 상단 메뉴 항목과 같은 Pine·크기 */
             line-height: 1.35; text-align: left; cursor: pointer; }
     .dm-a:hover { background: rgba(114,37,107,0.07); color: var(--plum); }
     .dm-a:focus-visible { outline: 2px solid var(--plum); outline-offset: -2px; }
@@ -1082,14 +1025,6 @@
 
 <!-- ── App shell ──────────────────────────────── -->
 <div class="app" id="app-shell">
-
-  <!-- Sidebar toggle button -->
-  <button class="sb-toggle" id="sb-toggle" aria-label="사이드바 접기/펼치기" title="사이드바 접기/펼치기">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
-  </button>
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -1202,21 +1137,11 @@
  *  NOTICE_TITLE   : 팝업 제목
  *  NOTICE_BODY    : 팝업 본문 (HTML 가능)
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const NOTICE_ENABLED = true;
-const NOTICE_UNTIL   = '2026-10-06';          // 이 날짜까지 표시 (2026-09-30 ~ 1주일)
-const NOTICE_TITLE   = '알람 검색 한글 지원 안내';
+const NOTICE_ENABLED = false;               // 새 공지가 있을 때 true로
+const NOTICE_UNTIL   = '2026-11-04';          // 이 날짜까지 표시
+const NOTICE_TITLE   = '공지 제목';
 const NOTICE_BODY    = `
-  <p><b>Alarm Search</b> 메뉴의 전 기기 알람·에러 코드 페이지에서 <b>영문 / 한글 전환</b>이 가능해졌습니다.</p>
-  <ul>
-    <li>대상: <b>AK98 · ARTIS · Phoenix · Prismaflex · PrisMax</b></li>
-    <li>각 페이지 우측 상단 <b>EN | 한글</b> 버튼으로 전환 (선택 언어 자동 기억)</li>
-    <li>알람명 아래 한글 이름 표시, 원인·조치 내용 한글 번역</li>
-    <li>한글로도 검색 가능 (예: "카테터", "압력")</li>
-  </ul>
-  <p style="margin-top:12px; font-size:13px; color:#999;">
-    한글은 서비스 매뉴얼의 참고 번역입니다. 판단이 애매할 때는 EN 원문을 기준으로 하세요.<br>
-    문의사항 및 요청사항은 관리자에게 문의하세요
-  </p>
+  <p>공지 내용을 여기에 적습니다. <b>굵게</b>, <ul><li>목록</li></ul> 등 HTML 사용 가능.</p>
 `;
 
 /* ── 공지 팝업 로직 (수정 불필요) ─────────────── */
@@ -1420,7 +1345,6 @@ rotateBanner();   // 페이지 읽는 즉시 이번 주 이미지로 (로그인 
   const overlay  = document.getElementById('overlay');
   const wcCards  = document.getElementById('welcome-cards');
   const appShell = document.getElementById('app-shell');
-  const sbToggle = document.getElementById('sb-toggle');
 
   let activeLink = null;
 
