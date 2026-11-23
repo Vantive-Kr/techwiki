@@ -986,14 +986,38 @@ if (MGR && D.perf.length) {
 }
 
 /* ── 엑셀 저장 (후속148): 지금 화면 조건(FSE 개별 건 / 지역·상태·검색어) 그대로 ── */
+/* 셀 색·굵기를 쓰려고 SheetJS 서식 지원판(xlsx-js-style)을 먼저 불러오고, 실패하면 기본 SheetJS(서식 없이) → 그래도 실패하면 CSV */
+var XLSX_STYLE_SRC = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
 var XLSX_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-function loadXlsx() {
-  if (window.XLSX) return Promise.resolve(window.XLSX);
+function addScript(src) {
   return new Promise(function(ok, no) {
     var sc_ = document.createElement('script');
-    sc_.src = XLSX_SRC; sc_.onload = function() { window.XLSX ? ok(window.XLSX) : no(new Error('xlsx')); }; sc_.onerror = no;
+    sc_.src = src; sc_.onload = function() { window.XLSX ? ok(window.XLSX) : no(new Error('xlsx')); }; sc_.onerror = no;
     document.head.appendChild(sc_);
   });
+}
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return addScript(XLSX_STYLE_SRC).catch(function() { return addScript(XLSX_SRC); });
+}
+/* 엑셀 서식: 머리글 굵게 + 연한 파랑(Blue, Accent 1, Lighter 80%), 상태 칸 Red 빨강·Green 초록 */
+var XS = {
+  head: { font: { bold: true }, fill: { patternType: 'solid', fgColor: { rgb: 'DBE5F1' } }, alignment: { vertical: 'center' } },
+  red: { fill: { patternType: 'solid', fgColor: { rgb: 'FF0000' } } },
+  green: { fill: { patternType: 'solid', fgColor: { rgb: '92D050' } } },
+  bold: { font: { bold: true } }
+};
+function xlStyle(X, w, aoa, o) {
+  o = o || {};
+  var cell = function(r, c) { return w[X.utils.encode_cell({ r: r, c: c })]; };
+  for (var c = 0; c < aoa[0].length; c++) { var h = cell(0, c); if (h) h.s = XS.head; }
+  if (o.status != null) for (var r = 1; r < aoa.length; r++) {
+    var s = cell(r, o.status); if (!s) continue;
+    if (s.v === 'Red') s.s = XS.red; else if (s.v === 'Green') s.s = XS.green;
+  }
+  if (o.lastBold) for (var c2 = 0; c2 < aoa[0].length; c2++) {
+    var t = cell(aoa.length - 1, c2); if (t) t.s = t.z ? { font: { bold: true }, numFmt: t.z } : XS.bold;
+  }
 }
 var ST_NAME = { '': '전체', r: 'Red · 30일 초과', g: 'Green · 30일 이내', a: 'Amber', s: 'SOP 60일 초과' };
 function exportData() {
@@ -1001,7 +1025,7 @@ function exportData() {
   if (me) { var s0 = staff[st.me]; groups = [{ s: s0, ws: s0.wos }]; }
   else groups = view();
   var wos = [], n = 0;
-  var head = ['No', '상태', 'SOP 60+', '경과일', '30일 기준', 'TS 담당', '지역', '병원', 'WO 번호', 'WO 생성일', '금액(원)', '부품 수', '주요 부품', 'CS', 'Sales'];
+  var head = ['No', '상태', 'SOP 60+', '경과일', '30일 기준', 'TS 담당', '지역', '병원', 'WO 번호', 'WO 생성일', '금액(원)', '부품 수', '주요 부품 파트넘버', '주요 부품명', '수량', 'CS', 'Sales'];
   var rowsW = [head], rowsP = [['WO 번호', '상태', 'TS 담당', '지역', '병원', 'WO 생성일', '경과일', '파트넘버', '부품명', '수량', '금액(원)', '장비 S/N']];
   var rowsS = [['TS 담당', '지역', '건수', 'Red', 'SOP 60+', 'Green', '금액(원)', '최장 경과일']];
   var tot = { n: 0, r: 0, s: 0, g: 0, amt: 0 };
@@ -1011,9 +1035,10 @@ function exportData() {
     tot.n += ws.length; tot.r += r; tot.s += sp; tot.g += ws.length - r; tot.amt += am;
     ws.forEach(function(w) {
       var stt = isR(w) ? 'Red' : 'Green', p = w.parts;
-      var main = p.length ? ((p[0][0] ? p[0][0] + ' ' : '') + p[0][1] + (p[0][2] > 1 ? ' ×' + p[0][2] : '') + (p.length > 1 ? ' 외 ' + (p.length - 1) : '')) : '';
+      /* 주요 부품(첫 부품)을 파트넘버·부품명·수량 3칸으로 분리 — 나머지 부품은 '부품 수'와 '부품 상세' 시트 참고 */
+      var m0 = p[0] || [];
       rowsW.push([++n, stt, isS(w) ? '60+' : '', w.days, isR(w) ? '+' + (w.days - D.law) + '일 초과' : 'D-' + (D.law - w.days),
-        w.ts, w.loc, w.hosp, w.sr, w.created, w.amt, p.length, main, w.cs || '', w.sales || '']);
+        w.ts, w.loc, w.hosp, w.sr, w.created, w.amt, p.length, m0[0] || '', m0[1] || '', p.length ? m0[2] : '', w.cs || '', w.sales || '']);
       p.forEach(function(q) { rowsP.push([w.sr, stt, w.ts, w.loc, w.hosp, w.created, w.days, q[0] || '', q[1] || '', q[2], q[3], q[4] || '']); });
       wos.push(w);
     });
@@ -1039,18 +1064,19 @@ document.getElementById('xlsBtn').onclick = function() {
   btn.disabled = true; lbl.textContent = '준비 중…';
   loadXlsx().then(function(X) {
     var wb = X.utils.book_new();
-    var sh = function(aoa, cols, filt, moneyCols) {
+    var sh = function(aoa, cols, filt, moneyCols, sty) {
       var w = X.utils.aoa_to_sheet(aoa);
       w['!cols'] = cols.map(function(c) { return { wch: c }; });
       if (filt) w['!autofilter'] = { ref: X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: aoa.length - 1, c: aoa[0].length - 1 } }) };
       (moneyCols || []).forEach(function(c) {
         for (var r = 1; r < aoa.length; r++) { var a = X.utils.encode_cell({ r: r, c: c }); if (w[a] && w[a].t === 'n') w[a].z = '#,##0'; }
       });
+      xlStyle(X, w, aoa, sty);
       return w;
     };
-    X.utils.book_append_sheet(wb, sh(R.wos, [5, 7, 7, 7, 11, 9, 7, 28, 11, 11, 13, 7, 40, 9, 16], true, [10]), 'WO 목록');
-    X.utils.book_append_sheet(wb, sh(R.parts, [11, 7, 9, 7, 28, 11, 7, 12, 36, 6, 13, 12], true, [10]), '부품 상세');
-    X.utils.book_append_sheet(wb, sh(R.staff, [14, 7, 7, 7, 8, 7, 14, 11], false, [6]), '직원 요약');
+    X.utils.book_append_sheet(wb, sh(R.wos, [5, 7, 7, 7, 11, 9, 7, 28, 11, 11, 13, 7, 14, 36, 6, 9, 16], true, [10], { status: 1 }), 'WO 목록');
+    X.utils.book_append_sheet(wb, sh(R.parts, [11, 7, 9, 7, 28, 11, 7, 12, 36, 6, 13, 12], true, [10], { status: 1 }), '부품 상세');
+    X.utils.book_append_sheet(wb, sh(R.staff, [14, 7, 7, 7, 8, 7, 14, 11], false, [6], { lastBold: true }), '직원 요약');
     if (MGR && D.perf && D.perf.length) {
       var pc = function(a, b) { return b ? Math.round(a / b * 1000) / 10 : ''; };
       var perf = [['WO 생성 분기', '청구 완료', '미청구', '30일 내 청구율(%)', '30일 판정 건수', 'SOP 60일 내 청구율(%)', 'SOP 판정 건수']]
@@ -1058,6 +1084,8 @@ document.getElementById('xlsBtn').onclick = function() {
       X.utils.book_append_sheet(wb, sh(perf, [13, 9, 8, 15, 12, 18, 12], false), '처리 실적');
     }
     var cw = X.utils.aoa_to_sheet(R.cond); cw['!cols'] = [{ wch: 18 }, { wch: 70 }];
+    if (cw.A1) cw.A1.s = { font: { bold: true, sz: 13 } };
+    for (var ci = 2; ci < R.cond.length; ci++) { var ca = cw['A' + (ci + 1)]; if (ca) ca.s = XS.bold; }
     X.utils.book_append_sheet(wb, cw, '조건');
     X.writeFile(wb, xlsName(R) + '.xlsx');
   }).catch(function() {
