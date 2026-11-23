@@ -66,6 +66,19 @@ border:1.5px solid transparent;transition:all .15s ease;font-family:inherit;disp
 .frow{margin-bottom:10px;}.frow:last-child{margin-bottom:0;}
 .sbar{padding:8px 18px 6px;font-size:12px;color:var(--text2);background:var(--cream);}
 .sbar b{color:var(--plum);font-weight:700;}
+.sbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.sbar .sb-txt{flex:1;min-width:0;}
+.xls-btn{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;background:#fff;border:1.5px solid rgba(114,37,107,0.28);color:var(--plum);font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.xls-btn:hover{background:var(--plum-light);}
+.xls-btn:disabled{opacity:.6;cursor:progress;}
+.xls-btn svg{width:13px;height:13px;}
+.ag-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 2px;font-size:12px;color:var(--text2);}
+.ag-top b{color:var(--plum);}
+.fav-xls-btn{width:100%;margin-top:8px;background:transparent;border:1.5px solid rgba(255,250,235,0.35);border-radius:12px;color:var(--cream);font-size:12.5px;font-weight:700;padding:10px 16px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+.fav-xls-btn:hover{background:rgba(255,250,235,0.08);}
+.fav-xls-btn:disabled{opacity:.6;cursor:progress;}
+.fav-xls-btn svg{width:15px;height:15px;}
+@media print{.xls-btn,.fav-xls-btn{display:none!important;}}
 .cards{padding:8px 14px 32px;display:flex;flex-direction:column;gap:9px;}
 .card{background:var(--white);border-radius:var(--r);box-shadow:0 2px 14px rgba(0,0,0,0.06);
 border:1px solid var(--border);overflow:hidden;}
@@ -297,7 +310,7 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 </div>
 </div>
 
-<div class="sbar"><b id="mCnt">0</b> items &middot; 2026 Standard Price<span id="prngSbar"></span></div>
+<div class="sbar"><span class="sb-txt"><b id="mCnt">0</b> items &middot; 2026 Standard Price<span id="prngSbar"></span></span><button type="button" class="xls-btn" id="xlsSearch" onclick="xlsSave('search',this)" title="지금 보이는 목록(기기·금액·검색 조건)을 엑셀로 저장"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg><span class="xl">엑셀 저장</span></button></div>
 <div class="cards" id="cardsEl"></div>
 <div class="empty" id="emptyEl">
   <div class="empty-ico">&#x1F50D;</div>
@@ -567,7 +580,7 @@ function switchBnav(tab,el){
 }
 
 function renderByCode(){
-  var html='';
+  var html='<div class="ag-top"><span>전체 <b>'+ITEMS.length+'</b>개 · 기기별 시트로 저장</span>'+'<button type="button" class="xls-btn" onclick="xlsSave(\'all\',this)" title="전체 단가표를 기기별 시트로 엑셀 저장"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 4v11\"/><path d=\"M7 10l5 5 5-5\"/><path d=\"M5 20h14\"/></svg><span class="xl">전체 엑셀 저장</span></button></div>';
   GRP_ORDER.forEach(function(g){
     var grpItems=ITEMS.filter(function(it){return it.grp===g;});
     if(!grpItems.length)return;
@@ -701,6 +714,7 @@ function renderFavs(){
     +'<polyline points="7 9 12 14 17 9"/>'
     +'</svg>'
     +'&#8201;&#8201;견적서 출력 &nbsp;/&nbsp; PDF 저장</button>'
+    +'<button class="fav-xls-btn" onclick="xlsSave(\'fav\',this)"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 4v11\"/><path d=\"M7 10l5 5 5-5\"/><path d=\"M5 20h14\"/></svg><span class="xl">견적 내역 엑셀 저장</span></button>'
     +'</div>';
   el.innerHTML='<div style="padding:12px 0 28px">'+html+'</div>';
 }
@@ -1192,6 +1206,111 @@ function printQuote(){
   w.document.write(d);
   w.document.close();
   try{w.focus();}catch(e){}
+}
+
+/* ── 엑셀 저장 (후속149): search=지금 목록 · all=전체(기기별 시트) · fav=즐겨찾기 견적 내역 ── */
+var XLSX_SRC='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+function loadXlsx(){
+  if(window.XLSX)return Promise.resolve(window.XLSX);
+  return new Promise(function(ok,no){
+    var sc=document.createElement('script');
+    sc.src=XLSX_SRC;sc.onload=function(){window.XLSX?ok(window.XLSX):no(new Error('xlsx'));};sc.onerror=no;
+    document.head.appendChild(sc);
+  });
+}
+var XL_BASE='2026년 4월 28일 기준 · 환율에 따라 부품 가격이 변동될 수 있습니다';
+var XL_HEAD=['No','Item Code','Description','Device Group','SBU','판매가 (부가세 별도)','판매가 (부가세 포함)'];
+function xlItemRows(list){
+  return [XL_HEAD].concat(list.map(function(it,i){return [i+1,String(it.code),it.desc,GRP_LABEL[it.grp]||it.grp,it.sbu,it.excl,it.incl];}));
+}
+function xlCurList(){
+  var q=SQ.trim().toLowerCase();
+  return ITEMS.filter(function(it){
+    if(GF!=='all'&&it.grp!==GF)return false;
+    if(typeof PR_LO!=='undefined'&&(it.excl<PR_LO||it.excl>PR_HI))return false;
+    if(!q)return true;
+    return String(it.code).toLowerCase().indexOf(q)>=0||String(it.desc).toLowerCase().indexOf(q)>=0;
+  });
+}
+function xlToday(){var d=new Date(),p=function(x){return String(x).padStart(2,'0');};return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate());}
+function xlPriceRange(){
+  var t=(document.getElementById('prngSbar')||{}).textContent||'';
+  t=t.replace(/^[\s·]+/,'').trim();
+  return t||'전체';
+}
+function xlFavData(){
+  var rows=[['No','Item Code','Description','Device Group','수량','정가 단가 (부가세 별도)','정가 단가 (부가세 포함)','제시 단가 (부가세 포함)','금액 (부가세 포함)']];
+  var totalIncl=0,totalExcl=0,n=0;
+  favs.forEach(function(code){
+    var it=ITEMS.find(function(x){return String(x.code)===String(code);});
+    if(!it)return;
+    var qty=getFavQty(code),u=favUnits[String(it.code)];
+    totalIncl+=it.incl*qty;totalExcl+=it.excl*qty;
+    rows.push([++n,String(it.code),it.desc,GRP_LABEL[it.grp]||it.grp,qty,it.excl,it.incl,u||'',(u||it.incl)*qty]);
+  });
+  var svcChk=document.getElementById('favSvcChk'),svcHrsEl=document.getElementById('favSvcHrs');
+  var svcOn=svcChk?svcChk.checked:false;
+  var svcHrs=parseFloat(svcHrsEl?svcHrsEl.value:1)||1; if(svcHrs<0)svcHrs=0;
+  var svcExcl=svcOn?Math.round(svcHrs*150000):0, svcIncl=svcOn?Math.round(svcExcl*1.1):0;
+  var adj=favDiscOf(totalIncl+svcIncl,totalIncl), sav=adj.savings, fin=totalIncl+svcIncl-sav;
+  var sum=[['견적 요약 ('+n+'개 품목)',''],
+    ['소계 (부가세 별도)',totalExcl],['소계 (부가세 포함)',totalIncl],
+    ['Service Fee (부가세 포함)',svcOn?svcIncl:0],['Service Fee 시간',svcOn?svcHrs+'hr (150,000원/hr, 부가세 별도)':'미포함'],
+    [sav>=0?'할인':'할증',sav>=0?-sav:-sav],['할인/할증율 (%)',adj.disc],
+    ['할인 기준',adj.mode==='unit'?'품목별 제시 단가':adj.mode==='amt'?'제시 금액':'할인/할증율'],
+    ['최종 금액 (부가세 포함)',fin],[],
+    ['메모',(document.getElementById('favMemoArea')||{}).value||getFavMemo()],
+    ['저장 일시',new Date().toLocaleString('ko-KR')],
+    ['참고','화면의 견적 요약과 같은 계산입니다. 정식 견적서는 \'견적서 출력 / PDF 저장\'을 사용하세요.'],
+    ['기준',XL_BASE]];
+  return {rows:rows,sum:sum,n:n};
+}
+function xlsSave(mode,btn){
+  var wbSpec=[],name='';
+  if(mode==='search'){
+    var L=xlCurList();
+    if(!L.length){alert('저장할 품목이 없습니다. 검색어나 필터를 확인해 주세요.');return;}
+    var tag=[GF!=='all'?(GRP_LABEL[GF]||GF):'',SQ.trim()?'검색':'',xlPriceRange()!=='전체'?'금액범위':''].filter(Boolean).join('_');
+    wbSpec.push({n:'Price List',a:xlItemRows(L),f:true,m:[5,6],c:[5,13,44,16,7,18,18]});
+    wbSpec.push({n:'조건',a:[['2026 Spare Parts Price List — 엑셀 저장'],[],['Device Group',GF==='all'?'전체':(GRP_LABEL[GF]||GF)],['검색어',SQ.trim()||'없음'],['Price Range (부가세 별도)',xlPriceRange()],['품목 수',L.length],['저장 일시',new Date().toLocaleString('ko-KR')],['기준',XL_BASE+' · 부가세 별도 기준']],c:[24,70]});
+    name='Spare_Parts_Price_List_2026_'+xlToday()+(tag?'_'+tag:'');
+  }else if(mode==='all'){
+    wbSpec.push({n:'전체',a:xlItemRows(ITEMS.slice().sort(function(a,b){return GRP_ORDER.indexOf(a.grp)-GRP_ORDER.indexOf(b.grp);})),f:true,m:[5,6],c:[5,13,44,16,7,18,18]});
+    GRP_ORDER.forEach(function(g){
+      var gi=ITEMS.filter(function(it){return it.grp===g;});
+      if(gi.length)wbSpec.push({n:(GRP_LABEL[g]||g).replace(/[\\\/?*\[\]:]/g,'-').slice(0,31),a:xlItemRows(gi),f:true,m:[5,6],c:[5,13,44,16,7,18,18]});
+    });
+    wbSpec.push({n:'조건',a:[['2026 Spare Parts Price List — 전체'],[],['품목 수',ITEMS.length],['저장 일시',new Date().toLocaleString('ko-KR')],['기준',XL_BASE+' · 부가세 별도 기준']],c:[18,70]});
+    name='Spare_Parts_Price_List_2026_전체_'+xlToday();
+  }else{
+    var F=xlFavData();
+    if(!F.n){alert('즐겨찾기에 품목이 없습니다.');return;}
+    wbSpec.push({n:'견적 품목',a:F.rows,f:false,m:[5,6,7,8],c:[5,13,44,16,6,18,18,18,18]});
+    wbSpec.push({n:'견적 요약',a:F.sum,m:[1],c:[26,60]});
+    name='Spare_Parts_견적내역_'+xlToday();
+  }
+  var lbl=btn&&btn.querySelector('.xl'),old=lbl?lbl.textContent:'';
+  if(btn){btn.disabled=true;if(lbl)lbl.textContent='준비 중…';}
+  loadXlsx().then(function(X){
+    var wb=X.utils.book_new();
+    wbSpec.forEach(function(sp){
+      var w=X.utils.aoa_to_sheet(sp.a);
+      w['!cols']=(sp.c||[]).map(function(c){return {wch:c};});
+      if(sp.f)w['!autofilter']={ref:X.utils.encode_range({s:{r:0,c:0},e:{r:sp.a.length-1,c:sp.a[0].length-1}})};
+      (sp.m||[]).forEach(function(c){
+        for(var r=0;r<sp.a.length;r++){var ad=X.utils.encode_cell({r:r,c:c});if(w[ad]&&w[ad].t==='n'&&!(sp.n==='견적 요약'&&/율/.test(sp.a[r][0])))w[ad].z='#,##0';}
+      });
+      X.utils.book_append_sheet(wb,w,sp.n);
+    });
+    X.writeFile(wb,name.replace(/[\\\/:*?"<>|\s]+/g,'_')+'.xlsx');
+  }).catch(function(){
+    var a0=wbSpec[0].a;
+    var csv='﻿'+a0.map(function(r){return r.map(function(c){var t=String(c==null?'':c);return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t;}).join(',');}).join('\r\n');
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    a.download=name.replace(/[\\\/:*?"<>|\s]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+  }).then(function(){if(btn){btn.disabled=false;if(lbl)lbl.textContent=old;}});
 }
 
 go();
