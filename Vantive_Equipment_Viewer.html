@@ -38,6 +38,7 @@ html.embed .tagline{font-size:24px;font-weight:700;color:rgba(255,250,235,0.55);
 .total-badge{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.32);color:#fff;font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:20px;white-space:nowrap;}
 .hbtn{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.32);color:#fff;font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:20px;cursor:pointer;font-family:inherit;}
 .hbtn:hover{background:rgba(0,0,0,0.32);}
+.hbtn:disabled{opacity:.65;cursor:progress;}
 .s-wrap{position:relative;margin-bottom:10px;}
 .s-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;width:17px;height:17px;}
 .s-inp::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none;}
@@ -159,6 +160,11 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
   .hdr{padding-left:14px;padding-right:14px;}
   .tagline{font-size:11.5px;}
   html.embed .tagline{font-size:14px;letter-spacing:.09em;padding-top:3px;white-space:nowrap;}
+  .hdr-right{flex-shrink:1;min-width:0;}
+  .hdr-btns{gap:6px;flex-wrap:wrap;justify-content:flex-end;row-gap:6px;}
+  .hbtn{padding:5px 10px;}
+  .hbtn .lw{display:none;}
+  .hdr-btns #totalBadge{order:3;}
   .filt{padding:12px 14px 2px;}
   .frow{flex-direction:column;align-items:flex-start;gap:6px;}
   .flbl{width:auto;}
@@ -222,7 +228,8 @@ mark{background:rgba(114,37,107,0.15);color:var(--plum);border-radius:2px;paddin
     <div class="hdr-right">
       <div class="hdr-btns">
         <span class="total-badge" id="totalBadge"></span>
-        <button class="hbtn" onclick="doPrint()">PDF 저장</button>
+        <button class="hbtn" id="xlsBtn" onclick="doExcel()">엑셀<span class="lw"> 저장</span></button>
+        <button class="hbtn" onclick="doPrint()">PDF<span class="lw"> 저장</span></button>
       </div>
       <div class="upd">Updated <b>2026 Nov 10</b></div>
     </div>
@@ -531,6 +538,81 @@ function doPrint() {
   CUR.forEach(v => st.open.add(v.a.name));
   render(true);
   setTimeout(() => { window.print(); st.open = keep; render(); }, 60);
+}
+
+// ── 엑셀 저장: 지금 화면 조건(검색·Region·Device·Purpose·설치 연도·선택만 보기) 결과 전체 ──
+const XLSX_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return new Promise((ok, no) => {
+    const s = document.createElement('script');
+    s.src = XLSX_SRC; s.onload = () => window.XLSX ? ok(window.XLSX) : no(new Error('xlsx')); s.onerror = no;
+    document.head.appendChild(s);
+  });
+}
+const isoDate = s => { const m = /^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/.exec(s || ''); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : (s || ''); };
+function exportRows() {
+  const V = view();
+  const units = [['No', '거래처', '지역', '기기 그룹', '기종', '제품코드', '시리얼', '최초 설치일', '재설치일', '중고', 'SW', '구분', 'Purpose']];
+  let n = 0;
+  V.forEach(v => v.units.forEach(d => units.push([++n, v.a.name, v.a.region, grpOf(d.family).k, d.family || '', d.code || '', d.serial || '',
+    isoDate(d.date), isoDate(d.rd), d.rd ? '중고' : '', d.sw || '', isSold(d.purpose) ? 'Sold' : 'Rental', d.purpose || ''])));
+  const gs = [...GROUPS, OTHER].filter(g => V.some(v => v.units.some(d => grpOf(d.family) === g)));
+  const accs = [['거래처', '지역', '대수', 'Sold', 'Rental', ...gs.map(g => g.extra ? g.k + '(별도)' : g.k)]];
+  let tm = 0, ts = 0, tr = 0; const tg = {};
+  V.forEach(v => {
+    const gc = {}; let m = 0, so = 0;
+    v.units.forEach(d => { const k = grpOf(d.family).k; gc[k] = (gc[k] || 0) + 1; if (isMach(d)) m++; if (isSold(d.purpose)) so++; });
+    const re = v.units.length - so;
+    tm += m; ts += so; tr += re; gs.forEach(g => tg[g.k] = (tg[g.k] || 0) + (gc[g.k] || 0));
+    accs.push([v.a.name, v.a.region, m, so, re, ...gs.map(g => gc[g.k] || '')]);
+  });
+  accs.push(['합계 (' + fmt(V.length) + '곳)', '', tm, ts, tr, ...gs.map(g => tg[g.k] || '')]);
+  const T = curTerms();
+  const cond = [['Install Base Viewer — 엑셀 저장'], [],
+    ['데이터 기준', (document.querySelector('.upd b') || {}).textContent || ''],
+    ['저장 일시', new Date().toLocaleString('ko-KR')],
+    ['검색어', st.selOnly ? '(선택만 보기) ' + [...st.sel].join(', ') : (T.join(' + ') || '전체')],
+    ['Region', st.region || '전체'], ['Device', st.group || '전체'],
+    ['Purpose', st.pur ? (st.pur === 'SO' ? 'Sold' : 'Rental') : '전체'],
+    ['설치 연도', st.y0 <= Y_MIN && st.y1 >= Y_MAX ? '전체' : `${st.y0}–${st.y1}`],
+    ['거래처', V.length], ['장비 대수', tm], ['Exalis(대수 미포함)', n - tm]];
+  return {V, units, accs, cond, n};
+}
+function xlsName() {
+  const d = new Date(), p = x => String(x).padStart(2, '0');
+  const tag = [st.selOnly ? '선택' : '', st.region, st.group, st.pur ? (st.pur === 'SO' ? 'Sold' : 'Rental') : '',
+    st.y0 <= Y_MIN && st.y1 >= Y_MAX ? '' : `${st.y0}-${st.y1}`].filter(Boolean).join('_');
+  return `Install_Base_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}${tag ? '_' + tag : ''}`.replace(/[\\/:*?"<>|\s]+/g, '_');
+}
+async function doExcel() {
+  const btn = document.getElementById('xlsBtn');
+  const R = exportRows();
+  if (!R.n) { alert('저장할 장비가 없습니다. 검색어나 필터를 확인해 주세요.'); return; }
+  btn.disabled = true; btn.textContent = '준비 중…';
+  try {
+    const X = await loadXlsx();
+    const wb = X.utils.book_new();
+    const sh = (aoa, cols, filt) => {
+      const ws = X.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = cols.map(w => ({wch: w}));
+      if (filt) ws['!autofilter'] = {ref: X.utils.encode_range({s: {r: 0, c: 0}, e: {r: aoa.length - 1, c: aoa[0].length - 1}})};
+      return ws;
+    };
+    X.utils.book_append_sheet(wb, sh(R.units, [6, 34, 9, 11, 16, 10, 13, 12, 12, 6, 12, 8, 18], true), '장비 목록');
+    X.utils.book_append_sheet(wb, sh(R.accs, [34, 9, 7, 7, 8, ...R.accs[0].slice(5).map(() => 11)], false), '거래처 요약');
+    X.utils.book_append_sheet(wb, sh(R.cond, [20, 60], false), '조건');
+    X.writeFile(wb, xlsName() + '.xlsx');
+  } catch (e) {
+    // 라이브러리를 못 불러오면 CSV(엑셀에서 열림)로 대신 저장
+    const csv = '﻿' + R.units.map(r => r.map(c => { const s = String(c == null ? '' : c); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+    a.download = xlsName() + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '엑셀<span class="lw"> 저장</span>';
+  }
 }
 
 
