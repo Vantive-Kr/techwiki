@@ -192,6 +192,12 @@ table.perf{width:100%;border-collapse:collapse;font-size:12.5px;}
 .perf .mini{display:inline-block;width:64px;height:6px;border-radius:3px;background:var(--rule-soft);vertical-align:middle;margin-left:8px;overflow:hidden;}
 .perf .mini i{display:block;height:100%;background:var(--plum);}
 .perf small{color:var(--text3);}
+.xbtn{height:42px;border-radius:12px;border:1.5px solid rgba(255,250,235,0.26);background:rgba(0,0,0,0.18);color:#fff;
+  font-size:13px;font-weight:700;padding:0 14px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.xbtn:hover{background:rgba(0,0,0,0.3);}
+.xbtn:disabled{opacity:.65;cursor:progress;}
+.xbtn .x-ic{width:15px;height:15px;}
+@media(max-width:760px){.xbtn{height:38px;padding:0 12px;}}
 .foot{padding:14px 4px 36px;font-size:11px;color:var(--text3);line-height:1.7;}
 
 @media(max-width:860px){
@@ -463,6 +469,7 @@ body{letter-spacing:-.005em;}
       <button class="s-clr" id="qClr" aria-label="검색어 지우기">✕</button>
     </div>
     <span class="me-w"><svg class="me-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><select class="hsel me" id="me" aria-label="내 이름"></select></span>
+    <button type="button" class="xbtn" id="xlsBtn" title="지금 보이는 조건 그대로 엑셀로 저장"><svg class="x-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg><span class="xl">엑셀 저장</span></button>
   </div>
 </div></header>
 
@@ -977,6 +984,91 @@ if (MGR && D.perf.length) {
         cell(pc(r[3], r[2]), r[2], tot) + cell(pc(r[5], r[4]), r[4], tot) + '</tr>';
     }).join('') + '</tbody>';
 }
+
+/* ── 엑셀 저장 (후속148): 지금 화면 조건(FSE 개별 건 / 지역·상태·검색어) 그대로 ── */
+var XLSX_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return new Promise(function(ok, no) {
+    var sc_ = document.createElement('script');
+    sc_.src = XLSX_SRC; sc_.onload = function() { window.XLSX ? ok(window.XLSX) : no(new Error('xlsx')); }; sc_.onerror = no;
+    document.head.appendChild(sc_);
+  });
+}
+var ST_NAME = { '': '전체', r: 'Red · 30일 초과', g: 'Green · 30일 이내', a: 'Amber', s: 'SOP 60일 초과' };
+function exportData() {
+  var me = st.view === 'me' && st.me, groups;
+  if (me) { var s0 = staff[st.me]; groups = [{ s: s0, ws: s0.wos }]; }
+  else groups = view();
+  var wos = [], n = 0;
+  var head = ['No', '상태', 'SOP 60+', '경과일', '30일 기준', 'TS 담당', '지역', '병원', 'WO 번호', 'WO 생성일', '금액(원)', '부품 수', '주요 부품', 'CS', 'Sales'];
+  var rowsW = [head], rowsP = [['WO 번호', '상태', 'TS 담당', '지역', '병원', 'WO 생성일', '경과일', '파트넘버', '부품명', '수량', '금액(원)', '장비 S/N']];
+  var rowsS = [['TS 담당', '지역', '건수', 'Red', 'SOP 60+', 'Green', '금액(원)', '최장 경과일']];
+  var tot = { n: 0, r: 0, s: 0, g: 0, amt: 0 };
+  groups.forEach(function(x) {
+    var ws = x.ws, r = ws.filter(isR).length, sp = ws.filter(isS).length, am = sum(ws);
+    rowsS.push([x.s.name, x.s.loc, ws.length, r, sp, ws.length - r, am, Math.max.apply(null, ws.map(function(w) { return w.days; }))]);
+    tot.n += ws.length; tot.r += r; tot.s += sp; tot.g += ws.length - r; tot.amt += am;
+    ws.forEach(function(w) {
+      var stt = isR(w) ? 'Red' : 'Green', p = w.parts;
+      var main = p.length ? ((p[0][0] ? p[0][0] + ' ' : '') + p[0][1] + (p[0][2] > 1 ? ' ×' + p[0][2] : '') + (p.length > 1 ? ' 외 ' + (p.length - 1) : '')) : '';
+      rowsW.push([++n, stt, isS(w) ? '60+' : '', w.days, isR(w) ? '+' + (w.days - D.law) + '일 초과' : 'D-' + (D.law - w.days),
+        w.ts, w.loc, w.hosp, w.sr, w.created, w.amt, p.length, main, w.cs || '', w.sales || '']);
+      p.forEach(function(q) { rowsP.push([w.sr, stt, w.ts, w.loc, w.hosp, w.created, w.days, q[0] || '', q[1] || '', q[2], q[3], q[4] || '']); });
+      wos.push(w);
+    });
+  });
+  rowsS.push(['합계 (' + groups.length + '명)', '', tot.n, tot.r, tot.s, tot.g, tot.amt, '']);
+  var cond = [['TS Billing Backlog' + (MGR ? ' · Mgr' : '') + ' — 엑셀 저장'], [],
+    ['기준일', D.asof], ['자료', D.src], ['저장 일시', new Date().toLocaleString('ko-KR')],
+    ['보기', me ? 'FSE 개별 건 · ' + st.me : '전체 현황'],
+    ['지역', me ? '—' : (st.region || '전체')], ['상태', me ? '—' : ST_NAME[st.status || '']],
+    ['검색어', me ? '—' : (st.terms.join(' + ') || '없음')],
+    ['직원', groups.length], ['WO 건수', tot.n], ['Red(30일 초과)', tot.r], ['SOP 60일 초과', tot.s], ['Green(30일 이내)', tot.g], ['금액(원)', tot.amt],
+    [], ['기준', 'Red = WO 생성 후 ' + D.law + '일 초과 · Green = ' + D.law + '일 이내 · SOP = ' + D.sop + '일 초과 · 경과일 = 기준일 − WO Created']];
+  return { wos: rowsW, parts: rowsP, staff: rowsS, cond: cond, n: n, me: me };
+}
+function xlsName(R) {
+  var tag = R.me ? [st.me] : [st.region, st.status ? { r: 'Red', g: 'Green', a: 'Amber', s: 'SOP60' }[st.status] : '', st.terms.length ? '검색' : ''];
+  tag = tag.filter(Boolean).join('_');
+  return ('TS_Billing_Backlog' + (MGR ? '_Mgr' : '') + '_' + D.asof.replace(/-/g, '') + (tag ? '_' + tag : '')).replace(/[\\\/:*?"<>|\s]+/g, '_');
+}
+document.getElementById('xlsBtn').onclick = function() {
+  var btn = this, lbl = btn.querySelector('.xl'), R = exportData();
+  if (!R.n) { alert('저장할 WO가 없습니다. 검색어나 필터를 확인해 주세요.'); return; }
+  btn.disabled = true; lbl.textContent = '준비 중…';
+  loadXlsx().then(function(X) {
+    var wb = X.utils.book_new();
+    var sh = function(aoa, cols, filt, moneyCols) {
+      var w = X.utils.aoa_to_sheet(aoa);
+      w['!cols'] = cols.map(function(c) { return { wch: c }; });
+      if (filt) w['!autofilter'] = { ref: X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: aoa.length - 1, c: aoa[0].length - 1 } }) };
+      (moneyCols || []).forEach(function(c) {
+        for (var r = 1; r < aoa.length; r++) { var a = X.utils.encode_cell({ r: r, c: c }); if (w[a] && w[a].t === 'n') w[a].z = '#,##0'; }
+      });
+      return w;
+    };
+    X.utils.book_append_sheet(wb, sh(R.wos, [5, 7, 7, 7, 11, 9, 7, 28, 11, 11, 13, 7, 40, 9, 16], true, [10]), 'WO 목록');
+    X.utils.book_append_sheet(wb, sh(R.parts, [11, 7, 9, 7, 28, 11, 7, 12, 36, 6, 13, 12], true, [10]), '부품 상세');
+    X.utils.book_append_sheet(wb, sh(R.staff, [14, 7, 7, 7, 8, 7, 14, 11], false, [6]), '직원 요약');
+    if (MGR && D.perf && D.perf.length) {
+      var pc = function(a, b) { return b ? Math.round(a / b * 1000) / 10 : ''; };
+      var perf = [['WO 생성 분기', '청구 완료', '미청구', '30일 내 청구율(%)', '30일 판정 건수', 'SOP 60일 내 청구율(%)', 'SOP 판정 건수']]
+        .concat(D.perf.map(function(r) { return [r[0], r[1], r[6], pc(r[3], r[2]), r[2], pc(r[5], r[4]), r[4]]; }));
+      X.utils.book_append_sheet(wb, sh(perf, [13, 9, 8, 15, 12, 18, 12], false), '처리 실적');
+    }
+    var cw = X.utils.aoa_to_sheet(R.cond); cw['!cols'] = [{ wch: 18 }, { wch: 70 }];
+    X.utils.book_append_sheet(wb, cw, '조건');
+    X.writeFile(wb, xlsName(R) + '.xlsx');
+  }).catch(function() {
+    /* 라이브러리를 못 불러오면 WO 목록을 CSV(엑셀에서 열림)로 대신 저장 */
+    var csv = '﻿' + R.wos.map(function(r) { return r.map(function(c) { var t = String(c == null ? '' : c); return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; }).join(','); }).join('\r\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = xlsName(R) + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 4000);
+  }).then(function() { btn.disabled = false; lbl.textContent = '엑셀 저장'; });
+};
 
 document.getElementById('foot').innerHTML =
   '자료: ' + esc(D.src) + ' · ‘2025~’ 시트에서 SO Order#가 Pending인 건(청구 전)만 집계, WO(Service Request) 단위로 묶음. ' +
