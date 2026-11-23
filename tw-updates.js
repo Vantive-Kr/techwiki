@@ -18,6 +18,40 @@
  */
 var TW_UPDATES = [
   {
+    id: 'u-2026-11-23-backlog-xlsx',
+    date: '2026-11-23',
+    kind: 'new',
+    title: 'Billing Backlog: 엑셀 저장',
+    body: '검색창 옆 \'엑셀 저장\'으로 지금 보는 조건 그대로 내려받습니다. 상태 칸은 Red·Green 색으로, 부품은 파트넘버·부품명이 따로 나옵니다.',
+    menu: 'Billing Backlog Check',
+    audience: 'staff',
+  },
+  {
+    id: 'u-2026-11-23-price-xlsx',
+    date: '2026-11-23',
+    kind: 'new',
+    title: 'Price List: 엑셀 저장',
+    body: 'Search 탭은 지금 목록, By Code 탭은 전체(기기별 시트), Favorites 탭은 견적 내역을 엑셀로 저장할 수 있습니다.',
+    menu: '2026년 Spare Parts Price List',
+    audience: 'staff',
+  },
+  {
+    id: 'u-2026-11-23-ibv-xlsx',
+    date: '2026-11-23',
+    kind: 'new',
+    title: 'Install Base Viewer: 엑셀 저장',
+    body: 'PDF 저장 옆 \'엑셀 저장\'으로 지금 검색·필터 결과를 장비 목록과 거래처 요약 시트로 내려받습니다.',
+    menu: 'Install Base Viewer',
+    audience: 'staff',
+  },
+  {
+    id: 'u-2026-11-18-dynmenu',
+    date: '2026-11-18',
+    kind: 'improve',
+    title: '접힌 사이드바에서 바로 메뉴 열기',
+    body: '사이드바를 접은 상태에서 아이콘을 누르면 옆에 그 메뉴의 페이지 목록이 펼쳐집니다. 페이지를 고르면 바로 열립니다.',
+  },
+  {
     id: 'u-2026-11-18-backlog-trend',
     date: '2026-11-18',
     kind: 'new',
