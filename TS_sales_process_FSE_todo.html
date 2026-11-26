@@ -1535,6 +1535,10 @@ h3 { margin: 1.25rem 0 0.6rem; }
 .cc-row1 { display: flex; align-items: flex-end; gap: 0.8rem; flex-wrap: wrap; }
 .cc-row1 .calc-field { flex: 1 1 240px; min-width: 0; }
 .cc-row1 .calc-field input { width: 100%; min-height: 46px; font-size: 0.92rem; }
+.cc-row1 .cc-reg { flex: 0 0 120px; }
+.cc-row1 select { width: 100%; min-height: 46px; padding: 0 0.7rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.92rem; font-weight: 600; }
+.cc-row1 select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.calc-field.miss select { border-color: var(--negative); outline: 2px solid rgba(174,64,72,0.25); }
 .cc-make { appearance: none; border: none; border-radius: 999px; background: var(--accent); color: #fff; font-family: inherit; font-weight: 800; font-size: 0.9rem; min-height: 46px; padding: 0 1.25rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; cursor: pointer; white-space: nowrap; }
 .theme-dark .cc-make { color: var(--bg); }
 .cc-make svg { width: 16px; height: 16px; }
@@ -1894,9 +1898,10 @@ h3 { margin: 1.25rem 0 0.6rem; }
     </div>
     <div class="cc-card" id="ccCard">
       <div class="cc-head"><span class="cc-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>방문 전 고객에게 링크 보내기 <em class="cc-opt">선택</em></span>
-        <span class="cc-desc"><strong>원칙은 방문 시 위 화면에서 고객 서명</strong>입니다. 거래처 방문 전에 미리 받아야 할 때만, ① 요청 정보·담당 FSE·내 메일을 넣고 링크를 만들어 고객에게 보내세요. 고객은 Techwiki가 아닌 <strong>이 확인서만</strong> 열어 작성·서명하고, 작성 내용을 <strong>PDF·이메일</strong>로 보내 줍니다. 아래 목록에서도 서명 완료를 확인하고 PDF를 받을 수 있습니다.</span></div>
+        <span class="cc-desc"><strong>원칙은 방문 시 위 화면에서 고객 서명</strong>입니다. 거래처 방문 전에 미리 받아야 할 때만, ① 요청 정보·담당 FSE·지역을 넣고 링크를 만들어 고객에게 보내세요. 고객은 Techwiki가 아닌 <strong>이 확인서만</strong> 열어 작성·서명하고 제출만 누르면, PDF가 <strong>Vantive 구글 드라이브(지역/월 폴더)에 자동 저장</strong>됩니다. 내 메일을 넣으면 PDF 첨부 메일도 받습니다.</span></div>
       <div class="cc-row1">
-        <label class="calc-field"><span>작성 내용 받을 내 메일 <em class="req">필수</em></span><input type="email" id="chkFseMail" placeholder="예: name@vantive.com" autocomplete="email"></label>
+        <label class="calc-field cc-reg"><span>지역 <em class="req">필수</em></span><select id="chkRegion"><option value="">선택</option><option>서울</option><option>대전</option><option>광주</option><option>대구</option><option>부산</option></select></label>
+        <label class="calc-field"><span>PDF 받을 내 메일 (선택)</span><input type="email" id="chkFseMail" placeholder="예: name@vantive.com" autocomplete="email"></label>
         <button type="button" class="cc-make" id="ccMakeBtn" onclick="ccMake()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>병원 링크 만들기</span></button>
       </div>
       <div class="cc-out" id="ccOut" hidden>
@@ -2034,7 +2039,7 @@ function renderCalc() {
 /* ---- 체크리스트 (이 브라우저에만 저장) ---- */
 var CHK_KEY = 'ts_sales_chk_v3';             // 2026-11-25 고객 확인서 Rev.D 동의 사항 5개로 개편 → 이전 체크는 이어받지 않음
 var CHK_META_KEY = 'ts_sales_chk_meta_v3';   // 요청 정보·서명 등 — 이 페이지 전용 (v2·v1에서는 담당 FSE·메일 받는 사람만 이어받음)
-var META_IDS = ['chkDate', 'chkHosp', 'chkPlace', 'chkDev', 'chkSn', 'chkIssue', 'chkNote', 'chkFse', 'chkWorkDone', 'sigDept', 'sigName', 'chkMailTo', 'chkFseMail'];
+var META_IDS = ['chkDate', 'chkHosp', 'chkPlace', 'chkDev', 'chkSn', 'chkIssue', 'chkNote', 'chkFse', 'chkWorkDone', 'sigDept', 'sigName', 'chkMailTo', 'chkFseMail', 'chkRegion'];
 var sigData = '', sigTime = '';   // 병원 확인 서명(PNG data URL)과 서명 시각
 var chkEdited = [], chkNA = [];   // 항목별: 시각을 손으로 고쳤는지 / 해당 없음인지
 function isoToday() { var t = todayLocal(); return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate()); }
@@ -2538,26 +2543,26 @@ function ccMake() {
   ccMsg('');
   if (!checkRequired('병원명과 담당 FSE를 입력해야 병원 링크를 만들 수 있습니다.')) return;
   var g = function(id) { return document.getElementById(id).value.trim(); };
-  var mail = g('chkFseMail');
-  var mf = document.getElementById('chkFseMail').closest('.calc-field');
-  mf.classList.remove('miss');
-  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(mail)) {
-    mf.classList.add('miss');
-    ccMsg(mail ? '내 메일 주소 형식을 확인해 주세요 (한 개만).' : '고객이 작성 내용을 보낼 내 메일을 입력해 주세요.', true);
+  var mail = g('chkFseMail'), region = g('chkRegion');
+  var mf = document.getElementById('chkFseMail').closest('.calc-field'), rf = document.getElementById('chkRegion').closest('.calc-field');
+  mf.classList.remove('miss'); rf.classList.remove('miss');
+  if (!region) { rf.classList.add('miss'); ccMsg('지역을 선택해 주세요 — 드라이브 보관 폴더(지역/월)를 정합니다.', true); document.getElementById('chkRegion').focus(); return; }
+  if (mail && !/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(mail)) {
+    mf.classList.add('miss'); ccMsg('내 메일 주소 형식을 확인해 주세요 (한 개만).', true);
     document.getElementById('chkFseMail').focus(); return;
   }
   var rec = {
     cid: ccCid(), hospital: g('chkHosp').slice(0, 80), place: g('chkPlace').slice(0, 60),
     reqDate: g('chkDate').slice(0, 10), device: g('chkDev').slice(0, 60), serial: g('chkSn').slice(0, 40),
     issue: g('chkIssue').slice(0, 300), note: g('chkNote').slice(0, 200),
-    fseName: g('chkFse').slice(0, 50), fseEmail: mail.slice(0, 100),
+    fseName: g('chkFse').slice(0, 50), fseEmail: mail.slice(0, 100), region: region,
     status: 'sent', createdAt: new Date().toISOString()
   };
   var btn = document.getElementById('ccMakeBtn'), lab = btn.querySelector('span');
   ccBusy = true; btn.disabled = true; lab.textContent = '만드는 중…';
   ccStore().then(function(s) { return s.create(rec); }).then(function(id) {
     var list = ccSent().filter(function(x) { return x.id !== id; });
-    list.unshift({ id: id, cid: rec.cid, hospital: rec.hospital, device: rec.device, serial: rec.serial, createdAt: rec.createdAt, status: 'sent' });
+    list.unshift({ id: id, cid: rec.cid, hospital: rec.hospital, region: rec.region, device: rec.device, serial: rec.serial, createdAt: rec.createdAt, status: 'sent' });
     ccSaveSent(list);
     ccShow(id, rec);
     ccRender();
@@ -2608,7 +2613,7 @@ function ccRender() {
     var st = x.status === 'signed' ? '서명 완료' : (x.status === 'gone' ? '찾을 수 없음' : '서명 대기');
     var when = '보냄 ' + ccShort(x.createdAt) + (x.status === 'signed' ? ' · 서명 ' + ccShort(x.signedAt) + (x.custName ? ' · ' + esc(x.custName) : '') : '');
     return '<li class="cc-item s-' + esc(x.status) + '" data-id="' + esc(x.id) + '">' +
-      '<div class="cc-info"><div class="cc-t"><b>' + esc(x.hospital) + '</b>' + (x.device || x.serial ? '<span>' + esc([x.device, x.serial].filter(Boolean).join(' · ')) + '</span>' : '') + '</div>' +
+      '<div class="cc-info"><div class="cc-t"><b>' + esc(x.hospital) + '</b>' + (x.region ? '<span>' + esc(x.region) + '</span>' : '') + (x.device || x.serial ? '<span>' + esc([x.device, x.serial].filter(Boolean).join(' · ')) + '</span>' : '') + '</div>' +
       '<div class="cc-s"><span class="cc-badge">' + st + '</span>' + esc(x.cid) + ' · ' + when + '</div></div>' +
       '<div class="cc-acts">' +
       (x.status === 'gone' ? '' : '<a class="cc-btn' + (x.status === 'signed' ? ' main' : '') + '" href="' + esc(ccLinkOf(x.id)) + '" target="_blank" rel="noopener">' + (x.status === 'signed' ? '보기 · PDF' : '열기') + '</a>') +
