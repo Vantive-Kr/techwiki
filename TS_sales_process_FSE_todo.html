@@ -1522,6 +1522,62 @@ h3 { margin: 1.25rem 0 0.6rem; }
 .chk-pdf.ls-on, .chk-mail.ls-on { opacity: 1; cursor: progress; }
 .chk-actions .chk-reset { white-space: nowrap; }
 </style>
+<style id="cc-link-v1">
+/* 병원에 링크로 미리 보내기 (2026-11-26 후속155) */
+.cc-card { margin: 1.4rem 0 0; padding: 1rem 1.1rem 1.05rem; border-radius: 14px; background: rgba(114,37,107,0.045); border: 1px solid rgba(114,37,107,0.16); }
+.theme-dark .cc-card { background: rgba(199,123,189,0.07); border-color: rgba(199,123,189,0.2); }
+.cc-head { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.85rem; }
+.cc-tag { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; font-weight: 800; color: var(--accent); }
+.cc-tag svg { width: 17px; height: 17px; }
+.cc-opt { font-style: normal; font-size: 0.66rem; font-weight: 800; color: var(--text-muted); border: 1px solid var(--rule); border-radius: 999px; padding: 0.05rem 0.45rem; margin-left: 0.2rem; }
+.cc-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.65; }
+.cc-desc strong { color: var(--text); }
+.cc-row1 { display: flex; align-items: flex-end; gap: 0.8rem; flex-wrap: wrap; }
+.cc-row1 .calc-field { flex: 1 1 240px; min-width: 0; }
+.cc-row1 .calc-field input { width: 100%; min-height: 46px; font-size: 0.92rem; }
+.cc-make { appearance: none; border: none; border-radius: 999px; background: var(--accent); color: #fff; font-family: inherit; font-weight: 800; font-size: 0.9rem; min-height: 46px; padding: 0 1.25rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; cursor: pointer; white-space: nowrap; }
+.theme-dark .cc-make { color: var(--bg); }
+.cc-make svg { width: 16px; height: 16px; }
+.cc-make:hover { background: var(--plum-deep); }
+.cc-make:disabled { opacity: 0.6; cursor: wait; }
+.cc-out { margin-top: 0.9rem; padding: 0.85rem 0.9rem 0.9rem; border-radius: 12px; background: var(--surface); border: 1px solid rgba(16,87,66,0.28); }
+.cc-out[hidden], .cc-msg[hidden], .cc-sent[hidden], .cc-share [hidden] { display: none; }
+.cc-note { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.55rem; }
+.cc-note b { color: var(--positive); }
+.cc-link { display: flex; gap: 0.5rem; }
+.cc-link input { flex: 1; min-width: 0; min-height: 40px; padding: 0 0.7rem; border: 1px solid var(--rule); border-radius: 8px; font-size: 0.8rem; background: transparent; color: var(--text); font-family: ui-monospace, Menlo, monospace; }
+.cc-btn { appearance: none; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 999px; font-family: inherit; font-weight: 800; font-size: 0.8rem; min-height: 38px; padding: 0 0.95rem; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.cc-btn:hover { background: rgba(114,37,107,0.07); }
+.cc-btn.ok { background: var(--positive); border-color: var(--positive); color: #fff; }
+.cc-share { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.6rem; }
+.cc-msg { margin-top: 0.7rem; font-size: 0.82rem; font-weight: 700; color: var(--positive); }
+.cc-msg.err { color: var(--negative); }
+.cc-sent { margin-top: 1rem; }
+.cc-sent-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; font-size: 0.82rem; font-weight: 800; color: var(--text); padding-bottom: 0.4rem; border-bottom: 1px solid var(--rule); }
+.cc-sent-head small { font-weight: 600; color: var(--text-muted); }
+.cc-refresh { appearance: none; border: none; background: none; font-family: inherit; font-size: 0.76rem; font-weight: 700; color: var(--accent); cursor: pointer; padding: 0.3rem 0; white-space: nowrap; }
+.cc-refresh:disabled { opacity: 0.5; cursor: wait; }
+.cc-list { list-style: none; }
+.cc-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 0.65rem 0; border-bottom: 1px solid var(--rule-soft); flex-wrap: wrap; }
+.cc-info { min-width: 0; flex: 1 1 260px; }
+.cc-t { font-size: 0.88rem; color: var(--text); line-height: 1.45; }
+.cc-t b { font-weight: 800; }
+.cc-t span { color: var(--text-secondary); font-size: 0.8rem; margin-left: 0.3rem; }
+.cc-s { font-size: 0.74rem; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-top: 0.15rem; }
+.cc-badge { display: inline-block; font-size: 0.68rem; font-weight: 800; padding: 0.05rem 0.5rem; border-radius: 999px; margin-right: 0.35rem; background: rgba(176,125,46,0.14); color: var(--warning); }
+.s-signed .cc-badge { background: rgba(16,87,66,0.12); color: var(--positive); }
+.s-gone .cc-badge { background: rgba(27,18,25,0.08); color: var(--text-muted); }
+.cc-acts { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+.cc-acts .cc-btn { min-height: 32px; padding: 0 0.7rem; font-size: 0.74rem; }
+.cc-acts .cc-btn.main { background: var(--positive); border-color: var(--positive); color: #fff; }
+.cc-x { appearance: none; border: none; background: none; color: var(--text-muted); cursor: pointer; font-size: 1.05rem; padding: 0 0.35rem; line-height: 1; font-family: inherit; }
+.cc-x:hover { color: var(--negative); }
+@media (max-width: 600px) {
+  .cc-card { padding: 0.9rem 0.85rem 0.95rem; }
+  .cc-make { width: 100%; }
+}
+@media print { .cc-card { display: none !important; } }
+</style>
 </head>
 <body>
 
@@ -1787,7 +1843,7 @@ h3 { margin: 1.25rem 0 0.6rem; }
   <section aria-labelledby="chk-title" data-reveal>
     <div class="section-label"><span class="label-bar"></span>FIELD CHECKLIST</div>
     <h2 id="chk-title">유상 서비스 요청 및 고객 확인서</h2>
-    <p class="section-desc">요청 정보 입력 → 고객과 <strong>동의 사항 5가지</strong> 확인 → 고객 서명 → <strong>PDF 저장 · 메일 보내기</strong> → 초기화. 확인 시각은 자동 기록됩니다. <span class="chk-src">(고객 확인서 Rev.D 양식)</span></p>
+    <p class="section-desc">요청 정보 입력 → 고객과 <strong>동의 사항 5가지</strong> 확인 → 고객 서명 → <strong>PDF 저장 · 메일 보내기</strong> → 초기화. 확인 시각은 자동 기록됩니다. <strong>병원 방문 시 고객 서명이 원칙</strong>이며, 방문 전에 받아야 할 때만 아래 <strong>방문 전 링크 보내기</strong>를 쓰세요. <span class="chk-src">(고객 확인서 Rev.D 양식)</span></p>
     <p class="chk-sub">① 서비스 요청 정보</p>
     <div class="chk-meta">
       <label class="calc-field"><span>병원명 <em class="req">필수</em></span><input type="text" id="chkHosp" placeholder="예: 밴티브 대학병원" autocomplete="off"></label>
@@ -1801,12 +1857,12 @@ h3 { margin: 1.25rem 0 0.6rem; }
     <p class="chk-sub">TS 기록 <span class="chk-sub-s">PDF 아래쪽에 함께 표시</span></p>
     <div class="chk-meta">
       <label class="calc-field"><span>담당 FSE <em class="req">필수</em></span><input type="text" id="chkFse" placeholder="이름" autocomplete="name"></label>
-      <label class="calc-field"><span>작업 완료일 (인도·설치·수리)</span><input type="date" id="chkWorkDone"></label>
-      <div class="calc-field"><span>세금계산서 발급 마감</span><output class="chk-due" id="chkDue" aria-live="polite">완료일 입력 시 자동</output></div>
+      <label class="calc-field"><span>작업 예정일 (인도·설치·수리)</span><input type="date" id="chkWorkDone"></label>
+      <div class="calc-field"><span>세금계산서 발급 예정일</span><output class="chk-due" id="chkDue" aria-live="polite">예정일 입력 시 자동</output></div>
       <label class="calc-field mail-to"><span>메일 받는 사람 (선택 · 여러 명은 쉼표로)</span><input type="email" id="chkMailTo" multiple placeholder="예: order@company.com, cs@company.com" autocomplete="email"></label>
     </div>
     <p class="chk-msg" id="chkMsg" role="alert" hidden></p>
-    <p class="chk-sub">② 고객 확인 및 동의 사항</p>
+<p class="chk-sub">② 고객 확인 및 동의 사항</p>
     <div class="chk-head"><span id="chkCount">0 / 5 확인</span>
       <span class="chk-actions">
         <button type="button" class="chk-pdf" onclick="saveChecklistPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg>PDF 저장</button>
@@ -1836,7 +1892,25 @@ h3 { margin: 1.25rem 0 0.6rem; }
         </div>
       </div>
     </div>
-    <div class="chk-done" id="chkDone" hidden>동의 사항 5가지를 모두 확인했습니다 — <strong>고객 서명</strong>을 받고 PDF로 저장하세요. 작업이 끝나면 <a href="#" onclick="goStage('s3'); return false;">완료 당일 할 일 보기 →</a></div>
+    <div class="cc-card" id="ccCard">
+      <div class="cc-head"><span class="cc-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>방문 전 고객에게 링크 보내기 <em class="cc-opt">선택</em></span>
+        <span class="cc-desc"><strong>원칙은 방문 시 위 화면에서 고객 서명</strong>입니다. 거래처 방문 전에 미리 받아야 할 때만, ① 요청 정보·담당 FSE·내 메일을 넣고 링크를 만들어 고객에게 보내세요. 고객은 Techwiki가 아닌 <strong>이 확인서만</strong> 열어 작성·서명하고, 작성 내용을 <strong>PDF·이메일</strong>로 보내 줍니다. 아래 목록에서도 서명 완료를 확인하고 PDF를 받을 수 있습니다.</span></div>
+      <div class="cc-row1">
+        <label class="calc-field"><span>작성 내용 받을 내 메일 <em class="req">필수</em></span><input type="email" id="chkFseMail" placeholder="예: name@vantive.com" autocomplete="email"></label>
+        <button type="button" class="cc-make" id="ccMakeBtn" onclick="ccMake()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>병원 링크 만들기</span></button>
+      </div>
+      <div class="cc-out" id="ccOut" hidden>
+        <p class="cc-note" id="ccNote"></p>
+        <div class="cc-link"><input type="text" id="ccLink" readonly aria-label="병원용 확인서 링크" onclick="this.select()"><button type="button" class="cc-btn" id="ccCopyBtn" onclick="ccCopy()">링크 복사</button></div>
+        <div class="cc-share"><button type="button" class="cc-btn" id="ccShareBtn" onclick="ccShare('share')" hidden>공유 (카톡 등)</button><button type="button" class="cc-btn" onclick="ccShare('sms')">문자</button><button type="button" class="cc-btn" onclick="ccShare('mail')">메일</button></div>
+      </div>
+      <p class="cc-msg" id="ccMsg" role="status" hidden></p>
+      <div class="cc-sent" id="ccSentWrap" hidden>
+        <div class="cc-sent-head"><span>보낸 확인서 <b id="ccSentN">0</b>건 <small>· 이 기기에서 보낸 것</small></span><button type="button" class="cc-refresh" onclick="ccRefresh(true)">상태 새로고침</button></div>
+        <ul class="cc-list" id="ccList"></ul>
+      </div>
+    </div>
+        <div class="chk-done" id="chkDone" hidden>동의 사항 5가지를 모두 확인했습니다 — <strong>고객 서명</strong>을 받고 PDF로 저장하세요. 작업이 끝나면 <a href="#" onclick="goStage('s3'); return false;">완료 당일 할 일 보기 →</a></div>
     <div class="callout chk-more">보증·계약 만료 확인, 작업 확인서, 완료 내역·최종 견적서 전달, 긴급 수리·할인 사전 승인은 <a href="#" onclick="selectTop('todo', true); return false;">단계별 To-Do</a>에서 챙기세요.</div>
     <div class="callout pine">이 절차는 엔지니어가 제공한 서비스가 <strong>정상적으로 매출과 현금으로 전환되도록 보호하는 장치</strong>입니다.</div>
   </section>
@@ -1898,6 +1972,7 @@ function selectTop(id, scroll) {
   var pan = document.getElementById('top-' + id);
   if (pan) pan.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('visible'); });
   if (id === 'chk' && typeof sizeSig === 'function') sizeSig();
+  if (id === 'chk' && typeof ccAutoRefresh === 'function') ccAutoRefresh();
   try { history.replaceState(null, '', '#tab-' + id); } catch (e) {}
   if (scroll) {
     var bar = document.querySelector('.topbar'), hdr = document.querySelector('.site-header');
@@ -1959,7 +2034,7 @@ function renderCalc() {
 /* ---- 체크리스트 (이 브라우저에만 저장) ---- */
 var CHK_KEY = 'ts_sales_chk_v3';             // 2026-11-25 고객 확인서 Rev.D 동의 사항 5개로 개편 → 이전 체크는 이어받지 않음
 var CHK_META_KEY = 'ts_sales_chk_meta_v3';   // 요청 정보·서명 등 — 이 페이지 전용 (v2·v1에서는 담당 FSE·메일 받는 사람만 이어받음)
-var META_IDS = ['chkDate', 'chkHosp', 'chkPlace', 'chkDev', 'chkSn', 'chkIssue', 'chkNote', 'chkFse', 'chkWorkDone', 'sigDept', 'sigName', 'chkMailTo'];
+var META_IDS = ['chkDate', 'chkHosp', 'chkPlace', 'chkDev', 'chkSn', 'chkIssue', 'chkNote', 'chkFse', 'chkWorkDone', 'sigDept', 'sigName', 'chkMailTo', 'chkFseMail'];
 var sigData = '', sigTime = '';   // 병원 확인 서명(PNG data URL)과 서명 시각
 var chkEdited = [], chkNA = [];   // 항목별: 시각을 손으로 고쳤는지 / 해당 없음인지
 function isoToday() { var t = todayLocal(); return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate()); }
@@ -2002,15 +2077,15 @@ function setNA(i, on) {
   syncDate(i);
   saveChecks();
 }
-/* 작업 완료일 → 다음 달 10일 발급 마감 */
+/* 작업 예정일 → 세금계산서 발급 예정일(다음 달 10일) */
 function renderDue() {
   var v = document.getElementById('chkWorkDone').value, out = document.getElementById('chkDue');
   out.classList.remove('soon', 'over');
-  if (!v) { out.textContent = '완료일 입력 시 자동'; out.classList.add('empty'); return null; }
+  if (!v) { out.textContent = '예정일 입력 시 자동'; out.classList.add('empty'); return null; }
   out.classList.remove('empty');
   var p = v.split('-'), due = new Date(+p[0], +p[1], 10);
   var left = Math.round((due - todayLocal()) / 86400000);
-  out.textContent = fmtD(due) + ' (' + WD[due.getDay()] + ') · ' + (left < 0 ? '마감 ' + (-left) + '일 경과' : '마감까지 ' + left + '일');
+  out.textContent = fmtD(due) + ' (' + WD[due.getDay()] + ') · ' + (left < 0 ? (-left) + '일 지남' : (left ? left + '일 남음' : '오늘'));
   out.classList.add(left < 0 ? 'over' : (left <= 5 ? 'soon' : 'ok'));
   return due;
 }
@@ -2156,8 +2231,8 @@ function buildReport() {
     '<table class="rp-meta rp-sign-tb"><tr><th>부서명</th><td>' + v('sigDept') + '</td><th>고객명</th><td>' + v('sigName') + '</td></tr>' +
     '<tr><th>서명</th><td class="rp-sig">' + (sigData ? '<img src="' + sigData + '" alt="서명">' : '<span class="rp-nosig">서명 없음</span>') + '</td>' +
     '<th>날짜</th><td>' + (sigTime ? fmtIso(sigTime) : '—') + '</td></tr></table></div>' +
-    '<div class="rp-ts"><table class="rp-meta"><tr><th>담당 FSE</th><td>' + v('chkFse') + '</td><th>작업 완료일</th><td>' + (wd ? fmtIso(wd) : '—') + '</td></tr>' +
-    '<tr><th>계산서 발급 마감</th><td class="rp-due" colspan="3">' + (due ? fmtD(due) + ' (' + WD[due.getDay()] + ')' : '완료일 미입력') + '</td></tr></table></div>' +
+    '<div class="rp-ts"><table class="rp-meta"><tr><th>담당 FSE</th><td>' + v('chkFse') + '</td><th>작업 예정일</th><td>' + (wd ? fmtIso(wd) : '—') + '</td></tr>' +
+    '<tr><th>세금계산서 발급 예정일</th><td class="rp-due" colspan="3">' + (due ? fmtD(due) + ' (' + WD[due.getDay()] + ')' : '작업 예정일 미입력') + '</td></tr></table></div>' +
     '<div class="rp-foot">' + (chkEdited.some(function(x, i){ return x && boxes[i].checked; }) ? '(수정) = 자동 기록 후 직접 고친 시각 · ' : '') + 'Vantive Technical Service · 유상 서비스 고객 확인서 Rev.D 기준 · 생성 ' + fmtD(now) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '</div>';
   return el;
 }
@@ -2171,13 +2246,13 @@ function clearReqMarks() {
   REQ_IDS.forEach(function(id){ document.getElementById(id).closest('.calc-field').classList.remove('miss'); });
   document.getElementById('chkMsg').hidden = true;
 }
-function checkRequired() {
+function checkRequired(why) {
   clearReqMarks();
   var miss = REQ_IDS.filter(function(id){ return !document.getElementById(id).value.trim(); });
   if (!miss.length) return true;
   miss.forEach(function(id){ document.getElementById(id).closest('.calc-field').classList.add('miss'); });
   var msg = document.getElementById('chkMsg');
-  msg.textContent = '병원명과 담당 FSE를 입력해야 PDF를 저장할 수 있습니다.';
+  msg.textContent = why || '병원명과 담당 FSE를 입력해야 PDF를 저장할 수 있습니다.';
   msg.hidden = false;
   selectTop('chk', false);
   var first = document.getElementById(miss[0]);
@@ -2350,8 +2425,8 @@ function mailBody(full) {
     '장비명 · Serial No.: ' + (g('chkDev') || '—') + ' · ' + (g('chkSn') || '—'),
     '고장 내용: ' + (g('chkIssue') || '—'),
     '담당 FSE: ' + g('chkFse'),
-    '작업 완료일: ' + (g('chkWorkDone') ? fmtIso(g('chkWorkDone')) : '—'),
-    '세금계산서 발급 마감: ' + (due ? fmtD(due) + ' (' + WD[due.getDay()] + ')' : '완료일 미입력'), '',
+    '작업 예정일: ' + (g('chkWorkDone') ? fmtIso(g('chkWorkDone')) : '—'),
+    '세금계산서 발급 예정일: ' + (due ? fmtD(due) + ' (' + WD[due.getDay()] + ')' : '작업 예정일 미입력'), '',
     '[고객 확인 및 동의 사항 ' + c.n + ' / ' + c.total + ']'
   ];
   if (full) chkItems().forEach(function(li, i) {
@@ -2408,6 +2483,204 @@ function showMailNote(html) {
   clearTimeout(showMailNote.t); showMailNote.t = setTimeout(function(){ n.hidden = true; }, 12000);
 }
 
+/* ---- 병원에 링크로 미리 보내기 (2026-11-26 후속155) ----
+ * Firestore customer_confirms(data-schema.md 정본)에 확인서를 만들고, 병원용 공개 페이지
+ * customer-confirm.html?id=문서ID 링크를 보낸다. 병원이 서명하면 status 'signed'.
+ * 보낸 목록은 이 기기 localStorage(ts_cc_sent_v1)에만 — 서버 목록 조회는 rules에서 막혀 있다. */
+/*CC-STORE*/
+var CC_FB_CONFIG = {
+  apiKey: 'AIzaSyDpMjh7trMGz6D-W9If2YCgPHXNzgBVl6k',
+  authDomain: 'vantive-annual-leave.firebaseapp.com',
+  projectId: 'vantive-annual-leave',
+  storageBucket: 'vantive-annual-leave.firebasestorage.app',
+  messagingSenderId: '1050871221334',
+  appId: '1:1050871221334:web:8e1d96cc64d5011d997ff7'
+};
+var ccStoreP = null;
+function ccStore() {
+  if (ccStoreP) return ccStoreP;
+  var base = 'https://www.gstatic.com/firebasejs/10.12.2/';
+  ccStoreP = (window.firebase && firebase.firestore ? Promise.resolve() :
+      loadScript(base + 'firebase-app-compat.js').then(function() { return loadScript(base + 'firebase-firestore-compat.js'); }))
+    .then(function() {
+      if (!firebase.apps.length) firebase.initializeApp(CC_FB_CONFIG);
+      var col = firebase.firestore().collection('customer_confirms');
+      return {
+        create: function(rec) { return col.add(rec).then(function(r) { return r.id; }); },
+        get: function(id) { return col.doc(id).get().then(function(x) { return x.exists ? x.data() : null; }); }
+      };
+    });
+  ccStoreP.catch(function() { ccStoreP = null; });
+  return ccStoreP;
+}
+/*CC-STORE-END*/
+var CC_SENT_KEY = 'ts_cc_sent_v1', CC_PAGE = 'customer-confirm.html';
+var ccCur = null, ccBusy = false, ccLastRefresh = 0;
+function ccSent() { try { return JSON.parse(localStorage.getItem(CC_SENT_KEY) || '[]') || []; } catch (e) { return []; } }
+function ccSaveSent(a) { try { localStorage.setItem(CC_SENT_KEY, JSON.stringify(a.slice(0, 60))); } catch (e) {} }
+function ccLinkOf(id) { return new URL(CC_PAGE + '?id=' + encodeURIComponent(id), location.href).href; }
+function ccCid() {
+  var t = new Date(), r = (Math.random().toString(36).slice(2) + '0000').slice(0, 4).toUpperCase();
+  return 'CC-' + String(t.getFullYear()).slice(2) + pad2(t.getMonth() + 1) + pad2(t.getDate()) + '-' + r;
+}
+/* ISO(UTC) → 이 페이지 확인 일시 형식 'YYYY-MM-DDTHH:MM'(현지 시각) */
+function ccLocal(iso) {
+  var d = new Date(iso); if (!iso || isNaN(d)) return '';
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+function ccShort(iso) { var v = ccLocal(iso); return v ? v.slice(5).replace('-', '.').replace('T', ' ') : ''; }
+function ccMsg(t, err) {
+  var m = document.getElementById('ccMsg');
+  m.textContent = t || ''; m.hidden = !t; m.classList.toggle('err', !!err);
+}
+function ccMake() {
+  if (ccBusy) return;
+  ccMsg('');
+  if (!checkRequired('병원명과 담당 FSE를 입력해야 병원 링크를 만들 수 있습니다.')) return;
+  var g = function(id) { return document.getElementById(id).value.trim(); };
+  var mail = g('chkFseMail');
+  var mf = document.getElementById('chkFseMail').closest('.calc-field');
+  mf.classList.remove('miss');
+  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(mail)) {
+    mf.classList.add('miss');
+    ccMsg(mail ? '내 메일 주소 형식을 확인해 주세요 (한 개만).' : '고객이 작성 내용을 보낼 내 메일을 입력해 주세요.', true);
+    document.getElementById('chkFseMail').focus(); return;
+  }
+  var rec = {
+    cid: ccCid(), hospital: g('chkHosp').slice(0, 80), place: g('chkPlace').slice(0, 60),
+    reqDate: g('chkDate').slice(0, 10), device: g('chkDev').slice(0, 60), serial: g('chkSn').slice(0, 40),
+    issue: g('chkIssue').slice(0, 300), note: g('chkNote').slice(0, 200),
+    fseName: g('chkFse').slice(0, 50), fseEmail: mail.slice(0, 100),
+    status: 'sent', createdAt: new Date().toISOString()
+  };
+  var btn = document.getElementById('ccMakeBtn'), lab = btn.querySelector('span');
+  ccBusy = true; btn.disabled = true; lab.textContent = '만드는 중…';
+  ccStore().then(function(s) { return s.create(rec); }).then(function(id) {
+    var list = ccSent().filter(function(x) { return x.id !== id; });
+    list.unshift({ id: id, cid: rec.cid, hospital: rec.hospital, device: rec.device, serial: rec.serial, createdAt: rec.createdAt, status: 'sent' });
+    ccSaveSent(list);
+    ccShow(id, rec);
+    ccRender();
+  }).catch(function(err) {
+    console.error('[customer_confirms]', err);
+    ccMsg('링크를 만들지 못했습니다 — 인터넷 연결을 확인하고 다시 눌러 주세요. 계속되면 관리자에게 알려 주세요(Firestore 규칙).', true);
+  }).then(function() { ccBusy = false; btn.disabled = false; lab.textContent = '병원 링크 만들기'; });
+}
+function ccShow(id, rec) {
+  ccCur = { id: id, rec: rec, link: ccLinkOf(id) };
+  document.getElementById('ccLink').value = ccCur.link;
+  document.getElementById('ccNote').innerHTML = '<b>링크를 만들었습니다</b> · ' + esc(rec.cid) + ' · ' + esc(rec.hospital) + ' — 아래 방법으로 병원 담당자에게 보내세요.';
+  document.getElementById('ccShareBtn').hidden = !navigator.share;
+  document.getElementById('ccOut').hidden = false;
+}
+function ccText(r, link) {
+  return '[Vantive] 유상 서비스 고객 확인서 작성 요청\n' + r.hospital + (r.device ? ' · ' + r.device : '') + (r.serial ? ' (' + r.serial + ')' : '') +
+    '\n아래 링크에서 동의 사항 5가지를 확인하고 서명해 주세요.\n' + link + '\n\n담당 FSE ' + r.fseName;
+}
+function ccOpen(href) { var a = document.createElement('a'); a.href = href; document.body.appendChild(a); a.click(); a.remove(); }
+function ccShare(kind) {
+  if (!ccCur) return;
+  var r = ccCur.rec, text = ccText(r, ccCur.link);
+  if (kind === 'share' && navigator.share) {
+    navigator.share({ title: '유상 서비스 고객 확인서', text: text }).catch(function() {});
+  } else if (kind === 'sms') {
+    ccOpen('sms:' + (/iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(text));
+  } else if (kind === 'mail') {
+    ccOpen('mailto:?subject=' + encodeURIComponent('[Vantive] 유상 서비스 고객 확인서 작성 요청 · ' + r.hospital) + '&body=' + encodeURIComponent(text));
+  }
+}
+function ccCopyText(t, btn, label) {
+  var done = function() { if (!btn) return; btn.classList.add('ok'); btn.textContent = '복사됨'; setTimeout(function() { btn.classList.remove('ok'); btn.textContent = label; }, 1600); };
+  var legacy = function() {
+    var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { prompt('아래 링크를 복사하세요', t); }
+    ta.remove();
+  };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(done, legacy); else legacy();
+}
+function ccCopy() { if (ccCur) ccCopyText(ccCur.link, document.getElementById('ccCopyBtn'), '링크 복사'); }
+function ccRender() {
+  var list = ccSent(), ul = document.getElementById('ccList');
+  document.getElementById('ccSentWrap').hidden = !list.length;
+  document.getElementById('ccSentN').textContent = list.length;
+  ul.innerHTML = list.map(function(x) {
+    var st = x.status === 'signed' ? '서명 완료' : (x.status === 'gone' ? '찾을 수 없음' : '서명 대기');
+    var when = '보냄 ' + ccShort(x.createdAt) + (x.status === 'signed' ? ' · 서명 ' + ccShort(x.signedAt) + (x.custName ? ' · ' + esc(x.custName) : '') : '');
+    return '<li class="cc-item s-' + esc(x.status) + '" data-id="' + esc(x.id) + '">' +
+      '<div class="cc-info"><div class="cc-t"><b>' + esc(x.hospital) + '</b>' + (x.device || x.serial ? '<span>' + esc([x.device, x.serial].filter(Boolean).join(' · ')) + '</span>' : '') + '</div>' +
+      '<div class="cc-s"><span class="cc-badge">' + st + '</span>' + esc(x.cid) + ' · ' + when + '</div></div>' +
+      '<div class="cc-acts">' +
+      (x.status === 'gone' ? '' : '<a class="cc-btn' + (x.status === 'signed' ? ' main' : '') + '" href="' + esc(ccLinkOf(x.id)) + '" target="_blank" rel="noopener">' + (x.status === 'signed' ? '보기 · PDF' : '열기') + '</a>') +
+      (x.status === 'signed' ? '<button type="button" class="cc-btn" data-a="import" title="서명된 내용을 위 체크리스트로 가져와 작업 예정일을 넣고 PDF·메일로 보관">체크리스트로</button>' : '') +
+      (x.status === 'sent' ? '<button type="button" class="cc-btn" data-a="copy">링크 복사</button>' : '') +
+      '<button type="button" class="cc-x" data-a="del" title="이 기기 목록에서 빼기 (확인서는 지워지지 않음)" aria-label="목록에서 빼기">×</button>' +
+      '</div></li>';
+  }).join('');
+}
+function ccRefresh(manual) {
+  var list = ccSent(), todo = list.filter(function(x) { return x.status === 'sent'; });
+  ccLastRefresh = Date.now();
+  if (!todo.length) { if (manual) ccMsg('서명 대기 중인 확인서가 없습니다.'); return; }
+  var b = document.querySelector('.cc-refresh'); b.disabled = true;
+  ccStore().then(function(s) {
+    return Promise.all(todo.map(function(x) {
+      return s.get(x.id).then(function(r) {
+        if (!r) { x.status = 'gone'; return; }
+        if (r.status === 'signed') { x.status = 'signed'; x.signedAt = r.signedAt; x.custName = r.custName || ''; x.device = r.device || x.device; x.serial = r.serial || x.serial; }
+      }).catch(function(e) { console.error(e); });
+    }));
+  }).then(function() {
+    var cur = ccSent(), byId = {};
+    list.forEach(function(x) { byId[x.id] = x; });
+    ccSaveSent(cur.map(function(x) { return byId[x.id] || x; }));   /* 그 사이 목록이 바뀌었어도 반영 */
+    ccRender();
+    var n = todo.filter(function(x) { return x.status === 'signed'; }).length;
+    if (manual || n) ccMsg(n ? '새로 서명 완료 ' + n + '건 — 보기 · PDF로 내려받아 보관하세요.' : '아직 서명 대기 중입니다 (' + todo.length + '건).');
+  }).catch(function(err) {
+    console.error(err);
+    if (manual) ccMsg('상태를 확인하지 못했습니다 — 인터넷 연결을 확인하세요.', true);
+  }).then(function() { b.disabled = false; });
+}
+function ccAutoRefresh() { if (Date.now() - ccLastRefresh > 60000 && ccSent().some(function(x) { return x.status === 'sent'; })) ccRefresh(false); }
+/* 서명된 확인서를 위 체크리스트로 가져온다 — 이후 작업 예정일을 넣고 기존 PDF 저장·메일 보내기로 보관 */
+function ccImport(id) {
+  ccStore().then(function(s) { return s.get(id); }).then(function(r) {
+    if (!r || r.status !== 'signed') { ccMsg('아직 서명 전이거나 찾을 수 없는 확인서입니다.', true); return; }
+    var has = document.getElementById('chkHosp').value.trim() || sigData || chkBoxes().some(function(b) { return b.checked; });
+    if (has && !confirm('지금 입력된 체크리스트를 이 확인서(' + r.hospital + ' · ' + r.cid + ') 내용으로 바꿀까요?')) return;
+    var set = function(k, v) { document.getElementById(k).value = v || ''; };
+    set('chkHosp', r.hospital); set('chkPlace', r.place); set('chkDate', r.reqDate); set('chkDev', r.device);
+    set('chkSn', r.serial); set('chkIssue', r.issue); set('chkNote', r.note); set('chkFse', r.fseName);
+    set('sigDept', r.dept); set('sigName', r.custName); set('chkWorkDone', '');
+    var dates = chkDates(), at = Array.isArray(r.agreeAt) ? r.agreeAt : [];
+    chkBoxes().forEach(function(b, i) {
+      chkNA[i] = false; chkEdited[i] = false;
+      b.checked = !!at[i]; dates[i].value = at[i] ? ccLocal(at[i]) : '';
+      syncDate(i);
+    });
+    sigData = r.sig || ''; sigTime = ccLocal(r.signedAt);
+    var cv = document.getElementById('sigCanvas'), c = cv.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
+    cv.width = 0;                         /* sizeSig가 크기를 다시 잡고 서명을 그리게 */
+    sizeSig(); syncSigUi();
+    clearReqMarks(); renderDue(); saveChecks();
+    ccMsg('가져왔습니다 (' + r.cid + ') — 작업 예정일을 넣고 PDF 저장 · 메일 보내기로 보관하세요.');
+    var wd = document.getElementById('chkWorkDone');
+    wd.scrollIntoView({ block: 'center', behavior: 'smooth' }); wd.focus({ preventScroll: true });
+  }).catch(function(err) { console.error(err); ccMsg('확인서를 불러오지 못했습니다 — 인터넷 연결을 확인하세요.', true); });
+}
+function ccInit() {
+  document.getElementById('ccList').addEventListener('click', function(e) {
+    var b = e.target.closest('[data-a]'); if (!b) return;
+    var id = b.closest('.cc-item').dataset.id;
+    if (b.dataset.a === 'copy') ccCopyText(ccLinkOf(id), b, '링크 복사');
+    else if (b.dataset.a === 'import') ccImport(id);
+    else if (b.dataset.a === 'del') { ccSaveSent(ccSent().filter(function(x) { return x.id !== id; })); ccRender(); }
+  });
+  ccRender();
+}
+
 var observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
@@ -2460,6 +2733,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nb) nb.addEventListener('change', function() { setNA(i, nb.checked); });
   });
   updateCount();
+  ccInit();
   syncHeaderHeight();
   var h = (location.hash || '').replace('#tab-', '');
   selectTop(TOP_IDS.indexOf(h) >= 0 ? h : 'map', false);

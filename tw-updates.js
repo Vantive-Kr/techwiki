@@ -18,6 +18,15 @@
  */
 var TW_UPDATES = [
   {
+    id: 'u-2026-11-26-fse-custlink',
+    date: '2026-11-26',
+    kind: 'new',
+    title: 'FSE To-Do: 고객 확인서 링크 보내기',
+    body: '현장 서명이 원칙이며, 방문 전에는 체크리스트 탭에서 고객에게 링크를 보내 서명을 받을 수 있습니다.',
+    menu: 'FSE To-Do · 유상수리·부품판매 처리',
+    audience: 'staff',
+  },
+  {
     id: 'u-2026-11-23-backlog-xlsx',
     date: '2026-11-23',
     kind: 'new',
