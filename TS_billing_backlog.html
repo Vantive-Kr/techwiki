@@ -471,6 +471,10 @@ body{letter-spacing:-.005em;}
 .cg-flow .fg{color:var(--green-t);} .cg-flow .fr{color:var(--red-t);}
 .cg-who{margin-top:8px;font-size:13px;color:var(--mute);line-height:1.6;}
 .cg-who b{color:var(--ink);font-weight:700;}
+.cg-big{margin-top:10px;padding:9px 12px;border-radius:12px;background:var(--sop-light);font-size:13.5px;color:var(--ink);line-height:1.55;}
+.cg-big .bg-t{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:99px;background:var(--sop-t);color:#fff;font-size:11.5px;font-weight:700;vertical-align:1px;}
+.cg-big b{font-family:var(--mono);font-weight:600;}
+.cg-big .bg-w{color:var(--mute);}
 @media(max-width:760px){
   .chg{padding:16px 16px 14px;border-radius:20px;}
   .cg-lab{font-size:15px;}
@@ -899,6 +903,21 @@ function renderChg() {
   pw.forEach(function(w) { pm[w.sr] = w; }); cw.forEach(function(w) { cm[w.sr] = w; });
   var gone = pw.filter(function(w) { return !cm[w.sr]; }), added = cw.filter(function(w) { return !pm[w.sr]; });
   var newRed = cw.filter(function(w) { return isR(w) && !(pm[w.sr] && pm[w.sr].days > D.law); });
+  /* 후속166: 전처리 시스템(3RS201806)·정수 멤브레인(RO MODULE·MEMBRANE) 포함 신규 WO — 금액을 크게 올리는 건만 따로 표시 */
+  var BIGP = function(p) { return p[0] === '3RS201806' || /PRE ?TREATMENT SYSTEM|MEMBRANE|RO MODULE/i.test(p[1] || ''); };
+  var big = added.filter(function(w) { return (w.parts || []).some(BIGP); });
+  var bigLine = '';
+  if (big.length) {
+    var kinds = {};
+    big.forEach(function(w) { w.parts.filter(BIGP).forEach(function(p) { kinds[p[0] === '3RS201806' || /TREATMENT/i.test(p[1]) ? '전처리 시스템' : '정수 멤브레인'] = 1; }); });
+    bigLine = '<div class="cg-big"><span class="bg-t">고액 부품</span>' + Object.keys(kinds).join('·') + ' 포함 신규 <b>' + big.length + '</b>건 · <b>' + man(sum(big)) + '</b>원' +
+      ' <span class="bg-w">(신규 금액의 ' + Math.round(sum(big) / Math.max(sum(added), 1) * 100) + '%)</span> — ' +
+      (function() {   /* 같은 병원·담당은 한 번만, ×건수 */
+        var g = {}, order = [];
+        big.sort(function(a, b) { return b.amt - a.amt; }).forEach(function(w) { var k = w.hosp + '|' + w.ts; if (!g[k]) { g[k] = { w: w, n: 0 }; order.push(k); } g[k].n++; });
+        return order.map(function(k) { var x = g[k]; return esc(x.w.hosp) + (x.n > 1 ? ' ×' + x.n : '') + (me ? '' : ' <span class="bg-w">' + esc(x.w.ts) + '</span>'); }).join(', ');
+      })() + '</div>';
+  }
   var pR = pw.filter(function(w) { return w.days > D.law; }), pS = pw.filter(function(w) { return w.days > D.sop; });
   var dl = function(d, isAmt) {
     if (!d || (isAmt && Math.abs(d) < 5000)) return '<span class="dl eq">변동 없음</span>';
@@ -935,6 +954,7 @@ function renderChg() {
       '<span>＋ 신규 <b>' + added.length + '</b>건 · ' + man(sum(added)) + '원</span>' +
       '<span class="fr">→ 새로 Red <b>' + newRed.length + '</b>건</span>' +
     '</div>' +
+    bigLine +
     (who ? '<div class="cg-who">' + who + '</div>' : '');
 }
 
