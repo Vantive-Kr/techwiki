@@ -255,6 +255,16 @@ flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .prng-ticks span:first-child{transform:none;}
 .prng-ticks span:last-child{transform:translateX(-100%);}
 .sbar .prng-on{color:var(--plum);font-weight:600;}
+
+/* ══ 휴대폰 헤더 자동 숨김 (2026-11-27 후속164, TS Billing Backlog 후속163과 같은 방식) ══
+   아래로 스크롤하면 헤더가 위로 사라지고 위로 스크롤하면 다시 내려옴. 안내 줄(notice-bar)은 휴대폰에서 내용과 함께 스크롤. */
+@media(max-width:760px){
+  .hdr{transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s;will-change:transform;}
+  .hdr.hide{transform:translateY(-100%);box-shadow:none;}
+  .notice-bar{position:relative;top:auto;}
+}
+@media(prefers-reduced-motion:reduce){.hdr{transition:none;}}
+@media print{.hdr.hide{transform:none;}}
 </style>
 </head>
 <body>
@@ -1314,6 +1324,25 @@ function xlsSave(mode,btn){
 }
 
 go();
+
+/* ── 휴대폰 헤더 자동 숨김 (후속164) ── 맨 위 근처·검색 입력 중·페이지 끝 튕김에서는 항상 보임 */
+(function autoHideHeader() {
+  var hd = document.querySelector('.hdr'); if (!hd) return;
+  var mq = window.matchMedia('(max-width:760px)'), lastY = window.scrollY, acc = 0, ticking = false;
+  var show = function(on) { hd.classList.toggle('hide', !on); };
+  function onScroll() {
+    ticking = false;
+    var y = Math.max(0, window.scrollY), dy = y - lastY; lastY = y;
+    if (!mq.matches || y < hd.offsetHeight || hd.contains(document.activeElement)) { show(true); acc = 0; return; }
+    if (y + window.innerHeight >= document.documentElement.scrollHeight - 2 && dy < 0) return;   /* iOS 바닥 튕김 무시 */
+    if ((dy > 0) !== (acc > 0)) acc = 0;
+    acc += dy;
+    if (acc > 12) show(false); else if (acc < -6) show(true);
+  }
+  window.addEventListener('scroll', function() { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  if (mq.addEventListener) mq.addEventListener('change', onScroll); else if (mq.addListener) mq.addListener(onScroll);
+  hd.addEventListener('focusin', function() { show(true); });
+})();
 </script>
 
 <div class="bnav">
