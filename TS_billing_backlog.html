@@ -916,8 +916,8 @@ function renderChg() {
     var pStaff = {}; pw.forEach(function(w) { pStaff[w.ts] = 1; });
     var allClear = Object.keys(pStaff).filter(function(n) { return !staff[n]; }).sort(function(a, b) { return a.localeCompare(b, 'ko'); });
     var parts = [];
-    if (top.length) parts.push('<b>해소 많이 한 FSE</b> ' + top.map(function(n) { return esc(n) + ' ' + by[n]; }).join(' · '));
-    if (allClear.length) parts.push('<b>모두 해소</b> ' + allClear.map(esc).join(', ') + ' 👍');
+    if (top.length) parts.push('<b>청구 완료 건</b> ' + top.map(function(n) { return esc(n) + ' ' + by[n]; }).join(' · '));
+    if (allClear.length) parts.push('<b>모두 완료</b> ' + allClear.map(esc).join(', ') + ' 👍');
     who = parts.join('<span aria-hidden="true"> &nbsp;|&nbsp; </span>');
   }
   box.hidden = false;
